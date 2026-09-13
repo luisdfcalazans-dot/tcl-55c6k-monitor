@@ -44,7 +44,7 @@ def main() -> int:
 
     from monitor import config, notificar
     from monitor.estado import Estado
-    from monitor.regras import gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario
+    from monitor.regras import cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario
     from monitor.sources import por_modo
     from monitor.util import agora, hoje
 
@@ -86,16 +86,17 @@ def main() -> int:
     cupons = list(unicos.values())  # type: ignore[assignment]
 
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
+    aplicaveis = cupons_aplicaveis(ofertas, cupons)  # type: ignore[arg-type]
 
     if estado.bootstrap and (ofertas or cupons):
-        msgs = [mensagem_bootstrap(ofertas, cupons, args.mode)]  # type: ignore[arg-type]
+        msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode)]  # type: ignore[arg-type]
 
     # resumo diário
     h = agora().hour
     if args.resumo or (config.HORA_RESUMO_DIARIO >= 0 and h >= config.HORA_RESUMO_DIARIO
                        and estado.dados.get("ultimo_resumo") != hoje() and args.mode != "pc"):
         if not estado.bootstrap:
-            msgs.append(resumo_diario(estado, ofertas, cupons))  # type: ignore[arg-type]
+            msgs.append(resumo_diario(estado, ofertas, aplicaveis))  # type: ignore[arg-type]
         estado.dados["ultimo_resumo"] = hoje()
 
     msgs = avisos + msgs
@@ -121,7 +122,7 @@ def main() -> int:
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
     estado.anexa_historico([o for o in ofertas if o.tipo == "loja"])  # type: ignore[union-attr]
-    estado.escreve_latest(ofertas, cupons)  # type: ignore[arg-type]
+    estado.escreve_latest(ofertas, aplicaveis)  # type: ignore[arg-type]
     estado.salva()
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]

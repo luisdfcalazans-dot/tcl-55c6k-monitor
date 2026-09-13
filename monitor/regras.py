@@ -195,6 +195,30 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     return msgs, alertados
 
 
+def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom]) -> list[Cupom]:
+    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço dela (para o painel e o resumo)."""
+    preco_por_loja: dict[str, float] = {}
+    for o in ofertas:
+        if o.tipo == "loja" and o.melhor_preco and o.ativo:
+            lc = loja_canonica(o.loja)
+            preco_por_loja[lc] = min(preco_por_loja.get(lc, 1e9), o.melhor_preco)
+    lojas_com_tv = set(preco_por_loja) | {"Amazon", "Magazine Luiza", "Mercado Livre", "KaBuM!", "Casas Bahia", "Fast Shop"}
+    out: list[Cupom] = []
+    vistos: set[str] = set()
+    for c in cupons:
+        lc = loja_canonica(c.loja)
+        if lc not in lojas_com_tv and not c.especifico:
+            continue
+        if not cupom_compativel(c, preco_por_loja.get(lc))[0]:
+            continue
+        marca = f"{lc}|{c.codigo.upper()}"
+        if marca in vistos:
+            continue
+        vistos.add(marca)
+        out.append(c)
+    return out
+
+
 def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> str:
     lojas = sorted(
         [o for o in ofertas if o.tipo == "loja" and o.melhor_preco and o.ativo],
