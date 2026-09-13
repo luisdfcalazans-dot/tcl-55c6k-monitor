@@ -45,6 +45,8 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_task.ps1   # agenda a cad
 ```
 O log fica em `logs\pc.log`. A tarefa faz `git pull`, coleta, e `git push` do estado.
 
+Detalhes: o Chrome abre com janela (fora da tela) porque o Akamai da Casas Bahia bloqueia o modo headless; a Amazon é lida por HTTP e, se vier sem preço, pelo Chrome. A Shopee exige login para buscar e fica desligada por padrão (`SHOPEE=1` no `.env` para tentar). O AliExpress inclui a loja da Magalu e a loja oficial TCL quando aparecem na busca.
+
 ### 4. Grupos/canais privados do Telegram (opcional)
 Canais **públicos** não precisam de nada: adicione o nome em `TELEGRAM_CANAIS_EXTRA`.
 Para grupos fechados ou canais privados de que você participa:
