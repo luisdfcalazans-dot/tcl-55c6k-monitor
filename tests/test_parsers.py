@@ -101,9 +101,16 @@ def test_cupom_compativel():
     assert cupom_compativel(c3, 3200)[0] is False
     fora = ["Cupom de desconto Magalu oferece 20% OFF em Cervejas", "Cupom de desconto Magalu oferece 5% OFF em entrega FULL",
             "Cupom de desconto Magalu oferece 10% OFF em Cuidados Pessoais", "Cupom de desconto Magalu oferece 10% OFF em itens de treino",
-            "Cupom de desconto Magalu oferece 10% OFF em Bikes", "Cupom Magalu 15% OFF em compras de até R$ 1000"]
+            "Cupom de desconto Magalu oferece 10% OFF em Bikes", "Cupom Magalu 15% OFF em compras de até R$ 1000",
+            "Cupom de descontoMagalu oferece 5% OFF em suas compras DYSON", "PS5 com R$100 de Desconto",
+            "DESCONTO IMPERDÍVEL: R$ 1200 OFF no OPPO Find X9 Pro na FastShop", "30% Off limitado a R$30 para contas novas",
+            "Cupom Magazine - R$ 50 em R$120 no Zap", "Cupom Mercado Livre - R$100 OFF em Compras Acima de R$899 em Tudo Pra Casa",
+            "Produtos Beauty Coreanos com 20% OFF na Amazon"]
     for t in fora:
         assert cupom_compativel(Cupom(fonte="x", loja="Magazine Luiza", codigo="Z", titulo=t, url="", id=t), 3091)[0] is False, t
+    # marca escondida só no código
+    assert cupom_compativel(Cupom(fonte="x", loja="KaBuM!", codigo="JBL25", titulo="25% de Desconto em produtos", url="", id="j"), 3159)[0] is False
+    assert cupom_compativel(Cupom(fonte="x", loja="Amazon", codigo="NIVEA20", titulo="Aplique cupom Amazon e ganhe 20% OFF", url="", id="n"), 3278)[0] is False
     dentro = ["Cupom de desconto Magalu oferece R$100 OFF em suas compras", "Cupom de desconto Magalu oferece 10% OFF em suas compras",
               "Cupom Magalu R$ 100 acima de R$ 1000", "Cupom de desconto Magalu oferece 10% OFF em TVs",
               "Cupom Amazon 10% OFF em eletrônicos"]

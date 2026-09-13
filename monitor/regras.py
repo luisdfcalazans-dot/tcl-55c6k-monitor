@@ -23,9 +23,21 @@ _CATEGORIAS_FORA = [
 ]
 _CATEGORIAS_DENTRO = [
     "tv", "televis", "eletronic", "tecnolog", "site todo", "loja toda", "todo o site", "qualquer", "suas compras",
-    "em compras", "no site", "em tudo", "todos os produtos", "primeira compra no site",
+    "em compras", "no site", "todos os produtos", "primeira compra no site",
 ]
+# Marcas e produtos que não são a TV: se aparecem no título/regra (palavra inteira) ou dentro do código, o cupom não serve
+_MARCAS_OUTRAS = [
+    "dyson", "jbl", "asus", "aoc", "ps5", "playstation", "xbox", "nintendo", "motorola", "moto", "oppo", "xiaomi",
+    "galaxy", "iphone", "apple", "tablet", "lenovo", "edifier", "britania", "dinoxx", "haiflex", "beauty", "decor",
+    "decoracao", "conta nova", "contas novas", "novos usuarios", "novo usuario", "whatsapp", "zap", "cashback",
+    "edge", "signature", "gta", "gamer", "shark", "robo", "nivea", "livro", "livros", "leia", "audio", "selecao",
+    "pet", "cama", "notebook", "monitor", "ssd", "placa de video", "processador", "mouse", "teclado", "headset",
+    "cadeira", "fone", "caixa de som", "smartwatch", "relogio", "perfume", "cerveja", "vinho", "suplemento", "whey",
+    "fralda", "bebe", "brinquedo", "pneu", "prime day", "pra casa", "para casa",
+]
+_CODIGO_OUTRAS = [m for m in _MARCAS_OUTRAS if " " not in m and len(m) >= 3]
 _RE_EM_X = re.compile(r"\boff\s+em\s+(.{3,60})$")
+_RE_EM_TUDO = re.compile(r"\bem tudo\b(?!\s+(?:pra|para)\b)")
 
 
 def _num(s: str) -> Optional[float]:
@@ -41,7 +53,14 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
         return True, "cupom do produto"
     texto = sem_acentos(f"{c.titulo} {c.regra}").lower()
     titulo = sem_acentos(c.titulo).lower().strip()
-    dentro = any(d in texto for d in _CATEGORIAS_DENTRO)
+    codigo = sem_acentos(c.codigo).lower()
+    for w in _MARCAS_OUTRAS:
+        if re.search(r"\b" + re.escape(w) + r"\b", texto):
+            return False, f"marca/produto: {w}"
+    for w in _CODIGO_OUTRAS:
+        if w in codigo:
+            return False, f"código de outra marca: {w}"
+    dentro = any(d in texto for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto))
     # "10% OFF em Cervejas": o que vem depois de "em" tem de ser o site todo, TV ou eletrônicos
     m = _RE_EM_X.search(titulo)
     if m:

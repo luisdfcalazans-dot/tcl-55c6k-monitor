@@ -68,6 +68,9 @@ def http_get(url: str, headers: Optional[dict] = None, timeout: int = 30, tentat
 def get_html(url: str, **kw) -> str:
     r = http_get(url, headers=HEADERS_HTML, **kw)
     r.raise_for_status()
+    # sem charset no cabeçalho o requests assume latin-1 e os acentos viram "Ã¡"; todos os sites daqui são UTF-8
+    if not r.encoding or r.encoding.lower() in ("iso-8859-1", "latin-1", "latin1"):
+        r.encoding = "utf-8"
     return r.text
 
 
