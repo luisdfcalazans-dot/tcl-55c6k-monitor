@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCL 55C6K · painel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg:#F4F6F2; --surface:#FBFCFA; --ink:#17211B; --ink-2:#4E5D54; --ink-3:#7A877F; --line:#D8DED9; --line-2:#E8ECE8;
+    --accent:#0E6E52; --accent-ink:#0B5A43; --accent-soft:#DDEFE6; --ok:#0E6E52; --ok-bg:#DDEFE6; --warn:#8A5A0E; --warn-bg:#F6E8CC;
+    --bad:#9A3A2A; --bad-bg:#F5DDD6; --mute-bg:#E9ECE9; --code-bg:#EEF1EE;
+    --s1:#0E6E52; --s2:#B7791F; --s3:#2F5FA8; --s4:#9A3A2A; --s5:#6B4C9A; --s6:#2A7F8C; --s7:#7A5230; --s8:#556B2F;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
+    --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
+    --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
+    --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
+    color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
+    --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
+    --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
+    --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
+    color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; font-size:15px; line-height:1.5; }
+  a { color:var(--accent-ink); }
+  .page { max-width:1100px; margin:0 auto; padding:28px 22px 60px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+  h1 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:30px; margin:4px 0 4px; letter-spacing:-.01em; }
+  h2 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:21px; margin:32px 0 10px; }
+  .sub { color:var(--ink-2); margin:0 0 18px; font-size:14px; }
+  .facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .fact { background:var(--surface); padding:12px 14px; min-width:0; }
+  .fact .k { font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .fact .v { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:26px; line-height:1.15; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .fact .s { font-size:12.5px; color:var(--ink-2); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  @media (max-width:760px) { .facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  .tbl { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line-2); }
+  th { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:600; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; }
+  td.num b { font-weight:500; color:var(--ink); }
+  .sub2 { display:block; color:var(--ink-3); font-size:12px; }
+  .chip { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
+  .ok { background:var(--ok-bg); color:var(--ok); } .warn { background:var(--warn-bg); color:var(--warn); } .bad { background:var(--bad-bg); color:var(--bad); } .mute { background:var(--mute-bg); color:var(--ink-2); }
+  .best td { background:var(--accent-soft); }
+  .chart-wrap { border:1px solid var(--line); border-radius:8px; background:var(--surface); padding:12px 12px 6px; }
+  canvas { width:100%; height:300px; display:block; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); padding:8px 4px 4px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  .empty { color:var(--ink-3); font-size:14px; padding:14px; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:22px; } @media (max-width:800px) { .cols { grid-template-columns:1fr; } }
+  ul.lista { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+  ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:14px; }
+  ul.lista li:last-child { border-bottom:0; }
+  ul.lista .meta { color:var(--ink-3); font-size:12px; }
+  code { font-family:"IBM Plex Mono",ui-monospace,monospace; background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:.92em; }
+  footer { margin-top:40px; color:var(--ink-3); font-size:12.5px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">Monitor de preço · atualizado <span id="quando">—</span></div>
+  <h1>TCL 55C6K</h1>
+  <p class="sub">QD-Mini LED 55". Alvo: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+
+  <div class="facts">
+    <div class="fact"><div class="k">Melhor preço agora</div><div class="v" id="f-melhor">—</div><div class="s" id="f-melhor-s">—</div></div>
+    <div class="fact"><div class="k">Menor já visto</div><div class="v" id="f-min">—</div><div class="s" id="f-min-s">—</div></div>
+    <div class="fact"><div class="k">Cupons ativos</div><div class="v" id="f-cupons">—</div><div class="s" id="f-cupons-s">—</div></div>
+    <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
+  </div>
+
+  <h2>Preço por loja</h2>
+  <div class="tbl"><table id="t-lojas"><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody></tbody></table></div>
+
+  <h2>Histórico</h2>
+  <div class="chart-wrap"><canvas id="chart" width="1060" height="300"></canvas><div class="legend" id="legend"></div></div>
+
+  <div class="cols">
+    <div>
+      <h2>Cupons ativos</h2>
+      <ul class="lista" id="l-cupons"></ul>
+    </div>
+    <div>
+      <h2>Últimas postagens</h2>
+      <ul class="lista" id="l-posts"></ul>
+    </div>
+  </div>
+
+  <h2>Fontes</h2>
+  <div class="tbl"><table id="t-fontes"><thead><tr><th>Fonte</th><th>Estado</th><th>Último OK</th><th>Último erro</th></tr></thead><tbody></tbody></table></div>
+
+  <footer>Preços sem garantia; confira na loja antes de comprar. Dados em <code>data/</code> neste repositório.</footer>
+</div>
+
+<script>
+const fmt = v => v == null || isNaN(v) ? '—' : 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dt = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? s : d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); };
+const dias = s => { if (!s) return null; const d = new Date(s); return isNaN(d) ? null : (Date.now() - d) / 864e5; };
+
+async function getJson(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.json() : null; } catch { return null; } }
+async function getText(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.text() : ''; } catch { return ''; } }
+
+function parseCsv(txt) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (q) { if (c === '"') { if (txt[i+1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (c !== '\r') cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  if (!rows.length) return [];
+  const h = rows[0];
+  return rows.slice(1).filter(r => r.length >= h.length).map(r => Object.fromEntries(h.map((k, i) => [k, r[i]])));
+}
+
+(async () => {
+  const [cloud, pc, csv1, csv2] = await Promise.all([
+    getJson('data/latest_cloud.json'), getJson('data/latest_pc.json'),
+    getText('data/historico_cloud.csv'), getText('data/historico_pc.csv')]);
+  const fontes = [cloud, pc].filter(Boolean);
+  if (!fontes.length) { document.getElementById('quando').textContent = 'ainda sem dados'; return; }
+  const ultimo = fontes.map(f => f.atualizado).sort().pop();
+  document.getElementById('quando').textContent = dt(ultimo);
+  const alvoPix = cloud?.alvo_pix ?? pc?.alvo_pix, alvoParc = cloud?.alvo_parcelado ?? pc?.alvo_parcelado;
+  document.getElementById('alvo-pix').textContent = fmt(alvoPix);
+  document.getElementById('alvo-parc').textContent = fmt(alvoParc);
+
+  // ---- ofertas de loja (ativas), uma linha por loja/vendedor, menor preço primeiro
+  let lojas = fontes.flatMap(f => (f.ofertas_loja || []).map(o => ({...o, _modo: f.modo})));
+  lojas = lojas.filter(o => o.ativo !== false && o.melhor_preco);
+  lojas.sort((a, b) => a.melhor_preco - b.melhor_preco);
+  const vistas = new Set();
+  lojas = lojas.filter(o => { const v = o.vendedor && o.vendedor.toLowerCase() !== o.loja.toLowerCase() ? o.vendedor : ''; const k = (o.loja + '|' + v).toLowerCase(); if (vistas.has(k)) return false; vistas.add(k); return true; });
+  const tb = document.querySelector('#t-lojas tbody');
+  tb.innerHTML = lojas.length ? lojas.map((o, i) => `<tr class="${i === 0 ? 'best' : ''}">
+    <td><b>${esc(o.loja)}</b>${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
+    <td class="num">${fmt(o.preco)}</td>
+    <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
+    <td class="num">${esc(o.parcelado || '—')}</td>
+    <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
+    <td><span class="chip mute">${esc(o.fonte)}</span></td>
+    <td class="num">${dt(o.ultima_vez || ultimo)}</td>
+    <td><a href="${esc(o.url)}" target="_blank" rel="noopener">abrir</a></td></tr>`).join('')
+    : '<tr><td colspan="8" class="empty">Nenhum preço de loja ainda.</td></tr>';
+
+  const melhor = lojas[0];
+  document.getElementById('f-melhor').textContent = melhor ? fmt(melhor.melhor_preco) : '—';
+  document.getElementById('f-melhor-s').textContent = melhor ? `${melhor.loja}${melhor.parcelado ? ' · ' + melhor.parcelado : ''}` : 'sem coleta';
+  const mins = fontes.map(f => f.minimo).filter(Boolean).sort((a, b) => a.preco - b.preco);
+  document.getElementById('f-min').textContent = mins[0] ? fmt(mins[0].preco) : '—';
+  document.getElementById('f-min-s').textContent = mins[0] ? `${mins[0].loja} · ${dt(mins[0].quando)}` : '—';
+
+  // ---- cupons
+  const cupons = fontes.flatMap(f => f.cupons || []);
+  const porCodigo = new Map();
+  cupons.forEach(c => { const k = c.loja + '|' + c.codigo; if (!porCodigo.has(k)) porCodigo.set(k, c); });
+  const lc = [...porCodigo.values()].sort((a, b) => (a.loja + a.codigo).localeCompare(b.loja + b.codigo));
+  document.getElementById('f-cupons').textContent = lc.length;
+  document.getElementById('f-cupons-s').textContent = [...new Set(lc.map(c => c.loja))].slice(0, 4).join(', ') || '—';
+  document.getElementById('l-cupons').innerHTML = lc.length ? lc.slice(0, 40).map(c => `<li><b>${esc(c.loja)}</b> <code>${esc(c.codigo)}</code>${c.especifico ? ' <span class="chip ok">produto</span>' : ''}<br>${esc(c.titulo)}${c.regra && c.regra !== c.titulo ? `<span class="meta"><br>${esc(c.regra.slice(0, 140))}</span>` : ''}<span class="meta"><br>${esc(c.fonte)}${c.validade ? ' · até ' + dt(c.validade) : ''} · <a href="${esc(c.url)}" target="_blank" rel="noopener">ver</a></span></li>`).join('') : '<li class="empty">Nenhum cupom aplicável no momento.</li>';
+
+  // ---- postagens
+  let posts = fontes.flatMap(f => f.posts || []);
+  const pv = new Set();
+  posts = posts.filter(p => { if (pv.has(p.chave)) return false; pv.add(p.chave); return true; });
+  posts.sort((a, b) => (b.publicado || b.primeira_vez || '').localeCompare(a.publicado || a.primeira_vez || ''));
+  const recentes = posts.filter(p => { const d = dias(p.publicado || p.primeira_vez); return d != null && d <= 7; });
+  document.getElementById('f-posts').textContent = recentes.length;
+  document.getElementById('f-posts-s').textContent = recentes[0] ? `última: ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana';
+  document.getElementById('l-posts').innerHTML = posts.length ? posts.slice(0, 30).map(p => `<li>${p.ativo === false ? '<span class="chip mute">expirada</span> ' : ''}<b>${fmt(p.melhor_preco)}</b> · ${esc(p.loja)}${p.cupom ? ` · <code>${esc(p.cupom)}</code>` : ''}<br>${esc(p.titulo.slice(0, 110))}<span class="meta"><br>${esc(p.fonte)} · ${dt(p.publicado || p.primeira_vez)} · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir</a></span></li>`).join('') : '<li class="empty">Nenhuma postagem registrada.</li>';
+
+  // ---- saúde das fontes
+  const saude = Object.assign({}, cloud?.saude || {}, pc?.saude || {});
+  document.querySelector('#t-fontes tbody').innerHTML = Object.entries(saude).sort().map(([n, s]) => {
+    const f = s.falhas || 0; const cls = f === 0 ? 'ok' : f < 3 ? 'warn' : 'bad'; const lab = f === 0 ? 'OK' : `${f} falhas`;
+    return `<tr><td>${esc(n)}</td><td><span class="chip ${cls}">${lab}</span></td><td class="num">${dt(s.ultimo_ok)}</td><td class="sub2">${esc((s.ultimo_erro || '').slice(0, 120))}</td></tr>`; }).join('');
+
+  // ---- gráfico: menor preço por loja por dia
+  const linhas = [...parseCsv(csv1), ...parseCsv(csv2)].filter(r => r.tipo === 'loja' && (r.preco_pix || r.preco));
+  const serie = {};
+  linhas.forEach(r => {
+    const dia = r.quando.slice(0, 10); const p = Math.min(...[r.preco_pix, r.preco].filter(Boolean).map(Number));
+    const k = r.loja; serie[k] ??= {}; serie[k][dia] = Math.min(serie[k][dia] ?? Infinity, p);
+  });
+  desenha(serie, alvoPix);
+})();
+
+function desenha(serie, alvo) {
+  const cv = document.getElementById('chart'); const ctx = cv.getContext('2d');
+  const css = getComputedStyle(document.documentElement);
+  const cores = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'].map(v => css.getPropertyValue(v).trim());
+  const ink3 = css.getPropertyValue('--ink-3').trim(), line = css.getPropertyValue('--line-2').trim(), accent = css.getPropertyValue('--accent').trim();
+  const W = cv.width, H = cv.height, L = 64, R = 14, T = 14, B = 30;
+  ctx.clearRect(0, 0, W, H);
+  const lojas = Object.keys(serie).sort((a, b) => Math.min(...Object.values(serie[a])) - Math.min(...Object.values(serie[b]))).slice(0, 8);
+  const dias = [...new Set(lojas.flatMap(l => Object.keys(serie[l])))].sort();
+  ctx.font = '12px "IBM Plex Mono", monospace'; ctx.fillStyle = ink3; ctx.textAlign = 'center';
+  if (!dias.length) { ctx.fillText('O histórico aparece a partir da segunda coleta.', W / 2, H / 2); return; }
+  const vals = lojas.flatMap(l => Object.values(serie[l])).concat(alvo ? [alvo] : []);
+  let y0 = Math.floor(Math.min(...vals) / 100) * 100 - 100, y1 = Math.ceil(Math.max(...vals) / 100) * 100 + 100;
+  if (y1 - y0 < 400) { y0 -= 100; y1 += 100; }
+  const x = i => L + (dias.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (dias.length - 1));
+  const y = v => T + (H - T - B) * (1 - (v - y0) / (y1 - y0));
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.textAlign = 'right';
+  const passo = (y1 - y0) / 4;
+  for (let k = 0; k <= 4; k++) { const v = y0 + k * passo; ctx.beginPath(); ctx.moveTo(L, y(v)); ctx.lineTo(W - R, y(v)); ctx.stroke(); ctx.fillText(Math.round(v).toLocaleString('pt-BR'), L - 8, y(v) + 4); }
+  ctx.textAlign = 'center';
+  const cada = Math.max(1, Math.ceil(dias.length / 8));
+  dias.forEach((d, i) => { if (i % cada === 0 || i === dias.length - 1) ctx.fillText(d.slice(5).replace('-', '/'), x(i), H - 10); });
+  if (alvo) { ctx.setLineDash([5, 4]); ctx.strokeStyle = accent; ctx.beginPath(); ctx.moveTo(L, y(alvo)); ctx.lineTo(W - R, y(alvo)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = accent; ctx.textAlign = 'left'; ctx.fillText('alvo', L + 4, y(alvo) - 4); }
+  const leg = [];
+  lojas.forEach((l, li) => {
+    const cor = cores[li % cores.length]; ctx.strokeStyle = cor; ctx.fillStyle = cor; ctx.lineWidth = 2; ctx.beginPath(); let first = true, last = null;
+    dias.forEach((d, i) => { const v = serie[l][d]; if (v == null) return; if (first) { ctx.moveTo(x(i), y(v)); first = false; } else ctx.lineTo(x(i), y(v)); last = [x(i), y(v)]; });
+    ctx.stroke();
+    dias.forEach((d, i) => { const v = serie[l][d]; if (v == null) return; ctx.beginPath(); ctx.arc(x(i), y(v), 2.5, 0, Math.PI * 2); ctx.fill(); });
+    if (last) { ctx.beginPath(); ctx.arc(last[0], last[1], 4, 0, Math.PI * 2); ctx.fill(); }
+    leg.push(`<span><i style="background:${cor}"></i>${l}</span>`);
+  });
+  document.getElementById('legend').innerHTML = leg.join('');
+}
+</script>
+</body>
+</html>
