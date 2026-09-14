@@ -52,7 +52,7 @@ Canais **públicos** não precisam de nada: adicione o nome em `TELEGRAM_CANAIS_
 Para grupos fechados ou canais privados de que você participa:
 1. Crie um app em <https://my.telegram.org/apps> (api_id e api_hash).
 2. `python scripts\telegram_login.py` → informe telefone e código → cole as linhas impressas no `.env` do PC.
-3. Em `TELEGRAM_CHATS_USUARIO` liste os `@usernames` ou ids que o script mostrou.
+3. Em `TELEGRAM_CHATS_USUARIO` liste os `@usernames` ou ids que o script mostrou. Já preparado no `.env.example`: `@ENVOLTOTECH` (grupo) e `@AquiSuaPromoBot` (bot que manda ofertas no privado).
 
 ## Rodar na mão
 ```

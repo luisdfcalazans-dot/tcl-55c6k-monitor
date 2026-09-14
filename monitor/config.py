@@ -65,6 +65,14 @@ TELEGRAM_CANAIS_PUBLICOS = [
     "tecnanofertas",
     "ofertasdodia",
     "Postou_Achou",
+    # canais que o usuário segue
+    "xaviertechpromo",      # XAVIER TECH - Promoções
+    "tecnoarthardware",     # TecnoArt (Promoções de Hardware)
+    "IskandarSouza",        # Iskandar Souza - Promoções
+    "pobregram",            # Pobregram
+    "escolhasegura",        # EscolhaSegura // Grupo de Ofertas
+    "peperaiohardware",     # PEPERAIO HARDWARE OFERTAS
+    # @ENVOLTOTECH é grupo e @AquiSuaPromoBot é bot: só via conta (TELEGRAM_CHATS_USUARIO, no PC)
 ]
 # Canais extras podem ser adicionados sem mexer no código: TELEGRAM_CANAIS_EXTRA="canal1,canal2"
 TELEGRAM_CANAIS_PUBLICOS += [
