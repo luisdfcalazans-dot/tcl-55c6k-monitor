@@ -127,7 +127,8 @@ def main() -> int:
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
     estado.anexa_historico([o for o in ofertas if o.tipo == "loja"])  # type: ignore[union-attr]
-    estado.escreve_latest(ofertas, aplicaveis)  # type: ignore[arg-type]
+    if not args.so:  # uma execução parcial (--so) não deve sobrescrever o painel com dados incompletos
+        estado.escreve_latest(ofertas, aplicaveis)  # type: ignore[arg-type]
     estado.salva()
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]

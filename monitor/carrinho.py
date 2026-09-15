@@ -136,15 +136,20 @@ class Magalu(LojaCarrinho):
         r = ResultadoCupom(codigo="", aceito=False)
         m = _RE_PRODUTOS.search(t)
         r.produtos = parse_preco(m.group(1)) if m else None
-        m = _RE_FRETE.search(t)
+        # o resumo ("Produtos … Frete … Total") fica depois da lista de itens; os totais vêm depois de "Total:"
+        i_resumo = t.find("Produtos (")
+        resumo = t[i_resumo:] if i_resumo >= 0 else t
+        m = _RE_FRETE.search(resumo)
         r.frete = (0.0 if m and "gr" in m.group(1).lower() else parse_preco(m.group(1))) if m else None
-        m = _RE_DESCONTO.search(t)
+        m = _RE_DESCONTO.search(resumo)
         r.desconto = parse_preco(m.group(1)) if m else None
-        m = _RE_PIX.search(t)
+        i_total = resumo.find("Total")
+        bloco_total = resumo[i_total:] if i_total >= 0 else resumo
+        m = _RE_PIX.search(bloco_total) or _RE_PIX.search(t)
         r.total_pix = parse_preco(m.group(1)) if m else None
-        m = _RE_CARTAO.search(t)
+        m = _RE_CARTAO.search(bloco_total) or _RE_CARTAO.search(t)
         r.total_cartao = parse_preco(m.group(1)) if m else None
-        m = _RE_PARCELA.search(t)
+        m = _RE_PARCELA.search(bloco_total) or _RE_PARCELA.search(t)
         r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
         return r
 
