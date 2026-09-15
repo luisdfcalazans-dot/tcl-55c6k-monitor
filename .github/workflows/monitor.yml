@@ -1,30 +1,42 @@
 name: monitor 55C6K
 
+# O GitHub atrasa muito os agendamentos (ontem o cron de 15 min virou 1 execução a cada 4 h).
+# Por isso cada execução fica em laço por ~50 min, coletando a cada 15 min, e uma execução nova
+# substitui a anterior. Assim, mesmo quando o GitHub atrasa, cada disparo cobre quase uma hora.
 on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       resumo:
-        description: "Enviar o resumo diário agora"
+        description: "Enviar o resumo de preços agora"
         type: boolean
         default: false
+      minutos:
+        description: "Minutos em laço (0 = uma coleta só)"
+        default: "50"
 
 permissions:
   contents: write
 
 concurrency:
   group: monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   coletar:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 65
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
+      ALVO_PIX: ${{ vars.ALVO_PIX }}
+      ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
+      MINUTOS: ${{ github.event.inputs.minutos || vars.MINUTOS_LOOP || '50' }}
+      RESUMO: ${{ github.event.inputs.resumo }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -33,24 +45,34 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Coletar e alertar
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
-          ALVO_PIX: ${{ vars.ALVO_PIX }}
-          ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
-        run: python run.py --mode cloud ${{ github.event.inputs.resumo == 'true' && '--resumo' || '' }}
-
-      - name: Salvar estado no repositório
+      - name: Coletar, alertar e salvar (em laço)
         run: |
           git config user.name "monitor-bot"
           git config user.email "monitor-bot@users.noreply.github.com"
-          git add docs/data
-          if git diff --cached --quiet; then echo "nada a commitar"; exit 0; fi
-          git commit -m "coleta cloud $(date -u +'%Y-%m-%d %H:%M')"
-          for i in 1 2 3 4; do
-            git pull --rebase --autostash && git push && exit 0
-            sleep $((i * 5))
+          fim=$(( $(date +%s) + ${MINUTOS:-50} * 60 ))
+          primeira=1
+          while : ; do
+            inicio=$(date +%s)
+            extra=""
+            [ "$primeira" = "1" ] && [ "$RESUMO" = "true" ] && extra="--resumo"
+            python run.py --mode cloud $extra || echo "::warning::coleta falhou nesta volta"
+            primeira=0
+
+            git add docs/data
+            if ! git diff --cached --quiet; then
+              git commit -q -m "coleta cloud $(date -u +'%Y-%m-%d %H:%M')"
+              for i in 1 2 3 4; do
+                git pull --rebase --autostash -q && git push -q && break
+                sleep $(( i * 5 ))
+              done
+            fi
+
+            agora=$(date +%s)
+            [ "$agora" -ge "$fim" ] && break
+            dormir=$(( 900 - (agora - inicio) ))
+            [ "$dormir" -lt 30 ] && dormir=30
+            restante=$(( fim - agora ))
+            [ "$dormir" -gt "$restante" ] && break
+            echo "--- próxima coleta em $((dormir / 60)) min"
+            sleep "$dormir"
           done
-          exit 1
