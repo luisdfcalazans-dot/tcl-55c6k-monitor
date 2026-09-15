@@ -238,7 +238,10 @@ LOJAS: dict[str, LojaCarrinho] = {"magalu": Magalu()}
 def abrir_navegador(pw, loja: LojaCarrinho, visivel: bool):
     loja.perfil().mkdir(parents=True, exist_ok=True)
     args = ["--disable-blink-features=AutomationControlled"]
-    if not visivel:
+    if visivel:
+        # o perfil lembra a última posição (fora da tela); no modo visível forçamos o centro
+        args += ["--window-position=120,60", "--window-size=1280,860"]
+    else:
         args.append("--window-position=-32000,-32000")
     return pw.chromium.launch_persistent_context(
         str(loja.perfil()), channel="chrome", headless=False, locale="pt-BR", timezone_id="America/Sao_Paulo",
