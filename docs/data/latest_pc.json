@@ -1,12 +1,12 @@
 {
  "modo": "pc",
- "atualizado": "2026-09-13T15:31:09-03:00",
+ "atualizado": "2026-09-14T21:08:06-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
-  "preco": 3278.06,
+  "preco": 3199.0,
   "loja": "Amazon",
-  "quando": "2026-09-13T15:31:09-03:00",
+  "quando": "2026-09-14T21:08:06-03:00",
   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF",
   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K"
  },
@@ -18,9 +18,9 @@
    "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
    "url": "https://www.amazon.com.br/dp/B0F7JZMVKF",
    "id": "B0F7JZMVKF",
-   "preco": 3278.06,
+   "preco": 3199.0,
    "preco_pix": null,
-   "parcelado": "12x R$ 273,19 sem juros",
+   "parcelado": "12x R$ 266,62 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -29,25 +29,7 @@
     "disponibilidade": "em estoque"
    },
    "chave": "amazon:B0F7JZMVKF",
-   "melhor_preco": 3278.06
-  },
-  {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.mercadolivre.com.br/smart-tv-tcl-55-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-55c6k/p/MLB48808732",
-   "id": "MLB48808732",
-   "preco": 3519.9,
-   "preco_pix": null,
-   "parcelado": "10x R$ 429",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "CIPOLONI ELETRO",
-   "extra": {},
-   "chave": "mercadolivre:MLB48808732",
-   "melhor_preco": 3519.9
+   "melhor_preco": 3199.0
   },
   {
    "fonte": "casasbahia",
@@ -86,27 +68,421 @@
    "melhor_preco": 4199.0
   }
  ],
- "posts": [],
- "cupons": [],
+ "posts": [
+  {
+   "primeira_vez": "2026-09-14T21:08:06-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "AliExpress",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
+   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-120hz-google-tv-b47e",
+   "id": "bbed2b2f-57cb-4921-b477-a8d8d00f8784",
+   "preco": 3010.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "487°"
+   },
+   "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
+   "melhor_preco": 3010.0,
+   "ultima_vez": "2026-09-14T21:08:06-03:00",
+   "ultimo_preco": 3010.0,
+   "menor_preco": 3010.0
+  },
+  {
+   "primeira_vez": "2026-09-14T21:08:06-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
+   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-55c6k-8e88",
+   "id": "4d67e77c-138d-49df-ae96-39fa621477e1",
+   "preco": 2957.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "148°"
+   },
+   "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
+   "melhor_preco": 2957.0,
+   "ultima_vez": "2026-09-14T21:08:06-03:00",
+   "ultimo_preco": 2957.0,
+   "menor_preco": 2957.0
+  },
+  {
+   "primeira_vez": "2026-09-14T21:08:06-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1,  55C6K",
+   "url": "https://www.pelando.com.br/d/tcl-smart-tv-4k-qd-mini-led-55c6k-242f",
+   "id": "ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
+   "preco": 2969.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "548°"
+   },
+   "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
+   "melhor_preco": 2969.0,
+   "ultima_vez": "2026-09-14T21:08:06-03:00",
+   "ultimo_preco": 2969.0,
+   "menor_preco": 2969.0
+  },
+  {
+   "primeira_vez": "2026-09-14T21:08:06-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "AliExpress",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
+   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-4b27",
+   "id": "bff976f2-8881-4140-95e7-1e418c04c69a",
+   "preco": 2799.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-08-20T21:06:12-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "866°"
+   },
+   "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
+   "melhor_preco": 2799.0,
+   "ultima_vez": "2026-09-14T21:08:06-03:00",
+   "ultimo_preco": 2799.0,
+   "menor_preco": 2799.0
+  },
+  {
+   "primeira_vez": "2026-09-14T21:08:06-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ",
+   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-0dae",
+   "id": "b39aa06e-9765-4736-899f-1dacc48f64aa",
+   "preco": 2872.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-08-20T21:06:12-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "720°"
+   },
+   "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
+   "melhor_preco": 2872.0,
+   "ultima_vez": "2026-09-14T21:08:06-03:00",
+   "ultimo_preco": 2872.0,
+   "menor_preco": 2872.0
+  }
+ ],
+ "cupons": [
+  {
+   "fonte": "pelando",
+   "loja": "Magazine Luiza",
+   "codigo": "LUNIVER50",
+   "titulo": "Cupom Magalu R$ 50 acima de R$350",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
+   "id": "0231baa5-df67-4aa3-82c8-9cec1956006a",
+   "regra": "Válido no app . Em tudo",
+   "validade": null,
+   "publicado": "2026-09-09T21:06:13-03:00",
+   "especifico": false,
+   "chave": "pelando:0231baa5-df67-4aa3-82c8-9cec1956006a"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Magazine Luiza",
+   "codigo": "ESQUENTA100",
+   "titulo": "Cupom Magalu: R$100 OFF acima de R$900",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
+   "id": "fb0eebb5-b3a6-4b62-9d3e-eec4a1ab5713",
+   "regra": "R$100 a partir de R$900 (válido para itens elegíveis )",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:13-03:00",
+   "especifico": false,
+   "chave": "pelando:fb0eebb5-b3a6-4b62-9d3e-eec4a1ab5713"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Magazine Luiza",
+   "codigo": "ESQUENTA150",
+   "titulo": "Cupom Magalu: R$150 OFF acima de R$1.000",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
+   "id": "d9de4ed8-7183-421d-ac35-d3b46ff8159f",
+   "regra": "R$150 partir de R$1.000 (válido para itens elegíveis )",
+   "validade": null,
+   "publicado": "2026-09-06T21:06:13-03:00",
+   "especifico": false,
+   "chave": "pelando:d9de4ed8-7183-421d-ac35-d3b46ff8159f"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "TV100",
+   "titulo": "Cupom de R$ 100 OFF em Tvs Selecionas na Amazon",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "5c976429-c034-4c59-a3a4-929096d2d669",
+   "regra": "Algumas tvs com R$ 100 OFF",
+   "validade": null,
+   "publicado": "2026-09-14T15:06:13-03:00",
+   "especifico": false,
+   "chave": "pelando:5c976429-c034-4c59-a3a4-929096d2d669"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "TECH15",
+   "titulo": "[Prime] Itens Tech com 15% OFF na Amazon",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "a79d7eb5-c305-44a7-8646-ad5ed5e77980",
+   "regra": "Exclusivo Prime: Eletrônicos com 15% OffExpira em: quarta-feira 9 de setembro de 2026",
+   "validade": null,
+   "publicado": "2026-09-03T21:06:13-03:00",
+   "especifico": false,
+   "chave": "pelando:a79d7eb5-c305-44a7-8646-ad5ed5e77980"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "DESCONTONAREDA",
+   "titulo": "18% OFF acima de R$ 79, limite R$ 60 OFF",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "7cf44c52-3006-472f-a4c1-4301a7498add",
+   "regra": "18% OFF acima de R$ 79, limite R$ 60 OFF válido para produtos do link",
+   "validade": null,
+   "publicado": "2026-09-14T09:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:7cf44c52-3006-472f-a4c1-4301a7498add"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF02",
+   "titulo": "Cupom Aliexpress R$ 25 OFF acima de R$ 180",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "8681527f-8ca9-4f72-8b0b-0798e7d64460",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:8681527f-8ca9-4f72-8b0b-0798e7d64460"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF03",
+   "titulo": "Cupom Aliexpress R$ 50 OFF acima de R$ 360",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "4e965f63-b66c-40e1-bec7-c99b163e8ae5",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:4e965f63-b66c-40e1-bec7-c99b163e8ae5"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF04",
+   "titulo": "Cupom Aliexpress R$ 85 OFF acima de R$ 660",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "c7d42290-8ee1-450f-97f3-87c494d311e4",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:c7d42290-8ee1-450f-97f3-87c494d311e4"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF05",
+   "titulo": "Cupom Aliexpress R$ 140 OFF acima de R$ 1200",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "82f3cb51-42ac-44d9-86b6-b22f0759caf1",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:82f3cb51-42ac-44d9-86b6-b22f0759caf1"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF07",
+   "titulo": "Cupom Aliexpress R$ 305 OFF acima de R$ 2500",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "e81c611f-e0df-4241-b6a6-3a4e23dd4fd6",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:e81c611f-e0df-4241-b6a6-3a4e23dd4fd6"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF08",
+   "titulo": "Cupom Aliexpress R$ 440 OFF acima de R$ 3600",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "2ec3516d-a25b-4afb-b4cd-97aa83ef5cdb",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:2ec3516d-a25b-4afb-b4cd-97aa83ef5cdb"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF01",
+   "titulo": "Cupom Aliexpress R$ 10 OFF acima de R$ 80",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "1948a4a0-c564-4e4d-acaa-819d60bb7ca3",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:1948a4a0-c564-4e4d-acaa-819d60bb7ca3"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BRFSAFF06",
+   "titulo": "Cupom Aliexpress R$ 220 OFF acima de R$ 1800",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "6dbbec31-d5f8-405a-b87e-12453cabaf22",
+   "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-14T00:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:6dbbec31-d5f8-405a-b87e-12453cabaf22"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "FABR02",
+   "titulo": "Cupom Aliexpress R$ 10 OFF acima de R$ 95",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "6389e8b0-ca51-4c7d-a87c-c298d68c75ee",
+   "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:6389e8b0-ca51-4c7d-a87c-c298d68c75ee"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "FABR13",
+   "titulo": "Cupom Aliexpress R$ 69 acima de R$ 570",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "18e3e207-9727-48a0-8374-47525d529a29",
+   "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:18e3e207-9727-48a0-8374-47525d529a29"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "FABR06",
+   "titulo": "Cupom Aliexpress R$ 33 OFF acima de R$ 300",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "87d914af-028d-4023-ac1a-db45b65985c6",
+   "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:87d914af-028d-4023-ac1a-db45b65985c6"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "FABR24",
+   "titulo": "Cupom Aliexpress R$ 125 OFF acima de R$ 1035",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "524933c6-9740-4763-b32a-87bb0645b260",
+   "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:524933c6-9740-4763-b32a-87bb0645b260"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "FABR38",
+   "titulo": "Cupom Aliexpress R$ 199 OFF acima de R$ 1660",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "7f4637b0-76a7-46a3-af32-e96e6c23a427",
+   "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-09-08T21:06:14-03:00",
+   "especifico": false,
+   "chave": "pelando:7f4637b0-76a7-46a3-af32-e96e6c23a427"
+  }
+ ],
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-13T15:30:14-03:00",
+   "ultimo_ok": "2026-09-14T21:06:25-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-13T15:30:31-03:00",
+   "ultimo_ok": "2026-09-14T21:06:42-03:00",
    "ultimo_erro": null
   },
   "mercadolivre": {
-   "falhas": 0,
+   "falhas": 1,
    "ultimo_ok": "2026-09-13T15:30:48-03:00",
-   "ultimo_erro": null
+   "ultimo_erro": "2026-09-14T21:07:00-03:00 RuntimeError: Mercado Livre pediu verificação anti-bot"
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-13T15:31:08-03:00",
+   "ultimo_ok": "2026-09-14T21:07:20-03:00",
+   "ultimo_erro": null
+  },
+  "pelando.busca": {
+   "falhas": 0,
+   "ultimo_ok": "2026-09-14T21:06:13-03:00",
+   "ultimo_erro": null
+  },
+  "pelando.cupons": {
+   "falhas": 0,
+   "ultimo_ok": "2026-09-14T21:06:14-03:00",
+   "ultimo_erro": null
+  },
+  "shopee": {
+   "falhas": 0,
+   "ultimo_ok": "2026-09-14T21:07:21-03:00",
+   "ultimo_erro": null
+  },
+  "telegram.usuario": {
+   "falhas": 0,
+   "ultimo_ok": "2026-09-14T21:07:21-03:00",
    "ultimo_erro": null
   }
  }
