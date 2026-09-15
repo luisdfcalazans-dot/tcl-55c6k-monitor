@@ -12,10 +12,16 @@ DIR_DADOS = RAIZ / "docs" / "data"
 MODELO = "55C6K"
 MARCA = "TCL"
 
+def _env(nome: str, padrao: str) -> str:
+    """Variável de ambiente, tratando vazia como ausente (no GitHub Actions, vars não definidas chegam como '')."""
+    v = os.environ.get(nome, "")
+    return v.strip() if v and v.strip() else padrao
+
+
 # Alvos de preço. Podem ser sobrescritos por variável de ambiente.
-ALVO_PIX = float(os.environ.get("ALVO_PIX", "2900"))          # à vista / Pix
-ALVO_PARCELADO = float(os.environ.get("ALVO_PARCELADO", "3000"))  # total parcelado sem juros
-QUEDA_MINIMA_PCT = float(os.environ.get("QUEDA_MINIMA_PCT", "2"))  # queda vs. última coleta que gera alerta
+ALVO_PIX = float(_env("ALVO_PIX", "2900"))          # à vista / Pix
+ALVO_PARCELADO = float(_env("ALVO_PARCELADO", "3000"))  # total parcelado sem juros
+QUEDA_MINIMA_PCT = float(_env("QUEDA_MINIMA_PCT", "2"))  # queda vs. última coleta que gera alerta
 
 # Termos de busca usados nos sites de promoção
 BUSCAS = ["55c6k", "tcl 55c6k", "tcl c6k 55"]
@@ -90,8 +96,8 @@ TELEGRAM_CHATS_USUARIO = [
 # --- Notificação ---
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
-MAX_ALERTAS_POR_EXECUCAO = int(os.environ.get("MAX_ALERTAS_POR_EXECUCAO", "15"))
-HORA_RESUMO_DIARIO = int(os.environ.get("HORA_RESUMO_DIARIO", "9"))  # hora de Brasília; -1 desliga
+MAX_ALERTAS_POR_EXECUCAO = int(_env("MAX_ALERTAS_POR_EXECUCAO", "15"))
+HORA_RESUMO_DIARIO = int(_env("HORA_RESUMO_DIARIO", "9"))  # hora de Brasília; -1 desliga
 
 # Nomes canônicos de loja (usados para casar cupons com ofertas)
 LOJAS_CANONICAS = {
