@@ -16,16 +16,24 @@ from .. import config
 from ..filtro import eh_55c6k
 from ..models import Oferta
 from ..util import jsonld_produtos, limpa_html, loja_canonica, parcelado_no_texto, parse_preco, precos_no_texto
-from . import Fonte, Resultado
+from . import Fonte, Pular, Resultado
 
 PERFIL = config.RAIZ / ".pw-profile"
+MARCA_BLOQUEIO_ML = config.RAIZ / "logs" / "ml_bloqueado_em"   # existe enquanto o ML estiver "de castigo"
+ESPERA_ML_SEGUNDOS = 2 * 3600
+
+
+def _dir_perfil(perfil: str) -> Path:
+    return PERFIL if perfil == "default" else config.RAIZ / f".pw-profile-{perfil}"
 
 
 def _abrir(url: str, esperar: str | None = None, capturar: list[str] | None = None,
-           scroll: bool = False, timeout_ms: int = 45000, headless: bool | None = None) -> tuple[str, str, list[Any]]:
+           scroll: bool = False, timeout_ms: int = 45000, headless: bool | None = None,
+           perfil: str = "default") -> tuple[str, str, list[Any]]:
     """Abre a URL no Chrome e devolve (html, texto visível, JSONs capturados).
 
     Por padrão roda com janela (headed): o Akamai bloqueia o Chrome headless. PW_HEADLESS=1 força headless.
+    `perfil` escolhe a pasta do perfil do Chrome (lojas que marcam o perfil ficam isoladas das outras).
     """
     import os
     from playwright.sync_api import sync_playwright
@@ -34,10 +42,11 @@ def _abrir(url: str, esperar: str | None = None, capturar: list[str] | None = No
         headless = os.environ.get("PW_HEADLESS", "0") == "1"
     capturados: list[Any] = []
     padroes = capturar or []
-    PERFIL.mkdir(exist_ok=True)
+    pasta = _dir_perfil(perfil)
+    pasta.mkdir(exist_ok=True)
     with sync_playwright() as pw:
         ctx = pw.chromium.launch_persistent_context(
-            str(PERFIL), channel="chrome", headless=headless, locale="pt-BR", timezone_id="America/Sao_Paulo",
+            str(pasta), channel="chrome", headless=headless, locale="pt-BR", timezone_id="America/Sao_Paulo",
             viewport={"width": 1366, "height": 900},
             # janela fora da tela: o Chrome precisa estar "visível" para passar no Akamai, mas não atrapalha
             args=["--disable-blink-features=AutomationControlled", "--window-position=-32000,-32000"],
@@ -127,13 +136,37 @@ class CasasBahia(Fonte):
 
 
 class MercadoLivre(Fonte):
+    """O ML marca perfis automatizados e passa a exigir login. Usa um perfil só dele, recriado quando bloqueado.
+    Falhas aqui não geram aviso: as ofertas do ML também chegam via Promobit, Pelando e Telegram."""
+
     nome = "mercadolivre"
     modo = "pc"
+    alerta_falha = False
+
+    @staticmethod
+    def _bloqueado(html: str, texto: str) -> bool:
+        return "suspicious-traffic" in html[:8000] or "Hubo un error" in texto[:300] or "Para continuar, acesse" in texto[:300]
 
     def coletar(self) -> Resultado:
-        html, texto, _ = _abrir(config.URL_ML_CATALOGO, esperar=".ui-pdp-price, .andes-money-amount")
-        if "suspicious-traffic" in html[:5000]:
-            raise RuntimeError("Mercado Livre pediu verificação anti-bot")
+        import shutil
+        import time as _t
+
+        if MARCA_BLOQUEIO_ML.exists():
+            restante = ESPERA_ML_SEGUNDOS - (_t.time() - MARCA_BLOQUEIO_ML.stat().st_mtime)
+            if restante > 0:
+                raise Pular(f"bloqueado pelo ML; nova tentativa em {restante/60:.0f} min")
+        html, texto, _ = _abrir(config.URL_ML_CATALOGO, esperar=".ui-pdp-price, .andes-money-amount", perfil="ml")
+        if self._bloqueado(html, texto):
+            html2, texto2, _ = _abrir(config.URL_ML_BUSCA, esperar=".ui-search-result, .poly-card", perfil="ml")
+            itens = [] if self._bloqueado(html2, texto2) else self._parse_lista(html2)
+            if itens:
+                MARCA_BLOQUEIO_ML.unlink(missing_ok=True)
+                return itens, []
+            shutil.rmtree(_dir_perfil("ml"), ignore_errors=True)  # perfil marcado: começa do zero na próxima
+            MARCA_BLOQUEIO_ML.parent.mkdir(exist_ok=True)
+            MARCA_BLOQUEIO_ML.write_text(_t.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
+            raise RuntimeError("Mercado Livre pediu verificação anti-bot; próxima tentativa em 2 h")
+        MARCA_BLOQUEIO_ML.unlink(missing_ok=True)
         out: list[Oferta] = []
         o = _oferta_jsonld(html, "mercadolivre", "Mercado Livre", config.URL_ML_CATALOGO, "MLB48808732")
         if o is None:
@@ -160,6 +193,45 @@ class MercadoLivre(Fonte):
                     o.preco_pix = pix
             out.append(o)
         return out, []
+
+    @staticmethod
+    def _parse_lista(html: str) -> list[Oferta]:
+        """Resultados da busca do ML: título, preço (inteiro + centavos em spans separados) e link."""
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html, "html.parser")
+        out: dict[str, Oferta] = {}
+        for card in soup.select("li.ui-search-layout__item, div.poly-card, .ui-search-result__wrapper"):
+            t = card.select_one("a.poly-component__title, h2.poly-box, h2.ui-search-item__title, h3.poly-component__title-wrapper")
+            if not t:
+                continue
+            titulo = t.get_text(" ", strip=True)
+            if not eh_55c6k(titulo):
+                continue
+            link_el = t if t.name == "a" else card.select_one("a[href*='mercadolivre.com.br']")
+            url = (link_el.get("href") or "") if link_el else ""
+            url = url.split("#")[0].split("?")[0]
+            precos = []
+            for bloco in card.select(".poly-price__current, .ui-search-price__second-line, .poly-component__price"):
+                frac = bloco.select_one(".andes-money-amount__fraction")
+                cents = bloco.select_one(".andes-money-amount__cents")
+                if frac:
+                    precos.append(parse_preco(frac.get_text(strip=True) + ("," + cents.get_text(strip=True) if cents else "")))
+            if not precos:
+                for frac in card.select(".andes-money-amount__fraction")[:2]:
+                    precos.append(parse_preco(frac.get_text(strip=True)))
+            precos = [p for p in precos if p and p >= 1000]
+            if not precos:
+                continue
+            vend = card.select_one(".poly-component__seller")
+            oid = re.search(r"(MLB-?\d+)", url)
+            oid_s = oid.group(1).replace("-", "") if oid else url[-40:]
+            out.setdefault(oid_s, Oferta(
+                fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo, url=url or config.URL_ML_BUSCA,
+                id=oid_s, preco=min(precos), parcelado=parcelado_no_texto(card.get_text(" ", strip=True)),
+                vendedor=vend.get_text(" ", strip=True).replace("Por ", "") if vend else None,
+            ))
+        return list(out.values())
 
 
 class AliExpress(Fonte):

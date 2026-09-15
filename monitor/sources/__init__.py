@@ -9,9 +9,14 @@ from ..models import Cupom, Oferta
 Resultado = tuple[list[Oferta], list[Cupom]]
 
 
+class Pular(Exception):
+    """A fonte decidiu não coletar desta vez (ex.: esperando passar um bloqueio). Não conta como falha."""
+
+
 class Fonte:
     nome = "base"
     modo = "cloud"
+    alerta_falha = True  # False para fontes instáveis por natureza (não avisa "falhou 3 vezes")
 
     def coletar(self) -> Resultado:  # pragma: no cover
         raise NotImplementedError

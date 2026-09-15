@@ -45,7 +45,7 @@ def main() -> int:
     from monitor import config, notificar
     from monitor.estado import Estado
     from monitor.regras import cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario
-    from monitor.sources import por_modo
+    from monitor.sources import Pular, por_modo
     from monitor.util import agora, hoje
 
     estado = Estado(args.mode)
@@ -69,12 +69,14 @@ def main() -> int:
             estado.fonte_ok(f.nome)
             executadas.add(f.nome)
             print(f"[ok]   {f.nome:<22} {len(o):>2} ofertas {len(c):>2} cupons  {time.time()-ini:4.1f}s")
+        except Pular as e:
+            print(f"[skip] {f.nome:<22} {e}")
         except Exception as e:  # noqa: BLE001
             n = estado.fonte_falhou(f.nome, f"{type(e).__name__}: {e}")
             print(f"[erro] {f.nome:<22} {type(e).__name__}: {str(e)[:160]}  (falha {n})")
             if os.environ.get("DEBUG"):
                 traceback.print_exc()
-            if n in (3, 10, 30):
+            if n in (3, 10, 30) and getattr(f, "alerta_falha", True):
                 avisos.append(mensagem_fonte_quebrada(f.nome, n, str(e)))
         time.sleep(0.5)
 
