@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      resumo:
+        description: "Enviar o resumo diário agora"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,7 +40,7 @@ jobs:
           TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
           ALVO_PIX: ${{ vars.ALVO_PIX }}
           ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
-        run: python run.py --mode cloud
+        run: python run.py --mode cloud ${{ github.event.inputs.resumo == 'true' && '--resumo' || '' }}
 
       - name: Salvar estado no repositório
         run: |

@@ -56,6 +56,7 @@ Para grupos fechados ou canais privados de que você participa:
 
 ## Rodar na mão
 ```
+gh workflow run "monitor 55C6K" -f resumo=true   # nuvem: coleta agora e manda o resumo no Telegram
 python run.py --mode cloud --no-notify      # só imprime, não envia
 python run.py --mode all --so zoom,kabum    # só algumas fontes
 python -m pytest -q                         # testes com páginas salvas

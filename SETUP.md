@@ -203,6 +203,7 @@ Atenção: a linha `TELEGRAM_SESSION` dá acesso total à sua conta. Ela fica s�
 | Pausar a nuvem | `gh workflow disable "monitor 55C6K"` (retomar: `enable`) |
 | Pausar o PC | `Disable-ScheduledTask -TaskName "Monitor TCL 55C6K"` (retomar: `Enable-ScheduledTask …`) |
 | Forçar uma coleta agora | `gh workflow run "monitor 55C6K"` ou `python run.py --mode all` |
+| Receber o resumo de preços agora | `gh workflow run "monitor 55C6K" -f resumo=true` |
 | Ver o histórico em planilha | abra `docs\data\historico_cloud.csv` e `historico_pc.csv` no Excel |
 
 ---
