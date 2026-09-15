@@ -62,12 +62,12 @@
     "parcelado": null
    },
    "LU250": {
-    "testado_em": "2026-09-14T22:23:55-03:00",
+    "testado_em": "2026-09-15T20:15:20-03:00",
     "aceito": false,
     "mensagem": "Este cupom LU250 não se aplica para este pedido.",
-    "tv_pix": 2991.6,
+    "tv_pix": 3191.04,
     "tv_cartao": 3324.0,
-    "total_pix": 3072.91,
+    "total_pix": 3272.35,
     "total_cartao": 3405.31,
     "frete": 81.31,
     "desconto": null,
@@ -146,14 +146,14 @@
     "parcelado": "10x R$ 340,53 sem juros"
    },
    "DIADOCLIENTE18H": {
-    "testado_em": "2026-09-15T20:12:36-03:00",
+    "testado_em": "2026-09-15T20:15:09-03:00",
     "aceito": false,
-    "mensagem": "sem mudança no total",
-    "tv_pix": 3272.35,
-    "tv_cartao": 3405.31,
+    "mensagem": "Este cupom DIADOCLIENTE18H não se aplica para este pedido.",
+    "tv_pix": 3191.04,
+    "tv_cartao": 3324.0,
     "total_pix": 3272.35,
     "total_cartao": 3405.31,
-    "frete": null,
+    "frete": 81.31,
     "desconto": null,
     "parcelado": "10x R$ 340,53 sem juros"
    },
@@ -183,6 +183,6 @@
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-09-15T20:12:57-03:00"
+  "ultima_execucao": "2026-09-15T20:15:20-03:00"
  }
 }

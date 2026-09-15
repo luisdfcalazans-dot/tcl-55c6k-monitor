@@ -133,25 +133,60 @@ class Magalu(LojaCarrinho):
         return "sacola está vazia" not in _texto(page)
 
     def ler_totais(self, page) -> ResultadoCupom:
+        """Lê o resumo da sacola por linhas, ancorado em 'Total:'.
+
+        O Magalu muda a ordem dos rótulos de tempos em tempos (já vi "Produtos (1): / Frete:" e
+        "Frete total / Produto (1 item)"), então casamos rótulo → próximo valor em R$.
+        """
         t = _texto(page)
+        linhas = [l.strip() for l in t.splitlines()]
         r = ResultadoCupom(codigo="", aceito=False)
-        m = _RE_PRODUTOS.search(t)
-        r.produtos = parse_preco(m.group(1)) if m else None
-        # o resumo ("Produtos … Frete … Total") fica depois da lista de itens; os totais vêm depois de "Total:"
-        i_resumo = t.find("Produtos (")
-        resumo = t[i_resumo:] if i_resumo >= 0 else t
-        m = _RE_FRETE.search(resumo)
-        r.frete = (0.0 if m and "gr" in m.group(1).lower() else parse_preco(m.group(1))) if m else None
-        m = _RE_DESCONTO.search(resumo)
-        r.desconto = parse_preco(m.group(1)) if m else None
-        i_total = resumo.find("Total")
-        bloco_total = resumo[i_total:] if i_total >= 0 else resumo
-        m = _RE_PIX.search(bloco_total) or _RE_PIX.search(t)
+
+        i_total = next((k for k, l in enumerate(linhas) if re.fullmatch(r"Total:?", l)), None)
+        if i_total is not None:
+            def valor_apos(k: int) -> Optional[float]:
+                for l in linhas[k + 1: k + 4]:
+                    if not l:
+                        continue
+                    if re.search(r"gr[áa]tis", l, re.I):
+                        return 0.0
+                    v = parse_preco((re.search(r"-?\s*R\$\s?([\d.]+,\d{2})", l) or [None, None])[1])
+                    if v is not None:
+                        return v
+                    return None
+                return None
+
+            for k in range(max(0, i_total - 16), i_total):
+                rot = linhas[k]
+                if re.fullmatch(r"Frete(\s+total)?:?", rot, re.I) and r.frete is None:
+                    r.frete = valor_apos(k)
+                elif re.match(r"Produtos?\b", rot, re.I) and r.produtos is None:
+                    r.produtos = valor_apos(k)
+                elif re.search(r"(cupom|desconto)", rot, re.I) and r.desconto is None:
+                    v = valor_apos(k)
+                    if v:
+                        r.desconto = v
+            bloco = "\n".join(linhas[i_total: i_total + 8])
+        else:
+            bloco = t
+
+        m = _RE_PIX.search(bloco) or _RE_PIX.search(t)
         r.total_pix = parse_preco(m.group(1)) if m else None
-        m = _RE_CARTAO.search(bloco_total) or _RE_CARTAO.search(t)
+        m = _RE_CARTAO.search(bloco) or _RE_CARTAO.search(t)
         r.total_cartao = parse_preco(m.group(1)) if m else None
-        m = _RE_PARCELA.search(bloco_total) or _RE_PARCELA.search(t)
+        m = _RE_PARCELA.search(bloco) or _RE_PARCELA.search(t)
         r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        # fallbacks dos formatos antigos
+        if r.produtos is None:
+            m = _RE_PRODUTOS.search(t)
+            r.produtos = parse_preco(m.group(1)) if m else None
+        if r.frete is None:
+            m = _RE_FRETE.search(t)
+            r.frete = (0.0 if m and "gr" in m.group(1).lower() else parse_preco(m.group(1))) if m else None
+        # coerência: total no cartão = produtos + frete - desconto
+        if r.frete is None and r.produtos and r.total_cartao:
+            dif = round(r.total_cartao - r.produtos, 2)
+            r.frete = dif if 0 <= dif < r.produtos * 0.5 else None
         return r
 
     def _abrir_campo(self, page):
@@ -216,20 +251,19 @@ class Magalu(LojaCarrinho):
                 campo.press("Enter")
         except Exception:
             campo.press("Enter")
-        # espera a resposta: mensagem no diálogo (recusa) ou diálogo fechado (aceito)
+        # espera a resposta: mensagem de recusa (no diálogo ou na página) ou diálogo fechado
         mensagem = ""
         for _ in range(12):
             page.wait_for_timeout(500)
             if self._pagina_de_login(page):
                 raise PrecisaLogin("o Magalu pediu login ao aplicar o cupom")
             d = self._dialogo(page)
-            if d is None:
-                break
-            td = d.inner_text()
-            m = _RE_REJEITADO.search(td)
-            if m:
-                linha = next((l for l in td.splitlines() if _RE_REJEITADO.search(l)), td)
+            alvo = d.inner_text() if d is not None else _texto(page)
+            linha = next((l for l in alvo.splitlines() if _RE_REJEITADO.search(l)), None)
+            if linha:
                 mensagem = re.sub(r"\s+", " ", linha).strip()[:200]
+                break
+            if d is None:
                 break
         page.wait_for_timeout(1500)
         depois = self.ler_totais(page)
