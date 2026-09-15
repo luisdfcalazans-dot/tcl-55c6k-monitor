@@ -46,6 +46,7 @@ def parse_busca(html: str) -> list[Oferta]:
 
 class PelandoBusca(Fonte):
     nome = "pelando.busca"
+    modo = "pc"  # o Pelando devolve 403 para IPs de datacenter (GitHub Actions); de casa funciona
 
     def coletar(self) -> Resultado:
         vistos: dict[str, Oferta] = {}
@@ -88,6 +89,7 @@ def parse_cupons(html: str, loja_padrao: str, url: str) -> list[Cupom]:
 
 class PelandoCupons(Fonte):
     nome = "pelando.cupons"
+    modo = "pc"
 
     def coletar(self) -> Resultado:
         cupons: list[Cupom] = []

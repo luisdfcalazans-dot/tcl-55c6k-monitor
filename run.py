@@ -50,6 +50,9 @@ def main() -> int:
 
     estado = Estado(args.mode)
     fontes = por_modo(args.mode)
+    # fontes que mudaram de modo não devem continuar aparecendo na saúde deste modo
+    nomes_modo = {f.nome for f in fontes}
+    estado.dados["saude"] = {k: v for k, v in estado.dados["saude"].items() if k in nomes_modo}
     if args.so:
         quer = {s.strip() for s in args.so.split(",")}
         fontes = [f for f in fontes if f.nome in quer or f.nome.split(".")[0] in quer]

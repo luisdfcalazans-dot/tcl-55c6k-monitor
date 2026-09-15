@@ -2,8 +2,8 @@
 
 Vigia o preço e os cupons da **Smart TV TCL 55C6K (QD-Mini LED, 55")** em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
 
-- **Nuvem (GitHub Actions, a cada 15 min):** Promobit, Pelando, Zoom, Magazine Luiza, KaBuM!, Fast Shop, Loja TCL, Webcontinental, canais públicos do Telegram, cupons.
-- **PC (tarefa agendada, a cada 30 min):** Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
+- **Nuvem (GitHub Actions, a cada 15 min):** Promobit, Zoom, Magazine Luiza, KaBuM!, Fast Shop, Loja TCL, Webcontinental, canais públicos do Telegram, cupons.
+- **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
 
 O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO.md).
 
