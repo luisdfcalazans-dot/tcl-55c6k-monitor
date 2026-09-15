@@ -190,29 +190,63 @@ def executar(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: boo
     return 0
 
 
+def checar_sessao(loja_id: str, visivel: bool = False) -> bool:
+    """Abre o carrinho num contexto novo do perfil salvo e diz se a sessão está logada (com foto em logs/)."""
+    loja = LOJAS[loja_id]
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        ctx = abrir_navegador(pw, loja, visivel=visivel)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        try:
+            page.goto(loja.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(3000)
+            ok = loja.logado(page)
+            texto = page.evaluate("() => document.body ? document.body.innerText : ''")
+            foto = RAIZ / "logs" / f"sessao_{loja_id}.png"
+            page.screenshot(path=str(foto))
+            print(f"[{loja_id}] url: {page.url}")
+            print(f"[{loja_id}] cabeçalho: {texto[:260].replace(chr(10), ' | ')}")
+            print(f"[{loja_id}] foto: {foto}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[{loja_id}] erro ao abrir o carrinho: {type(e).__name__}: {str(e)[:120]}")
+            ok = False
+        finally:
+            ctx.close()
+    print(f"[{loja_id}] sessão logada: {'SIM' if ok else 'NÃO'}")
+    return ok
+
+
 def login(loja_id: str) -> int:
     loja = LOJAS[loja_id]
     from playwright.sync_api import sync_playwright
 
     print(f"Vai abrir uma janela do Chrome na página de login do {loja.loja_canonica}.")
     print("Faça o login normalmente (e-mail/CPF, senha, código se pedir). Eu não vejo nem guardo esses dados;")
-    print("ficam só no perfil do Chrome desta pasta. Quando terminar, volte aqui e aperte Enter.")
+    print("ficam só no perfil do Chrome desta pasta. NÃO feche a janela: quando terminar, volte aqui e aperte Enter.")
     with sync_playwright() as pw:
         ctx = abrir_navegador(pw, loja, visivel=True)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
-        page.goto(loja.url_login, wait_until="domcontentloaded", timeout=60000)
+        try:
+            page.goto(loja.url_login, wait_until="domcontentloaded", timeout=60000)
+        except Exception:
+            pass
         input("\n>>> Terminou o login? Aperte Enter para continuar... ")
         try:
-            page.goto(loja.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            # passa pela home para a sessão valer em todos os domínios do Magalu, e dá tempo de gravar os cookies
+            page.goto("https://www.magazineluiza.com.br/", wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(2500)
-            ok = loja.logado(page)
         except Exception:
-            ok = False
-        ctx.close()
+            pass
+        try:
+            ctx.close()
+        except Exception:
+            pass
+    ok = checar_sessao(loja_id)
     if ok:
-        print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel   (para ver o primeiro teste)")
+        print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel --forcar   (primeiro teste, com janela)")
         return 0
-    print("Não detectei a sessão logada. Tente de novo com --login e complete o login antes de apertar Enter.")
+    print("Não detectei a sessão logada. Veja a foto em logs\\ e me mande o que apareceu no cabeçalho acima.")
     return 1
 
 
@@ -220,6 +254,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--loja", default="magalu", choices=sorted(LOJAS))
     ap.add_argument("--login", action="store_true")
+    ap.add_argument("--check", action="store_true", help="só confere se a sessão salva está logada")
     ap.add_argument("--codigos", default="")
     ap.add_argument("--forcar", action="store_true")
     ap.add_argument("--visivel", action="store_true")
@@ -228,6 +263,8 @@ def main() -> int:
     (RAIZ / "logs").mkdir(exist_ok=True)
     if a.login:
         return login(a.loja)
+    if a.check:
+        return 0 if checar_sessao(a.loja, a.visivel) else 1
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None
     return executar(a.loja, cods, a.forcar, a.visivel, not a.no_notify)
 
