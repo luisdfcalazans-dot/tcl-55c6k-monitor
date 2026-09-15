@@ -12,6 +12,10 @@ if (-not (Test-Path $py)) { $py = "python" }
 # git escreve mensagens normais no stderr; via cmd /c o PowerShell 5.1 não as transforma em "erros"
 cmd /c "git pull --rebase --autostash 2>&1" | Out-File -Append -Encoding utf8 $log
 cmd /c "`"$py`" run.py --mode pc 2>&1" | Out-File -Append -Encoding utf8 $log
+# teste de cupons no carrinho (só faz algo se o login foi feito com --login)
+if (Test-Path "$raiz\.pw-profile-carrinho\magalu") {
+    cmd /c "`"$py`" testar_cupons.py --loja magalu 2>&1" | Out-File -Append -Encoding utf8 $log
+}
 
 cmd /c "git add docs/data 2>&1" | Out-File -Append -Encoding utf8 $log
 cmd /c "git diff --cached --quiet"

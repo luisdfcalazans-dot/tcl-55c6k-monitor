@@ -1,0 +1,241 @@
+"""Teste de cupons no carrinho das lojas, com a conta do usuário logada num perfil próprio do Chrome.
+
+Regras de segurança, sem exceção:
+  - o robô NUNCA clica em "continuar", "finalizar", "pagar" nem mexe em endereço ou pagamento;
+  - o robô NUNCA digita e-mail, CPF ou senha: o login é feito pela pessoa, na janela aberta por --login;
+  - se a loja pedir login, o teste para e avisa.
+
+Cada loja é um adaptador com: garantir que a TV está no carrinho, abrir o campo de cupom, aplicar um
+código e ler os totais, remover o cupom.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Optional
+
+from . import config
+from .util import parse_preco
+
+PERFIS = config.RAIZ / ".pw-profile-carrinho"
+
+
+@dataclass
+class ResultadoCupom:
+    codigo: str
+    aceito: bool
+    mensagem: str = ""
+    produtos: Optional[float] = None      # soma dos produtos (sem frete)
+    frete: Optional[float] = None
+    desconto: Optional[float] = None
+    total_pix: Optional[float] = None
+    total_cartao: Optional[float] = None
+    parcelado: Optional[str] = None
+    extra: dict = field(default_factory=dict)
+
+    @property
+    def tv_pix(self) -> Optional[float]:
+        """Preço da TV no Pix já com cupom, sem frete."""
+        if self.total_pix is None:
+            return None
+        return round(self.total_pix - (self.frete or 0), 2)
+
+    @property
+    def tv_cartao(self) -> Optional[float]:
+        if self.total_cartao is None:
+            return None
+        return round(self.total_cartao - (self.frete or 0), 2)
+
+
+class PrecisaLogin(Exception):
+    """A loja pediu login: a sessão salva expirou ou nunca foi feita."""
+
+
+class LojaCarrinho:
+    nome = "base"
+    loja_canonica = "?"
+    url_login = ""
+    url_carrinho = ""
+
+    def perfil(self) -> Path:
+        return PERFIS / self.nome
+
+    # --- a implementar por loja ---
+    def logado(self, page) -> bool:  # pragma: no cover
+        raise NotImplementedError
+
+    def garantir_item(self, page, url_produto: str) -> bool:  # pragma: no cover
+        raise NotImplementedError
+
+    def ler_totais(self, page) -> ResultadoCupom:  # pragma: no cover
+        raise NotImplementedError
+
+    def aplicar(self, page, codigo: str) -> ResultadoCupom:  # pragma: no cover
+        raise NotImplementedError
+
+    def remover(self, page) -> None:  # pragma: no cover
+        raise NotImplementedError
+
+
+# ----------------------------------------------------------------------------------------------
+# Magazine Luiza
+# ----------------------------------------------------------------------------------------------
+
+_RE_PIX = re.compile(r"R\$\s?([\d.]+,\d{2})\s*no\s*PIX", re.I)
+_RE_CARTAO = re.compile(r"ou\s*R\$\s?([\d.]+,\d{2})\s*no\s*cart", re.I)
+_RE_PRODUTOS = re.compile(r"Produtos\s*\(\d+\):?\s*\n?\s*R\$\s?([\d.]+,\d{2})", re.I)
+_RE_FRETE = re.compile(r"Frete:?\s*\n?\s*(R\$\s?[\d.]+,\d{2}|Gr[áa]tis)", re.I)
+_RE_DESCONTO = re.compile(r"(?:Cupom|Desconto)[^\n]*\n?\s*-\s?R\$\s?([\d.]+,\d{2})", re.I)
+_RE_PARCELA = re.compile(r"em\s+(\d{1,2})x\s+de\s+R\$\s?([\d.]+,\d{2})\s*sem juros", re.I)
+_RE_REJEITADO = re.compile(
+    r"inv[áa]lido|expirad|n[ãa]o (?:é |e )?v[áa]lido|n[ãa]o encontrad|n[ãa]o se aplica|indispon[íi]vel|"
+    r"n[ãa]o pode ser (?:usado|aplicado)|esgotad|n[ãa]o eleg[íi]vel|n[ãa]o est[áa] dispon", re.I)
+_RE_ACEITO = re.compile(r"cupom (?:aplicado|adicionado|ativo)|desconto aplicado", re.I)
+
+
+def _texto(page) -> str:
+    return page.evaluate("() => document.body ? document.body.innerText : ''")
+
+
+class Magalu(LojaCarrinho):
+    nome = "magalu"
+    loja_canonica = "Magazine Luiza"
+    url_login = "https://www.magazineluiza.com.br/cliente/login/"
+    url_carrinho = "https://sacola.magazineluiza.com.br/"
+
+    def logado(self, page) -> bool:
+        t = _texto(page)[:1500]
+        return "Entre ou Cadastre-se" not in t and "Quero criar uma conta" not in t
+
+    def _pagina_de_login(self, page) -> bool:
+        if "identificacao" in page.url or "/login" in page.url:
+            return True
+        t = _texto(page)[:2500]
+        return "Quero criar uma conta" in t or page.locator("#input-login:visible, #input-password:visible").count() > 0
+
+    def garantir_item(self, page, url_produto: str) -> bool:
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        if "sacola está vazia" not in _texto(page):
+            return True
+        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
+        if not botao.count():
+            return False
+        botao.click()
+        page.wait_for_timeout(3000)
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        return "sacola está vazia" not in _texto(page)
+
+    def ler_totais(self, page) -> ResultadoCupom:
+        t = _texto(page)
+        r = ResultadoCupom(codigo="", aceito=False)
+        m = _RE_PRODUTOS.search(t)
+        r.produtos = parse_preco(m.group(1)) if m else None
+        m = _RE_FRETE.search(t)
+        r.frete = (0.0 if m and "gr" in m.group(1).lower() else parse_preco(m.group(1))) if m else None
+        m = _RE_DESCONTO.search(t)
+        r.desconto = parse_preco(m.group(1)) if m else None
+        m = _RE_PIX.search(t)
+        r.total_pix = parse_preco(m.group(1)) if m else None
+        m = _RE_CARTAO.search(t)
+        r.total_cartao = parse_preco(m.group(1)) if m else None
+        m = _RE_PARCELA.search(t)
+        r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        return r
+
+    def _abrir_campo(self, page):
+        """Clica em 'Inserir' (data-testid=coupon-button) e devolve o input do cupom."""
+        campo = page.locator("[role=dialog] input:visible, input[name*=cupom i]:visible, input[placeholder*=cupom i]:visible").first
+        if campo.count():
+            return campo
+        botao = page.locator("[data-testid=coupon-button]").first
+        if not botao.count():
+            botao = page.get_by_role("button", name=re.compile(r"^inserir$|cupom", re.I)).first
+        if not botao.count():
+            return None
+        botao.click()
+        page.wait_for_timeout(2000)
+        if self._pagina_de_login(page):
+            raise PrecisaLogin("o Magalu pediu login ao abrir o campo de cupom")
+        campo = page.locator("[role=dialog] input:visible, input[name*=cupom i]:visible, input[placeholder*=cupom i]:visible").first
+        if campo.count():
+            return campo
+        # qualquer input de texto visível que não seja a busca
+        for i in range(page.locator("input:visible").count()):
+            el = page.locator("input:visible").nth(i)
+            tipo = (el.get_attribute("type") or "text").lower()
+            ident = f"{el.get_attribute('id')} {el.get_attribute('name')} {el.get_attribute('placeholder')}".lower()
+            if tipo in ("text", "search") and "search" not in ident and "busc" not in ident and "login" not in ident and "senha" not in ident:
+                return el
+        return None
+
+    def aplicar(self, page, codigo: str) -> ResultadoCupom:
+        antes = self.ler_totais(page)
+        campo = self._abrir_campo(page)
+        if campo is None:
+            return ResultadoCupom(codigo=codigo, aceito=False, mensagem="campo de cupom não encontrado", extra={"antes": antes.__dict__})
+        campo.fill("")
+        campo.fill(codigo)
+        page.wait_for_timeout(400)
+        escopo = page.locator("[role=dialog]").first if page.locator("[role=dialog]").count() else page
+        botao = escopo.get_by_role("button", name=re.compile(r"^aplicar|^inserir|^adicionar|^ok$|^confirmar", re.I)).first
+        if botao.count():
+            botao.click()
+        else:
+            campo.press("Enter")
+        page.wait_for_timeout(4000)
+        if self._pagina_de_login(page):
+            raise PrecisaLogin("o Magalu pediu login ao aplicar o cupom")
+        t = _texto(page)
+        depois = self.ler_totais(page)
+        depois.codigo = codigo
+        i = t.lower().find("cupom")
+        trecho = t[max(0, i - 150): i + 250].replace("\n", " ") if i >= 0 else t[:200]
+        rejeitado = bool(_RE_REJEITADO.search(trecho))
+        caiu = (antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1) or \
+               (antes.total_pix and depois.total_pix and depois.total_pix < antes.total_pix - 1)
+        depois.aceito = bool(depois.desconto) or bool(caiu) or (bool(_RE_ACEITO.search(trecho)) and not rejeitado)
+        m = _RE_REJEITADO.search(trecho)
+        depois.mensagem = re.sub(r"\s+", " ", trecho[max(0, (m.start() - 60) if m else 0):(m.end() + 60) if m else 160]).strip()
+        depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
+        return depois
+
+    def remover(self, page) -> None:
+        rem = page.get_by_role("button", name=re.compile(r"remover|excluir cupom", re.I))
+        if not rem.count():
+            rem = page.get_by_text(re.compile(r"^remover( cupom)?$", re.I))
+        if rem.count():
+            rem.first.click()
+            page.wait_for_timeout(2500)
+        # fecha o diálogo se ficou aberto
+        fechar = page.locator("[role=dialog] button[aria-label*=fechar i], [role=dialog] button:has-text('Fechar')").first
+        if fechar.count():
+            fechar.click()
+            page.wait_for_timeout(500)
+
+
+def _espera(page) -> None:
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    page.wait_for_timeout(1500)
+
+
+LOJAS: dict[str, LojaCarrinho] = {"magalu": Magalu()}
+
+
+def abrir_navegador(pw, loja: LojaCarrinho, visivel: bool):
+    loja.perfil().mkdir(parents=True, exist_ok=True)
+    args = ["--disable-blink-features=AutomationControlled"]
+    if not visivel:
+        args.append("--window-position=-32000,-32000")
+    return pw.chromium.launch_persistent_context(
+        str(loja.perfil()), channel="chrome", headless=False, locale="pt-BR", timezone_id="America/Sao_Paulo",
+        viewport={"width": 1280, "height": 860}, args=args,
+    )
