@@ -33,9 +33,9 @@ cmd /c "git pull --rebase --autostash 2>&1" | Out-File -Append -Encoding utf8 $l
 
 RodarPython @("run.py", "--mode", "pc") 600 "coleta"
 
-# teste de cupons no carrinho (só faz algo se o login foi feito com --login)
-if (Test-Path "$raiz\.pw-profile-carrinho\magalu") {
-    RodarPython @("testar_cupons.py", "--loja", "magalu") 900 "cupons"
+# teste de cupons no carrinho (cada loja só entra depois do login com --login)
+if (Test-Path "$raiz\.pw-profile-carrinho") {
+    RodarPython @("testar_cupons.py") 1500 "cupons"
 }
 
 cmd /c "git add docs/data 2>&1" | Out-File -Append -Encoding utf8 $log

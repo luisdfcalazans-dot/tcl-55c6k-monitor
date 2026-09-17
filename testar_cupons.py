@@ -1,10 +1,11 @@
-"""Testa cupons no carrinho da loja com a sua conta logada e avisa no Telegram quando um funciona.
+"""Testa cupons no carrinho das lojas com a sua conta logada e avisa o melhor preço da TV.
 
-  python testar_cupons.py --loja magalu --login        # abre o Chrome para VOCÊ fazer login (uma vez)
-  python testar_cupons.py --loja magalu                # testa os cupons novos (roda sozinho com a tarefa do PC)
-  python testar_cupons.py --loja magalu --codigos ABC,XYZ   # testa códigos específicos
-  python testar_cupons.py --loja magalu --forcar       # testa de novo todos os cupons conhecidos
-  opções: --no-notify  --visivel (mostra a janela)
+  python testar_cupons.py --loja magalu --login          # abre o Chrome para VOCÊ fazer login (uma vez por loja)
+  python testar_cupons.py --loja mercadolivre --login
+  python testar_cupons.py                                 # testa os cupons novos em todas as lojas logadas
+  python testar_cupons.py --loja magalu --codigos ABC,XYZ # testa códigos específicos
+  python testar_cupons.py --forcar                        # testa de novo todos os cupons conhecidos
+  opções: --no-notify  --visivel (mostra a janela)  --check (só confere a sessão)
 
 O robô nunca avança para pagamento nem digita dados de conta. Só aplica cupom, lê o total e remove.
 """
@@ -14,7 +15,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
@@ -26,11 +26,12 @@ from run import carrega_env  # noqa: E402
 carrega_env()
 
 from monitor import config, notificar  # noqa: E402
-from monitor.carrinho import LOJAS, PrecisaLogin, ResultadoCupom, abrir_navegador  # noqa: E402
+from monitor.carrinho import LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_navegador  # noqa: E402
 from monitor.util import agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
 
 ARQ_ESTADO = config.DIR_DADOS / "cupons_carrinho.json"
 CODIGOS_IGNORAR = {"DIRETO NO LINK", "SEM CUPOM", "LINK"}
+MAX_POR_RODADA = 25
 
 
 def carrega_estado() -> dict:
@@ -54,74 +55,88 @@ def _json(p: Path) -> dict:
         return {}
 
 
-def codigos_conhecidos(loja_nome: str) -> tuple[list[str], str | None]:
-    """Cupons da loja vindos das coletas (Promobit, Pelando, etiquetas do produto, postagens) + extras do .env.
-    Devolve (códigos, url do anúncio mais barato da loja)."""
+def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], str]:
+    """Cupons da loja vindos das coletas (Promobit, Pelando, etiquetas, postagens) + CUPONS_EXTRA do .env.
+    Devolve (códigos, url do anúncio mais barato dessa loja)."""
+    import os
+
     cods: dict[str, str] = {}
-    url_barato, preco_barato = None, 1e9
+    url_barato, preco_barato = "", 1e9
     for arq in ("latest_cloud.json", "latest_pc.json"):
         d = _json(config.DIR_DADOS / arq)
         for c in d.get("cupons") or []:
-            if loja_canonica(c.get("loja", "")) == loja_nome and c.get("codigo"):
+            if loja_canonica(c.get("loja", "")) == loja.loja_canonica and c.get("codigo"):
                 cods.setdefault(c["codigo"].strip().upper(), c.get("fonte", ""))
         for p in d.get("posts") or []:
-            if loja_canonica(p.get("loja", "")) == loja_nome and p.get("cupom"):
+            if loja_canonica(p.get("loja", "")) == loja.loja_canonica and p.get("cupom"):
                 cods.setdefault(str(p["cupom"]).strip().upper(), p.get("fonte", ""))
         for o in d.get("ofertas_loja") or []:
-            if loja_canonica(o.get("loja", "")) == loja_nome:
-                if o.get("cupom"):
-                    cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
-                mp = o.get("melhor_preco")
-                if o.get("ativo", True) and mp and mp < preco_barato and "magazineluiza.com.br" in (o.get("url") or ""):
-                    preco_barato, url_barato = mp, o["url"]
-    for c in (config.__dict__.get("CUPONS_EXTRA") or []):
-        cods.setdefault(c.upper(), "manual")
-    import os
+            if loja_canonica(o.get("loja", "")) != loja.loja_canonica:
+                continue
+            if o.get("cupom"):
+                cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
+            mp = o.get("melhor_preco")
+            if o.get("ativo", True) and mp and mp < preco_barato and loja.dominio_url in (o.get("url") or ""):
+                preco_barato, url_barato = mp, o["url"]
     for c in os.environ.get("CUPONS_EXTRA", "").split(","):
         if c.strip():
             cods.setdefault(c.strip().upper(), "manual")
     lista = [c for c in cods if 3 <= len(c) <= 30 and c not in CODIGOS_IGNORAR and " " not in c]
-    return lista, url_barato
+    return lista, (url_barato or loja.url_produto)
 
 
-def msg_resultado(loja_nome: str, r: ResultadoCupom) -> str:
-    alvo_pix = r.tv_pix is not None and r.tv_pix <= config.ALVO_PIX
-    alvo_parc = r.tv_cartao is not None and r.tv_cartao <= config.ALVO_PARCELADO
-    cab = "🎯 META ATINGIDA" if (alvo_pix or alvo_parc) else "✅ Cupom funcionou"
-    linhas = [f"{cab} — <b>{loja_nome}</b> · cupom <code>{r.codigo}</code>"]
-    if r.tv_pix is not None:
-        linhas.append(f"TV no Pix: <b>{fmt_preco(r.tv_pix)}</b>" + (f" (era {fmt_preco((r.extra.get('antes_pix') or 0) - (r.frete or 0))})" if r.extra.get("antes_pix") else ""))
-    if r.tv_cartao is not None:
-        linhas.append(f"TV no cartão: <b>{fmt_preco(r.tv_cartao)}</b>" + (f" · {r.parcelado}" if r.parcelado else ""))
-    if r.frete:
-        linhas.append(f"frete: {fmt_preco(r.frete)} (total Pix {fmt_preco(r.total_pix)})")
-    if r.desconto:
-        linhas.append(f"desconto do cupom: {fmt_preco(r.desconto)}")
-    linhas.append("O cupom está aplicado no seu carrinho; é só entrar e finalizar.")
-    linhas.append(LOJAS[loja_nome.lower().replace(" ", "")].url_carrinho if loja_nome.lower().replace(" ", "") in LOJAS else "")
-    return "\n".join(l for l in linhas if l)
+def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
+    """Uma mensagem só, com o melhor preço à vista e o melhor parcelado entre todas as lojas."""
+    validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao)]
+    if not validos:
+        return ""
+    melhor_vista = min(validos, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)
+    com_parcela = [(n, r) for n, r in validos if r.parcelado and r.tv_cartao]
+    melhor_parc = min(com_parcela, key=lambda x: x[1].tv_cartao or 9e9) if com_parcela else None
+
+    r = melhor_vista[1]
+    alvo = (r.tv_pix is not None and r.tv_pix <= config.ALVO_PIX) or \
+           (melhor_parc and (melhor_parc[1].tv_cartao or 9e9) <= config.ALVO_PARCELADO)
+    linhas = ["🎯 <b>META ATINGIDA</b>" if alvo else "✅ <b>Cupom funcionou</b>", ""]
+    linhas.append(f"<b>Melhor à vista</b>: {fmt_preco(r.tv_pix or r.tv_cartao)} na {melhor_vista[0]} "
+                  f"com <code>{r.codigo}</code>")
+    if r.extra.get("antes_pix") and r.frete is not None:
+        antes = round(r.extra["antes_pix"] - r.frete, 2)
+        if antes > (r.tv_pix or 0):
+            linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
+    if melhor_parc:
+        p = melhor_parc[1]
+        linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado} na {melhor_parc[0]} "
+                      f"com <code>{p.codigo}</code>")
+    outros = [f"{n}: {fmt_preco(x.tv_pix or x.tv_cartao)} ({x.codigo})" for n, x in
+              sorted(validos, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)[1:5]]
+    if outros:
+        linhas.append("")
+        linhas.append("Outros que funcionaram: " + " · ".join(outros))
+    linhas.append("")
+    linhas.append(f"Alvo: Pix {fmt_preco(config.ALVO_PIX)} · parcelado {fmt_preco(config.ALVO_PARCELADO)}")
+    linhas.append("O melhor cupom ficou aplicado no carrinho; é só entrar e finalizar.")
+    return "\n".join(linhas)
 
 
-def executar(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
+def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: bool,
+                notify: bool, estado: dict) -> list[ResultadoCupom]:
     loja = LOJAS[loja_id]
-    estado = carrega_estado()
     reg = estado.setdefault(loja_id, {"cupons": {}, "aviso_login": None, "ultima_execucao": None})
-    conhecidos, url_barato = codigos_conhecidos(loja.loja_canonica)
+    if not loja.perfil().exists():
+        print(f"[{loja_id}] sem login salvo. Rode: python testar_cupons.py --loja {loja_id} --login")
+        return []
+    conhecidos, url = codigos_conhecidos(loja)
     fila = [c.upper() for c in (codigos or conhecidos)]
     testados = reg["cupons"]
     if not forcar and not codigos:
-        # novos + aceitos há mais de 1 dia (para detectar expiração)
-        fila = [c for c in fila if c not in testados or (testados[c].get("aceito") and (testados[c].get("testado_em") or "")[:10] < hoje())]
+        fila = [c for c in fila if c not in testados
+                or (testados[c].get("aceito") and (testados[c].get("testado_em") or "")[:10] < hoje())]
     if not fila:
-        print(f"[{loja_id}] nada novo para testar ({len(conhecidos)} cupons conhecidos, todos já testados)")
-        return 0
-    if not loja.perfil().exists():
-        print(f"[{loja_id}] perfil não existe. Rode: python testar_cupons.py --loja {loja_id} --login")
-        return 0
-    if not url_barato:
-        url_barato = config.URL_MAGALU_PRODUTO.replace("https://www.magazinevoce.com.br/magazinecanaltechbr", "https://www.magazineluiza.com.br")
-    print(f"[{loja_id}] {len(fila)} cupons para testar: {', '.join(fila[:20])}{'…' if len(fila) > 20 else ''}")
-    print(f"[{loja_id}] anúncio usado: {url_barato}")
+        print(f"[{loja_id}] nada novo ({len(conhecidos)} cupons conhecidos, todos já testados)")
+        return []
+    print(f"[{loja_id}] {len(fila)} cupons: {', '.join(fila[:20])}{'…' if len(fila) > 20 else ''}")
+    print(f"[{loja_id}] anúncio: {url}")
 
     from playwright.sync_api import sync_playwright
 
@@ -130,31 +145,34 @@ def executar(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: boo
         ctx = abrir_navegador(pw, loja, visivel)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
-            if not loja.garantir_item(page, url_barato):
+            if not loja.garantir_item(page, url):
                 print(f"[{loja_id}] não consegui colocar a TV no carrinho")
-                return 1
+                return []
             base = loja.ler_totais(page)
             print(f"[{loja_id}] carrinho: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
                   f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)} · logado={loja.logado(page)}")
-            for i, cod in enumerate(fila[:25]):
+            for i, cod in enumerate(fila[:MAX_POR_RODADA]):
                 try:
                     r = loja.aplicar(page, cod)
-                except PrecisaLogin as e:
+                except PrecisaLogin:
                     raise
                 except Exception as e:  # noqa: BLE001
                     r = ResultadoCupom(codigo=cod, aceito=False, mensagem=f"erro: {type(e).__name__}: {str(e)[:120]}")
                 testados[cod] = {
                     "testado_em": agora_iso(), "aceito": r.aceito, "mensagem": r.mensagem[:200],
-                    "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "total_pix": r.total_pix, "total_cartao": r.total_cartao,
-                    "frete": r.frete, "desconto": r.desconto, "parcelado": r.parcelado,
+                    "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "total_pix": r.total_pix,
+                    "total_cartao": r.total_cartao, "frete": r.frete, "desconto": r.desconto,
+                    "parcelado": r.parcelado,
                 }
-                print(f"  {'✅' if r.aceito else '✗ '} {cod:<18} {('TV Pix ' + fmt_preco(r.tv_pix)) if r.aceito else r.mensagem[:90]}")
+                print(f"  {'✅' if r.aceito else '✗ '} {cod:<18} "
+                      f"{('TV ' + fmt_preco(r.tv_pix or r.tv_cartao)) if r.aceito else r.mensagem[:90]}")
                 if r.aceito:
                     aceitos.append(r)
                     loja.remover(page)
                     page.wait_for_timeout(1000)
                 if i % 5 == 4:
                     page.wait_for_timeout(3000)  # respiro para não parecer ataque
+            (RAIZ / "logs").mkdir(exist_ok=True)
             page.screenshot(path=str(RAIZ / "logs" / f"carrinho_{loja_id}.png"))
         except PrecisaLogin as e:
             print(f"[{loja_id}] {e}")
@@ -164,29 +182,41 @@ def executar(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: boo
                 reg["aviso_login"] = hoje()
         finally:
             reg["ultima_execucao"] = agora_iso()
-            salva_estado(estado)
             ctx.close()
 
-    # o melhor cupom aceito fica aplicado no carrinho para a compra
+    # deixa o melhor cupom aplicado no carrinho
     if aceitos:
         melhor = min(aceitos, key=lambda r: r.tv_pix or r.tv_cartao or 9e9)
         with sync_playwright() as pw:
             ctx = abrir_navegador(pw, loja, visivel)
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             try:
-                loja.garantir_item(page, url_barato)
+                loja.garantir_item(page, url)
                 loja.aplicar(page, melhor.codigo)
             except Exception:
                 pass
             finally:
                 ctx.close()
-        for r in sorted(aceitos, key=lambda r: r.tv_pix or r.tv_cartao or 9e9):
-            m = msg_resultado(loja.loja_canonica, r)
-            if notify:
-                notificar.enviar(m)
-            else:
-                print("[alerta]\n" + m + "\n")
-    print(f"[{loja_id}] {len(aceitos)} aceito(s) de {len(fila[:25])} testados")
+    print(f"[{loja_id}] {len(aceitos)} aceito(s) de {len(fila[:MAX_POR_RODADA])} testados")
+    return aceitos
+
+
+def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
+    estado = carrega_estado()
+    resultados: list[tuple[str, ResultadoCupom]] = []
+    for loja_id in lojas:
+        try:
+            for r in testar_loja(loja_id, codigos, forcar, visivel, notify, estado):
+                resultados.append((LOJAS[loja_id].loja_canonica, r))
+        except Exception as e:  # noqa: BLE001
+            print(f"[{loja_id}] falhou: {type(e).__name__}: {str(e)[:160]}")
+        salva_estado(estado)
+    msg = msg_melhor(resultados)
+    if msg:
+        if notify:
+            notificar.enviar(msg)
+        else:
+            print("\n[alerta]\n" + msg + "\n")
     return 0
 
 
@@ -195,6 +225,7 @@ def checar_sessao(loja_id: str, visivel: bool = False) -> bool:
     loja = LOJAS[loja_id]
     from playwright.sync_api import sync_playwright
 
+    (RAIZ / "logs").mkdir(exist_ok=True)
     with sync_playwright() as pw:
         ctx = abrir_navegador(pw, loja, visivel=visivel)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
@@ -233,8 +264,7 @@ def login(loja_id: str) -> int:
             pass
         input("\n>>> Terminou o login? Aperte Enter para continuar... ")
         try:
-            # passa pela home para a sessão valer em todos os domínios do Magalu, e dá tempo de gravar os cookies
-            page.goto("https://www.magazineluiza.com.br/", wait_until="domcontentloaded", timeout=60000)
+            page.goto(loja.url_carrinho, wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(2500)
         except Exception:
             pass
@@ -244,15 +274,15 @@ def login(loja_id: str) -> int:
             pass
     ok = checar_sessao(loja_id)
     if ok:
-        print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel --forcar   (primeiro teste, com janela)")
+        print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel --forcar")
         return 0
-    print("Não detectei a sessão logada. Veja a foto em logs\\ e me mande o que apareceu no cabeçalho acima.")
+    print("Não detectei a sessão logada. Veja a foto em logs\\ e me mande o cabeçalho acima.")
     return 1
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--loja", default="magalu", choices=sorted(LOJAS))
+    ap.add_argument("--loja", default="todas", choices=sorted(LOJAS) + ["todas"])
     ap.add_argument("--login", action="store_true")
     ap.add_argument("--check", action="store_true", help="só confere se a sessão salva está logada")
     ap.add_argument("--codigos", default="")
@@ -261,12 +291,15 @@ def main() -> int:
     ap.add_argument("--no-notify", action="store_true")
     a = ap.parse_args()
     (RAIZ / "logs").mkdir(exist_ok=True)
+    lojas = sorted(LOJAS) if a.loja == "todas" else [a.loja]
     if a.login:
+        if a.loja == "todas":
+            return print("escolha a loja: --loja magalu --login") or 1
         return login(a.loja)
     if a.check:
-        return 0 if checar_sessao(a.loja, a.visivel) else 1
+        return 0 if all(checar_sessao(l, a.visivel) for l in lojas) else 1
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None
-    return executar(a.loja, cods, a.forcar, a.visivel, not a.no_notify)
+    return executar(lojas, cods, a.forcar, a.visivel, not a.no_notify)
 
 
 if __name__ == "__main__":

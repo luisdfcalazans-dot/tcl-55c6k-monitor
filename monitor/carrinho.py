@@ -58,6 +58,8 @@ class LojaCarrinho:
     loja_canonica = "?"
     url_login = ""
     url_carrinho = ""
+    url_produto = ""          # anúncio usado quando não há um mais barato conhecido
+    dominio_url = ""          # trecho que identifica um anúncio desta loja nas coletas
 
     def perfil(self) -> Path:
         return PERFIS / self.nome
@@ -105,6 +107,9 @@ class Magalu(LojaCarrinho):
     loja_canonica = "Magazine Luiza"
     url_login = "https://www.magazineluiza.com.br/cliente/login/"
     url_carrinho = "https://sacola.magazineluiza.com.br/"
+    url_produto = config.URL_MAGALU_PRODUTO.replace(
+        "https://www.magazinevoce.com.br/magazinecanaltechbr", "https://www.magazineluiza.com.br")
+    dominio_url = "magazineluiza.com.br"
 
     def logado(self, page) -> bool:
         t = _texto(page)[:1500]
@@ -299,6 +304,136 @@ class Magalu(LojaCarrinho):
         self._fechar_dialogo(page)
 
 
+# ----------------------------------------------------------------------------------------------
+# Mercado Livre
+# ----------------------------------------------------------------------------------------------
+
+_RE_ML_SUBTOTAL = re.compile(r"(?:Produtos?|Subtotal)[^\n]*\n\s*R\$\s?([\d.]+(?:,\d{2})?)", re.I)
+_RE_ML_TOTAL = re.compile(r"(?:Total|Voc[êe] paga)[^\n]*\n\s*R\$\s?([\d.]+(?:,\d{2})?)", re.I)
+_RE_ML_FRETE = re.compile(r"(?:Frete|Envio)[^\n]*\n\s*(R\$\s?[\d.]+(?:,\d{2})?|Gr[áa]tis)", re.I)
+_RE_ML_DESCONTO = re.compile(r"(?:Cupom|Desconto)[^\n]*\n\s*-?\s*R\$\s?([\d.]+(?:,\d{2})?)", re.I)
+
+
+class MercadoLivre(LojaCarrinho):
+    """No ML o cupom é ativado na conta (página de cupons) e entra sozinho no carrinho.
+
+    Por isso aqui "aplicar" significa: ativar o cupom disponível e reler o total do carrinho.
+    O robô nunca avança para envio nem pagamento.
+    """
+
+    nome = "mercadolivre"
+    loja_canonica = "Mercado Livre"
+    url_login = "https://www.mercadolivre.com.br/login"
+    url_carrinho = "https://www.mercadolivre.com.br/gz/cart"
+    url_cupons = "https://www.mercadolivre.com.br/cupons"
+    url_produto = config.URL_ML_CATALOGO
+    dominio_url = "mercadolivre.com.br"
+
+    def logado(self, page) -> bool:
+        t = _texto(page)[:2000]
+        if "iniciar sessão" in t.lower() or "Crie sua conta" in t or "Digite seu e-mail" in t:
+            return False
+        return "/login" not in page.url
+
+    def garantir_item(self, page, url_produto: str) -> bool:
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        if not self.logado(page):
+            raise PrecisaLogin("o Mercado Livre pediu login ao abrir o carrinho")
+        if "55C6K" in _texto(page).upper().replace(" ", ""):
+            return True
+        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        botao = page.get_by_role("button", name=re.compile(r"adicionar ao carrinho", re.I)).first
+        if not botao.count():
+            botao = page.locator("a:has-text('Adicionar ao carrinho'), button:has-text('Adicionar ao carrinho')").first
+        if not botao.count():
+            return False
+        botao.click(timeout=10000)
+        page.wait_for_timeout(4000)
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        return "55C6K" in _texto(page).upper().replace(" ", "")
+
+    def ler_totais(self, page) -> ResultadoCupom:
+        t = _texto(page)
+        r = ResultadoCupom(codigo="", aceito=False)
+        m = _RE_ML_SUBTOTAL.search(t)
+        r.produtos = parse_preco(m.group(1)) if m else None
+        m = _RE_ML_FRETE.search(t)
+        r.frete = (0.0 if m and "gr" in m.group(1).lower() else parse_preco(m.group(1))) if m else None
+        m = _RE_ML_DESCONTO.search(t)
+        r.desconto = parse_preco(m.group(1)) if m else None
+        m = _RE_ML_TOTAL.search(t)
+        r.total_cartao = parse_preco(m.group(1)) if m else None
+        r.total_pix = r.total_cartao
+        m = _RE_PARCELA.search(t)
+        r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        return r
+
+    def cupons_disponiveis(self, page) -> list[dict]:
+        """Lê a página de cupons da conta: título, desconto e se já está ativado."""
+        page.goto(self.url_cupons, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        if not self.logado(page):
+            raise PrecisaLogin("o Mercado Livre pediu login na página de cupons")
+        out: list[dict] = []
+        cartoes = page.locator("li:has-text('cupom'), [class*=coupon], [class*=cupom]")
+        for i in range(min(cartoes.count(), 40)):
+            try:
+                el = cartoes.nth(i)
+                if not el.is_visible():
+                    continue
+                txt = re.sub(r"\s+", " ", el.inner_text()).strip()
+                if not txt or len(txt) > 400:
+                    continue
+                ativo = bool(re.search(r"ativad|resgatad|dispon[íi]vel para uso", txt, re.I))
+                out.append({"texto": txt[:200], "ativado": ativo, "indice": i})
+            except Exception:
+                continue
+        return out
+
+    def aplicar(self, page, codigo: str) -> ResultadoCupom:
+        """Ativa um cupom pelo código, quando a página de cupons oferece campo; senão, ativa os disponíveis."""
+        antes = self.ler_totais(page)
+        page.goto(self.url_cupons, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        if not self.logado(page):
+            raise PrecisaLogin("o Mercado Livre pediu login ao aplicar o cupom")
+        mensagem = ""
+        campo = page.locator("input[placeholder*=cupom i], input[name*=cupom i], input[id*=coupon i]").first
+        if campo.count() and campo.is_visible():
+            campo.fill("")
+            campo.fill(codigo)
+            page.wait_for_timeout(400)
+            bt = page.get_by_role("button", name=re.compile(r"aplicar|ativar|resgatar|adicionar", re.I)).first
+            try:
+                if bt.count():
+                    bt.click(timeout=8000)
+                else:
+                    campo.press("Enter")
+            except Exception:
+                campo.press("Enter")
+            page.wait_for_timeout(4000)
+            t = _texto(page)
+            linha = next((l for l in t.splitlines() if _RE_REJEITADO.search(l)), None)
+            mensagem = re.sub(r"\s+", " ", linha).strip()[:200] if linha else ""
+        else:
+            mensagem = "o ML não tem campo de código nesta conta; cupons são ativados na lista"
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        depois = self.ler_totais(page)
+        depois.codigo = codigo
+        caiu = bool(antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1)
+        depois.aceito = (not mensagem) and (bool(depois.desconto) or caiu)
+        depois.mensagem = mensagem or ("" if depois.aceito else "sem mudança no total")
+        depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
+        return depois
+
+    def remover(self, page) -> None:
+        return  # no ML o cupom fica ativado na conta; nada a desfazer no carrinho
+
+
 def _espera(page) -> None:
     try:
         page.wait_for_load_state("networkidle", timeout=15000)
@@ -307,7 +442,7 @@ def _espera(page) -> None:
     page.wait_for_timeout(1500)
 
 
-LOJAS: dict[str, LojaCarrinho] = {"magalu": Magalu()}
+LOJAS: dict[str, LojaCarrinho] = {"magalu": Magalu(), "mercadolivre": MercadoLivre()}
 
 
 def abrir_navegador(pw, loja: LojaCarrinho, visivel: bool):
