@@ -445,6 +445,43 @@ def _espera(page) -> None:
 LOJAS: dict[str, LojaCarrinho] = {"magalu": Magalu(), "mercadolivre": MercadoLivre()}
 
 
+def caminho_chrome() -> Optional[str]:
+    import shutil
+
+    candidatos = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        str(Path.home() / r"AppData\Local\Google\Chrome\Application\chrome.exe"),
+    ]
+    for c in candidatos:
+        if Path(c).exists():
+            return c
+    return shutil.which("chrome")
+
+
+def abrir_chrome_normal(loja: LojaCarrinho, url: str):
+    """Abre o Chrome comum (sem automação) no perfil da loja.
+
+    Sites como o Mercado Livre não carregam o captcha num navegador aberto por automação;
+    o login precisa acontecer numa janela normal. Depois, a sessão salva no perfil é reaproveitada.
+    """
+    import subprocess
+
+    exe = caminho_chrome()
+    if not exe:
+        return None
+    loja.perfil().mkdir(parents=True, exist_ok=True)
+    return subprocess.Popen([
+        exe,
+        f"--user-data-dir={loja.perfil()}",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--window-position=120,60",
+        "--window-size=1280,900",
+        url,
+    ])
+
+
 def abrir_navegador(pw, loja: LojaCarrinho, visivel: bool):
     loja.perfil().mkdir(parents=True, exist_ok=True)
     args = ["--disable-blink-features=AutomationControlled"]

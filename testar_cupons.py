@@ -26,7 +26,9 @@ from run import carrega_env  # noqa: E402
 carrega_env()
 
 from monitor import config, notificar  # noqa: E402
-from monitor.carrinho import LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_navegador  # noqa: E402
+from monitor.carrinho import (  # noqa: E402
+    LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador,
+)
 from monitor.util import agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
 
 ARQ_ESTADO = config.DIR_DADOS / "cupons_carrinho.json"
@@ -250,28 +252,26 @@ def checar_sessao(loja_id: str, visivel: bool = False) -> bool:
 
 def login(loja_id: str) -> int:
     loja = LOJAS[loja_id]
-    from playwright.sync_api import sync_playwright
 
-    print(f"Vai abrir uma janela do Chrome na página de login do {loja.loja_canonica}.")
-    print("Faça o login normalmente (e-mail/CPF, senha, código se pedir). Eu não vejo nem guardo esses dados;")
-    print("ficam só no perfil do Chrome desta pasta. NÃO feche a janela: quando terminar, volte aqui e aperte Enter.")
-    with sync_playwright() as pw:
-        ctx = abrir_navegador(pw, loja, visivel=True)
-        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+    print(f"Vai abrir uma janela normal do Chrome na página de login do {loja.loja_canonica}.")
+    print("É um Chrome comum, sem automação: o captcha carrega igual ao do seu navegador do dia a dia.")
+    print("Faça o login (e-mail/CPF, senha, código se pedir). Eu não vejo nem guardo esses dados;")
+    print("ficam só no perfil do Chrome desta pasta.")
+    proc = abrir_chrome_normal(loja, loja.url_login)
+    if proc is None:
+        print("Não encontrei o chrome.exe. Instale o Google Chrome ou me avise.")
+        return 1
+    print("\nQuando terminar o login, FECHE a janela do Chrome e volte aqui.")
+    input(">>> Fechou a janela? Aperte Enter para eu conferir a sessão... ")
+    if proc.poll() is None:
+        print("A janela ainda está aberta; fechando para liberar o perfil...")
         try:
-            page.goto(loja.url_login, wait_until="domcontentloaded", timeout=60000)
+            proc.terminate()
         except Exception:
             pass
-        input("\n>>> Terminou o login? Aperte Enter para continuar... ")
-        try:
-            page.goto(loja.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(2500)
-        except Exception:
-            pass
-        try:
-            ctx.close()
-        except Exception:
-            pass
+    import time
+
+    time.sleep(3)
     ok = checar_sessao(loja_id)
     if ok:
         print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel --forcar")
