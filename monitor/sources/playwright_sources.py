@@ -16,6 +16,7 @@ from .. import config
 from ..filtro import eh_55c6k
 from ..models import Oferta
 from ..util import jsonld_produtos, limpa_html, loja_canonica, parcelado_no_texto, parse_preco, precos_no_texto
+from ..trava import PerfilOcupado, trava_perfil
 from . import Fonte, Pular, Resultado
 
 PERFIL = config.RAIZ / ".pw-profile"
@@ -44,6 +45,20 @@ def _abrir(url: str, esperar: str | None = None, capturar: list[str] | None = No
     padroes = capturar or []
     pasta = _dir_perfil(perfil)
     pasta.mkdir(exist_ok=True)
+    try:
+        trava = trava_perfil(pasta, espera_s=30)
+        trava.__enter__()
+    except PerfilOcupado as e:
+        raise Pular(str(e)) from None
+    try:
+        return _abrir_no_perfil(url, pasta, headless, padroes, capturados, esperar, scroll, timeout_ms)
+    finally:
+        trava.__exit__(None, None, None)
+
+
+def _abrir_no_perfil(url, pasta, headless, padroes, capturados, esperar, scroll, timeout_ms):
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as pw:
         ctx = pw.chromium.launch_persistent_context(
             str(pasta), channel="chrome", headless=headless, locale="pt-BR", timezone_id="America/Sao_Paulo",

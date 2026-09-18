@@ -29,6 +29,7 @@ from monitor import config, notificar  # noqa: E402
 from monitor.carrinho import (  # noqa: E402
     LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador,
 )
+from monitor.trava import PerfilOcupado, trava_perfil  # noqa: E402
 from monitor.util import agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
 
 ARQ_ESTADO = config.DIR_DADOS / "cupons_carrinho.json"
@@ -245,8 +246,12 @@ def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel:
     resultados: list[tuple[str, ResultadoCupom]] = []
     for loja_id in lojas:
         try:
-            for r in testar_loja(loja_id, codigos, forcar, visivel, notify, estado):
-                resultados.append((LOJAS[loja_id].loja_canonica, r))
+            # o perfil fica travado durante toda a loja: nenhum outro processo abre o mesmo Chrome
+            with trava_perfil(LOJAS[loja_id].perfil(), espera_s=60):
+                for r in testar_loja(loja_id, codigos, forcar, visivel, notify, estado):
+                    resultados.append((LOJAS[loja_id].loja_canonica, r))
+        except PerfilOcupado as e:
+            print(f"[{loja_id}] pulado: {e}")
         except Exception as e:  # noqa: BLE001
             print(f"[{loja_id}] falhou: {type(e).__name__}: {str(e)[:160]}")
         salva_estado(estado)
@@ -265,6 +270,17 @@ def checar_sessao(loja_id: str, visivel: bool = False) -> bool:
     from playwright.sync_api import sync_playwright
 
     (RAIZ / "logs").mkdir(exist_ok=True)
+    try:
+        with trava_perfil(loja.perfil(), espera_s=60):
+            return _checar_sessao_travado(loja_id, loja, visivel)
+    except PerfilOcupado as e:
+        print(f"[{loja_id}] {e}")
+        return False
+
+
+def _checar_sessao_travado(loja_id: str, loja, visivel: bool) -> bool:
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as pw:
         ctx = abrir_navegador(pw, loja, visivel=visivel)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
@@ -294,21 +310,30 @@ def login(loja_id: str) -> int:
     print("É um Chrome comum, sem automação: o captcha carrega igual ao do seu navegador do dia a dia.")
     print("Faça o login (e-mail/CPF, senha, código se pedir). Eu não vejo nem guardo esses dados;")
     print("ficam só no perfil do Chrome desta pasta.")
-    proc = abrir_chrome_normal(loja, loja.url_login)
-    if proc is None:
-        print("Não encontrei o chrome.exe. Instale o Google Chrome ou me avise.")
+    try:
+        trava = trava_perfil(loja.perfil(), espera_s=90)
+        trava.__enter__()
+    except PerfilOcupado:
+        print("O monitor está usando esse perfil agora. Espere a rodada terminar e tente de novo.")
         return 1
-    print("\nQuando terminar o login, FECHE a janela do Chrome e volte aqui.")
-    input(">>> Fechou a janela? Aperte Enter para eu conferir a sessão... ")
-    if proc.poll() is None:
-        print("A janela ainda está aberta; fechando para liberar o perfil...")
-        try:
-            proc.terminate()
-        except Exception:
-            pass
-    import time
+    try:
+        proc = abrir_chrome_normal(loja, loja.url_login)
+        if proc is None:
+            print("Não encontrei o chrome.exe. Instale o Google Chrome ou me avise.")
+            return 1
+        print("\nQuando terminar o login, FECHE a janela do Chrome e volte aqui.")
+        input(">>> Fechou a janela? Aperte Enter para eu conferir a sessão... ")
+        if proc.poll() is None:
+            print("A janela ainda está aberta; fechando para liberar o perfil...")
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+        import time
 
-    time.sleep(3)
+        time.sleep(3)
+    finally:
+        trava.__exit__(None, None, None)
     ok = checar_sessao(loja_id)
     if ok:
         print(f"Login salvo. Agora rode: python testar_cupons.py --loja {loja_id} --visivel --forcar")
