@@ -372,6 +372,46 @@ def _ml_oferta_selecionada(html: str) -> dict:
     return info
 
 
+def _ml_opcoes_buybox(html: str) -> list[dict]:
+    """Todas as opções de compra do anúncio de catálogo do ML (buy_box_offers.items).
+
+    O mesmo catálogo costuma ter "Melhor preço" (um vendedor, preço com desconto) e "Parcelamento sem
+    juros" (outro vendedor, preço cheio em 10x). A página abre com UMA selecionada, e qual é muda de
+    uma visita para outra; lendo só a selecionada, a opção mais barata some em metade das coletas.
+    Cada item vira {item_id, tipo, selecionada, preco, preco_de, desconto, parcelado, vendedor}.
+    """
+    bb = _json_apos(html, '"buy_box_offers":')
+    itens = bb.get("items") if isinstance(bb, dict) else None
+    out: list[dict] = []
+    for it in itens or []:
+        if not isinstance(it, dict) or not it.get("item_id"):
+            continue
+        op: dict[str, Any] = {"item_id": str(it["item_id"]), "tipo": it.get("type"),
+                              "selecionada": bool(it.get("selected"))}
+        for comp in it.get("components") or []:
+            if not isinstance(comp, dict) or comp.get("state") == "HIDDEN":
+                continue
+            if comp.get("id") == "price" and isinstance(comp.get("price"), dict):
+                op["preco"] = parse_preco(comp["price"].get("value"))
+                op["preco_de"] = parse_preco(comp["price"].get("original_value"))
+                op["desconto"] = bool(comp.get("discount_label"))
+            subs = [comp] if comp.get("id") == "seller" else []
+            subs += [s for s in comp.get("subtitles") or [] if isinstance(s, dict)]
+            for s in subs:
+                txt = _ml_texto_modelo(s)
+                if s.get("id") == "seller" or txt.startswith("Vendido por"):
+                    vend = txt.replace("Vendido por", "", 1).strip()
+                    if vend:
+                        op["vendedor"] = vend
+                elif "sem juros" in txt.lower() and "parcelado" not in op:
+                    p = _parcelado_sem_juros(txt)
+                    if p:
+                        op["parcelado"] = p
+        if op.get("preco"):
+            out.append(op)
+    return out
+
+
 class MercadoLivre(Fonte):
     """O ML marca perfis automatizados e passa a exigir login. Usa um perfil só dele, recriado quando bloqueado.
     Falhas aqui não geram aviso: as ofertas do ML também chegam via Promobit, Pelando e Telegram."""
@@ -440,8 +480,39 @@ class MercadoLivre(Fonte):
                 if mv:
                     o.vendedor = mv.group(1).strip()
             o.parcelado = o.parcelado or sel.get("parcelado") or _parcelado_sem_juros(topo)
-            out.append(o)
+            out.extend(self._por_opcao(o, html, sel))
         return out, []
+
+    @staticmethod
+    def _por_opcao(o: Oferta, html: str, sel: dict) -> list[Oferta]:
+        """Uma Oferta por opção do buy box, com id estável = item_id do vendedor.
+
+        A opção selecionada mantém os valores já conferidos no texto da página (o). As outras vêm do
+        JSON do buy box: com etiqueta de desconto e preço original maior, o original é o preço em outros
+        meios e o valor é o do Pix (é assim que o ML mostra "R$ 3.491,03 · 3% OFF · ou R$ 3.599").
+        Sem buy box legível, devolve só a oferta original.
+        """
+        import copy
+
+        opcoes = _ml_opcoes_buybox(html)
+        if not opcoes:
+            return [o]
+        out: list[Oferta] = []
+        for op in opcoes:
+            if op["selecionada"] or op["item_id"] == sel.get("item_id"):
+                x = copy.copy(o)
+                x.extra = dict(o.extra)
+            else:
+                x = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=o.titulo,
+                           url=o.url, id="", preco=op["preco"])
+                if op.get("desconto") and op.get("preco_de") and op["preco_de"] > op["preco"] + 0.005:
+                    x.preco, x.preco_pix = op["preco_de"], op["preco"]
+                x.parcelado = op.get("parcelado")
+                x.vendedor = op.get("vendedor")
+            x.id = op["item_id"]
+            x.extra["opcao_ml"] = op.get("tipo")
+            out.append(x)
+        return out
 
     @staticmethod
     def _parse_lista(html: str) -> list[Oferta]:

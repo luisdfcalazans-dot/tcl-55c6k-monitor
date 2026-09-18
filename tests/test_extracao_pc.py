@@ -322,8 +322,13 @@ def _ml_coletar(monkeypatch, tmp_path, html: str, texto: str):
     monkeypatch.setattr(ps, "MARCA_BLOQUEIO_ML", tmp_path / "ml_bloqueado_em")
     _stub_abrir(monkeypatch, html, texto)
     ofertas, cupons = ps.MercadoLivre().coletar()
-    assert len(ofertas) == 1 and cupons == []
-    return ofertas[0]
+    assert cupons == []
+    # cada opção do buy box vira uma oferta (ver tests/test_ml_opcoes.py); estes testes olham a opção
+    # que a página abriu selecionada, que é a que tem os valores conferidos no texto
+    sel = ps._ml_oferta_selecionada(html).get("item_id")
+    escolhida = [o for o in ofertas if o.id == sel] if sel else ofertas
+    assert len(escolhida) == 1, [o.id for o in ofertas]
+    return escolhida[0]
 
 
 def test_ml_preco_em_outros_meios_e_pix(monkeypatch, tmp_path):
