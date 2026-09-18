@@ -42,17 +42,17 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
             riscado.decompose()
         texto = txt_el.get_text(" ", strip=False)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
-        # o filtro roda na linha-título: a descrição da TV ("suporte a HDR10+", "controle remoto")
-        # derrubava postagens legítimas quando a mensagem inteira passava pelo filtro
+        # o filtro de título roda na linha-título (a descrição da TV, com "suporte a HDR10+" e "controle remoto",
+        # derrubava postagens legítimas); estado do produto e combo valem em qualquer linha
         achado = bloco_55c6k(texto)
         if not achado:
             continue
-        # preço, parcelado e cupom saem só do trecho da 55C6K: numa postagem com várias TVs, o menor valor
-        # da mensagem era o de outro produto e virava alerta 🎯 falso
+        # preço, parcelado e cupom saem do trecho sem os valores de outros produtos: numa postagem com várias
+        # TVs, o menor valor da mensagem era o de outra TV e virava alerta 🎯 falso
         titulo, trecho = achado
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
-        # ignora mínimo do cupom, desconto, parcela e preço "De"; prefere o valor do Pix/à vista
+        # menor valor que sobra depois de tirar mínimo do cupom, desconto, parcela e preço "De"
         preco = preco_postagem(trecho)
         out.append(Oferta(
             fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),

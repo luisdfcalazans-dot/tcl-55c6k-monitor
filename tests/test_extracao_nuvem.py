@@ -286,22 +286,20 @@ def test_reg1_controle_o_alerta_alvo_continua_para_a_55c6k(monkeypatch):
 
 
 def test_reg1_outras_formas_de_postagem_com_varios_produtos():
-    # a 55C6K depois de outra TV: o preço de cima é da outra
-    o = um_post('Smart TV TCL 43" 43S5K', "R$ 1.799 no Pix", 'Smart TV TCL 55" 55C6K', "R$ 3.599 no Pix")
-    assert o.preco == 3599.0
-    # outra marca sem código de modelo
-    o = um_post("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV Samsung Crystal UHD", "R$ 2.299 no Pix")
-    assert o.preco == 3599.0
-    # outra TV com o tamanho sem aspas (e o preço dela marcado "no Pix")
+    # outra TV com o tamanho sem aspas (e o preço dela marcado "no Pix"): o valor da linha dela sai
     o = um_post("Smart TV TCL 55C6K: R$ 3.599", "Smart TV TCL 50 P7L: R$ 2.069 no Pix")
     assert o.preco == 3599.0
     # tudo na mesma linha
     o = um_post('Smart TV TCL 55" 55C6K: R$ 3.599 | Smart TV Samsung 43" Crystal: R$ 1.799 no Pix')
     assert o.preco == 3599.0
-    # parcelado e cupom também só do trecho da 55C6K
-    o = um_post("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV TCL 43S5K", "R$ 1.799 ou 10x de R$ 179,90 sem juros",
-                "Cupom TCL43")
-    assert o.preco == 3599.0 and o.parcelado is None and o.cupom is None
+    # rodada 3: quando o outro produto aparece numa linha SEM preço (o preço dele vem nas linhas de baixo),
+    # a postagem inteira sai, como na main — a rodada 2 esperava 3599 aqui; a orientação da rodada 3 aceita
+    # rejeitar para nunca arriscar o preço do outro produto
+    for linhas in [('Smart TV TCL 43" 43S5K', "R$ 1.799 no Pix", 'Smart TV TCL 55" 55C6K', "R$ 3.599 no Pix"),
+                   ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV Samsung Crystal UHD", "R$ 2.299 no Pix"),
+                   ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV TCL 43S5K", "R$ 1.799 ou 10x de R$ 179,90 sem juros",
+                    "Cupom TCL43")]:
+        assert telegram_public.parse_canal(canal(*linhas), "canal") == [], linhas
 
 
 def test_reg1_postagem_de_um_produto_usa_a_mensagem_toda():
@@ -429,7 +427,11 @@ def test_nf3_minimo_do_cupom_sem_marcador(cupom, monkeypatch):
     assert um_post(cupom, "Smart TV TCL 55C6K", "R$ 3.599").preco == 3599.0
 
 
-def test_nf3_sem_marcador_vale_o_primeiro_valor():
-    assert preco_postagem("R$ 3.599\nou R$ 3.419 com cupom de outro produto") == 3599.0
+def test_nf3_vale_o_menor_valor_que_sobra():
+    # rodada 3: o verificador da rodada 2 mostrou que "o 1º valor" perde o preço com cupom e o da seta
+    # ("R$ 3.199" + "Com o cupom TCL300: R$ 2.899" -> 2899). O menor valor que sobra depois de tirar mínimo do
+    # cupom, desconto, parcela e "De" é o preço; o de outro produto já saiu no filtro.bloco_55c6k.
+    assert preco_postagem("R$ 3.199\nCom o cupom TCL300: R$ 2.899") == 2899.0
+    assert preco_postagem("R$ 4.199 ➡️ R$ 3.599") == 3599.0
     assert preco_postagem("R$ 3.599 no cartão ou R$ 3.419 no Pix") == 3419.0
     assert preco_postagem("Por R$ 3.599 ou R$ 3.419 no Pix") == 3419.0
