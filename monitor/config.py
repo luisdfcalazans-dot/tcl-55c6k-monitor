@@ -82,6 +82,7 @@ TELEGRAM_CANAIS_PUBLICOS = [
     "peperaiohardware",     # PEPERAIO HARDWARE OFERTAS
     "LOOPechinchas",        # Loop Ofertas
     "ofertasmundoconectado",  # Ofertas Mundo Conectado
+    "cacadoresofertas",     # Caçadores de Ofertas
     # @ENVOLTOTECH é grupo e @AquiSuaPromoBot é bot: só via conta (TELEGRAM_CHATS_USUARIO, no PC)
 ]
 # Canais extras podem ser adicionados sem mexer no código: TELEGRAM_CANAIS_EXTRA="canal1,canal2"
