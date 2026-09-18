@@ -182,28 +182,36 @@ class Magalu(LojaCarrinho):
                     pass
 
     def garantir_item(self, page, url_produto: str) -> bool:
-        """Deixa na sacola exatamente o anúncio pedido (troca se for outro)."""
+        """Deixa na sacola exatamente o anúncio pedido (troca se for outro).
+
+        O Magalu engasga quando recebe muitas operações de sacola seguidas, então tentamos
+        mais de uma vez, com pausa, antes de desistir do anúncio.
+        """
         alvo = self._id_anuncio(url_produto)
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        atual = self._anuncio_na_sacola(page)
-        if atual and atual == alvo:
-            return True
-        if atual:
-            self.esvaziar(page)
-        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
-        if not botao.count():
-            return False
-        try:
-            botao.click(timeout=10000)
-        except Exception:
-            return False  # anúncio sem botão (esgotado ou mudou de layout): segue para o próximo
-        page.wait_for_timeout(3000)
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        return "sacola está vazia" not in _texto(page)
+        for tentativa in range(3):
+            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            atual = self._anuncio_na_sacola(page)
+            if atual and atual == alvo:
+                return True
+            if atual:
+                self.esvaziar(page)
+                page.wait_for_timeout(2000)
+            page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
+            if botao.count():
+                try:
+                    botao.click(timeout=12000)
+                    page.wait_for_timeout(4000)
+                except Exception:
+                    pass
+            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            if self._anuncio_na_sacola(page) == alvo:
+                return True
+            page.wait_for_timeout(4000 * (tentativa + 1))  # deixa a loja respirar
+        return False
 
     def ler_totais(self, page) -> ResultadoCupom:
         """Lê o resumo da sacola por linhas, ancorado em 'Total:'.

@@ -143,7 +143,9 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
         ctx = abrir_navegador(pw, loja, visivel)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
-            for url, vendedor, preco_ref in anuncios:
+            for n_anuncio, (url, vendedor, preco_ref) in enumerate(anuncios):
+                if n_anuncio:
+                    page.wait_for_timeout(5000)  # pausa entre anúncios: a loja não gosta de rajada
                 chave_anuncio = url[-40:]
                 fila = [c.upper() for c in (codigos or conhecidos)]
                 if not forcar and not codigos:
