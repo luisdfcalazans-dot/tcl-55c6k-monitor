@@ -17,9 +17,17 @@ from pathlib import Path
 from typing import Optional
 
 from . import config
-from .util import parse_preco
+from .util import fmt_preco, parse_preco
 
 PERFIS = config.RAIZ / ".pw-profile-carrinho"
+
+# mensagens que são do robô (campo não achado, exceção, total ilegível), não resposta da loja
+_RE_FALHA = re.compile(r"^erro\b|campo de cupom n[ãa]o encontrado|n[ãa]o consegui|n[ãa]o conferid", re.I)
+
+
+def falha_da_ferramenta(mensagem: str) -> bool:
+    """True quando o teste não chegou a uma resposta da loja: não pode virar recusa do cupom."""
+    return bool(_RE_FALHA.search(mensagem or ""))
 
 
 @dataclass
@@ -35,6 +43,15 @@ class ResultadoCupom:
     parcelado: Optional[str] = None
     quantidade: int = 1
     extra: dict = field(default_factory=dict)
+
+    @property
+    def status(self) -> str:
+        """'aceito', 'recusado' (a loja disse não) ou 'erro' (falha do robô, que não vale como recusa)."""
+        if self.aceito:
+            return "aceito"
+        if self.extra.get("falha") or falha_da_ferramenta(self.mensagem):
+            return "erro"
+        return "recusado"
 
     @property
     def tv_pix(self) -> Optional[float]:
@@ -82,6 +99,7 @@ class LojaCarrinho:
     dominio_url = ""          # trecho que identifica um anúncio desta loja nas coletas
     so_leitura = False        # True quando a loja não aceita código digitado (só lê preço/cupom da página)
     max_anuncios = 1          # quantos anúncios diferentes testar por rodada
+    item_alvo: Optional[str] = None  # id do anúncio que garantir_item conferiu no carrinho (quando a URL não diz)
 
     def perfil(self) -> Path:
         return PERFIS / self.nome
@@ -118,6 +136,34 @@ _RE_REJEITADO = re.compile(
     r"n[ãa]o pode ser (?:usado|aplicado)|esgotad|n[ãa]o eleg[íi]vel|n[ãa]o est[áa] dispon|n[ãa]o foi aplicado|"
     r"erro de digita", re.I)
 _RE_ACEITO = re.compile(r"cupom (?:aplicado|adicionado|ativo)|desconto aplicado", re.I)
+
+
+_RE_CARTAO_LOJA = re.compile(r"Pague com (?:o )?Cart[ãa]o Magalu", re.I)
+_RE_LINHA_CARTAO_LOJA = re.compile(r"^(?:em|ou)\s+(?:at[ée]\s+)?\d{1,2}x\b|cart[ãa]o magalu", re.I)
+
+
+def _sem_cartao_da_loja(texto: str) -> str:
+    """Tira o quadro 'Pague com Cartão Magalu' (em 10x … / ou 21x … no Cartão Magalu).
+
+    Essas parcelas valem só para o cartão da loja; o parcelado que interessa é o dos cartões comuns.
+    """
+    linhas = (texto or "").splitlines()
+    fora: list[str] = []
+    k = 0
+    while k < len(linhas):
+        if _RE_CARTAO_LOJA.search(linhas[k]):
+            k += 1
+            while k < len(linhas) and (not linhas[k].strip() or _RE_LINHA_CARTAO_LOJA.search(linhas[k].strip())):
+                k += 1
+            continue
+        fora.append(linhas[k])
+        k += 1
+    return "\n".join(fora)
+
+
+def _sem_total(r: ResultadoCupom) -> bool:
+    """Não deu para ler total nenhum: o teste não mediu nada (é falha do robô, não recusa)."""
+    return r.total_cartao is None and r.total_pix is None
 
 
 def _texto(page) -> str:
@@ -241,8 +287,13 @@ class Magalu(LojaCarrinho):
                 except Exception:
                     pass
 
+    @staticmethod
+    def _so_o_alvo(itens: Optional[list[dict]], alvo: str) -> bool:
+        """True só quando a sacola tem o anúncio pedido e mais nada, com 1 unidade."""
+        return itens is not None and [(i["id"], i.get("quantidade") or 1) for i in itens] == [(alvo, 1)]
+
     def garantir_item(self, page, url_produto: str) -> bool:
-        """Deixa na sacola exatamente o anúncio pedido (troca se for outro).
+        """Deixa na sacola exatamente o anúncio pedido, com 1 unidade (troca se for outro ou se houver 2).
 
         O Magalu engasga quando recebe muitas operações de sacola seguidas, então tentamos
         mais de uma vez, com pausa, antes de desistir do anúncio.
@@ -253,7 +304,7 @@ class Magalu(LojaCarrinho):
             if itens is None:
                 return False  # não deu para ler a sacola: não mexe em nada
             ids = [i["id"] for i in itens]
-            if ids == [alvo]:
+            if self._so_o_alvo(itens, alvo):
                 return True
             if ids:
                 if not self._so_tvs(itens):
@@ -261,6 +312,10 @@ class Magalu(LojaCarrinho):
                     return False
                 self.esvaziar(page)
                 page.wait_for_timeout(2000)
+                if self.itens_da_sacola(page) != []:
+                    # não esvaziou (ou não deu para ler): pôr outra TV só somaria unidades
+                    page.wait_for_timeout(4000 * (tentativa + 1))
+                    continue
             page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
             _espera(page)
             botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
@@ -270,8 +325,7 @@ class Magalu(LojaCarrinho):
                     page.wait_for_timeout(4000)
                 except Exception:
                     pass
-            depois = self.itens_da_sacola(page)
-            if depois is not None and [i["id"] for i in depois] == [alvo]:
+            if self._so_o_alvo(self.itens_da_sacola(page), alvo):
                 return True
             page.wait_for_timeout(4000 * (tentativa + 1))  # deixa a loja respirar
         return False
@@ -282,7 +336,7 @@ class Magalu(LojaCarrinho):
         O Magalu muda a ordem dos rótulos de tempos em tempos (já vi "Produtos (1): / Frete:" e
         "Frete total / Produto (1 item)"), então casamos rótulo → próximo valor em R$.
         """
-        t = _texto(page)
+        t = _sem_cartao_da_loja(_texto(page))
         linhas = [l.strip() for l in t.splitlines()]
         r = ResultadoCupom(codigo="", aceito=False)
 
@@ -306,6 +360,9 @@ class Magalu(LojaCarrinho):
                     r.frete = valor_apos(k)
                 elif re.match(r"Produtos?\b", rot, re.I) and r.produtos is None:
                     r.produtos = valor_apos(k)
+                    mq = re.search(r"\((\d+)", rot)  # 'Produtos (2):' / 'Produto (1 item)'
+                    if mq:
+                        r.quantidade = max(1, int(mq.group(1)))
                 elif re.search(r"(cupom|desconto)", rot, re.I) and r.desconto is None:
                     v = valor_apos(k)
                     if v:
@@ -386,7 +443,8 @@ class Magalu(LojaCarrinho):
         antes = self.ler_totais(page)
         campo = self._abrir_campo(page)
         if campo is None:
-            return ResultadoCupom(codigo=codigo, aceito=False, mensagem="campo de cupom não encontrado", extra={"antes": antes.__dict__})
+            return ResultadoCupom(codigo=codigo, aceito=False, mensagem="campo de cupom não encontrado",
+                                  extra={"antes": antes.__dict__, "falha": True})
         campo.fill("")
         campo.fill(codigo)
         page.wait_for_timeout(500)
@@ -419,12 +477,18 @@ class Magalu(LojaCarrinho):
         caiu = (antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1) or \
                (antes.total_pix and depois.total_pix and depois.total_pix < antes.total_pix - 1)
         depois.aceito = (not mensagem) and (bool(depois.desconto) or bool(caiu))
+        falha = False
         if not mensagem and not depois.aceito:
-            t = _texto(page)
-            i_res = t.find("Produtos (")
-            mensagem = "sem mudança no total: " + re.sub(r"\s+", " ", t[i_res:i_res + 160]).strip() if i_res >= 0 else "sem mudança no total"
+            if _sem_total(antes) or _sem_total(depois):
+                mensagem, falha = "não consegui ler o total da sacola", True
+            else:
+                t = _texto(page)
+                i_res = t.find("Produtos (")
+                mensagem = "sem mudança no total: " + re.sub(r"\s+", " ", t[i_res:i_res + 160]).strip() if i_res >= 0 else "sem mudança no total"
         depois.mensagem = mensagem
         depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
+        if falha:
+            depois.extra["falha"] = True
         self._fechar_dialogo(page)
         return depois
 
@@ -459,6 +523,45 @@ _RE_ML_ERRO = re.compile(
     r"confira se o cupom|n[ãa]o est[áa] mais dispon|cupom inv[áa]lido|n[ãa]o encontramos|"
     r"n[ãa]o p[oô]de ser aplicado|expirou|j[áa] foi usado|n[ãa]o se aplica", re.I)
 _RE_ML_QTD = re.compile(r"Produtos?\s*\((\d+)\)", re.I)
+_RE_ML_ID = re.compile(r"MLB-?(\d{6,})", re.I)
+# opções de compra do catálogo no JSON da página: {"selected":true,"type":"BEST_PRICE","item_id":"MLB…",…}
+_RE_ML_OFERTA = re.compile(r'"selected":(true|false),"type":"(BEST_[A-Z_]+)","item_id":"(MLB\d+)"')
+_RE_ML_ALTERNATIVA = re.compile(r'"buying_option_id":"(BEST_[A-Z_]+)","item_id":"(MLB\d+)","price":([\d.]+)')
+_RE_ML_GTM = re.compile(r'"itemId":"(MLB\d+)"[^{}]*?"localItemPrice":([\d.]+)')
+_SEL_ML_MENOS = "[data-andes-input-stepper-control-type=decrement]"
+# links de cada linha do carrinho: sobe do seletor de quantidade até o primeiro bloco que tenha link,
+# sem passar para um bloco que já tenha outra linha (aí não daria para saber de quem é o link)
+_JS_ML_LINHAS = """() => {
+  const sel = '[data-andes-input-stepper-control-type=decrement]';
+  return [...document.querySelectorAll(sel)].map(s => {
+    let el = s.parentElement;
+    for (let i = 0; i < 12 && el; i++, el = el.parentElement) {
+      if (el.querySelectorAll(sel).length > 1) return [];
+      const links = [...el.querySelectorAll('a[href]')].map(a => a.href);
+      if (links.length) return links;
+    }
+    return [];
+  });
+}"""
+
+
+def _poe_preco(oferta: dict, v: Optional[str]) -> None:
+    try:
+        preco = float(v) if v else 0.0
+    except ValueError:
+        return
+    if preco > 0 and preco not in oferta["precos"]:
+        oferta["precos"].append(preco)
+
+
+def ids_ml(texto: str) -> list[str]:
+    """Ids de anúncio do ML num texto ou URL ('MLB-123…' e 'MLB123…' viram 'MLB123…'), sem repetir."""
+    ids: list[str] = []
+    for m in _RE_ML_ID.finditer(texto or ""):
+        i = "MLB" + m.group(1)
+        if i not in ids:
+            ids.append(i)
+    return ids
 
 
 class MercadoLivre(LojaCarrinho):
@@ -483,15 +586,106 @@ class MercadoLivre(LojaCarrinho):
             return False
         return "/login" not in page.url
 
-    def garantir_item(self, page, url_produto: str) -> bool:
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+    # --- qual anúncio do catálogo testar ---
+    @staticmethod
+    def ofertas_do_catalogo(html: str) -> list[dict]:
+        """Opções de compra do catálogo ('Melhor preço', 'Parcelamento sem juros'…) lidas do JSON da página.
+
+        Cada uma vira {"item_id", "tipo", "selecionada", "precos"}; em "precos" vão o preço mostrado e o
+        original (em 18/09 o 'Melhor preço' era R$ 3.491,03, riscado R$ 3.599).
+        """
+        html = html or ""
+        ofertas: dict[str, dict] = {}
+
+        def oferta(item_id: str, tipo: str) -> dict:
+            return ofertas.setdefault(item_id, {"item_id": item_id, "tipo": tipo, "selecionada": False, "precos": []})
+
+        achados = list(_RE_ML_OFERTA.finditer(html))
+        for k, m in enumerate(achados):
+            o = oferta(m.group(3), m.group(2))
+            o["selecionada"] = o["selecionada"] or m.group(1) == "true"
+            fim = achados[k + 1].start() if k + 1 < len(achados) else m.end() + 4000
+            mp = re.search(r'"price":\{"type":"price","value":([\d.]+)(?:,"original_value":([\d.]+))?',
+                           html[m.end():fim])
+            for v in (mp.groups() if mp else ()):
+                _poe_preco(o, v)
+        for m in _RE_ML_ALTERNATIVA.finditer(html):
+            _poe_preco(oferta(m.group(2), m.group(1)), m.group(3))
+        return list(ofertas.values())
+
+    @classmethod
+    def anuncio_melhor_preco(cls, html: str) -> Optional[dict]:
+        """O anúncio 'Melhor preço' do catálogo, que é o preço de referência da coleta.
+
+        Sem opções de compra na página (catálogo de um vendedor só), vale o anúncio da própria página.
+        """
+        html = html or ""
+        ofertas = cls.ofertas_do_catalogo(html)
+        alvo = next((o for o in ofertas if o["tipo"] == "BEST_PRICE"), None)
+        if alvo is None:
+            m = re.search(r'"multiple_offer_default_winner_item_id":"(MLB\d+)"', html)
+            alvo = next((o for o in ofertas if (m and o["item_id"] == m.group(1)) or o["selecionada"]), None)
+        gtm = _RE_ML_GTM.search(html)
+        if alvo is None and not ofertas and gtm:
+            alvo = {"item_id": gtm.group(1), "tipo": "UNICO", "selecionada": True, "precos": []}
+        if alvo is not None and gtm and gtm.group(1) == alvo["item_id"]:
+            _poe_preco(alvo, gtm.group(2))
+        return alvo
+
+    @staticmethod
+    def situacao_do_carrinho(linhas: list[list[str]], totais: ResultadoCupom, texto: str, alvo: dict,
+                             ofertas: list[dict], catalogo: str = "") -> str:
+        """Confere o carrinho: 'ok' (só o anúncio alvo), 'vazio', 'outro' ou '?' (não deu para conferir).
+
+        `linhas` são os links de cada linha do carrinho (uma por seletor de quantidade). Quando a linha
+        não traz o id do anúncio, conferimos pelo preço de uma unidade contra os preços das opções do
+        catálogo: o 'Parcelamento sem juros' (R$ 3.749) não passa por 'Melhor preço' (R$ 3.599).
+        """
+        tem_tv = "55C6K" in (texto or "").upper().replace(" ", "")
+        vazio = re.search(r"carrinho est[áa] vazio", texto or "", re.I)
+        if not linhas and totais.produtos is None and totais.total_cartao is None and (vazio or not tem_tv):
+            return "vazio"
+        if len(linhas) > 1:
+            return "outro"  # outros produtos ou outro anúncio junto: não serve e não mexemos
+        ids = set(ids_ml(" ".join(linhas[0]))) - {catalogo} if linhas else set()
+        outras = [o for o in ofertas if o["item_id"] != alvo["item_id"]]
+        if ids and alvo["item_id"] not in ids:
+            return "outro"
+        if ids and not ids & {o["item_id"] for o in outras}:
+            return "ok"
+        if totais.produtos is None:
+            return "?"
+        unidade = totais.produtos / max(1, totais.quantidade)
+
+        def bate(o: dict) -> bool:
+            return any(abs(unidade - p) <= max(1.0, p * 0.005) for p in o["precos"])
+
+        if any(bate(o) for o in outras):
+            return "outro"
+        return "ok" if bate(alvo) else "?"
+
+    def _ler_carrinho(self, page) -> tuple[list[list[str]], ResultadoCupom, str]:
+        try:
+            linhas = page.evaluate(_JS_ML_LINHAS) or []
+        except Exception:
+            linhas = []
+        return [list(l or []) for l in linhas], self.ler_totais(page), _texto(page)
+
+    def _adicionar(self, page, url_produto: str, alvo: dict, catalogo: str) -> bool:
+        """Põe no carrinho o anúncio 'Melhor preço' (abre o catálogo já com ele selecionado)."""
+        url = url_produto
+        if catalogo:
+            url = url_produto.split("#")[0].split("?")[0] + f"?pdp_filters=item_id%3A{alvo['item_id']}"
+        page.goto(url, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
-        if not self.logado(page):
-            raise PrecisaLogin("o Mercado Livre pediu login ao abrir o carrinho")
-        if "55C6K" in _texto(page).upper().replace(" ", ""):
-            return True
-        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
+        html = page.content()
+        selecionada = next((o["item_id"] for o in self.ofertas_do_catalogo(html) if o["selecionada"]), None)
+        if selecionada is None:
+            gtm = _RE_ML_GTM.search(html or "")
+            selecionada = gtm.group(1) if gtm else None
+        if selecionada is not None and selecionada != alvo["item_id"]:
+            print(f"[mercadolivre] a página selecionou {selecionada}, não o 'Melhor preço' {alvo['item_id']}; não adiciono")
+            return False
         botao = page.get_by_role("button", name=re.compile(r"adicionar ao carrinho", re.I)).first
         if not botao.count():
             botao = page.locator("a:has-text('Adicionar ao carrinho'), button:has-text('Adicionar ao carrinho')").first
@@ -499,9 +693,50 @@ class MercadoLivre(LojaCarrinho):
             return False
         botao.click(timeout=10000)
         page.wait_for_timeout(4000)
+        return True
+
+    def garantir_item(self, page, url_produto: str) -> bool:
+        """Deixa no carrinho 1 unidade do anúncio 'Melhor preço' do catálogo, e só ele.
+
+        O catálogo tem mais de um anúncio da mesma TV, cada um com seu preço. Antes aceitávamos qualquer
+        55C6K no carrinho e os cupons eram medidos no 'Parcelamento sem juros', 4% mais caro. Agora
+        conferimos o anúncio; se o carrinho tiver outro anúncio ou outros produtos, não mexemos (a pessoa
+        tira à mão) e o anúncio não é testado, para não gravar preço de outro anúncio.
+        """
+        self.item_alvo = None
+        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+        html = page.content()
+        alvo = self.anuncio_melhor_preco(html)
+        if alvo is None:
+            print("[mercadolivre] não achei o anúncio 'Melhor preço' na página do catálogo; não testo")
+            return False
+        ofertas = self.ofertas_do_catalogo(html)
+        mc = re.search(r"/p/(MLB\d+)", url_produto or "")
+        catalogo = mc.group(1) if mc else ""
         page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
-        return "55C6K" in _texto(page).upper().replace(" ", "")
+        if not self.logado(page):
+            raise PrecisaLogin("o Mercado Livre pediu login ao abrir o carrinho")
+        situacao = self.situacao_do_carrinho(*self._ler_carrinho(page), alvo, ofertas, catalogo)
+        if situacao == "vazio":
+            if not self._adicionar(page, url_produto, alvo, catalogo):
+                return False
+            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            situacao = self.situacao_do_carrinho(*self._ler_carrinho(page), alvo, ofertas, catalogo)
+        if situacao != "ok":
+            precos = " / ".join(fmt_preco(p) for p in alvo["precos"])
+            print(f"[mercadolivre] o carrinho não tem só o anúncio 'Melhor preço' {alvo['item_id']} ({precos})"
+                  + (": tem outro anúncio ou outros produtos. Não mexo no seu carrinho; tire-os à mão"
+                     if situacao == "outro" else ": não consegui conferir o anúncio")
+                  + ". Sem teste neste anúncio.")
+            return False
+        if not self.ajustar_quantidade(page, 1):
+            print("[mercadolivre] não consegui deixar 1 unidade da TV no carrinho; sem teste neste anúncio")
+            return False
+        self.item_alvo = alvo["item_id"]
+        return True
 
     def ler_totais(self, page) -> ResultadoCupom:
         """O resumo do ML põe rótulo e valor em linhas separadas ('Produtos (2)' / 'R$' / '8.338')."""
@@ -535,6 +770,9 @@ class MercadoLivre(LojaCarrinho):
             if m and r.produtos is None:
                 r.quantidade = max(1, int(m.group(1)))
                 r.produtos = valor_apos(k)
+            elif re.fullmatch(r"Produto", rot, re.I) and r.produtos is None:
+                r.quantidade = 1  # com 1 unidade o resumo diz só 'Produto', sem o número
+                r.produtos = valor_apos(k)
             elif re.fullmatch(r"Frete", rot, re.I) and r.frete is None:
                 r.frete = valor_apos(k)
             elif re.fullmatch(r"Total", rot, re.I) and r.total_cartao is None:
@@ -547,16 +785,20 @@ class MercadoLivre(LojaCarrinho):
         return r
 
     def ajustar_quantidade(self, page, alvo: int = 1) -> bool:
-        """Deixa o carrinho com `alvo` unidades da TV, clicando no menos do seletor de quantidade."""
+        """Deixa o carrinho com `alvo` unidades da TV, clicando no menos do seletor de quantidade.
+
+        Só clica quando o carrinho tem UM seletor (uma linha só): com outros produtos, o 'menos'
+        poderia ser o de um item da pessoa.
+        """
         for _ in range(12):
             atual = self.ler_totais(page).quantidade
             if atual <= alvo:
                 return atual == alvo
-            menos = page.locator("[data-andes-input-stepper-control-type=decrement]").first
-            if not menos.count():
+            menos = page.locator(_SEL_ML_MENOS)
+            if menos.count() != 1:
                 return False
             try:
-                menos.click(timeout=8000)
+                menos.first.click(timeout=8000)
             except Exception:
                 return False
             page.wait_for_timeout(2500)
@@ -576,7 +818,8 @@ class MercadoLivre(LojaCarrinho):
             raise PrecisaLogin("o Mercado Livre pediu login na página de cupons")
         campo = page.locator("#inputcode-textfield-inline, input[placeholder*='código' i]").first
         if not campo.count():
-            return ResultadoCupom(codigo=codigo, aceito=False, mensagem="campo de cupom não encontrado")
+            return ResultadoCupom(codigo=codigo, aceito=False, mensagem="campo de cupom não encontrado",
+                                  extra={"falha": True})
         campo.fill("")
         campo.fill(codigo)
         page.wait_for_timeout(400)
@@ -603,8 +846,12 @@ class MercadoLivre(LojaCarrinho):
         depois.codigo = codigo
         caiu = bool(antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1)
         depois.aceito = (not mensagem) and (bool(depois.desconto) or caiu)
-        depois.mensagem = mensagem or ("" if depois.aceito else "sem mudança no total")
+        falha = not mensagem and not depois.aceito and (_sem_total(antes) or _sem_total(depois))
+        depois.mensagem = mensagem or ("" if depois.aceito else
+                                       "não consegui ler o total do carrinho" if falha else "sem mudança no total")
         depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
+        if falha:
+            depois.extra["falha"] = True
         return depois
 
     def remover(self, page) -> None:

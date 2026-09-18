@@ -7,6 +7,10 @@
   python testar_cupons.py --forcar                        # testa de novo todos os cupons conhecidos
   opções: --no-notify  --visivel (mostra a janela)  --check (só confere a sessão)
 
+Cada teste fica gravado com um status: "aceito", "recusado" (a loja disse não) ou "erro" (falha do
+robô: campo não achado, exceção, total ilegível). "erro" é testado de novo na rodada seguinte;
+"recusado" depois de 24 h, ou a cada hora nova para cupons de horário (…14H, …18H).
+
 O robô nunca avança para pagamento nem digita dados de conta. Só aplica cupom, lê o total e remove.
 """
 
@@ -14,7 +18,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
@@ -27,14 +33,59 @@ carrega_env()
 
 from monitor import config, notificar  # noqa: E402
 from monitor.carrinho import (  # noqa: E402
-    LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador,
+    LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador, falha_da_ferramenta,
 )
 from monitor.trava import PerfilOcupado, trava_perfil  # noqa: E402
-from monitor.util import agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
+from monitor.util import TZ_BR, agora, agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
 
 ARQ_ESTADO = config.DIR_DADOS / "cupons_carrinho.json"
 CODIGOS_IGNORAR = {"DIRETO NO LINK", "SEM CUPOM", "LINK"}
 MAX_POR_RODADA = 25
+TTL_RECUSADO = timedelta(hours=24)       # recusa da loja vale por um dia; depois o cupom é testado de novo
+RE_CUPOM_DE_HORARIO = re.compile(r"\d{1,2}H$")  # DIADOCLIENTE14H: só funciona na janela daquela hora
+MAX_ERROS_SEGUIDOS = 3                   # falhas seguidas do robô num anúncio: para e tenta na próxima rodada
+
+
+def status_do_registro(reg: dict) -> str:
+    """Status gravado; registros antigos (só com 'aceito') são reclassificados pela mensagem."""
+    st = reg.get("status")
+    if st in ("aceito", "recusado", "erro"):
+        return st
+    if reg.get("aceito"):
+        return "aceito"
+    return "erro" if falha_da_ferramenta(reg.get("mensagem") or "") else "recusado"
+
+
+def _quando(iso: str | None) -> datetime | None:
+    try:
+        d = datetime.fromisoformat(iso or "")
+    except ValueError:
+        return None
+    return d if d.tzinfo else d.replace(tzinfo=TZ_BR)
+
+
+def precisa_testar(codigo: str, reg: dict | None, momento: datetime | None = None) -> bool:
+    """Decide se o cupom volta para a fila deste anúncio.
+
+    - nunca testado ou 'erro' (o robô falhou, a loja não respondeu): testa de novo;
+    - 'aceito': de novo no dia seguinte (o desconto pode mudar);
+    - 'recusado': de novo depois de 24 h; cupom de horário (…14H), a cada hora nova.
+    """
+    if not reg:
+        return True
+    momento = momento or agora()
+    st = status_do_registro(reg)
+    if st == "erro":
+        return True
+    quando = _quando(reg.get("testado_em"))
+    if quando is None:
+        return True
+    quando = quando.astimezone(momento.tzinfo or TZ_BR)
+    if st == "aceito":
+        return quando.date() < momento.date()
+    if RE_CUPOM_DE_HORARIO.search(codigo.upper()):
+        return (quando.date(), quando.hour) != (momento.date(), momento.hour)
+    return momento - quando >= TTL_RECUSADO
 
 
 def carrega_estado() -> dict:
@@ -109,7 +160,7 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
     linhas.append(f"<b>Melhor à vista</b>: {fmt_preco(r.tv_pix or r.tv_cartao)} na {melhor_vista[0]} "
                   f"com <code>{r.codigo}</code>")
     if r.extra.get("antes_pix") and r.frete is not None:
-        antes = round(r.extra["antes_pix"] - r.frete, 2)
+        antes = round((r.extra["antes_pix"] - r.frete) / max(1, r.quantidade), 2)  # de UMA TV, como tv_pix
         if antes > (r.tv_pix or 0):
             linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
     if melhor_parc:
@@ -123,7 +174,17 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
         linhas.append("Outros que funcionaram: " + " · ".join(outros))
     linhas.append("")
     linhas.append(f"Alvo: Pix {fmt_preco(config.ALVO_PIX)} · parcelado {fmt_preco(config.ALVO_PARCELADO)}")
-    linhas.append("O melhor cupom ficou aplicado no carrinho; é só entrar e finalizar.")
+    # só afirma que o cupom ficou no carrinho quando o passo final foi conferido (ver testar_loja)
+    if r.extra.get("no_carrinho") is True:
+        linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {melhor_vista[0]}, "
+                      "só com a TV; é só entrar e finalizar.")
+    elif r.extra.get("no_carrinho") is False:
+        motivo = r.extra.get("motivo_carrinho") or "não deu para conferir"
+        linhas.append(f"⚠️ Não consegui deixar o cupom aplicado no carrinho da {melhor_vista[0]} ({motivo}); "
+                      f"aplique <code>{r.codigo}</code> à mão e confira o total antes de finalizar.")
+    elif r.extra.get("so_leitura"):
+        linhas.append(f"Na {melhor_vista[0]} o robô não monta o carrinho: marque o cupom na página do produto "
+                      "e confira o total antes de finalizar.")
     return "\n".join(linhas)
 
 
@@ -147,16 +208,15 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
             for n_anuncio, (url, vendedor, preco_ref) in enumerate(anuncios):
                 if n_anuncio:
                     page.wait_for_timeout(5000)  # pausa entre anúncios: a loja não gosta de rajada
-                chave_anuncio = url[-40:]
-                fila = [c.upper() for c in (codigos or conhecidos)]
-                if not forcar and not codigos:
-                    fila = [c for c in fila
-                            if f"{c}@{chave_anuncio}" not in testados
-                            or (testados[f"{c}@{chave_anuncio}"].get("aceito")
-                                and (testados[f"{c}@{chave_anuncio}"].get("testado_em") or "")[:10] < hoje())]
                 if not loja.garantir_item(page, url):
                     print(f"[{loja_id}] não consegui pôr no carrinho: {vendedor} ({url[-40:]})")
                     continue
+                # no ML a URL é do catálogo; o anúncio conferido no carrinho entra na chave
+                chave_anuncio = url[-40:] + (f"#{loja.item_alvo}" if loja.item_alvo else "")
+                fila = [c.upper() for c in (codigos or conhecidos)]
+                if not forcar and not codigos:
+                    momento = agora()
+                    fila = [c for c in fila if precisa_testar(c, testados.get(f"{c}@{chave_anuncio}"), momento)]
                 base = loja.ler_totais(page)
                 print(f"[{loja_id}] {vendedor}: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
                       f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
@@ -172,6 +232,7 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                         depois.aceito = bool(depois.total_cartao and base.total_cartao
                                              and depois.total_cartao < base.total_cartao - 1)
                         depois.mensagem = rot
+                        depois.extra["so_leitura"] = True  # o robô não põe nada no carrinho desta loja
                         print(f"  {'✅' if depois.aceito else 'ℹ '} cupom da página: {rot[:80]}")
                         if depois.aceito:
                             aceitos.append(depois)
@@ -183,22 +244,29 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                     print(f"[{loja_id}] {vendedor}: nada novo ({len(conhecidos)} cupons conhecidos)")
                     continue
                 print(f"[{loja_id}] {vendedor}: testando {len(fila[:MAX_POR_RODADA])} cupons")
+                erros_seguidos = 0
                 for i, cod in enumerate(fila[:MAX_POR_RODADA]):
                     try:
                         r = loja.aplicar(page, cod)
                     except PrecisaLogin:
                         raise
                     except Exception as e:  # noqa: BLE001
-                        r = ResultadoCupom(codigo=cod, aceito=False,
+                        r = ResultadoCupom(codigo=cod, aceito=False, extra={"falha": True},
                                            mensagem=f"erro: {type(e).__name__}: {str(e)[:120]}")
+                    st = r.status  # 'erro' não é recusa: volta na próxima rodada
                     testados[f"{cod}@{chave_anuncio}"] = {
-                        "testado_em": agora_iso(), "aceito": r.aceito, "mensagem": r.mensagem[:200],
+                        "testado_em": agora_iso(), "status": st, "aceito": r.aceito, "mensagem": r.mensagem[:200],
                         "vendedor": vendedor, "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao,
                         "total_pix": r.total_pix, "total_cartao": r.total_cartao, "frete": r.frete,
-                        "desconto": r.desconto, "parcelado": r.parcelado,
+                        "desconto": r.desconto, "parcelado": r.parcelado, "quantidade": r.quantidade,
                     }
-                    print(f"  {'✅' if r.aceito else '✗ '} {cod:<18} "
+                    print(f"  {'✅' if r.aceito else ('⚠ ' if st == 'erro' else '✗ ')} {cod:<18} "
                           f"{('TV ' + fmt_preco(r.tv_pix or r.tv_cartao)) if r.aceito else r.mensagem[:80]}")
+                    erros_seguidos = erros_seguidos + 1 if st == "erro" else 0
+                    if erros_seguidos >= MAX_ERROS_SEGUIDOS:
+                        print(f"[{loja_id}] {vendedor}: {erros_seguidos} falhas seguidas do robô; "
+                              "paro este anúncio e os cupons voltam na próxima rodada")
+                        break
                     if r.aceito:
                         r.extra["vendedor"] = vendedor
                         aceitos.append(r)
@@ -231,14 +299,34 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
             ctx = abrir_navegador(pw, loja, visivel)
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             try:
-                loja.garantir_item(page, url_melhor)
-                loja.aplicar(page, melhor.codigo)
-            except Exception:
-                pass
+                deixar_cupom_no_carrinho(loja, page, url_melhor, melhor)
             finally:
                 ctx.close()
     print(f"[{loja_id}] {len(aceitos)} cupom(ns) aceito(s)")
     return aceitos
+
+
+def deixar_cupom_no_carrinho(loja: LojaCarrinho, page, url: str, melhor: ResultadoCupom) -> bool:
+    """Passo final: carrinho só com a TV (1 unidade) e o melhor cupom aplicado de novo.
+
+    Marca melhor.extra["no_carrinho"] = True só quando garantir_item conferiu o carrinho e a loja
+    aceitou o MESMO código; senão grava o motivo, e o alerta manda aplicar à mão.
+    """
+    melhor.extra["no_carrinho"] = False
+    try:
+        if not loja.garantir_item(page, url):
+            motivo = "o carrinho não ficou só com a TV"
+        else:
+            final = loja.aplicar(page, melhor.codigo)
+            if final.aceito and final.codigo == melhor.codigo:
+                melhor.extra["no_carrinho"] = True
+                return True
+            motivo = final.mensagem or "a loja não confirmou o cupom"
+    except Exception as e:  # noqa: BLE001
+        motivo = f"erro: {type(e).__name__}"
+    melhor.extra["motivo_carrinho"] = motivo[:120]
+    print(f"[{loja.nome}] não deixei {melhor.codigo} aplicado no carrinho: {motivo[:120]}")
+    return False
 
 
 def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
