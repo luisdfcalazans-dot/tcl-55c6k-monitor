@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-18T11:48:36-03:00",
+ "atualizado": "2026-09-18T14:41:17-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -28,24 +28,6 @@
    "extra": {},
    "chave": "zoom:1489104908",
    "melhor_preco": 3279.0
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assi",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1484766165",
-   "id": "1484766165",
-   "preco": 3561.55,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {},
-   "chave": "zoom:1484766165",
-   "melhor_preco": 3561.55
   },
   {
    "fonte": "magalu",
@@ -126,6 +108,27 @@
    "melhor_preco": 3937.15
   },
   {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
+   "url": "https://site.fastshop.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv-139680/p",
+   "id": "Fast Shop-139680-cnl222",
+   "preco": 3998.99,
+   "preco_pix": null,
+   "parcelado": "12x R$ 333,24 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Ponto",
+   "extra": {
+    "preco_de": 3998.99,
+    "ref": "143077_Fastshopbr"
+   },
+   "chave": "vtex:Fast Shop-139680-cnl222",
+   "melhor_preco": 3998.99
+  },
+  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -184,6 +187,27 @@
    },
    "chave": "magalu:eecab9199g-leonfer",
    "melhor_preco": 4859.91
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL C6K 55 Polegadas 4K QLED Mini LED Preto Android TV 144Hz Bivolt",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-c6k-55-polegadas-4k-qled-mini-led-preto-android-tv-144hz-bivolt/p/kkfe3d8a79/et/elit/",
+   "id": "kkfe3d8a79-lojawebcontinentalmarketplace",
+   "preco": 4954.9,
+   "preco_pix": null,
+   "parcelado": "10x R$ 495,49 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Webcontinental Marketplace",
+   "extra": {
+    "preco_de": 4954.9,
+    "1p": false
+   },
+   "chave": "magalu:kkfe3d8a79-lojawebcontinentalmarketplace",
+   "melhor_preco": 4954.9
   }
  ],
  "posts": [
@@ -313,7 +337,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-18T11:48:36-03:00",
+   "ultima_vez": "2026-09-18T14:41:17-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -339,7 +363,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-18T11:48:36-03:00",
+   "ultima_vez": "2026-09-18T14:41:17-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -365,7 +389,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-18T11:48:36-03:00",
+   "ultima_vez": "2026-09-18T14:41:17-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -391,7 +415,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-18T11:48:36-03:00",
+   "ultima_vez": "2026-09-18T14:41:17-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -537,6 +561,19 @@
    "publicado": "2026-09-17T15:31:09-03:00",
    "especifico": false,
    "chave": "promobit:69649"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "CACIFE12",
+   "titulo": "A chance de economizar 12% em compras na Mercado Livre",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69707",
+   "regra": "produtos Mercado Livre Economize até 12% ao usar o código promocional no carrinho de compras (compra mínima R$55).",
+   "validade": null,
+   "publicado": "2026-09-18T11:48:11-03:00",
+   "especifico": false,
+   "chave": "promobit:69707"
   },
   {
    "fonte": "promobit",
@@ -737,52 +774,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:14-03:00",
+   "ultimo_ok": "2026-09-18T14:40:49-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:16-03:00",
+   "ultimo_ok": "2026-09-18T14:40:52-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:21-03:00",
+   "ultimo_ok": "2026-09-18T14:40:59-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:22-03:00",
+   "ultimo_ok": "2026-09-18T14:41:00-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:25-03:00",
+   "ultimo_ok": "2026-09-18T14:41:03-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:26-03:00",
+   "ultimo_ok": "2026-09-18T14:41:05-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:27-03:00",
+   "ultimo_ok": "2026-09-18T14:41:06-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:28-03:00",
+   "ultimo_ok": "2026-09-18T14:41:07-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:29-03:00",
+   "ultimo_ok": "2026-09-18T14:41:08-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T11:48:35-03:00",
+   "ultimo_ok": "2026-09-18T14:41:14-03:00",
    "ultimo_erro": null
   }
  }
