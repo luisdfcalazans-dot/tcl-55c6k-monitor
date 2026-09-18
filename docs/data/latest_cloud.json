@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-18T07:32:08-03:00",
+ "atualizado": "2026-09-18T11:03:46-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -28,6 +28,63 @@
    "extra": {},
    "chave": "zoom:1489104908",
    "melhor_preco": 3279.0
+  },
+  {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assi",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1484766165",
+   "id": "1484766165",
+   "preco": 3561.55,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {},
+   "chave": "zoom:1484766165",
+   "melhor_preco": 3561.55
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
+   "id": "240162800-magazineluiza",
+   "preco": 3749.0,
+   "preco_pix": 3561.55,
+   "parcelado": "10x R$ 374,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4199.0,
+    "1p": true
+   },
+   "chave": "magalu:240162800-magazineluiza",
+   "melhor_preco": 3561.55
+  },
+  {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1572257841",
+   "id": "1572257841",
+   "preco": 3749.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {},
+   "chave": "zoom:1572257841",
+   "melhor_preco": 3749.0
   },
   {
    "fonte": "zoom",
@@ -67,63 +124,6 @@
    },
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 3937.15
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assi",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1484766165",
-   "id": "1484766165",
-   "preco": 3960.55,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {},
-   "chave": "zoom:1484766165",
-   "melhor_preco": 3960.55
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
-   "id": "240162800-magazineluiza",
-   "preco": 4169.0,
-   "preco_pix": 3960.55,
-   "parcelado": "10x R$ 416,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4199.0,
-    "1p": true
-   },
-   "chave": "magalu:240162800-magazineluiza",
-   "melhor_preco": 3960.55
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1572257841",
-   "id": "1572257841",
-   "preco": 4169.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {},
-   "chave": "zoom:1572257841",
-   "melhor_preco": 4169.0
   },
   {
    "fonte": "zoom",
@@ -313,7 +313,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-18T07:32:08-03:00",
+   "ultima_vez": "2026-09-18T11:03:46-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -339,7 +339,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-18T07:32:08-03:00",
+   "ultima_vez": "2026-09-18T11:03:46-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -365,7 +365,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-18T07:32:08-03:00",
+   "ultima_vez": "2026-09-18T11:03:46-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -391,7 +391,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-18T07:32:08-03:00",
+   "ultima_vez": "2026-09-18T11:03:46-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -541,6 +541,19 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
+   "codigo": "OFERTANOML",
+   "titulo": "PULSO TECH: 10% OFF em Eletronicos no Mercado Livre (acima de R$149) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69698",
+   "regra": "produtos Mercado Livre",
+   "validade": null,
+   "publicado": "2026-09-18T09:11:08-03:00",
+   "especifico": false,
+   "chave": "promobit:69698"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
    "codigo": "ECONOMIZEIML",
    "titulo": "Inovação Doméstica: 10% OFF em Eletrônicos no Mercado Livre (acima de R$149) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -550,19 +563,6 @@
    "publicado": "2026-09-17T09:11:08-03:00",
    "especifico": false,
    "chave": "promobit:69602"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "OFERTAS",
-   "titulo": "Tech em alta: 10% OFF em Eletrônicos no Mercado Livre (acima de R$149) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69567",
-   "regra": "produtos Mercado Livre",
-   "validade": null,
-   "publicado": "2026-09-16T09:11:09-03:00",
-   "especifico": false,
-   "chave": "promobit:69567"
   },
   {
    "fonte": "promobit",
@@ -737,52 +737,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:49-03:00",
+   "ultimo_ok": "2026-09-18T11:03:13-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:51-03:00",
+   "ultimo_ok": "2026-09-18T11:03:17-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:54-03:00",
+   "ultimo_ok": "2026-09-18T11:03:22-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:55-03:00",
+   "ultimo_ok": "2026-09-18T11:03:23-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:58-03:00",
+   "ultimo_ok": "2026-09-18T11:03:26-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:31:59-03:00",
+   "ultimo_ok": "2026-09-18T11:03:27-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:32:00-03:00",
+   "ultimo_ok": "2026-09-18T11:03:28-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:32:01-03:00",
+   "ultimo_ok": "2026-09-18T11:03:29-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:32:02-03:00",
+   "ultimo_ok": "2026-09-18T11:03:30-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-18T07:32:07-03:00",
+   "ultimo_ok": "2026-09-18T11:03:37-03:00",
    "ultimo_erro": null
   }
  }
