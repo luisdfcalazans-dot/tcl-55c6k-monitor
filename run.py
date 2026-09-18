@@ -44,7 +44,9 @@ def main() -> int:
 
     from monitor import config, notificar
     from monitor.estado import Estado
-    from monitor.regras import cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario
+    from monitor.regras import (
+        cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario, sanear,
+    )
     from monitor.sources import Pular, por_modo
     from monitor.util import agora, hoje
 
@@ -89,6 +91,10 @@ def main() -> int:
     for c in cupons:
         unicos.setdefault(c.chave, c)
     cupons = list(unicos.values())  # type: ignore[assignment]
+
+    ofertas, avisos_sanidade = sanear(ofertas)  # type: ignore[arg-type]
+    for a in avisos_sanidade:
+        print(f"[sanidade] {a}")
 
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
     aplicaveis = cupons_aplicaveis(ofertas, cupons)  # type: ignore[arg-type]

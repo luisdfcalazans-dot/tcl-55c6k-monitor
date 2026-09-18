@@ -9,7 +9,7 @@ from typing import Optional
 from . import config
 from .estado import Estado
 from .models import Cupom, Oferta
-from .util import dias_desde, fmt_preco, loja_canonica, sem_acentos
+from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
 
 _RE_ATE = re.compile(r"(?:compras?\s+)?(?:at[ée]|m[áa]ximo(?: de)?)\s*R\$\s?([\d.]+)", re.I)
 _RE_ACIMA = re.compile(r"(?:acima de|a partir de|m[íi]nimo(?: de)?|compras?\s+(?:de|a partir de))\s*R\$\s?([\d.]+)", re.I)
@@ -212,6 +212,47 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         msgs.append(cab + "\n" + corpo)
 
     return msgs, alertados
+
+
+_RE_PARCELA_TXT = re.compile(r"(\d{1,2})x\s*(?:de\s*)?R\$\s?([\d.]+(?:,\d{2})?)", re.I)
+
+
+def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
+    """Tira preços que claramente não são desta TV antes de virarem alerta.
+
+    Nasceu de um caso real: a página esgotada da Casas Bahia fez o coletor pegar o preço de uma
+    Hisense do carrossel de recomendados (R$ 2.189) como se fosse a 55C6K.
+    Duas checagens: parcelamento que não fecha com o preço, e preço fora da faixa das outras lojas.
+    """
+    from statistics import median
+
+    avisos: list[str] = []
+    # 1) parcelado incoerente com o preço -> o parcelado veio de outro produto
+    for o in ofertas:
+        if not o.parcelado or not o.melhor_preco:
+            continue
+        m = _RE_PARCELA_TXT.search(o.parcelado)
+        if not m:
+            continue
+        total = int(m.group(1)) * (parse_preco(m.group(2)) or 0)
+        if total and abs(total - o.melhor_preco) > max(80.0, o.melhor_preco * 0.2):
+            avisos.append(f"{o.loja}: parcelado '{o.parcelado}' não fecha com {fmt_preco(o.melhor_preco)}")
+            o.extra["parcelado_descartado"] = o.parcelado
+            o.parcelado = None
+
+    # 2) preço muito fora da faixa das demais lojas
+    precos = [o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco]
+    if len(precos) >= 4:
+        meio = median(precos)
+        piso, teto = meio * 0.55, meio * 2.2
+        for o in ofertas:
+            p = o.melhor_preco
+            if o.tipo != "loja" or not o.ativo or not p or piso <= p <= teto:
+                continue
+            avisos.append(f"{o.loja}: {fmt_preco(p)} fora da faixa (mediana {fmt_preco(meio)}) — descartado")
+            o.ativo = False
+            o.extra["descartado"] = f"fora da faixa (mediana {meio:.2f})"
+    return ofertas, avisos
 
 
 def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom]) -> list[Cupom]:

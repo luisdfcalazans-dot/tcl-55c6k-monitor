@@ -61,6 +61,8 @@ class LojaCarrinho:
     url_carrinho = ""
     url_produto = ""          # anúncio usado quando não há um mais barato conhecido
     dominio_url = ""          # trecho que identifica um anúncio desta loja nas coletas
+    so_leitura = False        # True quando a loja não aceita código digitado (só lê preço/cupom da página)
+    max_anuncios = 1          # quantos anúncios diferentes testar por rodada
 
     def perfil(self) -> Path:
         return PERFIS / self.nome
@@ -111,6 +113,7 @@ class Magalu(LojaCarrinho):
     url_produto = config.URL_MAGALU_PRODUTO.replace(
         "https://www.magazinevoce.com.br/magazinecanaltechbr", "https://www.magazineluiza.com.br")
     dominio_url = "magazineluiza.com.br"
+    max_anuncios = 3          # o cupom costuma valer para um vendedor e não para outro
 
     def logado(self, page) -> bool:
         t = _texto(page)[:1500]
@@ -122,11 +125,53 @@ class Magalu(LojaCarrinho):
         t = _texto(page)[:2500]
         return "Quero criar uma conta" in t or page.locator("#input-login:visible, #input-password:visible").count() > 0
 
+    @staticmethod
+    def _id_anuncio(url: str) -> str:
+        m = re.search(r"/p/([^/?]+)", url or "")
+        return m.group(1) if m else (url or "")[-24:]
+
+    def _anuncio_na_sacola(self, page) -> str:
+        """Id do anúncio que está na sacola agora ('' se vazia)."""
+        if "sacola está vazia" in _texto(page):
+            return ""
+        for a in page.locator("a[href*='/p/']").all()[:12]:
+            href = a.get_attribute("href") or ""
+            if "/p/" in href:
+                return self._id_anuncio(href)
+        return "?"
+
+    def esvaziar(self, page) -> None:
+        for _ in range(6):
+            if "sacola está vazia" in _texto(page):
+                return
+            bt = page.get_by_role("button", name=re.compile(r"^excluir$", re.I)).first
+            if not bt.count():
+                bt = page.get_by_text(re.compile(r"^Excluir$", re.I)).first
+            if not bt.count():
+                return
+            try:
+                bt.click(timeout=8000)
+            except Exception:
+                return
+            page.wait_for_timeout(2500)
+            conf = page.get_by_role("button", name=re.compile(r"excluir|confirmar|sim", re.I)).first
+            if conf.count() and conf.is_visible():
+                try:
+                    conf.click(timeout=5000)
+                    page.wait_for_timeout(2000)
+                except Exception:
+                    pass
+
     def garantir_item(self, page, url_produto: str) -> bool:
+        """Deixa na sacola exatamente o anúncio pedido (troca se for outro)."""
+        alvo = self._id_anuncio(url_produto)
         page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
-        if "sacola está vazia" not in _texto(page):
+        atual = self._anuncio_na_sacola(page)
+        if atual and atual == alvo:
             return True
+        if atual:
+            self.esvaziar(page)
         page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
         botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
@@ -485,80 +530,79 @@ _RE_AMZ_ERRO = re.compile(
 
 
 class Amazon(LojaCarrinho):
-    """Na Amazon o desconto vem de dois lugares: o cupom de clicar na página do produto
-    ("Economize R$ X com cupom") e o código promocional, que só entra no passo de pagamento.
-    O robô clica no cupom da página e lê o carrinho; nunca avança para o pagamento."""
+    """A Amazon é diferente das outras duas.
+
+    Ela bloqueia o robô de pôr item no carrinho (o contador fica em zero) e o campo de código
+    promocional só existe no passo de pagamento, onde o robô não entra. Então aqui trabalhamos na
+    página do produto: marcamos o cupom de clicar ("Economize R$ X com cupom") e lemos o preço.
+    """
 
     nome = "amazon"
     loja_canonica = "Amazon"
     url_login = config.URL_AMAZON_LOGIN
-    url_carrinho = config.URL_AMAZON_CARRINHO
+    url_carrinho = config.URL_AMAZON_PRODUTO   # o "carrinho" desta loja é a própria página do anúncio
     url_produto = config.URL_AMAZON_PRODUTO
     dominio_url = "amazon.com.br"
+    so_leitura = True                          # não testa códigos digitados
 
     def logado(self, page) -> bool:
-        t = _texto(page)[:1200]
-        if "Faça seu login" in t or "Fazer login" in t and "Olá," not in t:
+        if "/ap/signin" in page.url:
             return False
-        return "/ap/signin" not in page.url
+        t = _texto(page)[:2500]
+        return "Faça seu login" not in t
 
     def garantir_item(self, page, url_produto: str) -> bool:
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        if not self.logado(page):
-            raise PrecisaLogin("a Amazon pediu login ao abrir o carrinho")
-        if "55C6K" in _texto(page).upper().replace(" ", ""):
-            return True
         page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
-        botao = page.locator("#add-to-cart-button").first
-        if not botao.count():
-            botao = page.get_by_role("button", name=re.compile(r"adicionar ao carrinho", re.I)).first
-        if not botao.count():
-            return False
-        botao.click(timeout=10000)
-        page.wait_for_timeout(4000)
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        return "55C6K" in _texto(page).upper().replace(" ", "")
+        if not self.logado(page):
+            raise PrecisaLogin("a Amazon pediu login na página do produto")
+        return page.locator("#productTitle").count() > 0
 
     def ler_totais(self, page) -> ResultadoCupom:
         t = _texto(page)
         r = ResultadoCupom(codigo="", aceito=False)
-        m = _RE_AMZ_SUBTOTAL.search(t)
-        if m:
-            r.quantidade = max(1, int(m.group(1)))
-            r.produtos = parse_preco(m.group(2))
-        r.frete = 0.0  # o frete só aparece no fechamento; o subtotal já é o preço dos produtos
-        r.total_cartao = r.produtos
-        r.total_pix = r.produtos
-        m = _RE_PARCELA.search(t)
+        bloco = page.locator("#corePriceDisplay_desktop_feature_div, #corePrice_feature_div, #apex_desktop").first
+        preco = None
+        if bloco.count():
+            m = re.search(r"R\$\s?([\d.]+,\d{2})", bloco.inner_text().replace("\xa0", " "))
+            preco = parse_preco(m.group(1)) if m else None
+        if preco is None:
+            m = re.search(r'"displayPrice":"R\$\s?([\d.,]+)"', page.content())
+            preco = parse_preco(m.group(1)) if m else None
+        r.produtos = r.total_cartao = r.total_pix = preco
+        r.frete = 0.0
+        m = re.search(r"(\d{1,2})x de R\$\s?([\d.]+,\d{2})\s*sem juros", t.replace("\xa0", " "))
         r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        mv = page.locator("#sellerProfileTriggerId").first
+        if mv.count():
+            r.extra["vendedor"] = mv.inner_text().strip()[:40]
+        md = re.search(r"Inclui desconto de\s*R\$\s?([\d.,]+)", t.replace("\xa0", " "))
+        if md:
+            r.desconto = parse_preco(md.group(1))
         return r
 
-    def cupom_da_pagina(self, page, url_produto: str) -> Optional[str]:
-        """Marca o cupom de clicar da página do produto, se houver. Devolve o texto do cupom."""
-        page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
-        cx = page.locator("input[id*=couponCheckbox], input[name*=coupon], #promoPriceBlockMessage input[type=checkbox]").first
+    def cupom_da_pagina(self, page) -> Optional[str]:
+        """Marca o cupom de clicar da página, se houver, e devolve o texto dele."""
+        cx = page.locator(
+            "#couponFeature input[type=checkbox], input[id*=couponCheckbox], "
+            "#promoPriceBlockMessage input[type=checkbox], #vpcButton input[type=checkbox]").first
         if not cx.count():
             return None
         rotulo = ""
+        for sel in ("#couponFeature", "label[for*=coupon]", "#promoPriceBlockMessage"):
+            e = page.locator(sel).first
+            if e.count():
+                rotulo = re.sub(r"\s+", " ", e.inner_text())[:120]
+                break
         try:
-            rotulo = re.sub(r"\s+", " ", page.locator("label[for*=coupon], #promoPriceBlockMessage").first.inner_text())[:120]
-        except Exception:
-            pass
-        if not cx.is_checked():
-            try:
+            if not cx.is_checked():
                 cx.check(timeout=6000)
                 page.wait_for_timeout(2500)
-            except Exception:
-                return rotulo or None
+        except Exception:
+            pass
         return rotulo or "cupom da página"
 
     def aplicar(self, page, codigo: str) -> ResultadoCupom:
-        """A Amazon não tem campo de código no carrinho: ele fica no passo de pagamento,
-        onde o robô não entra. Aqui só registramos o preço atual e o cupom de clicar."""
         base = self.ler_totais(page)
         base.codigo = codigo
         base.aceito = False

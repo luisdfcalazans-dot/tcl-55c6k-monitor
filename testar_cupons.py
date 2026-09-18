@@ -57,13 +57,13 @@ def _json(p: Path) -> dict:
         return {}
 
 
-def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], str]:
-    """Cupons da loja vindos das coletas (Promobit, Pelando, etiquetas, postagens) + CUPONS_EXTRA do .env.
-    Devolve (códigos, url do anúncio mais barato dessa loja)."""
+def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[tuple[str, str, float]]]:
+    """Cupons da loja (Promobit, Pelando, etiquetas, postagens, CUPONS_EXTRA) e os anúncios mais
+    baratos dela. Devolve (códigos, [(url, vendedor, preço), …] do mais barato ao mais caro)."""
     import os
 
     cods: dict[str, str] = {}
-    url_barato, preco_barato = "", 1e9
+    anuncios: dict[str, tuple[str, str, float]] = {}
     for arq in ("latest_cloud.json", "latest_pc.json"):
         d = _json(config.DIR_DADOS / arq)
         for c in d.get("cupons") or []:
@@ -77,14 +77,19 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], str]:
                 continue
             if o.get("cupom"):
                 cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
-            mp = o.get("melhor_preco")
-            if o.get("ativo", True) and mp and mp < preco_barato and loja.dominio_url in (o.get("url") or ""):
-                preco_barato, url_barato = mp, o["url"]
+            url, mp = o.get("url") or "", o.get("melhor_preco")
+            if o.get("ativo", True) and mp and loja.dominio_url in url:
+                atual = anuncios.get(url)
+                if atual is None or mp < atual[2]:
+                    anuncios[url] = (url, o.get("vendedor") or loja.loja_canonica, float(mp))
     for c in os.environ.get("CUPONS_EXTRA", "").split(","):
         if c.strip():
             cods.setdefault(c.strip().upper(), "manual")
     lista = [c for c in cods if 3 <= len(c) <= 30 and c not in CODIGOS_IGNORAR and " " not in c]
-    return lista, (url_barato or loja.url_produto)
+    ordenados = sorted(anuncios.values(), key=lambda x: x[2])[: loja.max_anuncios]
+    if not ordenados:
+        ordenados = [(loja.url_produto, loja.loja_canonica, 0.0)]
+    return lista, ordenados
 
 
 def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
@@ -128,52 +133,79 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     if not loja.perfil().exists():
         print(f"[{loja_id}] sem login salvo. Rode: python testar_cupons.py --loja {loja_id} --login")
         return []
-    conhecidos, url = codigos_conhecidos(loja)
-    fila = [c.upper() for c in (codigos or conhecidos)]
+    conhecidos, anuncios = codigos_conhecidos(loja)
     testados = reg["cupons"]
-    if not forcar and not codigos:
-        fila = [c for c in fila if c not in testados
-                or (testados[c].get("aceito") and (testados[c].get("testado_em") or "")[:10] < hoje())]
-    if not fila:
-        print(f"[{loja_id}] nada novo ({len(conhecidos)} cupons conhecidos, todos já testados)")
-        return []
-    print(f"[{loja_id}] {len(fila)} cupons: {', '.join(fila[:20])}{'…' if len(fila) > 20 else ''}")
-    print(f"[{loja_id}] anúncio: {url}")
-
     from playwright.sync_api import sync_playwright
 
     aceitos: list[ResultadoCupom] = []
+    melhor_por_anuncio: dict[str, ResultadoCupom] = {}
     with sync_playwright() as pw:
         ctx = abrir_navegador(pw, loja, visivel)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
-            if not loja.garantir_item(page, url):
-                print(f"[{loja_id}] não consegui colocar a TV no carrinho")
-                return []
-            base = loja.ler_totais(page)
-            print(f"[{loja_id}] carrinho: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
-                  f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)} · logado={loja.logado(page)}")
-            for i, cod in enumerate(fila[:MAX_POR_RODADA]):
-                try:
-                    r = loja.aplicar(page, cod)
-                except PrecisaLogin:
-                    raise
-                except Exception as e:  # noqa: BLE001
-                    r = ResultadoCupom(codigo=cod, aceito=False, mensagem=f"erro: {type(e).__name__}: {str(e)[:120]}")
-                testados[cod] = {
-                    "testado_em": agora_iso(), "aceito": r.aceito, "mensagem": r.mensagem[:200],
-                    "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "total_pix": r.total_pix,
-                    "total_cartao": r.total_cartao, "frete": r.frete, "desconto": r.desconto,
-                    "parcelado": r.parcelado,
-                }
-                print(f"  {'✅' if r.aceito else '✗ '} {cod:<18} "
-                      f"{('TV ' + fmt_preco(r.tv_pix or r.tv_cartao)) if r.aceito else r.mensagem[:90]}")
-                if r.aceito:
-                    aceitos.append(r)
-                    loja.remover(page)
-                    page.wait_for_timeout(1000)
-                if i % 5 == 4:
-                    page.wait_for_timeout(3000)  # respiro para não parecer ataque
+            for url, vendedor, preco_ref in anuncios:
+                chave_anuncio = url[-40:]
+                fila = [c.upper() for c in (codigos or conhecidos)]
+                if not forcar and not codigos:
+                    fila = [c for c in fila
+                            if f"{c}@{chave_anuncio}" not in testados
+                            or (testados[f"{c}@{chave_anuncio}"].get("aceito")
+                                and (testados[f"{c}@{chave_anuncio}"].get("testado_em") or "")[:10] < hoje())]
+                if not loja.garantir_item(page, url):
+                    print(f"[{loja_id}] não consegui pôr no carrinho: {vendedor} ({url[-40:]})")
+                    continue
+                base = loja.ler_totais(page)
+                print(f"[{loja_id}] {vendedor}: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
+                      f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
+                      + (f" · {base.parcelado}" if base.parcelado else ""))
+                base.codigo = "(sem cupom)"
+                melhor_por_anuncio[vendedor] = base
+
+                if getattr(loja, "so_leitura", False):
+                    rot = loja.cupom_da_pagina(page) if hasattr(loja, "cupom_da_pagina") else None
+                    if rot:
+                        depois = loja.ler_totais(page)
+                        depois.codigo = "cupom da página"
+                        depois.aceito = bool(depois.total_cartao and base.total_cartao
+                                             and depois.total_cartao < base.total_cartao - 1)
+                        depois.mensagem = rot
+                        print(f"  {'✅' if depois.aceito else 'ℹ '} cupom da página: {rot[:80]}")
+                        if depois.aceito:
+                            aceitos.append(depois)
+                    else:
+                        print("  ℹ  sem cupom de clicar nesta página")
+                    continue
+
+                if not fila:
+                    print(f"[{loja_id}] {vendedor}: nada novo ({len(conhecidos)} cupons conhecidos)")
+                    continue
+                print(f"[{loja_id}] {vendedor}: testando {len(fila[:MAX_POR_RODADA])} cupons")
+                for i, cod in enumerate(fila[:MAX_POR_RODADA]):
+                    try:
+                        r = loja.aplicar(page, cod)
+                    except PrecisaLogin:
+                        raise
+                    except Exception as e:  # noqa: BLE001
+                        r = ResultadoCupom(codigo=cod, aceito=False,
+                                           mensagem=f"erro: {type(e).__name__}: {str(e)[:120]}")
+                    testados[f"{cod}@{chave_anuncio}"] = {
+                        "testado_em": agora_iso(), "aceito": r.aceito, "mensagem": r.mensagem[:200],
+                        "vendedor": vendedor, "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao,
+                        "total_pix": r.total_pix, "total_cartao": r.total_cartao, "frete": r.frete,
+                        "desconto": r.desconto, "parcelado": r.parcelado,
+                    }
+                    print(f"  {'✅' if r.aceito else '✗ '} {cod:<18} "
+                          f"{('TV ' + fmt_preco(r.tv_pix or r.tv_cartao)) if r.aceito else r.mensagem[:80]}")
+                    if r.aceito:
+                        r.extra["vendedor"] = vendedor
+                        aceitos.append(r)
+                        atual = melhor_por_anuncio.get(vendedor)
+                        if atual is None or (r.tv_pix or 9e9) < (atual.tv_pix or 9e9):
+                            melhor_por_anuncio[vendedor] = r
+                        loja.remover(page)
+                        page.wait_for_timeout(1000)
+                    if i % 5 == 4:
+                        page.wait_for_timeout(3000)  # respiro para não parecer ataque
             (RAIZ / "logs").mkdir(exist_ok=True)
             page.screenshot(path=str(RAIZ / "logs" / f"carrinho_{loja_id}.png"))
         except PrecisaLogin as e:
@@ -184,22 +216,25 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                 reg["aviso_login"] = hoje()
         finally:
             reg["ultima_execucao"] = agora_iso()
+            reg["precos"] = {v: {"tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "parcelado": r.parcelado,
+                                 "cupom": r.codigo} for v, r in melhor_por_anuncio.items()}
             ctx.close()
 
     # deixa o melhor cupom aplicado no carrinho
-    if aceitos:
+    if aceitos and not getattr(loja, "so_leitura", False):
         melhor = min(aceitos, key=lambda r: r.tv_pix or r.tv_cartao or 9e9)
+        url_melhor = next((u for u, v, _ in anuncios if v == melhor.extra.get("vendedor")), anuncios[0][0])
         with sync_playwright() as pw:
             ctx = abrir_navegador(pw, loja, visivel)
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             try:
-                loja.garantir_item(page, url)
+                loja.garantir_item(page, url_melhor)
                 loja.aplicar(page, melhor.codigo)
             except Exception:
                 pass
             finally:
                 ctx.close()
-    print(f"[{loja_id}] {len(aceitos)} aceito(s) de {len(fila[:MAX_POR_RODADA])} testados")
+    print(f"[{loja_id}] {len(aceitos)} cupom(ns) aceito(s)")
     return aceitos
 
 

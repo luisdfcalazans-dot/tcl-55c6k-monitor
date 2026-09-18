@@ -82,6 +82,31 @@ def _abrir(url: str, esperar: str | None = None, capturar: list[str] | None = No
     return html, texto, capturados
 
 
+_RE_FIM_BLOCO = re.compile(
+    r"Descri[çc][ãa]o do produto|Produtos? relacionad|Quem (?:viu|comprou)|Recomenda|"
+    r"Compre junto|Voc[êe] tamb[ée]m pode gostar|Avalia[çc][õo]es", re.I)
+
+
+def _precos_do_bloco_principal(texto: str) -> list[float]:
+    """Preços só do topo da página (bloco do produto), antes dos carrosséis de recomendados.
+
+    Sem esse corte, o menor preço da página costuma ser o de outra TV sugerida ao lado.
+    """
+    m = _RE_FIM_BLOCO.search(texto)
+    topo = texto[: m.start()] if m else texto[:4000]
+    return [p for p in precos_no_texto(topo) if p >= 1500]
+
+
+def _esgotado_jsonld(html: str) -> bool:
+    for prod in jsonld_produtos(html):
+        offers = prod.get("offers")
+        lista = offers if isinstance(offers, list) else [offers] if offers else []
+        for of in lista:
+            if isinstance(of, dict) and re.search(r"OutOfStock|SoldOut|Discontinued", str(of.get("availability") or "")):
+                return True
+    return False
+
+
 def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str) -> Oferta | None:
     for prod in jsonld_produtos(html):
         nome = prod.get("name") or ""
@@ -111,14 +136,22 @@ class CasasBahia(Fonte):
         html, texto, _ = _abrir(config.URL_CASASBAHIA_PRODUTO, esperar="h1")
         if "Access Denied" in html[:3000] or "Reference #" in texto[:500]:
             raise RuntimeError("Casas Bahia bloqueou (Akamai)")
+        m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
+        titulo = limpa_html(m.group(1)) if m else ""
+        if titulo and not eh_55c6k(titulo):
+            return [], []
+        esgotado = _esgotado_jsonld(html)
         o = _oferta_jsonld(html, "casasbahia", "Casas Bahia", config.URL_CASASBAHIA_PRODUTO, "55069456")
+        if o is not None and not o.preco:
+            o = None
         if o is None:
-            # fallback: título + preços do texto renderizado
-            m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
-            titulo = limpa_html(m.group(1)) if m else ""
-            if not eh_55c6k(titulo):
-                return [], []
-            precos = [p for p in precos_no_texto(texto) if p >= 1500]
+            if esgotado or not titulo:
+                # esgotado: sem preço. NUNCA cair para o texto da página, que tem o carrossel
+                # de recomendados e já trouxe o preço de outra TV como se fosse esta.
+                return [Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia",
+                               titulo=titulo or "Smart TV TCL 55C6K", url=config.URL_CASASBAHIA_PRODUTO,
+                               id="55069456", ativo=False, extra={"motivo": "esgotado"})], []
+            precos = _precos_do_bloco_principal(texto)
             if not precos:
                 return [Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo,
                                url=config.URL_CASASBAHIA_PRODUTO, id="55069456", ativo=False)], []

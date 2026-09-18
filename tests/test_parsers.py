@@ -116,3 +116,32 @@ def test_cupom_compativel():
               "Cupom Amazon 10% OFF em eletrônicos"]
     for t in dentro:
         assert cupom_compativel(Cupom(fonte="x", loja="Magazine Luiza", codigo="Z", titulo=t, url="", id=t), 3091)[0] is True, t
+
+
+def test_sanear_descarta_preco_de_outro_produto():
+    """Caso real de 17/09: página esgotada da Casas Bahia trouxe o preço de uma Hisense do carrossel."""
+    from monitor.models import Oferta
+    from monitor.regras import sanear
+
+    base = [Oferta(fonte="zoom", tipo="loja", loja=l, titulo="TCL 55C6K", url="u", id=l, preco=p)
+            for l, p in [("Amazon", 4034.5), ("KaBuM!", 4169.0), ("Fast Shop", 3998.99),
+                         ("Magazine Luiza", 3937.15), ("Mercado Livre", 4169.0)]]
+    intruso = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo="TCL 55C6K", url="u",
+                     id="cb", preco=2189.30, parcelado="6x R$ 795,32 sem juros")
+    ofertas, avisos = sanear(base + [intruso])
+    assert intruso.ativo is False, "preço fora da faixa deveria ser descartado"
+    assert intruso.parcelado is None, "parcelado que não fecha com o preço deveria cair"
+    assert len(avisos) == 2
+    assert all(o.ativo for o in base), "as ofertas normais não podem ser afetadas"
+
+
+def test_sanear_mantem_promocao_real():
+    from monitor.models import Oferta
+    from monitor.regras import sanear
+
+    base = [Oferta(fonte="zoom", tipo="loja", loja=l, titulo="TCL 55C6K", url="u", id=l, preco=p)
+            for l, p in [("Amazon", 3279.0), ("KaBuM!", 3159.0), ("Fast Shop", 3149.0), ("Magazine Luiza", 3191.04)]]
+    promo = Oferta(fonte="x", tipo="loja", loja="Casas Bahia", titulo="TCL 55C6K", url="u", id="cb",
+                   preco=2419.0, parcelado="10x R$ 241,90 sem juros")
+    sanear(base + [promo])
+    assert promo.ativo is True and promo.parcelado == "10x R$ 241,90 sem juros"
