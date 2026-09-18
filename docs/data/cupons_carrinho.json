@@ -186,8 +186,57 @@
   "ultima_execucao": "2026-09-15T20:15:20-03:00"
  },
  "mercadolivre": {
-  "cupons": {},
+  "cupons": {
+   "ECONOMIZEIML": {
+    "testado_em": "2026-09-17T21:10:02-03:00",
+    "aceito": false,
+    "mensagem": "o ML não tem campo de código nesta conta; cupons são ativados na lista",
+    "tv_pix": 8338.0,
+    "tv_cartao": 8338.0,
+    "total_pix": 8338.0,
+    "total_cartao": 8338.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null
+   },
+   "OFERTAS": {
+    "testado_em": "2026-09-17T21:10:09-03:00",
+    "aceito": false,
+    "mensagem": "o ML não tem campo de código nesta conta; cupons são ativados na lista",
+    "tv_pix": 8338.0,
+    "tv_cartao": 8338.0,
+    "total_pix": 8338.0,
+    "total_cartao": 8338.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null
+   },
+   "LIBERAESSA": {
+    "testado_em": "2026-09-17T21:10:16-03:00",
+    "aceito": false,
+    "mensagem": "o ML não tem campo de código nesta conta; cupons são ativados na lista",
+    "tv_pix": 8338.0,
+    "tv_cartao": 8338.0,
+    "total_pix": 8338.0,
+    "total_cartao": 8338.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null
+   },
+   "DESCONTONAREDA": {
+    "testado_em": "2026-09-17T21:10:20-03:00",
+    "aceito": false,
+    "mensagem": "erro: TargetClosedError: Page.goto: Target page, context or browser has been closed\nCall log:\n  - navigating to \"https://www.mercadolivre.com.br/",
+    "tv_pix": null,
+    "tv_cartao": null,
+    "total_pix": null,
+    "total_cartao": null,
+    "frete": null,
+    "desconto": null,
+    "parcelado": null
+   }
+  },
   "aviso_login": null,
-  "ultima_execucao": "2026-09-17T20:38:40-03:00"
+  "ultima_execucao": "2026-09-17T21:10:20-03:00"
  }
 }
