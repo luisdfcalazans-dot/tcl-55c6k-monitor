@@ -34,12 +34,12 @@
   h1 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:30px; margin:4px 0 4px; letter-spacing:-.01em; }
   h2 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:21px; margin:32px 0 10px; }
   .sub { color:var(--ink-2); margin:0 0 18px; font-size:14px; }
-  .facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .facts { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
   .fact { background:var(--surface); padding:12px 14px; min-width:0; }
   .fact .k { font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-family:"IBM Plex Mono",ui-monospace,monospace; }
   .fact .v { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:26px; line-height:1.15; margin-top:2px; font-variant-numeric:tabular-nums; }
-  .fact .s { font-size:12.5px; color:var(--ink-2); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  @media (max-width:760px) { .facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  .fact .s { font-size:12.5px; color:var(--ink-2); margin-top:2px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; }
+  @media (max-width:760px) { .facts { grid-template-columns:repeat(2,minmax(0,1fr)); } .fact:first-child { grid-column:span 2; } .fact .v { font-size:22px; white-space:nowrap; } }
   .tbl { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
   table { border-collapse:collapse; width:100%; font-size:14px; }
   th, td { text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line-2); }
@@ -73,14 +73,15 @@
   <p class="sub">QD-Mini LED 55". Alvo: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
 
   <div class="facts">
-    <div class="fact"><div class="k">Melhor preço agora</div><div class="v" id="f-melhor">—</div><div class="s" id="f-melhor-s">—</div></div>
+    <div class="fact"><div class="k">Melhor à vista agora</div><div class="v" id="f-melhor">—</div><div class="s" id="f-melhor-s">—</div></div>
+    <div class="fact"><div class="k">Melhor parcelado agora</div><div class="v" id="f-parc">—</div><div class="s" id="f-parc-s">—</div></div>
     <div class="fact"><div class="k">Menor já visto</div><div class="v" id="f-min">—</div><div class="s" id="f-min-s">—</div></div>
     <div class="fact"><div class="k">Cupons ativos</div><div class="v" id="f-cupons">—</div><div class="s" id="f-cupons-s">—</div></div>
     <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
   </div>
 
   <h2>Preço por loja</h2>
-  <div class="tbl"><table id="t-lojas"><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody></tbody></table></div>
+  <div class="tbl"><table id="t-lojas"><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado (total)</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody></tbody></table></div>
 
   <h2>Histórico</h2>
   <div class="chart-wrap"><canvas id="chart" width="1060" height="300"></canvas><div class="legend" id="legend"></div></div>
@@ -122,6 +123,19 @@ const lojasDiretas = linhas => new Set(linhas.filter(o => !ehAgregador(o)).map(o
 const VENDEDOR_1P = {'magazine luiza': ['magalu', 'magazine luiza'], 'amazon': ['amazon.com.br', 'amazon']};
 const vendedorChave = o => { const v = normLoja(o.vendedor), l = normLoja(o.loja); return !v || v === l || (VENDEDOR_1P[l] || []).includes(v) ? '' : v; };
 const menorPreco = r => Math.min(...[r.preco_pix, r.preco].filter(Boolean).map(Number));
+// Parcelamento: "12x R$ 312,49 sem juros", "10x de R$ 418,48 sem juros", "10x R$ 399,90 sem juros (cartão Casas Bahia)".
+// Total = parcelas x valor; mas a loja arredonda a parcela (Amazon: 12x R$ 312,49 de um total de R$ 3.749,00), então
+// quando a conta fica a menos de 1% do preço do cartão, o total cobrado é o próprio preço do cartão.
+const RE_PARC = /(\d{1,2})\s*x\s*(?:de\s*)?R\$\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d+(?:,\d{2})?)/i;   // aceita 'R$ 374' (dado antigo sem centavos)
+const parcela = o => {
+  const txt = o?.parcelado || ''; const m = RE_PARC.exec(txt); if (!m) return null;
+  const n = Number(m[1]), p = Number(m[2].replace(/\./g, '').replace(',', '.'));
+  if (!(n >= 1) || !(p > 0)) return null;
+  const bruto = Math.round(n * p * 100) / 100, cartao = Number(o.preco) || 0;
+  const total = cartao && Math.abs(bruto - cartao) <= Math.max(n * 0.01, cartao * 0.01) ? cartao : bruto;
+  return {n, valor: p, total, semJuros: /sem\s+juros/i.test(txt), comJuros: /com\s+juros/i.test(txt), condicao: (txt.match(/\(([^)]*)\)/) || [])[1] || ''};
+};
+const textoParc = pc => `${pc.n}x ${fmt(pc.valor)}${pc.semJuros ? ' sem juros' : pc.comJuros ? ' com juros' : ''}${pc.condicao ? ` (${pc.condicao})` : ''}`;
 
 async function getJson(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.json() : null; } catch { return null; } }
 async function getText(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.text() : ''; } catch { return ''; } }
@@ -167,12 +181,17 @@ function parseCsv(txt) {
   const vistas = new Set();
   lojas = lojas.filter(o => { const k = normLoja(o.loja) + '|' + vendedorChave(o); if (vistas.has(k)) return false; vistas.add(k); return true; });
   const melhor = lojas.find(o => !o._velho);
+  // Melhor parcelado: menor TOTAL entre as linhas recentes que informam parcelamento; no empate, sem juros e sem
+  // condição (ex.: "cartão Casas Bahia") primeiro.
+  const comParc = lojas.filter(o => !o._velho).map(o => ({o, pc: parcela(o)})).filter(x => x.pc)
+    .sort((a, b) => (a.pc.total - b.pc.total) || (b.pc.semJuros - a.pc.semJuros) || (!!a.pc.condicao - !!b.pc.condicao));
+  const melhorParc = comParc[0] || null;
   const tb = document.querySelector('#t-lojas tbody');
   tb.innerHTML = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : o._velho ? 'velho' : ''}">
     <td><b>${esc(o.loja)}</b>${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
     <td class="num">${fmt(o.preco)}</td>
     <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
-    <td class="num">${esc(o.parcelado || '—')}</td>
+    <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
     <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
     <td><span class="chip mute">${esc(o.fonte)}</span>${ehAgregador(o) ? '<span class="sub2">agregador</span>' : ''}</td>
     <td class="num">${dt(o._visto)}${o._velho ? ` <span class="chip warn" title="coleta com mais de ${VELHO_H} h">antigo</span>` : ''}</td>
@@ -180,7 +199,11 @@ function parseCsv(txt) {
     : '<tr><td colspan="8" class="empty">Nenhum preço de loja ainda.</td></tr>';
 
   document.getElementById('f-melhor').textContent = melhor ? fmt(melhor.melhor_preco) : '—';
-  document.getElementById('f-melhor-s').textContent = melhor ? `${melhor.loja}${melhor.parcelado ? ' · ' + melhor.parcelado : ''}` : (lojas.length ? 'sem coleta recente' : 'sem coleta');
+  const quem = o => o.loja + (vendedorChave(o) ? ` (${o.vendedor})` : '');
+  document.getElementById('f-melhor-s').textContent = melhor ? `${quem(melhor)}${melhor.preco_pix && melhor.melhor_preco === melhor.preco_pix ? ' · Pix' : ''}` : (lojas.length ? 'sem coleta recente' : 'sem coleta');
+  document.getElementById('f-parc').textContent = melhorParc ? fmt(melhorParc.pc.total) : '—';
+  document.getElementById('f-parc-s').textContent = melhorParc ? `${quem(melhorParc.o)} · ${textoParc(melhorParc.pc)}`
+    : (lojas.length ? 'nenhuma loja recente informa parcelamento' : 'sem coleta');
 
   // ---- histórico (CSV de cada modo): linha do agregador não vale para loja que tem fonte direta
   const ehLinhaLoja = r => r.tipo === 'loja' && (r.preco_pix || r.preco);

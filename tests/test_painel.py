@@ -53,6 +53,8 @@ const fmtData = s => new Date(s).toLocaleString('pt-BR', {day: '2-digit', month:
   if (!pronto) saida.erro = 'o script não chegou ao gráfico';
   saida.melhor = el('f-melhor').textContent;
   saida.melhor_s = el('f-melhor-s').textContent;
+  saida.parc = el('f-parc').textContent;
+  saida.parc_s = el('f-parc-s').textContent;
   saida.min = el('f-min').textContent;
   saida.min_s = el('f-min-s').textContent;
   saida.tabela = el('#t-lojas tbody').innerHTML;
@@ -315,3 +317,81 @@ def test_reg1_passou_de_6h_continua_antigo(tmp_path):
     antigas = {l["fonte"] + "/" + l["loja"] for l in ls if "antigo" in l["html"]}
     assert antigas == {"magalu/Magazine Luiza", "kabum/KaBuM!", "zoom/Carrefour"}, antigas
     assert 'title="coleta com mais de 6 h"' in out["tabela"]
+
+
+# ---------------- Parcelado: total do parcelamento e "Melhor parcelado agora" (pedido do usuário, 18/09) ----------------
+
+def _celula_parcelado(tr_html: str) -> str:
+    tds = re.findall(r"<td[^>]*>([\s\S]*?)</td>", tr_html)
+    return tds[3]   # Loja, À vista, Pix, Parcelado (total), ...
+
+
+def test_parcelado_mostra_o_total_e_a_parcela(tmp_path):
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
+                      latest("pc", PC_AT, [ofertas_pc_hoje()[0],
+                          oferta("casasbahia", "Casas Bahia", 3998.99, 3599.09, vendedor="Casas Bahia",
+                                 parcelado="10x R$ 399,90 sem juros (cartão Casas Bahia)")], MIN_AMAZON))
+    cel = {(l["loja"], l["fonte"]): _celula_parcelado(l["html"]) for l in linhas(out["tabela"])}
+    # Amazon arredonda a parcela: 12 x 312,49 = 3.749,88, mas o total cobrado é o preço do cartão (3.749,00)
+    assert f"<b>{brl(3749.0)}</b>" in cel[("Amazon", "amazon")] and f"12x {brl(312.49)} sem juros" in cel[("Amazon", "amazon")]
+    assert f"<b>{brl(3749.0)}</b>" in cel[("Magazine Luiza", "magalu")]
+    assert f"<b>{brl(4184.88)}</b>" in cel[("KaBuM!", "kabum")], "aceita '10x de R$ ...'"
+    cb = [c for (l, f), c in cel.items() if l == "Casas Bahia" and brl(3998.99) in c]
+    assert cb and "(cartão Casas Bahia)" in cb[0], "a condição do parcelamento continua visível"
+
+
+def test_parcelado_com_juros_soma_as_parcelas(tmp_path):
+    pc = [oferta("amazon", "Amazon", 3749.0, vendedor="Magalu.", parcelado="12x R$ 350,00", url=URL_AMAZON)]
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, []), latest("pc", PC_AT, pc))
+    cel = _celula_parcelado(linhas(out["tabela"])[0]["html"])
+    assert f"<b>{brl(4200.0)}</b>" in cel and "sem juros" not in cel
+    assert out["parc"] == brl(4200.0)
+
+
+def test_parcelado_nao_usa_pix_gravado_como_cartao(tmp_path):
+    # dado antigo (antes do commit 3e15985): preço do Pix gravado no campo do cartão
+    pc = [oferta("amazon", "Amazon", 3374.10, vendedor="Magalu.", parcelado="12x R$ 312,49", url=URL_AMAZON)]
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, []), latest("pc", PC_AT, pc))
+    assert out["parc"] == brl(3749.88), out["parc"]
+
+
+def test_melhor_parcelado_agora(tmp_path):
+    cloud = [oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", parcelado="10x R$ 374,90 sem juros",
+                    url=URL_MAGALU),
+             oferta("kabum", "KaBuM!", 4184.88, parcelado="10x de R$ 418,48 sem juros"),
+             oferta("vtex", "Fast Shop", 3698.0, parcelado="12x R$ 308,17 sem juros (cartão Fast Shop)")]
+    pc = [oferta("amazon", "Amazon", 3699.0, 3329.1, vendedor="Magalu.", parcelado="12x R$ 308,25 sem juros", url=URL_AMAZON),
+          oferta("casasbahia", "Casas Bahia", 3599.09, vendedor="Casas Bahia")]   # sem parcelamento: não disputa
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, cloud), latest("pc", PC_AT, pc))
+    assert out["parc"] == brl(3698.0), out["parc"]
+    assert out["parc_s"].startswith("Fast Shop") and "12x" in out["parc_s"] and "cartão Fast Shop" in out["parc_s"]
+    # "Melhor à vista" continua sendo o menor preço (Pix), não o parcelado
+    assert out["melhor"] == brl(3329.1) and "Pix" in out["melhor_s"]
+    tr = [l for l in linhas(out["tabela"]) if l["loja"] == "Fast Shop"][0]["html"]
+    assert "chip ok\">melhor</span>" in tr
+
+
+def test_melhor_parcelado_empate_prefere_sem_condicao(tmp_path):
+    cloud = [oferta("vtex", "Fast Shop", 3749.0, parcelado="10x R$ 374,90 sem juros (cartão Fast Shop)"),
+             oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", parcelado="10x R$ 374,90 sem juros",
+                    url=URL_MAGALU)]
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, cloud), latest("pc", PC_AT, []))
+    assert out["parc_s"].startswith("Magazine Luiza"), out["parc_s"]
+
+
+def test_melhor_parcelado_ignora_modo_antigo_e_agregador(tmp_path):
+    cloud = [oferta("zoom", "Carrefour", 2999.0, parcelado="10x R$ 299,90 sem juros", url=URL_ZOOM + "1", oid="1"),
+             oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", parcelado="10x R$ 374,90 sem juros",
+                    url=URL_MAGALU)]
+    pc = [oferta("amazon", "Amazon", 3000.0, vendedor="Magalu.", parcelado="12x R$ 250,00 sem juros", url=URL_AMAZON)]
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, cloud), latest("pc", PC_PARADO, pc))
+    # PC parado há mais de 6 h: a Amazon 3.000 não disputa; o Carrefour só existe no agregador e continua valendo
+    assert out["parc"] == brl(2999.0), out["parc"]
+
+
+def test_sem_parcelamento_informado(tmp_path):
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, [oferta("casasbahia", "Casas Bahia", 3599.09)]),
+                      latest("pc", PC_AT, [oferta("amazon", "Amazon", 3749.0, parcelado="em até 12x sem juros", url=URL_AMAZON)]))
+    assert out["parc"] == "—" and "parcelamento" in out["parc_s"]
+    cel = [ _celula_parcelado(l["html"]) for l in linhas(out["tabela"]) if l["loja"] == "Amazon"][0]
+    assert "em até 12x sem juros" in cel, "texto que não dá para somar aparece como veio"
