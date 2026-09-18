@@ -1,10 +1,12 @@
-"""Tabela de ouro do grupo extracao-nuvem (rodada 3).
+"""Tabela de ouro do grupo extracao-nuvem (rodadas 3 e 4; as linhas da rodada 4 estão no fim do arquivo).
 
 Uma linha por exemplo concreto do arquivo de retrabalho: evidência de cada achado original (N-F1..N-F10),
 cada regressão das rodadas 1 e 2 e cada caso "tem de continuar funcionando" citado pelos verificadores.
 Entrada -> saída esperada (aceita/rejeita, preço, parcelado, cupom, alerta 🎯 ou não).
 
 Quando uma expectativa antiga e uma nova se contradizem, vale a do verificador mais recente (comentário na linha).
+Linha OuRejeita(...): "sem alerta falso" em que o preço certo da 55C6K também é seguro — a postagem sai ou traz
+exatamente aqueles campos; nunca o preço do outro produto, nunca um 🎯 falso.
 Quando uma heurística não consegue ao mesmo tempo "não perder" e "não dar alerta falso", vale NÃO DAR ALERTA
 FALSO e a linha "não perder" fica xfail com o motivo.
 
@@ -139,9 +141,16 @@ def _post(html: str, monkeypatch) -> dict | None:
     return {"preco": o.preco, "parcelado": o.parcelado, "cupom": o.cupom, "alvo": "🎯" in msgs[0], "titulo": o.titulo}
 
 
+class OuRejeita(dict):
+    """Linha "sem alerta falso" em que o preço certo da 55C6K também é seguro: a postagem sai OU traz exatamente
+    estes campos (o preço da 55C6K, sem 🎯) — nunca o preço do outro produto, nunca um 🎯 falso."""
+
+
 def _confere(res: dict | None, esperado: dict | None):
     if esperado is None:
         assert res is None, f"devia rejeitar, saiu {res}"
+        return
+    if isinstance(esperado, OuRejeita) and res is None:
         return
     assert res is not None, "postagem rejeitada"
     for k, v in esperado.items():
@@ -189,14 +198,16 @@ POSTS = [
     # controle da rodada 2 (não perder): a própria 55C6K abaixo do alvo continua com 🎯
     ("R2 controle 55C6K a 2.799", ('Smart TV TCL 55" 55C6K: R$ 2.799 no Pix', 'Smart TV TCL 43" 43S5K: R$ 1.799'),
      {"preco": 2799.0, "alvo": True}),
-    # rodada 2 esperava 3599 nestas; a orientação da rodada 3 prefere rejeitar a postagem quando o outro produto
-    # aparece numa linha sem preço (o preço dele vem depois e não dá para saber de quem é)
+    # rodada 2 esperava 3599 nestas; a rodada 3 rejeitava a postagem. Rodada 4 (segmentação por produto): cada
+    # linha de preço é do cabeçalho de produto mais próximo acima dela, então sai 3599 — ou a postagem é
+    # rejeitada; nunca o preço (nem o cupom) do outro produto, nunca 🎯 falso
     ("R2 outra TV acima da 55C6K", ('Smart TV TCL 43" 43S5K', "R$ 1.799 no Pix", 'Smart TV TCL 55" 55C6K',
-                                    "R$ 3.599 no Pix"), REJEITA),
+                                    "R$ 3.599 no Pix"), OuRejeita(preco=3599.0, alvo=False)),
     ("R2 Samsung sem codigo", ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV Samsung Crystal UHD", "R$ 2.299 no Pix"),
-     REJEITA),
+     OuRejeita(preco=3599.0, alvo=False)),
     ("R2 43S5K com cupom proprio", ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV TCL 43S5K",
-                                    "R$ 1.799 ou 10x de R$ 179,90 sem juros", "Cupom TCL43"), REJEITA),
+                                    "R$ 1.799 ou 10x de R$ 179,90 sem juros", "Cupom TCL43"),
+     OuRejeita(preco=3599.0, alvo=False, cupom=None, parcelado=None)),
     ("R2 50 P7L sem aspas", ("Smart TV TCL 55C6K: R$ 3.599", "Smart TV TCL 50 P7L: R$ 2.069 no Pix"),
      {"preco": 3599.0, "alvo": False}),
     ("R2 mesma linha com |", ('Smart TV TCL 55" 55C6K: R$ 3.599 | Smart TV Samsung 43" Crystal: R$ 1.799 no Pix',),
@@ -240,10 +251,11 @@ POSTS = [
     ("R2-REG3 tambem disponivel na", ("Smart TV TCL 55C6K", "Também disponível na Amazon", "R$ 3.599"), {"preco": 3599.0}),
     ("R2-REG3 TV que bate LG", ("Smart TV TCL 55C6K", "TV com imagem que bate LG e Samsung", "R$ 3.599"),
      {"preco": 3599.0}),
-    # outro tamanho numa linha SEM preço: o preço das linhas de baixo pode ser dele (43" é mais barata): sai tudo
+    # outro tamanho numa linha SEM preço: o preço das linhas de baixo pode ser dele (43" é mais barata). Rodada 4:
+    # a linha de disponibilidade encerra o bloco da 55C6K e os preços de cima ficam (3599) — ou rejeita
     ("R2-REG3 outro tamanho sem preco (sem alerta falso)", ("Smart TV TCL 55C6K", "R$ 3.599", "Também tem a de 43 polegadas",
-                                                            "R$ 1.999"), REJEITA),
-    # a mesma regra perde esta postagem legítima (65"/75" da C6K são mais caras): ver test_postagem_nao_perder
+                                                            "R$ 1.999"), OuRejeita(preco=3599.0, alvo=False)),
+    # linha de disponibilidade COM o próprio preço: só ela sai do bloco (o 3599 de baixo é da 55C6K)
     ("R2-REG3 tambem em 65", ('Smart TV TCL 55" 55C6K', 'Também disponível em 65" por R$ 4.999', "R$ 3.599"),
      {"preco": 3599.0}),
     ("R2-REG3 par 65 primeiro", ("TCL 55C6K e 65C6K em promoção", '65": R$ 4.999', '55": R$ 3.599'), {"preco": 3599.0}),
@@ -277,11 +289,9 @@ def test_postagem(linhas, esperado, monkeypatch):
     _confere(_post(_canal(*linhas), monkeypatch), esperado)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "não perder x sem alerta falso: a linha 'outro tamanho sem preço' pode vir seguida do preço de uma TV mais barata "
-    "(43\", ou 65\" de outro modelo sem código); a regra simples descarta a postagem inteira, como a main fazia com "
-    "outro modelo. Vale 'sem alerta falso'."))
 def test_postagem_nao_perder_outros_tamanhos_sem_preco(monkeypatch):
+    """xfail da rodada 3 (estrito), resolvido na rodada 4: a linha de disponibilidade sem preço encerra o bloco da
+    55C6K, mas os preços acima dela ficam."""
     linhas = ("Smart TV TCL 55C6K", "R$ 3.599", "Disponível também em 65 e 75 polegadas")
     _confere(_post(_canal(*linhas), monkeypatch), {"preco": 3599.0})
 
@@ -521,3 +531,242 @@ def test_mercado_livre_snapshot(monkeypatch, tmp_path):
     sel = ps._ml_oferta_selecionada(html).get("item_id")
     [o] = [o for o in ofertas if o.id == sel]
     assert (o.preco, o.preco_pix) == (3599.0, 3491.03)
+
+
+
+# ================================================================ rodada 4
+# Uma linha por exemplo concreto de regressoes_rodada3 e nao_resolvidos_rodada3 (entradas exatas; "\n" do
+# verificador vira uma linha da postagem), mais casos do verificador da rodada 3 (v4n/casos*.json) em que a saída
+# mudou. Regras de princípio: segmentação por produto (filtro.bloco_55c6k), classificação dos valores
+# (util.valores_postagem) e código de cupom (util.cupom_no_texto).
+
+TITULOS_R4 = [
+    # N-F1 (não resolvido na rodada 3): peças e acessórios aceitos como a TV
+    ("N-F1 r3 retirada de pecas", "Tv Tcl 55c6k Para Retirada De Peças", False),
+    ("N-F1 r3 pe", "Pé Para TV TCL 55C6K Original", False),
+    ("N-F1 r3 pes par", "Pés Tv Tcl 55c6k Par Original", False),
+    ("N-F1 r3 pezinho", "Pezinho Tv Tcl 55c6k", False),
+    ("N-F1 r3 alto falante", "Alto Falante Tv Tcl 55c6k Original", False),
+    ("N-F1 r3 sucata", "Tv Tcl 55c6k Sucata", False),
+    # mesma classe (verificador da rodada 3, v4n/casos4)
+    ("N-F1 r3 pecas sem acento", "Tv Tcl 55c6k Retirada De Pecas", False),
+    ("N-F1 r3 cabo flat", "Cabo Flat Lvds Tv Tcl 55c6k", False),
+    ("N-F1 r3 placa t-con", "Placa T-con Tcl 55c6k", False),
+    ("N-F1 r3 kit parafusos pe", "Kit Parafusos Pé Tv Tcl 55c6k", False),
+    ("N-F1 r3 parafusos base", "Parafusos Base Tv Tcl 55c6k", False),
+    ("N-F1 r3 backlight", "Backlight Tv Tcl 55c6k", False),
+    ("N-F1 r3 barra led sem de", "Barra Led Tv Tcl 55c6k", False),
+    ("N-F1 r3 painel avulso", "Tcl 55c6k Painel Avulso", False),
+    ("N-F1 r3 par de pes", "Tcl 55c6k Par De Pés", False),
+    # TV com recurso no meio do título (a peça é o 1º substantivo; depois da vírgula é lista de recursos)
+    ("R4 sensor de luz (TV)", "TCL 55C6K 4K 144Hz, sensor de luz ambiente, Google TV", True),
+    ("R4 com alto-falantes (TV)", "Smart TV TCL 55C6K com alto-falantes Onkyo 2.1", True),
+    ("R4 controle por voz na lista (TV)", "🔥 Controle por voz, 144Hz e Mini LED: TCL 55C6K", True),
+    ("R4 controle por voz para TV (peça)", "Controle por voz para TV TCL 55C6K", False),
+    ("R4 controle de voz com (TV)", 'Smart TV TCL 55" QD-Mini LED 4K 55C6K com Controle de Voz', True),
+]
+
+
+@pytest.mark.parametrize("titulo,aceita", [pytest.param(t, a, id=i) for i, t, a in TITULOS_R4])
+def test_titulo_r4(titulo, aceita):
+    assert eh_55c6k(titulo) is aceita
+
+
+def test_nf1_r3_peca_na_faixa_do_sanear_nao_vira_oferta():
+    """N-F1: TV 'para retirada de peças' a R$ 2.300 (dentro da faixa do sanear) não entra como oferta de loja."""
+    prod = {"id": "x1", "available": True, "title": "Tv Tcl 55c6k Para Retirada De Peças", "path": "/x/p/x1/",
+            "price": {"bestPrice": "2300.00", "fullPrice": "2300.00", "price": "2300.00"},
+            "seller": {"id": "v", "description": "Vendedor", "category": "3p"}}
+    assert magalu.parse_busca(_magalu_busca(prod)) == []
+
+
+_R3_MULTI = OuRejeita(preco=3599.0, alvo=False)  # nunca o preço do outro produto, nunca 🎯 falso
+
+POSTS_R4 = [
+    # --- regressão 1 da rodada 3 (e R1-REG1 não resolvido): o preço da outra TV numa peça "|" ou na linha de baixo
+    ("R3-REG1 a 43S5K com | e Pix", ('Smart TV TCL 55" 55C6K: R$ 3.799 | R$ 3.599 no Pix',
+                                    'Smart TV TCL 43" 43S5K: R$ 1.999 | R$ 1.799 no Pix'), _R3_MULTI),
+    ("R3-REG1 b lista numerada", ("1️⃣ Smart TV TCL 55C6K — R$ 3.599 (Pix)",
+                                  "2️⃣ Smart TV TCL 65C6K — R$ 4.999 | R$ 4.799 no Pix",
+                                  "3️⃣ Smart TV TCL 50P7K — R$ 2.299 | R$ 2.199 no Pix"), _R3_MULTI),
+    ("R3-REG1 c 43S5K primeiro, Pix embaixo", ("🔥 TVs TCL em oferta na Amazon", "📺 TCL 43S5K — R$ 1.999",
+                                              "💸 Pix: R$ 1.799", "📺 TCL 55C6K — R$ 3.799", "💸 Pix: R$ 3.599"),
+     _R3_MULTI),
+    ("R3-REG1 d De/Por em 2 linhas", ('📺 Smart TV TCL 43" 43S5K — De R$ 2.199', "💰 Por R$ 1.799 no Pix",
+                                      '📺 Smart TV TCL 55" 55C6K — De R$ 4.199', "💰 Por R$ 3.599 no Pix"), _R3_MULTI),
+    ("R3-REG1 e 50P7K De | Por", ("🔥 TCL 55C6K", "De R$ 4.199 | Por R$ 3.599 no Pix",
+                                  "🔥 TCL 50P7K: De R$ 2.799 | Por R$ 2.199 no Pix"), _R3_MULTI),
+    ("R3-REG1 f 65P7K com ou no Pix", ("🔥 TCL 55C6K por R$ 3.599 no Pix", "🔥 TCL 65P7K por R$ 2.999",
+                                       "ou R$ 2.849 no Pix"), _R3_MULTI),
+    ("R3-REG1 g 50P7K Pix embaixo", ("📺 TCL 55C6K — R$ 3.799", "💸 Pix: R$ 3.599", "📺 TCL 50P7K — R$ 2.399",
+                                     "💸 Pix: R$ 2.199"), _R3_MULTI),
+    # controle: com a segmentação, os casos acima dão o preço da 55C6K (a main rejeitava todos)
+    ("R3-REG1 controle bullets", ("🔥 TVs TCL em oferta na Amazon", "• 55C6K: R$ 3.599", "• 65C6K: R$ 4.799",
+                                  "• 43S5K: R$ 1.799"), {"preco": 3599.0, "alvo": False}),
+    ("R3-REG1 controle 43S5K parcela embaixo", ('Smart TV TCL 55" 55C6K R$ 3.599 no Pix',
+                                                'Smart TV TCL 43" 43S5K R$ 1.999', "💳 ou R$ 1.899 no Pix"),
+     {"preco": 3599.0, "alvo": False}),
+    ("R3-REG1 controle Samsung com •", ("Smart TV TCL 55C6K • R$ 3.599",
+                                        'Smart TV Samsung 50" Crystal UHD: R$ 2.199 • Pix R$ 2.089'),
+     {"preco": 3599.0, "alvo": False}),
+    ("R3-REG1 controle vrl 2a linha Pix", ('Smart Tv 55" TCL 55C6K QD-Mini LED | R$ 3.487,50 no Pix',
+                                           'Smart Tv 43" TCL 43S5K: R$ 1.999,00 | R$ 1.799,00 no Pix'),
+     {"preco": 3487.5, "alvo": False}),
+    ("R3-REG1 controle a 55C6K abaixo do alvo", ("📺 TCL 43S5K — R$ 1.999", "💸 Pix: R$ 1.799",
+                                                 "📺 TCL 55C6K — R$ 3.099", "💸 Pix: R$ 2.799"),
+     {"preco": 2799.0, "alvo": True}),
+    # outro produto DEPOIS do título, sem linha de preço da 55C6K: o preço que vem é do outro produto
+    ("R4 outro produto sem preco da 55C6K", ("Smart TV TCL 55C6K", "Smart TV TCL 43S5K", "R$ 1.799 no Pix"), REJEITA),
+    ("R4 comparacao na linha de outro produto", ("📺 TCL 43S5K — R$ 1.999 (mais barata que a 55C6K)",
+                                                 "💸 Pix: R$ 1.799"), REJEITA),
+    # --- regressão 2 da rodada 3 (e R2-REG2 não resolvido): seta ASCII entre o preço antigo e o novo
+    ("R3-REG2 seta ->", ("Smart TV TCL 55C6K", "R$ 4.199 -> R$ 3.599"), {"preco": 3599.0}),
+    ("R3-REG2 De seta ->", ("Smart TV TCL 55C6K", "De R$ 4.199 -> R$ 3.599 no Pix"), {"preco": 3599.0}),
+    ("R3-REG2 seta =>", ("Smart TV TCL 55C6K", "R$ 4.199 => R$ 2.899 no Pix"), {"preco": 2899.0, "alvo": True}),
+    ("R3-REG2 seta >>", ("🔥 TCL 55C6K Mini LED", "R$ 4.199 >> R$ 2.899"), {"preco": 2899.0, "alvo": True}),
+    ("R4 seta ⏩", ("Smart TV TCL 55C6K", "R$ 4.199 ⏩ R$ 2.899"), {"preco": 2899.0, "alvo": True}),
+    # "> R$" fora de seta continua sendo o mínimo do cupom
+    ("R4 maior que fora de seta", ("Smart TV TCL 55C6K", "R$ 3.599", "Cupom TV300: R$ 300 OFF > R$ 2.500"),
+     {"preco": 3599.0, "alvo": False, "cupom": "TV300"}),
+    # --- regressão 3 da rodada 3 (e R2-REG4 não resolvido): linha da 55C6K que começa por "Tela"
+    ("R3-REG3 Tela: | Modelo:", ("🔥 Smart TV TCL QD-Mini LED", '📺 Tela: 55" | Modelo: 55C6K', "💰 R$ 3.599 no Pix"),
+     {"preco": 3599.0}),
+    ("R3-REG3 Tela de 55 depois de Baixou", ("🔥 Baixou! TCL QD-Mini LED 144Hz", '📺 Tela de 55" (modelo 55C6K)',
+                                            "💰 R$ 3.599 no Pix"), {"preco": 3599.0}),
+    # a tela de reposição de verdade continua fora (sem "modelo", com "original")
+    ("R4 tela de reposicao original", ("Tela De 55 Polegadas Tcl 55c6k Original", "R$ 1.899"), REJEITA),
+    # --- regressão 4 da rodada 3: linha comum que cita tamanho, sem preço
+    ("R3-REG4 cupom TVs a partir de 50", ('🔥 Smart TV TCL 55" QD-Mini LED 55C6K', "💰 R$ 2.899 no Pix",
+                                          "🎟️ Cupom TV10 válido para TVs a partir de 50 polegadas"),
+     {"preco": 2899.0, "alvo": True, "cupom": "TV10"}),
+    ("R3-REG4 mais barata que a 65C6K", ("Smart TV TCL 55C6K por R$ 3.299", "R$ 700 mais barata que a 65C6K"),
+     {"preco": 3299.0}),
+    ("R4 faixa de tamanhos do cupom", ("Smart TV TCL 55C6K", "R$ 3.599 no Pix", 'Cupom TV200 para TVs de 50" a 85"'),
+     {"preco": 3599.0, "cupom": "TV200"}),
+    ("R4 outros tamanhos no fim", ("Smart TV TCL 55C6K QD-Mini LED", "R$ 3.599 no Pix",
+                                   'Outros tamanhos: 65" e 75" no link'), {"preco": 3599.0}),
+    ("R4 tambem tem a de 65 no link", ("Smart TV TCL 55C6K", "R$ 3.599", 'Também tem a de 65" no mesmo link'),
+     {"preco": 3599.0}),
+    # disponibilidade com o próprio preço seguida da continuação dele: a continuação também sai
+    ("R4 tambem em 43 com ou no Pix", ("Smart TV TCL 55C6K", "R$ 3.599", 'Também disponível em 43" por R$ 1.999',
+                                       "ou R$ 1.899 no Pix"), {"preco": 3599.0, "alvo": False}),
+    # --- regressão 5 da rodada 3: exclusões que tiravam o único preço
+    ("R3-REG5 preco minimo", ("Smart TV TCL 55C6K", "📉 Preço mínimo: R$ 2.899", "🛒 Amazon"),
+     {"preco": 2899.0, "alvo": True}),
+    ("R3-REG5 mais barato que na Black Friday", ("Smart TV TCL 55C6K", "💥 R$ 2.899 mais barato que na Black Friday"),
+     {"preco": 2899.0, "alvo": True}),
+    # "mais barato" com outro preço na postagem é a diferença, não o preço
+    ("R4 mais barato com outro preco", ("Smart TV TCL 55C6K", "R$ 3.599 no Pix", "R$ 1.600 mais barato que em agosto"),
+     {"preco": 3599.0, "alvo": False}),
+    # --- N-F3 (não resolvido na rodada 3): condição do cupom como preço
+    *[(f"N-F3 r3 {i} {sufixo}", ("Smart TV TCL 55C6K", preco, cupom), {"preco": 3599.0, "alvo": False})
+      for i, cupom in [
+          ("a", "Garanta até R$ 250 OFF em  qualquer produto  a partir de R$ 2.500 no Magalu"),
+          ("c", "Cupom TV300 · Valor mínimo do pedido: R$ 2.500"),
+          ("d", "Cupom TV300 de R$ 300, válido a partir de R$ 2.500"),
+          ("e", "🏷 Cupom MAGALU300: R$ 300 OFF em produtos a partir de R$ 2.500"),
+          ("f", "Cupom TV300 dá R$ 300 de desconto a partir de R$ 2.500"),
+          ("g1", "Cupom 10% OFF (desconto máximo de R$ 1.000): TCL10"),
+          ("g2", "🏷 10% OFF acima de R$ 2.000, limitado a R$ 1.000: TCL10"),
+      ] for preco, sufixo in [("R$ 3.599", "sem Pix"), ("R$ 3.599 no Pix", "no Pix")]],
+    ("N-F3 r3 b TECNOBLOG250 a partir de", ("Smart TV TCL 55C6K", "Por R$ 3.349 no Pix",
+                                            "🏷 Aplique o cupom TECNOBLOG250 (R$ 250 OFF a partir de R$ 2.500)"),
+     {"preco": 3349.0, "alvo": False, "cupom": "TECNOBLOG250"}),
+    # condição partida em duas linhas e cashback na linha de baixo (verificador da rodada 3, E23/E24)
+    ("R4 pedido minimo em 2 linhas", ("Smart TV TCL 55C6K", "R$ 3.599", "Cupom TV300 para pedidos acima de",
+                                      "R$ 2.500"), {"preco": 3599.0, "alvo": False, "cupom": "TV300"}),
+    ("R4 cashback em 2 linhas", ("Smart TV TCL 55C6K", "R$ 3.599 no Pix", "Cashback:", "R$ 1.000"),
+     {"preco": 3599.0, "alvo": False}),
+    # "A partir de R$ X" sem cupom continua sendo o preço (Canaltech)
+    ("R4 a partir de sozinho", ("Smart TV TCL 55C6K", "A partir de R$ 2.899"), {"preco": 2899.0, "alvo": True}),
+    # --- N-F10 (não resolvido na rodada 3): "CUPOM LIBERADO" não é código
+    ("N-F10 r3 CUPOM LIBERADO", ("🚨 CUPOM LIBERADO 🚨", "Smart TV TCL 55C6K", "R$ 3.199 no Pix", "Use o cupom TCL300"),
+     {"preco": 3199.0, "cupom": "TCL300"}),
+    ("N-F10 r3 CUPOM EXTRA NO APP", ("Smart TV TCL 55C6K", "R$ 3.199 no Pix", "CUPOM EXTRA NO APP: TCL300"),
+     {"preco": 3199.0, "cupom": "TCL300"}),
+    ("R4 codigo entre aspas curvas", ("Smart TV TCL 55C6K", "R$ 2.899 no Pix", "Código promocional: “TCL100”"),
+     {"preco": 2899.0, "alvo": True, "cupom": "TCL100"}),
+    # --- verificador da rodada 3: controle por voz como recurso na linha da 55C6K (H7)
+    ("R4 controle por voz no inicio da linha", ("🔥 Controle por voz, 144Hz e Mini LED: TCL 55C6K por R$ 2.899 no Pix",),
+     {"preco": 2899.0, "alvo": True}),
+    # só o preço "De" (verificador da rodada 3, E21): preço antigo nunca é candidato
+    ("R4 so o De", ("Smart TV TCL 55C6K", "🔥De R$ 3.599 no Pix"), {"preco": None, "alvo": False}),
+    # --- outros casos da segmentação e da classificação (sondas da rodada 4 contra a main)
+    # disponibilidade sem preço entre o título e o preço: encerra o bloco; o preço de baixo pode ser do outro tamanho
+    ("R4 disponibilidade 43 sem preco no meio", ("Smart TV TCL 55C6K", "Também tem a de 43 polegadas", "R$ 1.999"),
+     REJEITA),
+    # disponibilidade na própria linha da 55C6K não encerra o bloco
+    ("R4 disponibilidade na linha do titulo", ('Smart TV TCL 55C6K (também em 65" e 75")', "R$ 3.599 no Pix"),
+     {"preco": 3599.0}),
+    # linha de disponibilidade não é "outro produto" para as linhas antes do título
+    ("R4 preco antes do titulo + disponibilidade", ("🔥 R$ 3.599 no Pix", "Smart TV TCL 55C6K", 'Também em 43"'),
+     {"preco": 3599.0}),
+    # a continuação ("ou ... no Pix") de uma comparação é da 55C6K
+    ("R4 comparacao + ou no Pix", ("Smart TV TCL 55C6K por R$ 3.299", "R$ 700 mais barata que a 65C6K",
+                                   "ou R$ 3.199 no Pix"), {"preco": 3199.0}),
+    ("R4 comparacao com palavras no meio", ("Smart TV TCL 55C6K", 'Mais barata que muita TV de 65" por aí', "R$ 3.599"),
+     {"preco": 3599.0}),
+    # outra tela em polegadas (monitor de 27") é outro produto
+    ("R4 monitor 27 na postagem", ("Smart TV TCL 55C6K", "R$ 3.599", 'Monitor Gamer 27" R$ 1.599'),
+     {"preco": 3599.0, "alvo": False}),
+    ("R4 modelo TCL sem tamanho", ("Smart TV TCL 55C6K R$ 3.599", "TCL QM7K R$ 2.199"), {"preco": 3599.0, "alvo": False}),
+    # sem preço, só o valor do cupom: a postagem continua (sem preço), não é peça
+    ("R4 cupom (R$ 300) sem preco", ("Smart TV TCL 55C6K", "Cupom TCL300 (R$ 300)"), {"preco": None, "cupom": "TCL300"}),
+    # "com cupom a partir de R$ X" sem código antes: é o preço
+    ("R4 com cupom a partir de", ("🔥 Smart TV TCL 55C6K com cupom a partir de R$ 2.899",), {"preco": 2899.0, "alvo": True}),
+    # "A partir de R$ X" abrindo a linha concorre com os outros candidatos
+    ("R4 a partir de + menor preco antigo", ("Smart TV TCL 55C6K", "A partir de R$ 3.349,00",
+                                            "📉 Menor preço: R$ 3.999 em agosto"), {"preco": 3349.0}),
+    ("R4 estava", ("Smart TV TCL 55C6K", "A partir de R$ 3.349,00", "Estava R$ 4.299 semana passada"),
+     {"preco": 3349.0}),
+    # "sem juros" de uma linha não se junta ao valor da linha de baixo
+    ("R4 parcelado nao cruza linha", ("Smart TV TCL 55C6K", "✅ Parcelado em 10x sem juros", "R$ 3.599"),
+     {"preco": 3599.0, "parcelado": None}),
+    ("R4 espaco duplo", ("Smart TV TCL 55C6K", "Por  R$  2.899  no Pix"), {"preco": 2899.0, "alvo": True}),
+    # "#55polegadas" e medidas da própria TV não são outro produto
+    ("R4 hashtag 55polegadas no meio", ("Smart TV TCL 55C6K", "#tv #tcl #55polegadas", "R$ 3.599"), {"preco": 3599.0}),
+    ("R4 medida em cm da propria TV", ("Smart TV TCL 55C6K", 'Tela 139,7 cm (55")', "R$ 3.599"), {"preco": 3599.0}),
+]
+
+
+@pytest.mark.parametrize("linhas,esperado", [pytest.param(l, e, id=i) for i, l, e in POSTS_R4])
+def test_postagem_r4(linhas, esperado, monkeypatch):
+    _confere(_post(_canal(*linhas), monkeypatch), esperado)
+
+
+def test_nf3_r3_real_11614_com_linha_da_11611(monkeypatch):
+    """N-F3 (a): o texto real do achadosdotb/11614 com a linha real do 11611 ('Garanta até R$ 250 OFF em qualquer
+    produto a partir de R$ 2.500 no Magalu'). A rodada 3 dava 2500 com 🎯."""
+    extra = "Garanta até R$ 250 OFF em  qualquer produto  a partir de R$ 2.500 no Magalu"
+    _confere(_post(_post_real_11614(extra), monkeypatch), {"preco": 2910.14, "cupom": "TECNOBLOG250", "alvo": False})
+
+
+UTIL_R4 = [
+    ("N-F10 r3 extra no app", cupom_no_texto, "CUPOM EXTRA NO APP: TCL300", "TCL300"),
+    ("N-F10 r3 surpresa", cupom_no_texto, "CUPOM SURPRESA", None),
+    ("N-F10 r3 esgotado", cupom_no_texto, "CUPOM ESGOTADO", None),
+    ("N-F10 r3 voltou", cupom_no_texto, "CUPOM VOLTOU", None),
+    ("N-F10 r3 liberado", cupom_no_texto, "🚨 CUPOM LIBERADO 🚨\nSmart TV TCL 55C6K\nUse o cupom TCL300", "TCL300"),
+    ("R4 cupom dois codigos", cupom_no_texto, "🎟️  Cupom:  IFPF2XZ6  ou  BRAE11", "IFPF2XZ6"),
+    ("R4 cupom + cartao", cupom_no_texto, "CUPOM + CARTÃO MERCADO PAGO", None),
+    ("R4 cupom exclusivo:", cupom_no_texto, "Cupom exclusivo: SOLTAODESCONTO", "SOLTAODESCONTO"),
+    ("R3-REG2 seta -> (util)", preco_postagem, "R$ 4.199 -> R$ 3.599", 3599.0),
+    ("R3-REG2 seta => (util)", preco_postagem, "R$ 4.199 => R$ 2.899 no Pix", 2899.0),
+    ("R3-REG5 preco minimo (util)", preco_postagem, "📉 Preço mínimo: R$ 2.899", 2899.0),
+    ("R4 menor preco (util)", preco_postagem, "Menor preço: R$ 2.899", 2899.0),
+    ("N-F3 r3 limitado a (util)", preco_postagem, "10% OFF acima de R$ 2.000, limitado a R$ 1.000", None),
+    ("N-F3 r3 maximo de (util)", preco_postagem, "Cupom 10% OFF (desconto máximo de R$ 1.000)", None),
+    ("R4 cupom colado em ou", cupom_no_texto, "com cupom: BRAE2ou BRFSAFF02", "BRAE2"),
+    ("R4 cupom colado em de", cupom_no_texto, "usando o cupom RISE15de Desconto", "RISE15"),
+    ("R4 cupom na linha de baixo", cupom_no_texto, "Use o cupom abaixo 👇\nTCL300", "TCL300"),
+    ("R4 cupom liberado + palavra embaixo", cupom_no_texto, "🚨 CUPOM LIBERADO 🚨\nAPROVEITE", None),
+    ("R4 codigo:", cupom_no_texto, "Use o codigo PRAVC20", "PRAVC20"),
+    ("R4 horario nao e codigo", cupom_no_texto, "Cupom válido até 23h59", None),
+    ("R4 parcelado nao cruza linha (util)", parcelado_no_texto, "Parcelado em 10x sem juros\nR$ 3.599", None),
+    ("R4 estava (util)", preco_postagem, "Estava R$ 4.299, agora R$ 3.599", 3599.0),
+]
+
+
+@pytest.mark.parametrize("func,entrada,esperado", [pytest.param(f, e, s, id=i) for i, f, e, s in UTIL_R4])
+def test_util_r4(func, entrada, esperado):
+    assert func(entrada) == esperado

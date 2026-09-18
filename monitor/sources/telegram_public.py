@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 from .. import config
 from ..filtro import bloco_55c6k
 from ..models import Oferta
-from ..util import cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto, preco_postagem
+from ..util import (PISO_PRECO_TV, cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto,
+                    preco_postagem)
 from . import Fonte, Resultado
 
 _LOJAS_NO_TEXTO = [
@@ -52,8 +53,9 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
         titulo, trecho = achado
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
-        # menor valor que sobra depois de tirar mínimo do cupom, desconto, parcela e preço "De"
-        preco = preco_postagem(trecho)
+        # menor candidato do bloco da 55C6K (fora mínimo/teto do cupom, desconto, parcela, preço "De" e valores
+        # abaixo de R$ 1.500, que não podem ser o preço desta TV)
+        preco = preco_postagem(trecho, PISO_PRECO_TV)
         out.append(Oferta(
             fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
             titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}", id=post,

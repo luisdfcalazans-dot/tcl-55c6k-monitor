@@ -292,14 +292,17 @@ def test_reg1_outras_formas_de_postagem_com_varios_produtos():
     # tudo na mesma linha
     o = um_post('Smart TV TCL 55" 55C6K: R$ 3.599 | Smart TV Samsung 43" Crystal: R$ 1.799 no Pix')
     assert o.preco == 3599.0
-    # rodada 3: quando o outro produto aparece numa linha SEM preço (o preço dele vem nas linhas de baixo),
-    # a postagem inteira sai, como na main — a rodada 2 esperava 3599 aqui; a orientação da rodada 3 aceita
-    # rejeitar para nunca arriscar o preço do outro produto
+    # outro produto numa linha SEM preço (o preço dele vem nas linhas de baixo). Rodada 4, segmentação por
+    # produto: cada linha de preço é do cabeçalho mais próximo acima dela, então sai o preço da 55C6K (3599) ou a
+    # postagem é rejeitada — nunca o preço nem o cupom do outro produto
     for linhas in [('Smart TV TCL 43" 43S5K', "R$ 1.799 no Pix", 'Smart TV TCL 55" 55C6K', "R$ 3.599 no Pix"),
                    ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV Samsung Crystal UHD", "R$ 2.299 no Pix"),
                    ("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV TCL 43S5K", "R$ 1.799 ou 10x de R$ 179,90 sem juros",
                     "Cupom TCL43")]:
-        assert telegram_public.parse_canal(canal(*linhas), "canal") == [], linhas
+        ofs = telegram_public.parse_canal(canal(*linhas), "canal")
+        assert ofs == [] or [(o.preco, o.cupom, o.parcelado) for o in ofs] == [(3599.0, None, None)], linhas
+    # sem linha de preço da 55C6K, o preço que vem depois do outro produto é dele: rejeita
+    assert telegram_public.parse_canal(canal("Smart TV TCL 55C6K", "Smart TV TCL 43S5K", "R$ 1.799 no Pix"), "c") == []
 
 
 def test_reg1_postagem_de_um_produto_usa_a_mensagem_toda():
