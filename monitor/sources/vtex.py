@@ -7,10 +7,26 @@ import re
 from .. import config
 from ..filtro import eh_55c6k
 from ..models import Oferta
-from ..util import get_json, loja_canonica, parse_preco
+from ..util import get_json, loja_canonica, parse_preco, sem_acentos
 from . import Fonte, Resultado
 
 _RE_PIX = re.compile(r"(\d{1,2})\s*%\s*(?:no\s+|de\s+desconto\s+no\s+)?pix", re.I)
+_RE_PAGTO_A_VISTA = re.compile(r"^\s*(?:pix|boleto)\b", re.I)
+
+
+def _pix_nas_parcelas(offer: dict) -> float | None:
+    """Menor preço à vista (Pix/boleto em 1x) listado em Installments.
+
+    A Fast Shop não usa teaser: o desconto do Pix só aparece como a parcela 1x do PaymentSystemName "Pix".
+    """
+    valores = []
+    for i in offer.get("Installments") or []:
+        nome = sem_acentos(str(i.get("PaymentSystemName") or ""))
+        if (i.get("NumberOfInstallments") or 0) == 1 and _RE_PAGTO_A_VISTA.match(nome):
+            v = parse_preco(i.get("Value"))
+            if v:
+                valores.append(v)
+    return min(valores) if valores else None
 
 
 def _teasers(offer: dict) -> list[str]:
@@ -40,12 +56,14 @@ def parse_catalogo(data: list, loja: str, base: str) -> list[Oferta]:
                     m = max(inst, key=lambda i: i.get("NumberOfInstallments") or 0)
                     if (m.get("NumberOfInstallments") or 0) > 1:
                         parcelado = f"{m['NumberOfInstallments']}x R$ {m['Value']:.2f}".replace(".", ",") + " sem juros"
-                pix = None
+                pix_teaser = None
                 for t in _teasers(of):
                     mm = _RE_PIX.search(t)
                     if mm:
-                        pix = round(preco * (1 - int(mm.group(1)) / 100), 2)
+                        pix_teaser = round(preco * (1 - int(mm.group(1)) / 100), 2)
                         break
+                opcoes_pix = [v for v in (pix_teaser, _pix_nas_parcelas(of)) if v and v < preco]
+                pix = min(opcoes_pix) if opcoes_pix else None
                 vendedor = s.get("sellerName") or loja
                 link = p.get("link") or (base + "/" + (p.get("linkText") or "") + "/p")
                 out.append(Oferta(
