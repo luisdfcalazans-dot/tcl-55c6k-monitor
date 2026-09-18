@@ -145,3 +145,15 @@ def test_sanear_mantem_promocao_real():
                    preco=2419.0, parcelado="10x R$ 241,90 sem juros")
     sanear(base + [promo])
     assert promo.ativo is True and promo.parcelado == "10x R$ 241,90 sem juros"
+
+
+def test_parcelado_real_corrige_o_que_a_loja_nao_atualiza():
+    """O Magalu mostra a parcela de antes do cupom; a mensagem tem de mostrar a de verdade."""
+    from monitor.carrinho import ResultadoCupom
+
+    r = ResultadoCupom(codigo="X", aceito=True, total_cartao=3919.0, frete=0.0,
+                       parcelado="10x R$ 417,89 sem juros")
+    assert r.parcelado_real == "10x de R$ 391,90 sem juros"
+    ok = ResultadoCupom(codigo="X", aceito=True, total_cartao=4169.0, frete=0.0,
+                        parcelado="10x R$ 416,90 sem juros")
+    assert ok.parcelado_real == "10x R$ 416,90 sem juros"

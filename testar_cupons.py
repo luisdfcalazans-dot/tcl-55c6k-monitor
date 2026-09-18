@@ -113,7 +113,7 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
             linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
     if melhor_parc:
         p = melhor_parc[1]
-        linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado} na {melhor_parc[0]} "
+        linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado_real} na {melhor_parc[0]} "
                       f"com <code>{p.codigo}</code>")
     outros = [f"{n}: {fmt_preco(x.tv_pix or x.tv_cartao)} ({x.codigo})" for n, x in
               sorted(validos, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)[1:5]]

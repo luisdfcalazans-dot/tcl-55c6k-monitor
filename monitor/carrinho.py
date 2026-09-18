@@ -49,6 +49,25 @@ class ResultadoCupom:
             return None
         return round((self.total_cartao - (self.frete or 0)) / max(1, self.quantidade), 2)
 
+    @property
+    def parcelado_real(self) -> Optional[str]:
+        """O parcelado que a loja mostra costuma ser o de antes do cupom; aqui refazemos a conta.
+
+        Se '10x R$ 417,89' não bate com o total no cartão, devolvemos '10x de R$ 391,90'.
+        """
+        if not self.parcelado:
+            return None
+        m = re.search(r"(\d{1,2})x\s*(?:de\s*)?R\$\s?([\d.]+(?:,\d{2})?)", self.parcelado, re.I)
+        alvo = self.tv_cartao
+        if not m or alvo is None:
+            return self.parcelado
+        n = int(m.group(1))
+        valor = parse_preco(m.group(2)) or 0
+        if abs(n * valor - alvo) <= max(1.0, alvo * 0.02):
+            return self.parcelado
+        certo = alvo / n
+        return f"{n}x de R$ {certo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " sem juros"
+
 
 class PrecisaLogin(Exception):
     """A loja pediu login: a sessão salva expirou ou nunca foi feita."""
@@ -177,7 +196,10 @@ class Magalu(LojaCarrinho):
         botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
         if not botao.count():
             return False
-        botao.click()
+        try:
+            botao.click(timeout=10000)
+        except Exception:
+            return False  # anúncio sem botão (esgotado ou mudou de layout): segue para o próximo
         page.wait_for_timeout(3000)
         page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
@@ -240,31 +262,35 @@ class Magalu(LojaCarrinho):
             r.frete = dif if 0 <= dif < r.produtos * 0.5 else None
         return r
 
+    _SEL_CAMPO = "[data-testid=cupom-input]:visible, [role=dialog] input:visible, input[placeholder*=cupom i]:visible"
+
     def _abrir_campo(self, page):
-        """Clica em 'Inserir' (data-testid=coupon-button) e devolve o input do cupom."""
-        campo = page.locator("[data-testid=cupom-input]:visible, [role=dialog] input:visible, input[placeholder*=cupom i]:visible").first
-        if campo.count():
-            return campo
-        botao = page.locator("[data-testid=coupon-button]").first
-        if not botao.count():
-            botao = page.get_by_role("button", name=re.compile(r"^inserir$|cupom", re.I)).first
-        if not botao.count():
-            return None
-        botao.click(timeout=8000)
-        page.wait_for_timeout(2000)
-        if self._pagina_de_login(page):
-            raise PrecisaLogin("o Magalu pediu login ao abrir o campo de cupom")
-        campo = page.locator("[data-testid=cupom-input]:visible, [role=dialog] input:visible, input[placeholder*=cupom i]:visible").first
-        if campo.count():
-            return campo
-        # qualquer input de texto visível que não seja a busca
-        for i in range(page.locator("input:visible").count()):
-            el = page.locator("input:visible").nth(i)
-            tipo = (el.get_attribute("type") or "text").lower()
-            ident = f"{el.get_attribute('id')} {el.get_attribute('name')} {el.get_attribute('placeholder')}".lower()
-            if tipo in ("text", "search") and "search" not in ident and "busc" not in ident and "login" not in ident and "senha" not in ident:
-                return el
-        return None
+        """Devolve o input do cupom, abrindo o diálogo se preciso.
+
+        O botão troca de rótulo ('Inserir' quando não há cupom, 'Ver cupons' quando há um aplicado),
+        e logo depois de remover um cupom a sacola recarrega. Por isso tentamos algumas vezes.
+        """
+        for tentativa in range(3):
+            campo = page.locator(self._SEL_CAMPO).first
+            if campo.count():
+                return campo
+            if self._pagina_de_login(page):
+                raise PrecisaLogin("o Magalu pediu login ao abrir o campo de cupom")
+            botao = page.locator("[data-testid=coupon-button]").first
+            if not botao.count():
+                botao = page.get_by_role("button", name=re.compile(r"^inserir$|ver cupons|cupom", re.I)).first
+            if botao.count():
+                try:
+                    botao.click(timeout=8000)
+                    page.wait_for_timeout(2500)
+                    continue
+                except Exception:
+                    pass
+            if tentativa < 2:  # recarrega a sacola e tenta de novo
+                page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+                _espera(page)
+        campo = page.locator(self._SEL_CAMPO).first
+        return campo if campo.count() else None
 
     def _dialogo(self, page):
         # há vários [role=dialog] ocultos na página; só interessa o visível
@@ -332,22 +358,26 @@ class Magalu(LojaCarrinho):
         return depois
 
     def remover(self, page) -> None:
-        rem = page.locator("[data-testid=modalSheet-icon-remove]:visible, [aria-label='Remover cupom']:visible").first
-        if not rem.count():
-            rem = page.get_by_role("button", name=re.compile(r"remover|excluir cupom", re.I)).first
-        if not rem.count():
-            rem = page.get_by_text(re.compile(r"^remover( cupom)?$", re.I)).first
-        if not rem.count():
-            # o cupom aplicado costuma aparecer no resumo com um "Remover"; se não, abre o diálogo e usa o ícone
-            self._abrir_campo(page)
-            rem = page.locator("[data-testid=modalSheet-icon-remove]:visible").first
-        if rem.count():
-            try:
-                rem.click(timeout=8000)
-            except Exception:
-                pass
-            page.wait_for_timeout(2500)
-        self._fechar_dialogo(page)
+        """Tira o cupom aplicado para o próximo teste começar do preço cheio."""
+        for _ in range(2):
+            if "Cupom aplicado" not in _texto(page) and self._dialogo(page) is None:
+                page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+                _espera(page)
+                if "Cupom aplicado" not in _texto(page):
+                    return
+            self._abrir_campo(page)  # abre o diálogo ('Ver cupons')
+            rem = page.locator("[data-testid=modalSheet-icon-remove]:visible, [aria-label='Remover cupom']:visible").first
+            if rem.count():
+                try:
+                    rem.click(timeout=8000)
+                    page.wait_for_timeout(2500)
+                except Exception:
+                    pass
+            self._fechar_dialogo(page)
+            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            if "Cupom aplicado" not in _texto(page):
+                return
 
 
 # ----------------------------------------------------------------------------------------------
