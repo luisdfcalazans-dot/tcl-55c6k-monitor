@@ -9,6 +9,16 @@ import requests
 from . import config
 
 
+def _sem_segredo(s: str) -> str:
+    """Tira o token do bot de qualquer texto que vá para log."""
+    import re
+
+    token = config.TELEGRAM_BOT_TOKEN
+    if token:
+        s = s.replace(token, "<token>")
+    return re.sub(r"bot\d{6,}:[A-Za-z0-9_-]{20,}", "bot<token>", s)
+
+
 def enviar(texto: str, silencioso: bool = False) -> bool:
     token = config.TELEGRAM_BOT_TOKEN
     chats = [c.strip() for c in config.TELEGRAM_CHAT_ID.split(",") if c.strip()]
@@ -41,9 +51,10 @@ def enviar(texto: str, silencioso: bool = False) -> bool:
                                   timeout=20)
             ok = ok and r.status_code == 200
             if r.status_code != 200:
-                print(f"[notificar] falha {r.status_code}: {r.text[:200]}")
+                print(f"[notificar] falha {r.status_code}: {_sem_segredo(r.text[:200])}")
         except requests.RequestException as e:
-            print(f"[notificar] erro de rede: {e}")
+            # a mensagem da exceção inclui a URL da API, que tem o token: nunca imprimir crua
+            print(f"[notificar] erro de rede: {type(e).__name__}: {_sem_segredo(str(e))[:200]}")
             ok = False
         time.sleep(1.1)
     return ok

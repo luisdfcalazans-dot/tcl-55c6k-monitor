@@ -205,7 +205,21 @@ class Magalu(LojaCarrinho):
             return ""
         return itens[0]["id"] if len(itens) == 1 else "?"
 
+    @staticmethod
+    def _so_tvs(itens: Optional[list[dict]]) -> bool:
+        """True só quando a sacola foi lida e TODO item dela é a 55C6K."""
+        from .filtro import eh_55c6k
+
+        return itens is not None and all(eh_55c6k(i.get("titulo") or "") for i in itens)
+
     def esvaziar(self, page) -> None:
+        """Remove itens da sacola SOMENTE se todos forem a 55C6K.
+
+        A sacola é a do usuário: se houver qualquer outro produto (ou se não der para ler o que há),
+        não mexemos em nada. Quem chama trata isso como "não deu para trocar o anúncio".
+        """
+        if not self._so_tvs(self.itens_da_sacola(page)):
+            return
         for _ in range(6):
             if "sacola está vazia" in _texto(page):
                 return
@@ -236,10 +250,15 @@ class Magalu(LojaCarrinho):
         alvo = self._id_anuncio(url_produto)
         for tentativa in range(3):
             itens = self.itens_da_sacola(page)
-            ids = [i["id"] for i in itens] if itens is not None else None
+            if itens is None:
+                return False  # não deu para ler a sacola: não mexe em nada
+            ids = [i["id"] for i in itens]
             if ids == [alvo]:
                 return True
-            if ids is None or ids:  # outro anúncio, mais de um item, ou sacola ilegível: começa limpo
+            if ids:
+                if not self._so_tvs(itens):
+                    print("[magalu] a sacola tem produtos que não são a TV; não mexo nela")
+                    return False
                 self.esvaziar(page)
                 page.wait_for_timeout(2000)
             page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)

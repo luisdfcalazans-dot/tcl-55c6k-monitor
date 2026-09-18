@@ -39,9 +39,10 @@ if (Test-Path "$raiz\.pw-profile-carrinho") {
 }
 
 cmd /c "git add docs/data 2>&1" | Out-File -Append -Encoding utf8 $log
-cmd /c "git diff --cached --quiet"
+cmd /c "git diff --cached --quiet -- docs/data"
 if ($LASTEXITCODE -ne 0) {
-    cmd /c "git commit -m `"coleta pc $(Get-Date -Format 'yyyy-MM-dd HH:mm')`" 2>&1" | Out-File -Append -Encoding utf8 $log
+    # "-- docs/data" limita o commit aos dados: nada mais que esteja preparado no git entra junto
+    cmd /c "git commit -m `"coleta pc $(Get-Date -Format 'yyyy-MM-dd HH:mm')`" -- docs/data 2>&1" | Out-File -Append -Encoding utf8 $log
     foreach ($i in 1..4) {
         cmd /c "git pull --rebase --autostash 2>&1" | Out-File -Append -Encoding utf8 $log
         cmd /c "git push 2>&1" | Out-File -Append -Encoding utf8 $log
