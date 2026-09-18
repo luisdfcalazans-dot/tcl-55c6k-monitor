@@ -125,6 +125,7 @@ def _texto(page) -> str:
 
 
 class Magalu(LojaCarrinho):
+    cupom_aplicado: Optional[str] = None   # preenchido por itens_da_sacola (appliedPromoCode)
     nome = "magalu"
     loja_canonica = "Magazine Luiza"
     url_login = "https://www.magazineluiza.com.br/cliente/login/"
@@ -149,15 +150,60 @@ class Magalu(LojaCarrinho):
         m = re.search(r"/p/([^/?]+)", url or "")
         return m.group(1) if m else (url or "")[-24:]
 
+    def itens_da_sacola(self, page) -> Optional[list[dict]]:
+        """Abre a sacola e devolve os itens como a própria loja os descreve.
+
+        A página da sacola consulta `GetPreBasketQuery` (GraphQL) e recebe, para cada item, o id do
+        anúncio (o mesmo do /p/<id>/ da URL), a quantidade e o vendedor, além de `appliedPromoCode`.
+        Ler isso é bem mais confiável que o texto da tela, que não traz o id do anúncio.
+        Devolve None quando a consulta não aparece (aí não dá para afirmar o que está na sacola).
+        """
+        capt: dict = {}
+
+        def pega(resp):
+            if "GetPreBasketQuery" in resp.url:
+                try:
+                    capt["j"] = resp.json()
+                except Exception:
+                    pass
+
+        page.on("response", pega)
+        try:
+            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+            _espera(page)
+            for _ in range(12):
+                if "j" in capt:
+                    break
+                page.wait_for_timeout(500)
+        finally:
+            try:
+                page.remove_listener("response", pega)
+            except Exception:
+                pass
+        if "j" not in capt:
+            return [] if "sacola está vazia" in _texto(page) else None
+        lista = ((capt["j"].get("data") or {}).get("itemList") or {})
+        self.cupom_aplicado = lista.get("appliedPromoCode")
+        itens = []
+        for it in lista.get("items") or []:
+            ofertas = ((it.get("item") or {}).get("offers") or [{}])
+            vend = (ofertas[0].get("seller") or {}) if ofertas else {}
+            itens.append({
+                "id": it.get("id") or (it.get("item") or {}).get("id"),
+                "quantidade": int(it.get("quantity") or 1),
+                "vendedor": vend.get("name") or (it.get("extras") or {}).get("sellerId"),
+                "titulo": it.get("name") or "",
+            })
+        return itens
+
     def _anuncio_na_sacola(self, page) -> str:
-        """Id do anúncio que está na sacola agora ('' se vazia)."""
-        if "sacola está vazia" in _texto(page):
+        """Id do único anúncio na sacola; '' se vazia; '?' se há mais de um ou não deu para ler."""
+        itens = self.itens_da_sacola(page)
+        if itens is None:
+            return "?"
+        if not itens:
             return ""
-        for a in page.locator("a[href*='/p/']").all()[:12]:
-            href = a.get_attribute("href") or ""
-            if "/p/" in href:
-                return self._id_anuncio(href)
-        return "?"
+        return itens[0]["id"] if len(itens) == 1 else "?"
 
     def esvaziar(self, page) -> None:
         for _ in range(6):
@@ -189,12 +235,11 @@ class Magalu(LojaCarrinho):
         """
         alvo = self._id_anuncio(url_produto)
         for tentativa in range(3):
-            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-            _espera(page)
-            atual = self._anuncio_na_sacola(page)
-            if atual and atual == alvo:
+            itens = self.itens_da_sacola(page)
+            ids = [i["id"] for i in itens] if itens is not None else None
+            if ids == [alvo]:
                 return True
-            if atual:
+            if ids is None or ids:  # outro anúncio, mais de um item, ou sacola ilegível: começa limpo
                 self.esvaziar(page)
                 page.wait_for_timeout(2000)
             page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
@@ -206,9 +251,8 @@ class Magalu(LojaCarrinho):
                     page.wait_for_timeout(4000)
                 except Exception:
                     pass
-            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-            _espera(page)
-            if self._anuncio_na_sacola(page) == alvo:
+            depois = self.itens_da_sacola(page)
+            if depois is not None and [i["id"] for i in depois] == [alvo]:
                 return True
             page.wait_for_timeout(4000 * (tentativa + 1))  # deixa a loja respirar
         return False
