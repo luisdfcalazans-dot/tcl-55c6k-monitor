@@ -492,4 +492,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if "--login" in sys.argv:
+        sys.exit(main())  # login é interativo: sem cão de guarda
+    from monitor.saida import sair, vigiar
+
+    vigiar(17 * 60, "cupons")
+    sair(main())

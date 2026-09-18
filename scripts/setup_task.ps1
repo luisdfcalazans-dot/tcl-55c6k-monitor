@@ -9,7 +9,10 @@ $acao = New-ScheduledTaskAction -Execute "powershell.exe" `
     -WorkingDirectory $raiz
 $gatilho = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) `
     -RepetitionInterval (New-TimeSpan -Minutes 30) -RepetitionDuration (New-TimeSpan -Days 3650)
-$config = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 15) `
+# IgnoreNew: nunca interrompe uma rodada em andamento (poderia deixar um cupom aplicado no meio do teste).
+# Uma rodada presa é encerrada pelos prazos internos (run_pc.ps1 + monitor/saida.py), e o limite de 29 min
+# cobre coleta (até 9 min) + cupons (até 18 min) sem cortar um teste legítimo.
+$config = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 29) `
     -MultipleInstances IgnoreNew -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 
 Unregister-ScheduledTask -TaskName $nome -Confirm:$false -ErrorAction SilentlyContinue

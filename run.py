@@ -146,4 +146,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--mode" in sys.argv and sys.argv[sys.argv.index("--mode") + 1:][:1] == ["pc"]:
+        # só no PC: garante que o processo termina (ver monitor/saida.py). Na nuvem o Actions já tem prazo.
+        from monitor.saida import sair, vigiar
+
+        vigiar(8 * 60, "coleta")
+        sair(main())
     sys.exit(main())
