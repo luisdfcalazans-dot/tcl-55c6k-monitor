@@ -188,11 +188,11 @@
  "mercadolivre": {
   "cupons": {
    "ECONOMIZEIML": {
-    "testado_em": "2026-09-17T21:10:02-03:00",
+    "testado_em": "2026-09-17T21:14:18-03:00",
     "aceito": false,
-    "mensagem": "o ML não tem campo de código nesta conta; cupons são ativados na lista",
-    "tv_pix": 8338.0,
-    "tv_cartao": 8338.0,
+    "mensagem": "sem mudança no total",
+    "tv_pix": 4169.0,
+    "tv_cartao": 4169.0,
     "total_pix": 8338.0,
     "total_cartao": 8338.0,
     "frete": 0.0,
@@ -212,11 +212,11 @@
     "parcelado": null
    },
    "LIBERAESSA": {
-    "testado_em": "2026-09-17T21:10:16-03:00",
+    "testado_em": "2026-09-17T21:13:59-03:00",
     "aceito": false,
-    "mensagem": "o ML não tem campo de código nesta conta; cupons são ativados na lista",
-    "tv_pix": 8338.0,
-    "tv_cartao": 8338.0,
+    "mensagem": "O cupom não está mais disponível.",
+    "tv_pix": 4169.0,
+    "tv_cartao": 4169.0,
     "total_pix": 8338.0,
     "total_cartao": 8338.0,
     "frete": 0.0,
@@ -234,9 +234,21 @@
     "frete": null,
     "desconto": null,
     "parcelado": null
+   },
+   "ZZTESTE123": {
+    "testado_em": "2026-09-17T21:13:45-03:00",
+    "aceito": false,
+    "mensagem": "Confira se o cupom está correto",
+    "tv_pix": 4169.0,
+    "tv_cartao": 4169.0,
+    "total_pix": 8338.0,
+    "total_cartao": 8338.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-09-17T21:10:20-03:00"
+  "ultima_execucao": "2026-09-17T21:14:18-03:00"
  }
 }
