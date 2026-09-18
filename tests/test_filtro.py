@@ -9,6 +9,8 @@ ACEITA = [
     "Smart TV Mini LED 55\" TCL 4K 55C6K",
     "TV TCL 55 C6K por R$ 2.899 no Pix com cupom",
     "Smart TV TCL 55C6K/65C6K QD-Mini LED (loja oficial)",
+    # "suporte a" é recurso da TV, não o acessório (postagem no estilo do Canaltech)
+    '🔥 Smart TV TCL 55" QD-Mini LED 55C6K com suporte a Dolby Vision IQ, HDR10+ e 144Hz',
 ]
 REJEITA = [
     "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi 65C6K",
@@ -21,6 +23,24 @@ REJEITA = [
     "Suporte de parede para TV TCL 55C6K",
     "Smart TV TCL 55C6K usada com defeito",
     "Smart Tv 4k Uhd Led 58 Philips Pug7019",
+    # acessórios e peças com "55C6K" no título (caso real do Magalu: controle de R$ 149,99)
+    "Controle comando de voz para tv tcl 55c6k 65c6k 75c6k 85c6k 98c6k",
+    "Controle comando de voz para tv tcl 55c6k",
+    "Barra de LED para TV TCL 55C6K",
+    "Placa principal TCL 55C6K",
+    "Fonte de alimentação TV TCL 55C6K",
+    "Tela display painel TCL 55C6K",
+    "Suporte a TV TCL 55C6K",
+    "Smart TV TCL 55C6K com suporte de parede",
+    # produto que não é novo
+    "Smart TV TCL 55C6K Reembalado",
+    "Smart TV TCL 55C6K Mostruário",
+    "Smart TV TCL 55C6K Recertificado",
+    "Smart TV TCL 55C6K com avaria na embalagem",
+    # anúncio de vários tamanhos, mesmo citando 55C6K
+    "Smart TV TCL 65C6K 55C6K 75C6K Mini LED",
+    "Smart TV TCL 55C6K/65C6K/75C6K",
+    "Smart TV TCL 55C6K 65C6K",
 ]
 
 

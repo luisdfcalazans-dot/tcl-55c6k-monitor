@@ -30,10 +30,15 @@ def parse_api(data: dict) -> Oferta | None:
     parcelado = a.get("max_installment") or None
     if parcelado and "sem juros" not in parcelado:
         parcelado = f"{parcelado} sem juros"
+    # anúncio de marketplace (seller_type 3P): quem vende é o lojista parceiro, e ele muda sem aviso
+    vendedor: str | None = "KaBuM!"
+    if a.get("is_marketplace"):
+        vendedor = str((a.get("marketplace") or {}).get("seller_name") or "").strip() or None
     return Oferta(
         fonte="kabum", tipo="loja", loja="KaBuM!", titulo=titulo, url=config.URL_KABUM_PRODUTO,
         id=str(data.get("id") or "911482"), preco=preco,
-        preco_pix=pix if pix and preco and pix < preco else None, parcelado=parcelado, extra=extra,
+        preco_pix=pix if pix and preco and pix < preco else None, parcelado=parcelado, vendedor=vendedor,
+        extra=extra,
     )
 
 
