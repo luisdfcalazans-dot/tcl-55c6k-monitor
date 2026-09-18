@@ -13,11 +13,42 @@ from typing import Any
 
 from . import config
 from .models import Cupom, Oferta
-from .util import agora_iso
+from .util import agora_iso, dias_desde, loja_canonica
 
 CAMPOS_HISTORICO = [
     "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url",
 ]
+MODOS = ("cloud", "pc")
+
+
+def e_agregador(o: Oferta) -> bool:
+    """Zoom/Buscapé é agregador de preços, não loja: o preço que ele mostra pode estar atrasado."""
+    return bool((o.extra or {}).get("agregador"))
+
+
+def lojas_diretas(ofertas: list[Oferta]) -> set[str]:
+    """Lojas que têm oferta de fonte direta (não agregador) nesta rodada, ativa ou não."""
+    return {loja_canonica(o.loja) for o in ofertas if o.tipo == "loja" and not e_agregador(o)}
+
+
+def conta_como_preco(o: Oferta, diretas: set[str] | None = None) -> bool:
+    """Se a oferta pode virar "menor já visto" e alerta de preço de loja.
+
+    Nunca: oferta inativa (esgotada ou descartada pelo sanear) ou sem preço.
+    Agregador: só quando a loja não tem fonte direta nesta rodada (diretas=None = não sabemos -> não conta).
+    """
+    if o.tipo != "loja" or not o.ativo or not o.melhor_preco:
+        return False
+    if e_agregador(o):
+        return diretas is not None and loja_canonica(o.loja) not in diretas
+    return True
+
+
+def _preco_do_minimo(m: Any) -> float | None:
+    try:
+        return float(m["preco"]) if m and m.get("preco") else None
+    except (TypeError, ValueError, AttributeError):
+        return None
 
 
 class Estado:
@@ -52,10 +83,12 @@ class Estado:
         reg = self.dados["ofertas"].get(o.chave) or {"primeira_vez": agora_iso(), "preco_alertado": None}
         reg.update(o.to_dict())
         reg["ultima_vez"] = agora_iso()
-        reg["ultimo_preco"] = o.melhor_preco
-        mp = reg.get("menor_preco")
-        if o.melhor_preco and (mp is None or o.melhor_preco < mp):
-            reg["menor_preco"] = o.melhor_preco
+        # preço de oferta esgotada ou descartada pelo sanear não é preço da TV: não vira último nem menor preço
+        if o.ativo and o.melhor_preco:
+            reg["ultimo_preco"] = o.melhor_preco
+            mp = reg.get("menor_preco")
+            if mp is None or o.melhor_preco < mp:
+                reg["menor_preco"] = o.melhor_preco
         if alertado_preco is not None:
             reg["preco_alertado"] = alertado_preco
         self.dados["ofertas"][o.chave] = reg
@@ -72,6 +105,18 @@ class Estado:
     def cupom_anterior(self, chave: str) -> dict | None:
         return self.dados["cupons"].get(chave)
 
+    def codigos_cupom_recentes(self, dias: float = 30) -> set[str]:
+        """'loja|CÓDIGO' dos cupons já vistos nos últimos `dias` (o mesmo código volta com outro id)."""
+        out: set[str] = set()
+        for reg in self.dados["cupons"].values():
+            d = dias_desde(reg.get("ultima_vez") or reg.get("primeira_vez"))
+            if d is not None and d > dias:
+                continue
+            codigo = str(reg.get("codigo") or "").upper()
+            if codigo:
+                out.add(f"{loja_canonica(reg.get('loja') or '')}|{codigo}")
+        return out
+
     def registra_cupom(self, c: Cupom) -> None:
         reg = self.dados["cupons"].get(c.chave) or {"primeira_vez": agora_iso()}
         reg.update(c.to_dict())
@@ -82,9 +127,27 @@ class Estado:
     def minimo(self) -> dict | None:
         return self.dados.get("minimo")
 
-    def atualiza_minimo(self, o: Oferta) -> bool:
+    def _minimo_do_modo(self, modo: str) -> dict | None:
+        """Mínimo gravado pelo outro modo (só leitura). Arquivo ausente ou quebrado -> None."""
+        for nome in (f"state_{modo}.json", f"latest_{modo}.json"):
+            try:
+                m = json.loads((self.arq_estado.parent / nome).read_text(encoding="utf-8")).get("minimo")
+            except (OSError, ValueError, AttributeError):
+                continue
+            if _preco_do_minimo(m):
+                return m
+        return None
+
+    def minimo_geral(self) -> dict | None:
+        """Menor preço já visto considerando os dois modos (cloud e pc), como o painel mostra."""
+        candidatos = [self.dados.get("minimo")] + [self._minimo_do_modo(m) for m in MODOS if m != self.modo]
+        validos = [m for m in candidatos if _preco_do_minimo(m)]
+        return min(validos, key=_preco_do_minimo) if validos else None
+
+    def atualiza_minimo(self, o: Oferta, diretas: set[str] | None = None) -> bool:
+        """`diretas`: lojas com fonte direta nesta rodada (lojas_diretas). Ver conta_como_preco."""
         p = o.melhor_preco
-        if not p or o.tipo != "loja":
+        if not p or not conta_como_preco(o, diretas):
             return False
         m = self.dados.get("minimo")
         if m is None or p < float(m["preco"]):
@@ -116,6 +179,8 @@ class Estado:
             if novo:
                 w.writeheader()
             for o in ofertas:
+                if not o.ativo or not o.melhor_preco:
+                    continue  # esgotada ou descartada pelo sanear: o preço não é da TV e distorce o gráfico
                 w.writerow({
                     "quando": agora_iso(), "fonte": o.fonte, "tipo": o.tipo, "loja": o.loja,
                     "vendedor": o.vendedor or "", "titulo": o.titulo[:160], "preco": o.preco or "",

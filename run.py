@@ -43,7 +43,7 @@ def main() -> int:
     args = ap.parse_args()
 
     from monitor import config, notificar
-    from monitor.estado import Estado
+    from monitor.estado import Estado, lojas_diretas
     from monitor.regras import (
         cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario, sanear,
     )
@@ -125,21 +125,24 @@ def main() -> int:
 
     # persistência
     chaves_vistas = set()
+    diretas = lojas_diretas(ofertas)  # type: ignore[arg-type]
     for o in ofertas:  # type: ignore[assignment]
         estado.registra_oferta(o, alertados.get(o.chave))  # type: ignore[union-attr]
-        estado.atualiza_minimo(o)  # type: ignore[arg-type]
+        # inativa/descartada nunca vira "menor já visto"; agregador só quando a loja não tem fonte direta
+        estado.atualiza_minimo(o, diretas)  # type: ignore[arg-type]
         chaves_vistas.add(o.chave)  # type: ignore[union-attr]
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
-    estado.anexa_historico([o for o in ofertas if o.tipo == "loja"])  # type: ignore[union-attr]
+    # histórico/gráfico: só preços ativos (esgotado ou descartado pelo sanear não é preço da TV)
+    estado.anexa_historico([o for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco])  # type: ignore[union-attr]
     if not args.so:  # uma execução parcial (--so) não deve sobrescrever o painel com dados incompletos
         estado.escreve_latest(ofertas, aplicaveis)  # type: ignore[arg-type]
     estado.salva()
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]
     n_post = len(ofertas) - n_loja
-    melhor = min([o.melhor_preco for o in ofertas if o.tipo == "loja" and o.melhor_preco] or [0])  # type: ignore[union-attr]
+    melhor = min([o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco] or [0])  # type: ignore[union-attr]
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
           f"{enviados} alertas, melhor preço {melhor:.2f}, {time.time()-t0:.0f}s")
     return 0
