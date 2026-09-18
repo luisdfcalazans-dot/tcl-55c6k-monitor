@@ -15,7 +15,7 @@ from typing import Any, Callable
 from .. import config
 from ..filtro import eh_55c6k
 from ..models import Oferta
-from ..util import jsonld_produtos, limpa_html, loja_canonica, parcelado_no_texto, parse_preco, precos_no_texto
+from ..util import fmt_preco, jsonld_produtos, limpa_html, loja_canonica, parse_preco, precos_no_texto
 from ..trava import PerfilOcupado, trava_perfil
 from . import Fonte, Pular, Resultado
 
@@ -98,8 +98,17 @@ def _abrir_no_perfil(url, pasta, headless, padroes, capturados, esperar, scroll,
 
 
 _RE_FIM_BLOCO = re.compile(
-    r"Descri[çc][ãa]o do produto|Produtos? relacionad|Quem (?:viu|comprou)|Recomenda|"
-    r"Compre junto|Voc[êe] tamb[ée]m pode gostar|Avalia[çc][õo]es", re.I)
+    r"Descri[çc][ãa]o do produto|Produtos? relacionad|Produtos? patrocinad|Quem (?:viu|comprou)|Recomenda|"
+    r"Compre junto|Voc[êe] tamb[ée]m pode gostar|"
+    # "Avaliações" só como título de seção, em linha própria. O "com 172 avaliações" das estrelas
+    # fica ACIMA do preço na Casas Bahia e cortava o bloco antes dele.
+    r"^[ \t]*Avalia[çc][õo]es(?:[ \t]+d[aeo]s?[ \t]+\w+)?[ \t]*$", re.I | re.M)
+
+
+def _bloco_principal(texto: str, fim: re.Pattern = _RE_FIM_BLOCO) -> str:
+    """Texto só do topo da página (bloco do produto), antes dos carrosséis de recomendados/patrocinados."""
+    m = fim.search(texto or "")
+    return texto[: m.start()] if m else (texto or "")[:4000]
 
 
 def _precos_do_bloco_principal(texto: str) -> list[float]:
@@ -107,9 +116,64 @@ def _precos_do_bloco_principal(texto: str) -> list[float]:
 
     Sem esse corte, o menor preço da página costuma ser o de outra TV sugerida ao lado.
     """
-    m = _RE_FIM_BLOCO.search(texto)
-    topo = texto[: m.start()] if m else texto[:4000]
-    return [p for p in precos_no_texto(topo) if p >= 1500]
+    return [p for p in precos_no_texto(_bloco_principal(texto)) if p >= 1500]
+
+
+# Preço desenhado em pedaços (spans/linhas separados): "R$ 3 . 499" (AliExpress), "R$\n3.491\n,\n03" (ML).
+# Os centavos só são colados quando há espaço ANTES da vírgula ("3.491 , 03"): "R$ 3.599, 10x" fica como está.
+_RE_PRECO_QUEBRADO = re.compile(r"R\$\s*(\d{1,3}(?:\s*\.\s*\d{3})*(?:,\d{2}|\s+,\s*\d{2})?)(?![\dxX])")
+
+
+def _junta_precos(texto: str) -> str:
+    """Cola os dígitos de preços quebrados: 'R$ 3 . 499' -> 'R$ 3.499'; 'R$ 621 , 90' -> 'R$ 621,90'."""
+    return _RE_PRECO_QUEBRADO.sub(lambda m: "R$ " + re.sub(r"\s+", "", m.group(1)), texto or "")
+
+
+_RE_PARCELA_JUROS = re.compile(
+    r"(\d{1,2})\s*x\s*(?:de\s*)?R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)(?![\d,])(?:\s*(sem|com)\s+juros)?", re.I)
+
+
+def _parcelado_sem_juros(texto: str) -> str | None:
+    """Primeira parcela 'Nx R$ V sem juros' do texto.
+
+    Opção "com juros" (Casas Bahia: '11x de R$ 399,83 com juros') ou sem rótulo (no ML, parcela sem
+    'sem juros' é com juros) não serve: o parcelado da Oferta é sempre uma condição sem juros.
+    """
+    for m in _RE_PARCELA_JUROS.finditer(_junta_precos(texto)):
+        if (m.group(3) or "").lower() == "sem" and int(m.group(1)) > 1:
+            return f"{m.group(1)}x R$ {m.group(2)} sem juros"
+    return None
+
+
+def _json_apos(html: str, chave: str) -> Any:
+    """Decodifica o valor JSON logo depois de `chave` (ex.: '"ProductPrice":') no HTML. None se não achar."""
+    dec = json.JSONDecoder()
+    i = html.find(chave)
+    while i >= 0:
+        j = i + len(chave)
+        while j < len(html) and html[j] in " \t\r\n":
+            j += 1
+        try:
+            return dec.raw_decode(html, j)[0]
+        except ValueError:
+            i = html.find(chave, i + 1)
+    return None
+
+
+def _aplica_cartao_pix(o: Oferta, cartao: float | None, pix: float | None) -> None:
+    """preco = cartão; preco_pix = Pix (só quando menor).
+
+    O preço já lido (JSON-LD ou bloco da página) só é trocado pelo de cartão se um dos dois valores
+    bater com ele: assim um número de outro lugar da página nunca substitui o preço do produto.
+    """
+    if pix and cartao and pix >= cartao:
+        pix = None
+    ref = o.preco
+    confere = ref is not None and any(v and abs(v - ref) < 0.01 for v in (cartao, pix))
+    if cartao and confere:
+        o.preco = cartao
+    if pix and o.preco and pix < o.preco:
+        o.preco_pix = pix
 
 
 def _esgotado_jsonld(html: str) -> bool:
@@ -143,6 +207,64 @@ def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str) -> Ofer
     return None
 
 
+_ID_CASASBAHIA = "55069456"
+_RE_CB_CARTAO = re.compile(r"^[^\n]*?R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2})[^\n]*cart[ãa]o de cr[ée]dito", re.I | re.M)
+_RE_CB_PIX = re.compile(r"R\$\s?([\d.]+,\d{2})\s*(?:no|à vista no|via)?\s*pix", re.I)
+
+
+def _cb_parcelado_embutido(pp: dict) -> str | None:
+    """Parcelamento sem juros da lista embutida (ProductPrice.installmentOptions). Nunca usa opção com juros.
+
+    Prefere as condições de qualquer cartão; se só o cartão da loja ("Bandeira" = cartão Casas Bahia,
+    as mesmas condições de storeCardConditions) tiver sem juros, isso vai escrito no texto.
+    Entre as opções sem juros, fica a de 10x (a que as outras lojas mostram); sem ela, a de mais parcelas.
+    """
+    grupos = [g for g in (pp.get("installmentOptions") or []) if isinstance(g, dict)]
+
+    def opcoes(g: dict) -> list[tuple[int, float]]:
+        out = []
+        for c in g.get("conditions") or []:
+            if not isinstance(c, dict):
+                continue
+            n, v = c.get("qtyParcels"), parse_preco(c.get("price"))
+            rotulo = f"{c.get('option') or ''} {c.get('formattedOption') or ''}".lower()
+            if not isinstance(n, int) or n < 2 or not v or (c.get("monthlyInterest") or 0) != 0 or "com juros" in rotulo:
+                continue
+            out.append((n, v))
+        return out
+
+    tipo = lambda g: str(g.get("type") or "").lower()  # noqa: E731
+    ordem = [(g, "") for g in grupos if tipo(g) not in ("bandeira", "cdc", "pix")] + \
+            [(g, " (cartão Casas Bahia)") for g in grupos if tipo(g) == "bandeira"]
+    for g, nota in ordem:
+        ops = opcoes(g)
+        if ops:
+            n, v = next(((n, v) for n, v in ops if n == 10), max(ops))
+            return f"{n}x {fmt_preco(v)} sem juros{nota}"
+    return None
+
+
+def _cb_precos_embutidos(html: str) -> tuple[float | None, float | None, str | None]:
+    """(cartão, Pix, parcelado sem juros) do estado embutido "ProductPrice" da página da Casas Bahia.
+
+    O price do JSON-LD é o preço no Pix (10% off); o de cartão ("por R$ 3.998,99 ... no cartão") só
+    aparece aqui: sellPrice.priceWithoutDiscount, e o Pix em paymentMethodDiscount.sellPriceWithDiscount.
+    """
+    pp = _json_apos(html, '"ProductPrice":')
+    if not isinstance(pp, dict):
+        return None, None, None
+    sp = pp.get("sellPrice") if isinstance(pp.get("sellPrice"), dict) else {}
+    if sp.get("skuId") and str(sp.get("skuId")) != _ID_CASASBAHIA:
+        return None, None, None  # preço de outro item
+    cond = pp.get("cardConditions") if isinstance(pp.get("cardConditions"), dict) else {}
+    cartao = parse_preco(sp.get("priceWithoutDiscount")) or parse_preco(cond.get("cash")) or parse_preco(sp.get("priceValue"))
+    pmd = pp.get("paymentMethodDiscount") if isinstance(pp.get("paymentMethodDiscount"), dict) else {}
+    pix = None
+    if pmd.get("hasDiscount") and "pix" in str(pmd.get("discountDescription") or "").lower():
+        pix = parse_preco(pmd.get("sellPriceWithDiscount"))
+    return cartao, pix, _cb_parcelado_embutido(pp)
+
+
 class CasasBahia(Fonte):
     nome = "casasbahia"
     modo = "pc"
@@ -172,15 +294,82 @@ class CasasBahia(Fonte):
                                url=config.URL_CASASBAHIA_PRODUTO, id="55069456", ativo=False)], []
             o = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo,
                        url=config.URL_CASASBAHIA_PRODUTO, id="55069456", preco=min(precos))
-        mpix = re.search(r"R\$\s?([\d.]+,\d{2})\s*(?:no|à vista no|via)?\s*pix", texto, re.I)
-        if mpix:
-            pix = parse_preco(mpix.group(1))
-            if pix and o.preco and pix < o.preco:
-                o.preco_pix = pix
-        o.parcelado = o.parcelado or parcelado_no_texto(texto)
+        # cartão x Pix: o JSON-LD traz o preço do Pix. Primeiro o estado embutido; sem ele, o texto
+        # do bloco do produto (nunca a página toda: os patrocinados têm preço e parcela de outras TVs).
+        topo = _bloco_principal(texto)
+        cartao, pix, parcelado = _cb_precos_embutidos(html)
+        if cartao is None:
+            mc = _RE_CB_CARTAO.search(topo)
+            cartao = parse_preco(mc.group(1)) if mc else None
+        if pix is None:
+            mpix = _RE_CB_PIX.search(topo)
+            pix = parse_preco(mpix.group(1)) if mpix else None
+        _aplica_cartao_pix(o, cartao, pix)
+        o.parcelado = o.parcelado or parcelado or _parcelado_sem_juros(topo)
         if "indisponível" in texto.lower()[:5000] and "produto indisponível" in texto.lower():
             o.ativo = False
         return [o], []
+
+
+_RE_FIM_BLOCO_ML = re.compile(
+    r"Op[çc][õo]es de compra|Produtos? relacionad|Quem (?:viu|comprou)|Voc[êe] tamb[ée]m pode gostar", re.I)
+_RE_ML_OUTROS_MEIOS = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*em outros meios", re.I)
+_RE_ML_PIX = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*(?:no|com|via|à vista no)\s*pix", re.I)
+
+
+def _ml_texto_modelo(sub: dict) -> str:
+    """'10x {price_installments} sem juros' + values -> '10x R$ 374,90 sem juros' (subtítulos do ML)."""
+    txt = str(sub.get("text") or "")
+    vals = sub.get("values") if isinstance(sub.get("values"), dict) else {}
+
+    def troca(m: re.Match) -> str:
+        v = vals.get(m.group(1))
+        if not isinstance(v, dict):
+            return ""
+        if v.get("type") == "price" and v.get("value") is not None:
+            return fmt_preco(parse_preco(v.get("value")))
+        return str(v.get("text") or "")
+
+    return re.sub(r"\s+", " ", re.sub(r"\{(\w+)\}", troca, txt)).strip()
+
+
+def _ml_oferta_selecionada(html: str) -> dict:
+    """Vendedor e parcelado da opção ESCOLHIDA no buy box do ML (buy_box_offers, selected=true).
+
+    Com várias opções ("Parcelamento sem juros" de uma loja, "Melhor preço" de outra), o primeiro
+    "Vendido por" e a parcela da página são da opção não escolhida, e não do preço gravado.
+    Devolve {"multiplas": bool, "item_id", "vendedor", "parcelado"} (chaves só quando achadas).
+    """
+    info: dict[str, Any] = {}
+    bb = _json_apos(html, '"buy_box_offers":')
+    itens = bb.get("items") if isinstance(bb, dict) else None
+    if isinstance(itens, list) and itens:
+        info["multiplas"] = len(itens) > 1
+        sel = next((it for it in itens if isinstance(it, dict) and it.get("selected")), None)
+        if sel:
+            info["item_id"] = sel.get("item_id")
+            for comp in sel.get("components") or []:
+                if not isinstance(comp, dict) or comp.get("state") == "HIDDEN":
+                    continue
+                subs = [comp] if comp.get("id") == "seller" else []
+                subs += [s for s in comp.get("subtitles") or [] if isinstance(s, dict)]
+                for s in subs:
+                    txt = _ml_texto_modelo(s)
+                    if s.get("id") == "seller" or txt.startswith("Vendido por"):
+                        vend = txt.replace("Vendido por", "", 1).strip()
+                        if vend:
+                            info["vendedor"] = vend
+                    elif "sem juros" in txt.lower():
+                        p = _parcelado_sem_juros(txt)
+                        if p:
+                            info["parcelado"] = p
+    if not info.get("vendedor"):
+        sd = _json_apos(html, '"seller_data":')
+        ev = (((sd or {}).get("viewport_track") or {}).get("melidata_event") or {}).get("event_data") \
+            if isinstance(sd, dict) else None
+        if isinstance(ev, dict) and ev.get("shop_name") and (not info.get("item_id") or ev.get("item_id") == info["item_id"]):
+            info["vendedor"] = str(ev["shop_name"]).strip()
+    return info
 
 
 class MercadoLivre(Fonte):
@@ -230,15 +419,27 @@ class MercadoLivre(Fonte):
                     o = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo,
                                url=config.URL_ML_CATALOGO, id="MLB48808732", preco=preco)
         if o:
-            mv = re.search(r"Vendido por\s+([^\n]{2,60})", texto)
-            if mv:
-                o.vendedor = mv.group(1).strip()
-            o.parcelado = o.parcelado or parcelado_no_texto(texto)
-            mpix = re.search(r"([\d.]+,\d{2})\s*(?:no|com)\s*pix", texto, re.I)
-            if mpix:
-                pix = parse_preco(mpix.group(1))
+            # só o bloco do produto: abaixo dele vêm "Opções de compra" e o carrossel de relacionados
+            topo = _junta_precos(_bloco_principal(texto, _RE_FIM_BLOCO_ML))
+            sel = _ml_oferta_selecionada(html)
+            mo = _RE_ML_OUTROS_MEIOS.search(topo)
+            outros = parse_preco(mo.group(1)) if mo else None
+            if outros and o.preco and outros > o.preco + 0.005:
+                # "R$ 3.491,03 ... ou R$ 3.599 em outros meios": o preço anunciado (JSON-LD) é o do Pix
+                o.preco_pix, o.preco = o.preco, outros
+            else:
+                mpix = _RE_ML_PIX.search(topo)
+                pix = parse_preco(mpix.group(1)) if mpix else None
                 if pix and o.preco and pix < o.preco:
                     o.preco_pix = pix
+            if sel.get("vendedor"):
+                o.vendedor = sel["vendedor"]
+            elif not sel.get("multiplas"):
+                # com várias opções no buy box, o "Vendido por" do texto pode ser de outra opção
+                mv = re.search(r"Vendido por\s+([^\n]{2,60})", texto)
+                if mv:
+                    o.vendedor = mv.group(1).strip()
+            o.parcelado = o.parcelado or sel.get("parcelado") or _parcelado_sem_juros(topo)
             out.append(o)
         return out, []
 
@@ -271,12 +472,19 @@ class MercadoLivre(Fonte):
             precos = [p for p in precos if p and p >= 1000]
             if not precos:
                 continue
+            texto_card = _junta_precos(card.get_text(" ", strip=True))
+            preco, pix = min(precos), None
+            mo = _RE_ML_OUTROS_MEIOS.search(texto_card)
+            outros = parse_preco(mo.group(1)) if mo else None
+            if outros and outros > preco + 0.005:
+                # "R$ 4.072 no Pix ou R$ 4.197 em outros meios": o preço em destaque é o do Pix
+                preco, pix = outros, preco
             vend = card.select_one(".poly-component__seller")
             oid = re.search(r"(MLB-?\d+)", url)
             oid_s = oid.group(1).replace("-", "") if oid else url[-40:]
             out.setdefault(oid_s, Oferta(
                 fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo, url=url or config.URL_ML_BUSCA,
-                id=oid_s, preco=min(precos), parcelado=parcelado_no_texto(card.get_text(" ", strip=True)),
+                id=oid_s, preco=preco, preco_pix=pix, parcelado=_parcelado_sem_juros(texto_card),
                 vendedor=vend.get_text(" ", strip=True).replace("Por ", "") if vend else None,
             ))
         return list(out.values())
@@ -315,7 +523,8 @@ class AliExpress(Fonte):
         # 2) fallback: cartões renderizados
         if not out:
             for card in re.finditer(r'<a[^>]+href="([^"]*?/item/(\d+)\.html[^"]*)"[^>]*>(.*?)</a>', html, re.S):
-                bloco = limpa_html(card.group(3))
+                # o preço de venda vem em spans separados ("R$ 3 . 499"): sem colar, sobrava só o riscado
+                bloco = _junta_precos(limpa_html(card.group(3)))
                 if not eh_55c6k(bloco):
                     continue
                 precos = [p for p in precos_no_texto(bloco) if p >= 1000]
