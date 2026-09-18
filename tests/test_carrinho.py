@@ -537,3 +537,43 @@ def test_passo_final_so_marca_no_carrinho_quando_conferido():
     recusa = ResultadoCupom(codigo="LU100", aceito=False, mensagem="Cupom expirado")
     assert not tc.deixar_cupom_no_carrinho(_LojaFalsa(resposta=recusa), None, URL_MAGALU, r)
     assert r.extra["motivo_carrinho"] == "Cupom expirado"
+
+
+def test_fila_prioriza_cupom_de_horario_e_nunca_testado():
+    import sys
+    sys.argv = ["x"]
+    import testar_cupons as t
+
+    testados = {"VELHO@a": {"status": "recusado", "testado_em": "2026-09-10T10:00:00-03:00"},
+                "FALHOU@a": {"status": "erro", "testado_em": "2026-09-18T10:00:00-03:00"}}
+    fila = ["VELHO", "FALHOU", "NOVO", "DIADOCLIENTE14H"]
+    assert t.ordenar_fila(fila, testados, "a") == ["DIADOCLIENTE14H", "NOVO", "FALHOU", "VELHO"]
+
+
+def test_sacola_que_nao_carrega_pausa_a_loja():
+    from monitor.carrinho import LojaIndisponivel, Magalu
+
+    class PaginaFalha:
+        url = "https://sacola.magazineluiza.com.br/r/"
+
+        def on(self, *a):
+            pass
+
+        def remove_listener(self, *a):
+            pass
+
+        def goto(self, *a, **k):
+            pass
+
+        def wait_for_load_state(self, *a, **k):
+            pass
+
+        def wait_for_timeout(self, *a):
+            pass
+
+        def evaluate(self, *a):
+            return "Não conseguimos carregar sua sacola\nPor favor, tente novamente em instantes."
+
+    import pytest
+    with pytest.raises(LojaIndisponivel):
+        Magalu().itens_da_sacola(PaginaFalha())

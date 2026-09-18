@@ -33,7 +33,8 @@ carrega_env()
 
 from monitor import config, notificar  # noqa: E402
 from monitor.carrinho import (  # noqa: E402
-    LOJAS, LojaCarrinho, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador, falha_da_ferramenta,
+    LOJAS, LojaCarrinho, LojaIndisponivel, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador,
+    falha_da_ferramenta,
 )
 from monitor.trava import PerfilOcupado, trava_perfil  # noqa: E402
 from monitor.util import TZ_BR, agora, agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
@@ -44,6 +45,8 @@ MAX_POR_RODADA = 25
 TTL_RECUSADO = timedelta(hours=24)       # recusa da loja vale por um dia; depois o cupom é testado de novo
 RE_CUPOM_DE_HORARIO = re.compile(r"\d{1,2}H$")  # DIADOCLIENTE14H: só funciona na janela daquela hora
 MAX_ERROS_SEGUIDOS = 3                   # falhas seguidas do robô num anúncio: para e tenta na próxima rodada
+PAUSA_LOJA_INDISPONIVEL = timedelta(hours=3)  # carrinho não carregou: deixa a loja em paz um tempo
+MAX_APLICACOES_POR_RODADA = 15           # somando todos os anúncios da loja: rajada grande dispara o antirrobô
 
 
 def status_do_registro(reg: dict) -> str:
@@ -86,6 +89,23 @@ def precisa_testar(codigo: str, reg: dict | None, momento: datetime | None = Non
     if RE_CUPOM_DE_HORARIO.search(codigo.upper()):
         return (quando.date(), quando.hour) != (momento.date(), momento.hour)
     return momento - quando >= TTL_RECUSADO
+
+
+def ordenar_fila(fila: list[str], testados: dict, chave_anuncio: str) -> list[str]:
+    """Ordem de teste quando não dá para testar tudo numa rodada.
+
+    1) cupom de horário (…14H): a janela dele é agora ou nunca;  2) nunca testado;
+    3) 'erro' do robô;  4) recusa antiga que venceu o prazo.
+    """
+    def peso(c: str) -> int:
+        reg = testados.get(f"{c}@{chave_anuncio}")
+        if RE_CUPOM_DE_HORARIO.search(c.upper()):
+            return 0
+        if not reg:
+            return 1
+        return 2 if status_do_registro(reg) == "erro" else 3
+
+    return sorted(fila, key=peso)
 
 
 def carrega_estado() -> dict:
@@ -195,8 +215,13 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     if not loja.perfil().exists():
         print(f"[{loja_id}] sem login salvo. Rode: python testar_cupons.py --loja {loja_id} --login")
         return []
+    pausa = _quando(reg.get("pausa_ate"))
+    if pausa and agora() < pausa and not codigos:
+        print(f"[{loja_id}] em pausa até {pausa.strftime('%d/%m %H:%M')}: {reg.get('pausa_motivo', '')}")
+        return []
     conhecidos, anuncios = codigos_conhecidos(loja)
     testados = reg["cupons"]
+    orcamento = MAX_APLICACOES_POR_RODADA
     from playwright.sync_api import sync_playwright
 
     aceitos: list[ResultadoCupom] = []
@@ -243,9 +268,18 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                 if not fila:
                     print(f"[{loja_id}] {vendedor}: nada novo ({len(conhecidos)} cupons conhecidos)")
                     continue
-                print(f"[{loja_id}] {vendedor}: testando {len(fila[:MAX_POR_RODADA])} cupons")
+                if orcamento <= 0:
+                    print(f"[{loja_id}] {vendedor}: limite de {MAX_APLICACOES_POR_RODADA} testes da rodada atingido; "
+                          f"{len(fila)} cupons ficam para a próxima")
+                    continue
+                fila = ordenar_fila(fila, testados, chave_anuncio)
+                vez = fila[: min(MAX_POR_RODADA, orcamento)]
+                if len(vez) < len(fila):
+                    print(f"[{loja_id}] {vendedor}: {len(fila) - len(vez)} cupons ficam para a próxima rodada")
+                print(f"[{loja_id}] {vendedor}: testando {len(vez)} cupons")
                 erros_seguidos = 0
-                for i, cod in enumerate(fila[:MAX_POR_RODADA]):
+                for i, cod in enumerate(vez):
+                    orcamento -= 1
                     try:
                         r = loja.aplicar(page, cod)
                     except PrecisaLogin:
@@ -279,6 +313,11 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                         page.wait_for_timeout(3000)  # respiro para não parecer ataque
             (RAIZ / "logs").mkdir(exist_ok=True)
             page.screenshot(path=str(RAIZ / "logs" / f"carrinho_{loja_id}.png"))
+        except LojaIndisponivel as e:
+            ate = agora() + PAUSA_LOJA_INDISPONIVEL
+            reg["pausa_ate"] = ate.isoformat(timespec="seconds")
+            reg["pausa_motivo"] = str(e)
+            print(f"[{loja_id}] {e}; pausa até {ate.strftime('%d/%m %H:%M')}")
         except PrecisaLogin as e:
             print(f"[{loja_id}] {e}")
             if notify and reg.get("aviso_login") != hoje():

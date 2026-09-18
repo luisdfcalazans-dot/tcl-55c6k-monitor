@@ -90,6 +90,10 @@ class PrecisaLogin(Exception):
     """A loja pediu login: a sessão salva expirou ou nunca foi feita."""
 
 
+class LojaIndisponivel(Exception):
+    """A loja não carregou o carrinho (instabilidade ou bloqueio antirrobô): parar e esperar."""
+
+
 class LojaCarrinho:
     nome = "base"
     loja_canonica = "?"
@@ -227,7 +231,12 @@ class Magalu(LojaCarrinho):
             except Exception:
                 pass
         if "j" not in capt:
-            return [] if "sacola está vazia" in _texto(page) else None
+            texto = _texto(page)
+            if "Não conseguimos carregar sua sacola" in texto:
+                # 18/09: depois de dezenas de operações seguidas, o Magalu passou a responder isso e a nem
+                # chamar a consulta da sacola. Insistir só piora; quem chama deve pausar a loja.
+                raise LojaIndisponivel("o Magalu não carregou a sacola (instabilidade ou bloqueio antirrobô)")
+            return [] if "sacola está vazia" in texto else None
         lista = ((capt["j"].get("data") or {}).get("itemList") or {})
         self.cupom_aplicado = lista.get("appliedPromoCode")
         itens = []
