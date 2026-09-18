@@ -926,10 +926,22 @@ class Amazon(LojaCarrinho):
         if preco is None:
             m = re.search(r'"displayPrice":"R\$\s?([\d.,]+)"', page.content())
             preco = parse_preco(m.group(1)) if m else None
-        r.produtos = r.total_cartao = r.total_pix = preco
+        from .sources.amazon import separa_pix_cartao
+
+        def _txt(sel: str) -> str:
+            e = page.locator(sel).first
+            return e.inner_text() if e.count() else ""
+
+        cartao, pix, parcelado = separa_pix_cartao(
+            preco, _txt("#oneTimePaymentPrice_feature_div"), _txt("#best-offer-string-cc"))
+        r.total_pix = pix or cartao
+        r.total_cartao = cartao
+        r.produtos = cartao or pix
         r.frete = 0.0
-        m = re.search(r"(\d{1,2})x de R\$\s?([\d.]+,\d{2})\s*sem juros", t.replace("\xa0", " "))
-        r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        if parcelado is None and not pix:
+            m = re.search(r"(\d{1,2})x de R\$\s?([\d.]+,\d{2})\s*sem juros", t.replace("\xa0", " "))
+            parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+        r.parcelado = parcelado
         mv = page.locator("#sellerProfileTriggerId").first
         if mv.count():
             r.extra["vendedor"] = mv.inner_text().strip()[:40]

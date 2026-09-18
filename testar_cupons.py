@@ -254,8 +254,9 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
                     if rot:
                         depois = loja.ler_totais(page)
                         depois.codigo = "cupom da página"
-                        depois.aceito = bool(depois.total_cartao and base.total_cartao
-                                             and depois.total_cartao < base.total_cartao - 1)
+                        depois.aceito = bool(
+                            (depois.total_cartao and base.total_cartao and depois.total_cartao < base.total_cartao - 1)
+                            or (depois.total_pix and base.total_pix and depois.total_pix < base.total_pix - 1))
                         depois.mensagem = rot
                         depois.extra["so_leitura"] = True  # o robô não põe nada no carrinho desta loja
                         print(f"  {'✅' if depois.aceito else 'ℹ '} cupom da página: {rot[:80]}")

@@ -12,6 +12,28 @@ from ..models import Oferta
 from ..util import get_html, parcelado_no_texto, parse_preco
 from . import Fonte, Resultado
 
+_RE_CARTAO = re.compile(
+    r"R\$\s?([\d.]+,\d{2})\s+em\s+at[ée]\s+(\d{1,2})x\s+de\s+R\$\s?([\d.]+,\d{2})(\s+sem\s+juros)?", re.I)
+
+
+def separa_pix_cartao(destaque: float | None, txt_pagamento_unico: str, txt_melhor_oferta: str):
+    """Layout da Amazon desde 18/09/2026: o número grande é o preço do Pix/NuPay ("à vista no Pix ou NuPay
+    (10% off)", em #oneTimePaymentPrice_feature_div) e o do cartão vem em #best-offer-string-cc
+    ("ou R$ 3.749,00 em até 12x de R$ 312,49 sem juros"). Sem a frase do Pix, o destaque é o preço do cartão.
+    Devolve (preco_cartao, preco_pix, parcelado); parcelado None quando a frase não aparece."""
+    m = _RE_CARTAO.search((txt_melhor_oferta or "").replace("\xa0", " "))
+    cartao = parse_preco(m.group(1)) if m else None
+    parcelado = f"{m.group(2)}x R$ {m.group(3)}{' sem juros' if m.group(4) else ''}" if m else None
+    eh_pix = "pix" in (txt_pagamento_unico or "").lower()
+    if not eh_pix:
+        return destaque, None, parcelado
+    if destaque is None:
+        return cartao, None, parcelado
+    if cartao and cartao >= destaque:
+        return cartao, destaque, parcelado
+    # só sabemos o do Pix: o do cartão fica vazio (nunca repetir o do Pix como se fosse cartão)
+    return None, destaque, None
+
 
 def parse_produto(html: str) -> Oferta | None:
     if "api-services-support@amazon.com" in html or "Digite os caracteres" in html:
@@ -46,10 +68,15 @@ def parse_produto(html: str) -> Oferta | None:
     mi = soup.select_one("#merchant-info, #sellerProfileTriggerId")
     if mi:
         vendedor = mi.get_text(" ", strip=True)[:60]
-    texto = soup.get_text(" ", strip=True)
+    unico = soup.select_one("#oneTimePaymentPrice_feature_div")
+    melhor = soup.select_one("#best-offer-string-cc")
+    cartao, pix, parcelado = separa_pix_cartao(
+        preco, unico.get_text(" ", strip=True) if unico else "", melhor.get_text(" ", strip=True) if melhor else "")
+    if parcelado is None and not pix:
+        parcelado = parcelado_no_texto(soup.get_text(" ", strip=True))
     return Oferta(
         fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo, url=config.URL_AMAZON_PRODUTO, id="B0F7JZMVKF",
-        preco=preco, parcelado=parcelado_no_texto(texto), ativo=ativo, vendedor=vendedor,
+        preco=cartao, preco_pix=pix, parcelado=parcelado, ativo=ativo, vendedor=vendedor,
         extra={"disponibilidade": disp_txt[:80]},
     )
 
