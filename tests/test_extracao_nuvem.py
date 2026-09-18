@@ -1,4 +1,4 @@
-"""Regressões do grupo extracao-nuvem (achados N-F1..N-F10 de 18/09/2026).
+"""Regressões do grupo extracao-nuvem (achados N-F1..N-F10 de 18/09/2026 e regressões REG-1..REG-5 da rodada 2).
 
 As amostras são trechos copiados das páginas salvas em 18/09 (snapshots) ou dos fixtures de 13/09.
 """
@@ -6,11 +6,16 @@ As amostras são trechos copiados das páginas salvas em 18/09 (snapshots) ou do
 import json
 from pathlib import Path
 
-from monitor.filtro import eh_55c6k, linha_55c6k, motivo_rejeicao
+import pytest
+
+from monitor import config, regras
+from monitor.filtro import bloco_55c6k, eh_55c6k, linha_55c6k, motivo_rejeicao
 from monitor.sources import kabum, magalu, telegram_public, vtex, zoom
 from monitor.util import cupom_no_texto, parcelado_no_texto, preco_postagem, precos_no_texto
 
 FIX = Path(__file__).parent / "fixtures"
+SNAP = Path(r"C:\Users\luisd\AppData\Local\Temp\claude\C--Users-luisd-OneDrive--rea-de-Trabalho-promos"
+            r"\8294b9c9-bb7f-4112-99fd-4c7e3e9f239b\scratchpad\snapshots")
 
 
 def le(nome: str) -> str:
@@ -72,7 +77,8 @@ def test_nf2_telegram_preco_sem_ponto():
 
 
 def test_parcelado_com_juros_nunca_e_guardado():
-    assert parcelado_no_texto("12x de R$ 380,00 com juros ou 10x de R$ 399,90 sem juros") == "10x R$ 399,90 sem juros"
+    # rodada 2 (REG-2): a 1ª parcela "com juros" não é pulada para uma "sem juros" mais adiante
+    assert parcelado_no_texto("12x de R$ 380,00 com juros ou 10x de R$ 399,90 sem juros") is None
     assert parcelado_no_texto("12x de R$ 380,00 com juros") is None
 
 
@@ -233,3 +239,197 @@ def test_nf10_cupom_falso():
     assert cupom_no_texto("Cupom: TV300 (R$ 300 OFF)") == "TV300"
     o = um_post("Smart TV TCL 55C6K Mini LED", "R$ 3.599,09 no Pix", "CUPOM DISPONÍVEL NA PÁGINA")
     assert o.cupom is None and o.preco == 3599.09
+
+
+# ================================================================ rodada 2: regressões do verificador
+
+class _EstadoMemoria:
+    """Estado vazio em memória (não lê nem grava docs/data), fora do bootstrap."""
+    bootstrap = False
+
+    def minimo(self):
+        return None
+
+    def oferta_anterior(self, chave):
+        return None
+
+    def cupom_anterior(self, chave):
+        return None
+
+
+def _alertas_do_post(o, monkeypatch) -> list[str]:
+    monkeypatch.setattr(config, "ALVO_PIX", 2900.0)
+    monkeypatch.setattr(config, "ALVO_PARCELADO", 3000.0)
+    o.publicado = None  # sem data: o teste não depende do dia em que roda
+    msgs, _ = regras.gerar_alertas(_EstadoMemoria(), [o], [])
+    return msgs
+
+
+# ---------- REG-1: postagem com vários produtos (preço de outra TV virava o da 55C6K, com 🎯 falso) ----------
+
+def test_reg1_multiproduto_preco_vem_do_bloco_da_55c6k(monkeypatch):
+    # casos exatos do verificador: rodada 1 dava 1799 e 2799 (menor valor da mensagem) e alerta 🎯
+    o = um_post('Smart TV TCL 55" 55C6K: R$ 3.599', 'Smart TV TCL 43" 43S5K: R$ 1.799')
+    assert o.preco == 3599.0
+    msgs = _alertas_do_post(o, monkeypatch)
+    assert len(msgs) == 1 and "📣" in msgs[0] and "🎯" not in msgs[0] and "R$ 1.799" not in msgs[0]
+    o = um_post('55" 55C6K — R$ 3.599 no Pix', '65" 65P7K — R$ 2.799 no Pix')
+    assert o.preco == 3599.0
+    assert "🎯" not in _alertas_do_post(o, monkeypatch)[0]
+
+
+def test_reg1_controle_o_alerta_alvo_continua_para_a_55c6k(monkeypatch):
+    # o 🎯 ainda sai quando é a própria 55C6K abaixo do alvo (o teste acima não passa por acaso)
+    o = um_post('Smart TV TCL 55" 55C6K: R$ 2.799 no Pix', 'Smart TV TCL 43" 43S5K: R$ 1.799')
+    assert o.preco == 2799.0
+    assert "🎯" in _alertas_do_post(o, monkeypatch)[0]
+
+
+def test_reg1_outras_formas_de_postagem_com_varios_produtos():
+    # a 55C6K depois de outra TV: o preço de cima é da outra
+    o = um_post('Smart TV TCL 43" 43S5K', "R$ 1.799 no Pix", 'Smart TV TCL 55" 55C6K', "R$ 3.599 no Pix")
+    assert o.preco == 3599.0
+    # outra marca sem código de modelo
+    o = um_post("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV Samsung Crystal UHD", "R$ 2.299 no Pix")
+    assert o.preco == 3599.0
+    # outra TV com o tamanho sem aspas (e o preço dela marcado "no Pix")
+    o = um_post("Smart TV TCL 55C6K: R$ 3.599", "Smart TV TCL 50 P7L: R$ 2.069 no Pix")
+    assert o.preco == 3599.0
+    # tudo na mesma linha
+    o = um_post('Smart TV TCL 55" 55C6K: R$ 3.599 | Smart TV Samsung 43" Crystal: R$ 1.799 no Pix')
+    assert o.preco == 3599.0
+    # parcelado e cupom também só do trecho da 55C6K
+    o = um_post("Smart TV TCL 55C6K", "R$ 3.599", "Smart TV TCL 43S5K", "R$ 1.799 ou 10x de R$ 179,90 sem juros",
+                "Cupom TCL43")
+    assert o.preco == 3599.0 and o.parcelado is None and o.cupom is None
+
+
+def test_reg1_postagem_de_um_produto_usa_a_mensagem_toda():
+    titulo, trecho = bloco_55c6k("Use o cupom SOLTAODESCONTO\nSmart TV TCL 55C6K | CUPOM + PIX\nA partir de R$ 3.349,00")
+    assert "55C6K" in titulo and "SOLTAODESCONTO" in trecho and "3.349" in trecho
+    o = um_post("Use o cupom SOLTAODESCONTO", "Smart TV TCL 55C6K | CUPOM + PIX", "A partir de R$ 3.349,00")
+    assert (o.preco, o.cupom) == (3349.0, "SOLTAODESCONTO")
+
+
+# ---------- REG-2: parcelado_no_texto pulava a "com juros" e pegava a "sem juros" de outro produto ----------
+
+CB_TOPO_E_PATROCINADO = """por R$ 3.998,99
+R$ 3.998,99 em até 11x de R$ 399,83 com juros (1.62% a.m) no cartão de crédito.
+por R$ 3.599,09
+No Pix com 10% de desconto
+Produtos Patrocinados
+Smart TV TCL QLED 50 Polegadas 4K HDR10 HDMI Wi-Fi 50P7K
+por R$ 3.416,60 ou em até 6x de R$ 569,43 sem juros ou
+"""
+
+
+def test_reg2_parcelado_nao_pula_para_a_parcela_de_outro_produto():
+    # caso do verificador: rodada 1 devolvia '6x R$ 569,43 sem juros' (TV patrocinada de R$ 3.416,60)
+    assert parcelado_no_texto(CB_TOPO_E_PATROCINADO) is None
+    # 1ª parcela sem rótulo (no ML, sem rótulo é com juros): também não pula para a seguinte
+    assert parcelado_no_texto("10x de R$ 399,90 ou 12x de R$ 350,00 sem juros") is None
+    # 1x não é parcelamento
+    assert parcelado_no_texto("1x de R$ 3.599,09 sem juros") is None
+
+
+def test_reg2_parcelado_sem_juros_explicito_continua():
+    assert parcelado_no_texto("ou 10x de R$ 399,90 sem juros") == "10x R$ 399,90 sem juros"
+    assert parcelado_no_texto("Em até 12x R$ 312,49 sem juros Ver opções") == "12x R$ 312,49 sem juros"
+    assert parcelado_no_texto("10x sem juros de R$ 399,90") == "10x R$ 399,90 sem juros"
+    assert parcelado_no_texto("10x R$ 399,90 (s/ juros)") == "10x R$ 399,90 sem juros"
+
+
+def test_reg2_parcelado_snapshot_casas_bahia():
+    arq = SNAP / "casasbahia_produto.txt"
+    if not arq.exists():
+        pytest.skip("snapshot da Casas Bahia não está nesta máquina")
+    assert parcelado_no_texto(arq.read_text(encoding="utf-8")) is None
+
+
+# ---------- REG-3: "TV + suporte de parede / articulado / kit" voltou a passar ----------
+
+def test_reg3_tv_com_suporte_de_parede_e_barrada():
+    for t in ["Smart TV TCL 55C6K com suporte à parede", "Smart TV TCL 55C6K + Suporte a Parede Articulado",
+              "Smart TV TCL 55C6K + Kit Suporte Articulado", "Kit Smart TV TCL 55C6K + Suporte de Parede",
+              "Smart TV TCL 55C6K e Suporte Articulado para TV", "Suporte a TV TCL 55C6K"]:
+        assert motivo_rejeicao(t).startswith(("negativo", "acessório")), t
+
+
+def test_reg3_suporte_a_recurso_tecnico_continua_aceito():
+    for t in ["Smart TV TCL 55C6K com suporte a HDR10+, Wi-Fi e Bluetooth",
+              "Smart TV TCL 55C6K QD-Mini LED com suporte ao Dolby Atmos e HDMI 2.1",
+              "Smart TV TCL 55C6K suporte a 4K 144Hz",
+              '🔥 Smart TV TCL 55" QD-Mini LED 55C6K com suporte a Dolby Vision IQ, HDR10+ e 144Hz']:
+        assert motivo_rejeicao(t) == "", t
+
+
+# ---------- REG-4: "R$ 3.599 por tempo limitado" perdia o preço ----------
+
+def test_reg4_por_depois_do_valor_nao_e_de_por():
+    o = um_post("Smart TV TCL 55C6K", "R$ 3.599 por tempo limitado", "ou 10x de R$ 399,90 sem juros")
+    assert o.preco == 3599.0 and o.parcelado == "10x R$ 399,90 sem juros"
+    assert preco_postagem("R$ 3.599 por tempo limitado") == 3599.0
+    # o "De/por" de verdade continua descartando o preço antigo
+    assert preco_postagem("R$ 4.199 por R$ 3.599") == 3599.0
+    assert preco_postagem("De R$ 4.199 por R$ 3.599 no Pix") == 3599.0
+    assert preco_postagem("Caiu de R$ 4.199 para R$ 3.599") == 3599.0
+
+
+def test_reg4_preco_riscado_e_ignorado():
+    html = canal("Smart TV TCL 55C6K", "<s>R$ 4.199</s> R$ 3.599")
+    [o] = telegram_public.parse_canal(html, "canal")
+    assert o.preco == 3599.0
+
+
+# ---------- REG-5: janela curta demais e negativos amplos ----------
+
+def test_reg5a_tamanho_ate_3_linhas_do_modelo():
+    # caso do verificador: '55"' na linha 1 e 'Modelo C6K' na linha 4 (a rodada 1 descartava)
+    o = um_post('Smart TV TCL 55"', "QD-Mini LED 4K", "Google TV 144Hz", "Modelo C6K", "R$ 3.599 no Pix")
+    assert o.preco == 3599.0 and "C6K" in o.titulo
+    # mensagem só de um produto: o tamanho pode estar em qualquer linha
+    o = um_post("Smart TV TCL", "Modelo C6K", "QD-Mini LED", "4K", "144Hz", "Google TV", 'Tela de 55"', "R$ 3.599")
+    assert o.preco == 3599.0
+
+
+def test_reg5a_janela_nao_atravessa_outro_produto():
+    # o 55" é da Samsung da linha de cima: não serve de tamanho para o "C6K" sem tamanho
+    assert linha_55c6k('Smart TV Samsung 55" Crystal R$ 2.299\nTCL C6K Mini LED\nR$ 3.599') is None
+    assert linha_55c6k("Smart TV TCL C6K\nR$ 55,00 de desconto\nR$ 3.599") is None  # "R$ 55" não é tamanho
+
+
+def test_reg5b_titulos_de_tv_com_controle_display_e_para_tv():
+    for t in ['Smart TV TCL 55" QD-Mini LED 4K 55C6K com Controle por Voz', "Smart TV TCL 55C6K QD-Mini LED Display 144Hz",
+              'Smart TV TCL 55" 55C6K ideal para TV e games', "Smart TV TCL 55C6K com Controle Remoto",
+              "TCL 55C6K c/ comando de voz", "Smart TV TCL 55C6K Google TV Controle Remoto com Voz",
+              "TCL 55C6K: controle por voz e 144Hz", "Smart TV TCL 55C6K com suporte a múltiplos formatos HDR"]:
+        assert motivo_rejeicao(t) == "", t
+
+
+def test_reg5b_acessorios_pelo_substantivo_do_produto():
+    for t in ["TCL 55C6K Controle Remoto Original", "Controle Remoto Compatível TV TCL 55C6K",
+              "Novo Controle Remoto TCL 55C6K", "Suporte para TV TCL 55C6K", "Cabo de força para TV TCL 55C6K",
+              "Fita de LED para TV TCL 55C6K", "Display para TV TCL 55C6K", "Para TV TCL 55C6K - Controle",
+              "TV Box para TV TCL 55C6K", "Kit 2 Controles para TV TCL 55C6K", "Controle por voz para TV TCL 55C6K"]:
+        assert not eh_55c6k(t), t
+
+
+# ---------- N-F3 (pendente na rodada 1): mínimo do cupom sem marcador de Pix ----------
+
+@pytest.mark.parametrize("cupom", [
+    "Cupom TV300 (mín. R$ 2.500)", "compra mínima de R$ 2.500", "em pedidos a partir de R$ 2.500",
+    "a partir de R$ 2.500 em compras", "gastando R$ 2.500", "(R$300 OFF > R$2.500)",
+])
+def test_nf3_minimo_do_cupom_sem_marcador(cupom, monkeypatch):
+    # sem "Pix"/"à vista" na linha do preço, a rodada 1 pegava o menor valor (2.500, abaixo do alvo: 🎯 falso)
+    o = um_post("Smart TV TCL 55C6K", "R$ 3.599", cupom)
+    assert o.preco == 3599.0
+    assert "🎯" not in _alertas_do_post(o, monkeypatch)[0]
+    # linha do cupom antes do título também não vira preço
+    assert um_post(cupom, "Smart TV TCL 55C6K", "R$ 3.599").preco == 3599.0
+
+
+def test_nf3_sem_marcador_vale_o_primeiro_valor():
+    assert preco_postagem("R$ 3.599\nou R$ 3.419 com cupom de outro produto") == 3599.0
+    assert preco_postagem("R$ 3.599 no cartão ou R$ 3.419 no Pix") == 3419.0
+    assert preco_postagem("Por R$ 3.599 ou R$ 3.419 no Pix") == 3419.0

@@ -5,7 +5,7 @@ from __future__ import annotations
 from bs4 import BeautifulSoup
 
 from .. import config
-from ..filtro import linha_55c6k
+from ..filtro import bloco_55c6k
 from ..models import Oferta
 from ..util import cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto, preco_postagem
 from . import Fonte, Resultado
@@ -37,21 +37,27 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
             continue
         for br in txt_el.find_all("br"):
             br.replace_with("\n")
+        # preço riscado (<s>/<del>) é o preço antigo "De": fora do texto
+        for riscado in txt_el.find_all(["s", "del", "strike"]):
+            riscado.decompose()
         texto = txt_el.get_text(" ", strip=False)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
         # o filtro roda na linha-título: a descrição da TV ("suporte a HDR10+", "controle remoto")
         # derrubava postagens legítimas quando a mensagem inteira passava pelo filtro
-        titulo = linha_55c6k(texto)
-        if not titulo:
+        achado = bloco_55c6k(texto)
+        if not achado:
             continue
+        # preço, parcelado e cupom saem só do trecho da 55C6K: numa postagem com várias TVs, o menor valor
+        # da mensagem era o de outro produto e virava alerta 🎯 falso
+        titulo, trecho = achado
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
         # ignora mínimo do cupom, desconto, parcela e preço "De"; prefere o valor do Pix/à vista
-        preco = preco_postagem(texto)
+        preco = preco_postagem(trecho)
         out.append(Oferta(
             fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
             titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}", id=post,
-            preco=preco, parcelado=parcelado_no_texto(texto), cupom=cupom_no_texto(texto),
+            preco=preco, parcelado=parcelado_no_texto(trecho), cupom=cupom_no_texto(trecho),
             publicado=iso_normaliza(t.get("datetime")) if t else None,
             extra={"canal": canal, "links": links[:3], "texto": texto[:600]},
         ))

@@ -131,7 +131,8 @@ def jsonld_produtos(html: str) -> list[dict]:
 
 # Valor em reais com ponto de milhar (3.599,00) ou sem (3599,00 / 3599.99). O (?!\d) exige o fim do número:
 # sem ele a primeira alternativa casava só "359" de "R$ 3599" e o valor real sumia.
-_NUM_BRL = r"(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d+(?:[.,]\d{2})?)(?!\d)"
+_NUM_BRL_SRC = r"\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d+(?:[.,]\d{2})?"
+_NUM_BRL = rf"({_NUM_BRL_SRC})(?!\d)"
 _RE_PRECO = re.compile(r"R\$\s?" + _NUM_BRL)
 
 
@@ -168,27 +169,44 @@ def precos_no_texto(texto: str) -> list[float]:
 
 
 # Valores de uma postagem que NÃO são o preço da TV (olhando o trecho da mesma linha antes/depois do valor):
-# mínimo do cupom ("acima de R$ 2.499"), desconto ("R$ 300 OFF", "economize R$ 1.200"), cashback,
-# parcela ("10x de R$ 1.234") e preço antigo ("De R$ 4.199 por R$ 3.599").
+# mínimo do cupom ("acima de R$ 2.499", "compra mínima de", "mín.", "em pedidos a partir de", "gastando",
+# "> R$ 2.500"), desconto ("R$ 300 OFF", "economize R$ 1.200"), cashback, parcela ("10x de R$ 1.234") e
+# preço antigo ("De R$ 4.199", "era R$ 4.199"). "A partir de R$ 3.349" sozinho é o preço (formato do Canaltech).
 _RE_ANTES_NAO_PRECO = re.compile(
-    r"(?:acima\s+de|compras?\s+(?:a\s+partir\s+|acima\s+)?de|minimo(?:\s+de)?|economi[sz]e|desconto\s+de|"
-    r"cashback\s+de|off\s+de|\d{1,2}\s*x\s*(?:de)?|(?:^|[^a-z0-9\s])\s*de)\s*[:\-]?\s*$"
+    r"(?:"
+    r"acima\s+de|"
+    r"(?:compras?|pedidos?|carrinho)\s+(?:a\s+partir\s+|acima\s+|minim[oa]s?\s+)?de|"
+    r"(?:gastando|gaste|gastar|gastos?|comprando)(?:\s+(?:a\s+partir\s+de|acima\s+de|mais\s+de|de))?|"
+    r"\bmin(?:\.|im[oa]s?)?(?:\s+de\b)?|"
+    r"[>≥]|"
+    r"economi[sz]e|desconto\s+de|cashback\s+de|off\s+de|ganhe|"
+    r"\d{1,2}\s*x\s*(?:de)?|"
+    r"(?:^|[^a-z0-9\s])\s*de|\b(?:era|antes|caiu\s+de|baixou\s+de|saiu\s+de)"
+    r")\s*[:\-]?\s*$"
 )
-_RE_DEPOIS_NAO_PRECO = re.compile(r"^\s*(?:off\b|de\s+desconto|de\s+cashback|em\s+cashback|de\s+volta|[),;]?\s*por\b)")
+# depois do valor: "OFF", "de desconto", "em compras" e o preço antigo seguido do novo ("R$ 4.199 por R$ 3.599").
+# "por" sozinho não basta: "R$ 3.599 por tempo limitado" é o preço.
+_RE_DEPOIS_NAO_PRECO = re.compile(
+    r"^\s*(?:off\b|de\s+desconto|de\s+cashback|em\s+cashback|de\s+volta|em\s+(?:compras|pedidos)|nas\s+compras|"
+    r"[),;]?\s*(?:por|para|pra)\s*:?\s*r\$)"
+)
 _RE_DEPOIS_AVISTA = re.compile(r"^[^\n]{0,20}?\b(?:pix|a\s+vista|boleto)\b")
-_RE_ANTES_AVISTA = re.compile(r"(?:\bpor|\bpix|a\s+vista)\s*:?\s*$")
+_RE_ANTES_AVISTA = re.compile(r"(?:\bpix|a\s+vista|\bboleto)\s*(?:por\s*)?:?\s*$")
+_RE_ANTES_POR = re.compile(r"\bpor\s*:?\s*$")
 
 
 def preco_postagem(texto: str, piso: float = 1000) -> Optional[float]:
-    """Preço da TV numa postagem livre (Telegram).
+    """Preço da TV numa postagem livre (Telegram). Recebe só o trecho da 55C6K (filtro.bloco_55c6k).
 
-    Descarta o mínimo do cupom, descontos, parcelas e o preço antigo "De"; entre os valores que sobram,
-    prefere os marcados como Pix/à vista/"por" e devolve o menor.
+    Descarta o mínimo do cupom, descontos/OFF, parcelas e o preço antigo "De". Entre os que sobram:
+    1º o valor marcado como Pix/à vista/boleto, 2º o marcado com "por" (na linha mais acima que tiver um
+    marcado, o menor deles); sem marcador, o PRIMEIRO valor do trecho — nunca o menor da postagem, que numa
+    postagem com vários produtos é o preço de outro.
     """
     texto = texto or ""
-    candidatos: list[float] = []
-    marcados: list[float] = []
-    for m in _RE_PRECO.finditer(texto):
+    achados: list[tuple[int, int, float]] = []  # (marcador 2/1/0, início da linha, valor)
+    valores = list(_RE_PRECO.finditer(texto))
+    for k, m in enumerate(valores):
         v = parse_preco(m.group(1))
         if not v or v < piso:
             continue
@@ -199,12 +217,24 @@ def preco_postagem(texto: str, piso: float = 1000) -> Optional[float]:
         depois = sem_acentos(texto[m.end(): min(fim_linha, m.end() + 30)]).lower()
         if _RE_ANTES_NAO_PRECO.search(antes) or _RE_DEPOIS_NAO_PRECO.search(depois):
             continue
-        candidatos.append(v)
-        if _RE_DEPOIS_AVISTA.search(depois) or _RE_ANTES_AVISTA.search(antes):
-            marcados.append(v)
-    if marcados:
-        return min(marcados)
-    return min(candidatos) if candidatos else None
+        # o marcador de Pix que vale é o deste valor, não o do próximo ("R$ 3.599 no cartão ou R$ 3.419 no Pix")
+        prox = valores[k + 1].start() - m.end() if k + 1 < len(valores) else len(depois)
+        depois_ate_prox = depois[:max(0, prox)]
+        if _RE_DEPOIS_AVISTA.search(depois_ate_prox) or _RE_ANTES_AVISTA.search(antes):
+            marcador = 2
+        elif _RE_ANTES_POR.search(antes):
+            marcador = 1
+        else:
+            marcador = 0
+        achados.append((marcador, ini_linha, v))
+    if not achados:
+        return None
+    melhor = max(a[0] for a in achados)
+    topo = [a for a in achados if a[0] == melhor]
+    if melhor == 0:
+        return topo[0][2]
+    linha = topo[0][1]
+    return min(a[2] for a in topo if a[1] == linha)
 
 
 def fmt_preco(v: Optional[float]) -> str:
@@ -300,26 +330,25 @@ def dias_desde(iso: Optional[str]) -> Optional[float]:
         return None
 
 
+# "10x de R$ 399,90 sem juros", "10x sem juros de R$ 399,90", "10x R$ 399,90 (s/ juros)"
 _RE_PARCELA = re.compile(
-    r"(?:em\s+at[ée]\s+)?(\d{1,2})\s*x\s*(?:de\s*)?R\$\s?" + _NUM_BRL + r"(\s*sem\s+juros)?", re.I
+    r"(?:em\s+at[ée]\s+)?(?P<n>\d{1,2})\s*x\s*(?P<sj1>(?:sem|s/)\s*juros\s*)?(?:de\s*)?R\$\s?"
+    rf"(?P<v>{_NUM_BRL_SRC})(?!\d)(?P<sj2>\s*\(?\s*(?:sem|s/)\s*juros)?",
+    re.I,
 )
-_RE_COM_JUROS = re.compile(r"\s*\(?\s*(?:com|c/)\s*juros", re.I)  # usado com .match(texto, pos)
 
 
 def parcelado_no_texto(texto: str) -> Optional[str]:
-    """Parcelamento citado no texto. Prefere o 'sem juros'; opção 'com juros' nunca é devolvida."""
-    texto = texto or ""
-    escolhido = None
-    for m in _RE_PARCELA.finditer(texto):
-        if m.group(3):
-            escolhido = m
-            break
-        if escolhido is None and not _RE_COM_JUROS.match(texto, m.end()):
-            escolhido = m
-    if not escolhido:
+    """Parcelamento 'Nx R$ V sem juros' do texto, olhando SÓ a primeira parcela citada.
+
+    Se a primeira parcela não diz 'sem juros' (é 'com juros' ou não tem rótulo), devolve None. Nunca pula
+    para uma parcela mais adiante: as fontes passam a página inteira (Amazon) e, na Casas Bahia, a próxima
+    'sem juros' depois de '11x de R$ 399,83 com juros' era a de uma TV patrocinada (6x R$ 569,43).
+    """
+    m = _RE_PARCELA.search(texto or "")
+    if not m or not (m.group("sj1") or m.group("sj2")) or int(m.group("n")) < 2:
         return None
-    sj = " sem juros" if escolhido.group(3) else ""
-    return f"{escolhido.group(1)}x R$ {escolhido.group(2)}{sj}"
+    return f"{m.group('n')}x R$ {m.group('v')} sem juros"
 
 
 # O código tem de terminar numa fronteira de palavra: sem isso "CUPOM DISPONÍVEL" virava o código "DISPON".

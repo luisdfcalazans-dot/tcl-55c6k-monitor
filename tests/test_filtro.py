@@ -11,6 +11,12 @@ ACEITA = [
     "Smart TV TCL 55C6K/65C6K QD-Mini LED (loja oficial)",
     # "suporte a" é recurso da TV, não o acessório (postagem no estilo do Canaltech)
     '🔥 Smart TV TCL 55" QD-Mini LED 55C6K com suporte a Dolby Vision IQ, HDR10+ e 144Hz',
+    "Smart TV TCL 55C6K com suporte a HDR10+, Wi-Fi e Bluetooth",
+    # controle remoto, display e "para TV" dentro do título da própria TV
+    'Smart TV TCL 55" QD-Mini LED 4K 55C6K com Controle por Voz',
+    "Smart TV TCL 55C6K com Controle Remoto",
+    "Smart TV TCL 55C6K QD-Mini LED Display 144Hz",
+    'Smart TV TCL 55" 55C6K ideal para TV e games',
 ]
 REJEITA = [
     "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi 65C6K",
@@ -32,6 +38,14 @@ REJEITA = [
     "Tela display painel TCL 55C6K",
     "Suporte a TV TCL 55C6K",
     "Smart TV TCL 55C6K com suporte de parede",
+    # TV + suporte/kit: combo, não a TV sozinha
+    "Smart TV TCL 55C6K com suporte à parede",
+    "Smart TV TCL 55C6K + Suporte a Parede Articulado",
+    "Smart TV TCL 55C6K + Kit Suporte Articulado",
+    # acessório reconhecido pelo substantivo do produto, mesmo com o modelo antes
+    "TCL 55C6K Controle Remoto Original",
+    "Controle Remoto Compatível TV TCL 55C6K",
+    "Display para TV TCL 55C6K",
     # produto que não é novo
     "Smart TV TCL 55C6K Reembalado",
     "Smart TV TCL 55C6K Mostruário",
