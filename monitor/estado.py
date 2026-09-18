@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from pathlib import Path
 from typing import Any, Callable
 
@@ -28,9 +29,30 @@ def marca_cupom(loja: str, codigo: str) -> str:
     return f"{loja_canonica(loja or '')}|{str(codigo or '').upper()}"
 
 
-def e_agregador(o: Oferta) -> bool:
-    """Zoom/Buscapé é agregador de preços, não loja: o preço que ele mostra pode estar atrasado."""
-    return bool((o.extra or {}).get("agregador"))
+AGREGADORES = ("zoom", "buscape")
+_RE_URL_AGREGADOR = re.compile(r"^https?://(?:www\.)?(?:zoom|buscape)\.com\.br/", re.I)
+
+
+def _campo(o: Any, nome: str) -> Any:
+    return o.get(nome) if isinstance(o, dict) else getattr(o, nome, None)
+
+
+def e_agregador(o: Oferta | dict) -> bool:
+    """Zoom/Buscapé é agregador de preços, não loja: o preço que ele mostra pode estar atrasado (a Amazon ficou a
+    R$ 3.279 no Zoom de 14 a 18/09 com a loja a R$ 3.749).
+
+    Mesmo critério do painel (docs/index.html, ehAgregador): extra.agregador, fonte zoom/buscape ou URL deles. Aceita
+    Oferta ou registro (dict) de state/latest, inclusive o "minimo", que só traz a URL."""
+    extra = _campo(o, "extra")
+    if isinstance(extra, dict) and extra.get("agregador"):
+        return True
+    if str(_campo(o, "fonte") or "").strip().lower() in AGREGADORES:
+        return True
+    return bool(_RE_URL_AGREGADOR.match(str(_campo(o, "url") or "")))
+
+
+def _e_direta(r: Any) -> bool:
+    return isinstance(r, dict) and r.get("tipo") == "loja" and not e_agregador(r)
 
 
 def lojas_diretas(ofertas: list[Oferta]) -> set[str]:
@@ -39,10 +61,11 @@ def lojas_diretas(ofertas: list[Oferta]) -> set[str]:
 
 
 def conta_como_preco(o: Oferta, diretas: set[str] | None = None) -> bool:
-    """Se a oferta pode virar "menor já visto" e alerta de preço de loja.
+    """Se a oferta pode virar "menor já visto", alerta de preço de loja, linha do resumo e da mensagem de partida.
 
     Nunca: oferta inativa (esgotada ou descartada pelo sanear) ou sem preço.
-    Agregador: só quando a loja não tem fonte direta nesta rodada (diretas=None = não sabemos -> não conta).
+    Agregador: só quando a loja não tem fonte direta conhecida (`diretas`: Estado.lojas_diretas_conhecidas, que junta
+    esta rodada, o state deste modo e o state/latest do outro modo; diretas=None = não sabemos -> não conta).
     """
     if o.tipo != "loja" or not o.ativo or not o.melhor_preco:
         return False
@@ -56,6 +79,32 @@ def _preco_do_minimo(m: Any) -> float | None:
         return float(m["preco"]) if m and m.get("preco") else None
     except (TypeError, ValueError, AttributeError):
         return None
+
+
+def _minimo_conta(m: Any, diretas: set[str]) -> bool:
+    """O mínimo gravado vale? Não quando veio de agregador de uma loja que tem fonte direta (preço parado no Zoom)."""
+    return bool(_preco_do_minimo(m)) and not (e_agregador(m) and loja_canonica(m.get("loja") or "") in diretas)
+
+
+def _minimo_dos_registros(registros: Any, diretas: set[str]) -> dict | None:
+    """O menor preço já gravado nos registros de oferta que contam (substitui um mínimo de agregador que não vale)."""
+    melhor = None
+    for r in (registros.values() if isinstance(registros, dict) else registros or []):
+        if not isinstance(r, dict) or r.get("tipo") != "loja":
+            continue
+        try:
+            p = float(r.get("menor_preco") or 0)
+        except (TypeError, ValueError):
+            continue
+        if p <= 0 or (e_agregador(r) and loja_canonica(r.get("loja") or "") in diretas):
+            continue
+        if melhor is None or p < melhor[0]:
+            melhor = (p, r)
+    if melhor is None:
+        return None
+    p, r = melhor
+    return {"preco": p, "loja": r.get("loja"), "quando": r.get("ultima_vez") or r.get("primeira_vez") or "",
+            "url": r.get("url"), "titulo": r.get("titulo")}
 
 
 class Estado:
@@ -85,7 +134,7 @@ class Estado:
         # estado gravado antes de os alertas de cupom serem registrados: ver migra_alertas_de_cupom
         self._cupons_legado = bool(self.dados["cupons"]) and "cupons_alertados" not in carregado
         self._alertas_cupom_rodada: list[tuple[str, dict]] = []  # para desfazer se a mensagem não sair
-        self._cache_cupons_outros: dict[str, list[dict]] = {}  # cupons do state do outro modo (só leitura)
+        self._cache_outros: dict[str, Any] = {}  # state/latest do outro modo (só leitura, lidos uma vez por rodada)
         self.bootstrap = not self.dados["ofertas"] and self.dados.get("criado_em") is None
         if self.dados.get("criado_em") is None:
             self.dados["criado_em"] = agora_iso()
@@ -138,16 +187,53 @@ class Estado:
                 out.append(reg)
         return out
 
-    def _cupons_do_modo(self, modo: str) -> list[dict]:
-        if modo not in self._cache_cupons_outros:
+    def _arquivo_do_modo(self, nome: str) -> dict | None:
+        """state_<outro>.json ou latest_<outro>.json (só leitura). Ausente ou quebrado -> None."""
+        if nome not in self._cache_outros:
             try:
-                cupons = json.loads((self.arq_estado.parent / f"state_{modo}.json").read_text(encoding="utf-8"))
-                cupons = cupons.get("cupons") or {}
-                regs = [r for r in cupons.values() if isinstance(r, dict)] if isinstance(cupons, dict) else []
-            except (OSError, ValueError, AttributeError):
-                regs = []
-            self._cache_cupons_outros[modo] = regs
-        return self._cache_cupons_outros[modo]
+                d = json.loads((self.arq_estado.parent / nome).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                d = None
+            self._cache_outros[nome] = d if isinstance(d, dict) else None
+        return self._cache_outros[nome]
+
+    def _outros_modos(self) -> list[str]:
+        return [m for m in MODOS if m != self.modo]
+
+    def _cupons_do_modo(self, modo: str) -> list[dict]:
+        cupons = (self._arquivo_do_modo(f"state_{modo}.json") or {}).get("cupons")
+        return [r for r in cupons.values() if isinstance(r, dict)] if isinstance(cupons, dict) else []
+
+    # ---- fontes diretas x agregador (Zoom) ----
+    def lojas_diretas_conhecidas(self, ofertas: list[Oferta] = ()) -> set[str]:
+        """Lojas com fonte direta (não agregador) nesta rodada, no state deste modo ou no state/latest do outro modo,
+        de qualquer idade: o mesmo critério do painel, que esconde a linha do agregador quando alguma fonte direta
+        (de qualquer modo, mesmo antiga) cobre a loja. O cloud não tem fonte direta da Amazon, o pc tem."""
+        s = lojas_diretas(list(ofertas))
+        regs: list[Any] = list(self.dados["ofertas"].values())
+        for m in self._outros_modos():
+            st = (self._arquivo_do_modo(f"state_{m}.json") or {}).get("ofertas")
+            regs += list(st.values()) if isinstance(st, dict) else []
+            lt = (self._arquivo_do_modo(f"latest_{m}.json") or {}).get("ofertas_loja")
+            regs += lt if isinstance(lt, list) else []
+        return s | {loja_canonica(r.get("loja") or "") for r in regs if _e_direta(r)}
+
+    def ofertas_diretas_de_outros_modos(self) -> list[dict]:
+        """Ofertas de fonte direta, ativas e com preço, na última rodada do outro modo (latest_<outro>.json; sem ele,
+        os registros ativos do state_<outro>.json). Cada uma leva '_modo' e '_visto' (quando o outro modo a viu)."""
+        out: list[dict] = []
+        for m in self._outros_modos():
+            lt = self._arquivo_do_modo(f"latest_{m}.json")
+            if lt and isinstance(lt.get("ofertas_loja"), list):
+                for o in lt["ofertas_loja"]:
+                    if _e_direta(o) and o.get("ativo", True) and _preco_do_minimo({"preco": o.get("melhor_preco")}):
+                        out.append({**o, "_modo": m, "_visto": lt.get("atualizado") or ""})
+                continue
+            st = (self._arquivo_do_modo(f"state_{m}.json") or {}).get("ofertas")
+            for r in (st.values() if isinstance(st, dict) else []):
+                if _e_direta(r) and r.get("ativo") and _preco_do_minimo({"preco": r.get("ultimo_preco")}):
+                    out.append({**r, "melhor_preco": r["ultimo_preco"], "_modo": m, "_visto": r.get("ultima_vez") or ""})
+        return out
 
     def alertas_de_cupom(self, marca: str, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
         """Alertas já ENVIADOS para 'loja|CÓDIGO' que ainda valem: alertados há até `dias` dias, ou cujo anúncio
@@ -218,29 +304,44 @@ class Estado:
     def minimo(self) -> dict | None:
         return self.dados.get("minimo")
 
-    def _minimo_do_modo(self, modo: str) -> dict | None:
-        """Mínimo gravado pelo outro modo (só leitura). Arquivo ausente ou quebrado -> None."""
+    def _minimo_do_modo(self, modo: str, diretas: set[str]) -> dict | None:
+        """Mínimo gravado pelo outro modo (só leitura). Arquivo ausente ou quebrado -> None. Mínimo que veio de
+        agregador de loja com fonte direta não vale: fica o menor dos registros que contam (como o painel)."""
         for nome in (f"state_{modo}.json", f"latest_{modo}.json"):
-            try:
-                m = json.loads((self.arq_estado.parent / nome).read_text(encoding="utf-8")).get("minimo")
-            except (OSError, ValueError, AttributeError):
+            d = self._arquivo_do_modo(nome)
+            m = d.get("minimo") if d else None
+            if not _preco_do_minimo(m):
                 continue
-            if _preco_do_minimo(m):
+            if _minimo_conta(m, diretas):
                 return m
+            if nome.startswith("state_"):
+                return _minimo_dos_registros(d.get("ofertas"), diretas)
         return None
 
-    def minimo_geral(self) -> dict | None:
-        """Menor preço já visto considerando os dois modos (cloud e pc), como o painel mostra."""
-        candidatos = [self.dados.get("minimo")] + [self._minimo_do_modo(m) for m in MODOS if m != self.modo]
+    def _minimo_proprio(self, diretas: set[str]) -> dict | None:
+        m = self.dados.get("minimo")
+        if not _preco_do_minimo(m):
+            return None
+        return m if _minimo_conta(m, diretas) else _minimo_dos_registros(self.dados["ofertas"], diretas)
+
+    def minimo_geral(self, diretas: set[str] | None = None) -> dict | None:
+        """Menor preço já visto considerando os dois modos (cloud e pc), como o painel mostra. `diretas`: ver
+        lojas_diretas_conhecidas (None: calcula sem as ofertas da rodada)."""
+        if diretas is None:
+            diretas = self.lojas_diretas_conhecidas()
+        candidatos = [self._minimo_proprio(diretas)] + [self._minimo_do_modo(m, diretas) for m in self._outros_modos()]
         validos = [m for m in candidatos if _preco_do_minimo(m)]
         return min(validos, key=_preco_do_minimo) if validos else None
 
     def atualiza_minimo(self, o: Oferta, diretas: set[str] | None = None) -> bool:
-        """`diretas`: lojas com fonte direta nesta rodada (lojas_diretas). Ver conta_como_preco."""
+        """`diretas`: lojas com fonte direta conhecidas (lojas_diretas_conhecidas). Ver conta_como_preco."""
         p = o.melhor_preco
         if not p or not conta_como_preco(o, diretas):
             return False
         m = self.dados.get("minimo")
+        if diretas is not None and _preco_do_minimo(m) and not _minimo_conta(m, diretas):
+            # mínimo gravado de agregador de loja que tem fonte direta (preço parado no Zoom): não vale
+            m = self.dados["minimo"] = _minimo_dos_registros(self.dados["ofertas"], diretas)
         if m is None or p < float(m["preco"]):
             self.dados["minimo"] = {"preco": p, "loja": o.loja, "quando": agora_iso(), "url": o.url, "titulo": o.titulo}
             return m is not None  # na primeira vez não é "novo mínimo", é o primeiro

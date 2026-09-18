@@ -45,12 +45,10 @@ def reg_oferta(fonte, oid, loja, ultimo):
 
 def rodada(modo, ofertas, cupons=()):
     """Mesma sequência do run.py: sanear -> alertas -> registra/mínimo -> cupons -> histórico -> salva."""
-    from monitor.estado import lojas_diretas
-
     est = Estado(modo)
     ofertas, _av = sanear(ofertas)
     msgs, alertados = gerar_alertas(est, ofertas, list(cupons))
-    diretas = lojas_diretas(ofertas)
+    diretas = est.lojas_diretas_conhecidas(ofertas)
     for o in ofertas:
         est.registra_oferta(o, alertados.get(o.chave))
         est.atualiza_minimo(o, diretas)
@@ -552,3 +550,150 @@ def test_atualiza_minimo_sem_saber_das_fontes_diretas_ignora_agregador(dados_tmp
     est = Estado("cloud")
     assert est.atualiza_minimo(_zoom("Amazon", 2000.0, "z")) is False
     assert est.minimo()["preco"] == 3159.0
+
+
+
+# ---------------- rodada 4: regras gerais de cupom (variações de cada princípio, não só os exemplos) ----------------
+# Cada linha: (loja, título, regra, serve). Preço da TV: o de 18/09 na loja. Ver o comentário no topo de regras.py.
+_PRECO = {"Magazine Luiza": 3561.55, "Mercado Livre": 3491.03, "Amazon": 3279.0, "KaBuM!": 3159.0,
+          "Casas Bahia": 3599.09}
+_MG, _ML, _AMZ, _KB, _CB = "Magazine Luiza", "Mercado Livre", "Amazon", "KaBuM!", "Casas Bahia"
+PRINCIPIOS = [
+    # (a) exclusão não é o escopo; só a exclusão da própria TV (ou de eletrônicos/TCL) tira a TV
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares e Games.", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em compras acima de R$ 1.500", "Não se aplica a produtos de Mercado e Farmácia", True),
+    (_MG, "Cupom Magalu R$ 200 OFF", "Válido em todo o site, menos Supermercado", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exclui iPhone, Apple e Samsung Galaxy", True),
+    (_ML, "15% OFF em todo o site (limite R$ 150)", "Não cumulativo. Exceto Supermercado, Farmácia e Pet.", True),
+    (_AMZ, "Cupom Amazon 10% OFF em Eletrônicos", "Não válido em livros e eBooks Kindle", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto TVs", False),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto eletrônicos e TVs", False),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto TVs Samsung e LG", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Não válido para TVs de 32 polegadas", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Não válido para TVs de 50 a 65 polegadas", False),
+    (_AMZ, "Cupom Amazon R$ 100 OFF", "Não válido para primeira compra", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto eletrônicos vendidos por terceiros", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto TVs acima de R$ 5.000", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto acessórios para TV", True),
+    # cliente novo "inclusive"/"também" não é cupom só de cliente novo; kit como palavra solta não é o produto
+    (_MG, "Cupom Magalu R$ 100 OFF em qualquer compra, inclusive na 1ª compra", "", True),
+    (_MG, "Cupom Magalu R$ 100 OFF para clientes antigos e novos clientes", "", True),
+    (_MG, "Cupom Magalu R$ 100 OFF para novos clientes", "", False),
+    (_MG, "Cupom Magalu R$ 100 OFF acima de R$ 1.000", "Válido para kit e unidades avulsas em compras no site", True),
+    (_MG, "Cupom Magalu R$ 50 OFF para você renovar a casa", "", True),
+    (_MG, "Kit Smart TV 55 polegadas + Soundbar com R$ 300 OFF", "", True),
+    (_MG, "Kit 55C6K + Soundbar com R$ 300 OFF", "", True),
+    (_AMZ, "Cupom Amazon R$ 100 OFF em compras acima de R$ 2.000",
+     "Válido em compras realizadas até 30/09 em produtos vendidos e entregues pela Amazon", True),
+    (_KB, "Cupom KaBuM! R$ 200 OFF em compras acima de R$ 2.500", "Cupom válido em produtos em estoque", True),
+    (_MG, "Cupom 10% OFF na categoria Informática e TVs", "", True),
+    (_MG, "Cupom 10% OFF", "Categoria: Casa", False),
+    (_MG, "Cupom R$ 100 OFF em compras acima de R$ 1.000 na categoria TV e Vídeo", "", True),
+    (_MG, "Cupom de 10% para Moda", "", False),
+    # (b) todos os alvos; alvo neutro não é categoria; alvo fora do desconto não é o escopo
+    (_MG, "Cupom Magalu R$ 300 OFF em TVs e Celulares", "", True),
+    (_MG, "10% OFF em Celulares e TVs selecionados", "", True),
+    (_MG, "10% OFF em Games e TVs", "", True),
+    (_KB, "Cupom KaBuM! 10% OFF em Eletrônicos em oferta", "", True),
+    (_KB, "Cupom KaBuM! 10% OFF em TVs na Black Friday", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF para pagamento no boleto", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras no aplicativo", "Válido somente no app", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras acima de R$ 3.000", "Válido em uma única compra por CPF.", True),
+    (_MG, "Economize R$ 300 em uma única compra acima de R$ 3.000", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras acima de R$ 3.000", "Receba em casa com frete grátis", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras acima de R$ 3.000", "Válido em pedidos feitos até 30/09", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras acima de R$ 3.000", "Cupom selecionado para você!", True),
+    (_ML, "Cupom Mercado Livre 10% OFF em compras realizadas pelo app", "", True),
+    (_ML, "Cupom 10% OFF em itens vendidos e entregues pelo Mercado Livre", "", True),
+    (_ML, "10% OFF pagando com Mercado Pago", "", True),
+    (_ML, "Cupom Mercado Livre 10% OFF em compras acima de R$ 99", "Uso único. Válido em todo o Brasil.", True),
+    (_MG, "R$ 100 OFF em Moda", "", False),
+    (_MG, "R$ 50 OFF em Acessórios para TV", "", False),
+    (_MG, "R$ 50 OFF em Suportes de TV", "", False),
+    (_ML, "Cupom Mercado Livre 20% OFF", "Válido na categoria Beleza e Cuidado Pessoal", False),
+    (_MG, "10% OFF em Instrumentos Musicais", "", False),
+    (_KB, "Casa inteligente: 15% OFF em produtos para sua casa tech!", "produtos KaBuM!", False),
+    (_MG, "Cupom Magalu R$ 300 OFF", "Válido para itens selecionados", False),
+    (_ML, "Cupom Mercado Livre 10% OFF em Selecionados", "", False),
+    # (c) tamanhos
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs 55 a 85 polegadas", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs de 43 a 65 polegadas", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs a partir de 50 polegadas", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs 50 polegadas ou mais", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs acima de 50 polegadas", "", True),
+    (_AMZ, "Cupom R$ 300 OFF em TVs, inclusive na Smart TV TCL 50 P7L", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em Smart TVs até 50 polegadas", "", False),
+    (_AMZ, "Cupom R$ 250 OFF na Smart TV TCL 65 C7K", "", False),
+    (_AMZ, "Cupom R$ 250 OFF na Smart TV TCL 55C6K", "", True),
+    (_AMZ, "Cupom R$ 250 OFF em TVs TCL 50P7K, 55C6K e 65C7K", "", True),
+    (_AMZ, "Cupom R$ 250 OFF na Smart TV TCL 65C6K", "", False),
+    (_AMZ, "Cupom 10% OFF em TVs TCL 50P7K e 65C7K", "", False),
+    (_MG, "R$ 50 OFF em Controle Remoto para Smart TV", "", False),
+    (_MG, "R$ 300 OFF na compra da sua Smart TV", "", True),
+    (_MG, "Cupom de R$ 300 para TVs", "", True),
+    # (d) frete e app
+    (_CB, "Cupom Casas Bahia Frete Grátis em compras acima de R$ 99", "", False),
+    (_CB, "Cupom Casas Bahia R$ 30 OFF no frete", "", False),
+    (_MG, "Cupom Magalu R$ 200 OFF + entrega grátis", "", True),
+    (_MG, "Cupom Magalu R$ 200 OFF", "Válido no APP", True),
+    (_MG, "Cupom de 10% no app Magalu", "", True),
+    # compra mínima depois de "OFF em"
+    (_MG, "Cupom Magalu R$ 350 OFF em R$ 3500", "", True),
+    (_MG, "Cupom Magalu R$ 350 OFF em R$ 5000", "", False),
+]
+
+
+@pytest.mark.parametrize("loja,titulo,regra,serve", PRINCIPIOS,
+                         ids=[f"{t[:45]}|{r[:25]}" for _l, t, r, _s in PRINCIPIOS])
+def test_regras_gerais_de_cupom(loja, titulo, regra, serve):
+    ok, motivo = cupom_compativel(_c(loja, "SONDA", titulo, regra), _PRECO[loja])
+    assert ok is serve, motivo
+
+
+# ---------------- ZOOM: agregador x fonte direta em qualquer modo ----------------
+
+def test_agregador_reconhecido_por_fonte_e_url_sem_extra():
+    """As linhas do Zoom gravadas hoje não têm extra.agregador (o painel também olha fonte e URL)."""
+    from monitor.estado import e_agregador
+
+    assert e_agregador(Oferta("zoom", "loja", "Amazon", "t", "https://www.zoom.com.br/tv/x", "1", preco=1.0))
+    assert e_agregador({"fonte": "buscape", "loja": "Amazon"})
+    assert e_agregador({"preco": 3082.61, "loja": "Webcontinental", "url": "https://www.zoom.com.br/tv/x"})
+    assert not e_agregador(Oferta("amazon", "loja", "Amazon", "t", "https://www.amazon.com.br/dp/B0F7JZMVKF", "2"))
+
+
+def test_lojas_diretas_de_qualquer_modo_e_idade(dados_tmp):
+    """Rodada atual + state deste modo + state/latest do outro modo; agregador nunca conta como direto."""
+    grava_state(dados_tmp, "cloud", ofertas={
+        "vtex:Web-1": {"fonte": "vtex", "tipo": "loja", "loja": "Webcontinental", "ativo": False},
+        "zoom:9": {"fonte": "zoom", "tipo": "loja", "loja": "Ponto", "ativo": True}})
+    grava_state(dados_tmp, "pc", ofertas={"casasbahia:1": {"fonte": "casasbahia", "tipo": "loja", "loja": "Casas Bahia"}})
+    (dados_tmp / "latest_pc.json").write_text(json.dumps({"ofertas_loja": [
+        {"fonte": "amazon", "tipo": "loja", "loja": "Amazon", "ativo": False, "melhor_preco": 3749.0}]}),
+        encoding="utf-8")
+    est = Estado("cloud")
+    rodada_atual = [Oferta("kabum", "loja", "KaBuM!", "t", "u", "911482", preco=4184.88), _zoom("Ponto", 3000.0, "9")]
+    assert est.lojas_diretas_conhecidas(rodada_atual) == {"KaBuM!", "Webcontinental", "Casas Bahia", "Amazon"}
+
+
+def test_resumo_so_troca_a_linha_do_agregador_coberto(dados_tmp):
+    """Loja do outro modo sem linha de agregador aqui não entra no resumo; a do agregador coberto vira a direta."""
+    grava_state(dados_tmp, "cloud")
+    (dados_tmp / "latest_pc.json").write_text(json.dumps({"atualizado": "2026-09-18T17:43:57-03:00", "ofertas_loja": [
+        {"fonte": "amazon", "tipo": "loja", "loja": "Amazon", "vendedor": "Magalu.", "ativo": True, "preco": 3749.0,
+         "melhor_preco": 3749.0, "url": "https://www.amazon.com.br/dp/B0F7JZMVKF"},
+        {"fonte": "casasbahia", "tipo": "loja", "loja": "Casas Bahia", "ativo": True, "melhor_preco": 3599.09}]}),
+        encoding="utf-8")
+    txt = resumo_diario(Estado("cloud"), [_zoom("Amazon", 3279.0, "1489104908"),
+                                          Oferta("kabum", "loja", "KaBuM!", "t", "u", "911482", preco=4184.88)], [])
+    lojas = [ln for ln in txt.split("\n") if ln.startswith("• ")]
+    assert lojas == ["• Amazon/Magalu.: <b>R$ 3.749,00</b> · visto 18/09 17:43 (PC)", "• KaBuM!: <b>R$ 4.184,88</b>"]
+
+
+def test_agregador_coberto_por_oferta_direta_inativa_do_outro_modo_some_sem_substituta(dados_tmp):
+    grava_state(dados_tmp, "cloud")
+    (dados_tmp / "latest_pc.json").write_text(json.dumps({"atualizado": "2026-09-18T17:43:57-03:00", "ofertas_loja": [
+        {"fonte": "amazon", "tipo": "loja", "loja": "Amazon", "ativo": False, "melhor_preco": 3749.0}]}),
+        encoding="utf-8")
+    txt = resumo_diario(Estado("cloud"), [_zoom("Amazon", 3279.0, "1489104908")], [])
+    assert "Amazon" not in txt and "nenhum preço de loja coletado" in txt

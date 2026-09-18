@@ -54,7 +54,7 @@ def main() -> int:
     args = ap.parse_args()
 
     from monitor import config, notificar
-    from monitor.estado import Estado, lojas_diretas
+    from monitor.estado import Estado
     from monitor.regras import (
         cupons_aplicaveis, e_mensagem_de_cupons, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada,
         resumo_diario, sanear,
@@ -110,9 +110,11 @@ def main() -> int:
 
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
     aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
+    # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço
+    diretas = estado.lojas_diretas_conhecidas(ofertas)  # type: ignore[arg-type]
 
     if estado.bootstrap and (ofertas or cupons):
-        msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode)]  # type: ignore[arg-type]
+        msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas)]  # type: ignore[arg-type]
 
     # resumo diário
     h = agora().hour
@@ -134,10 +136,9 @@ def main() -> int:
 
     # persistência
     chaves_vistas = set()
-    diretas = lojas_diretas(ofertas)  # type: ignore[arg-type]
     for o in ofertas:  # type: ignore[assignment]
         estado.registra_oferta(o, alertados.get(o.chave))  # type: ignore[union-attr]
-        # inativa/descartada nunca vira "menor já visto"; agregador só quando a loja não tem fonte direta
+        # inativa/descartada nunca vira "menor já visto"; agregador só quando a loja não tem fonte direta conhecida
         estado.atualiza_minimo(o, diretas)  # type: ignore[arg-type]
         chaves_vistas.add(o.chave)  # type: ignore[union-attr]
     for c in cupons:  # type: ignore[assignment]

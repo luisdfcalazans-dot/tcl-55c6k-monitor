@@ -1,12 +1,14 @@
-"""Tabela de ouro do grupo estado-alertas (rodada 3).
+"""Tabela de ouro do grupo estado-alertas (rodadas 3 e 4).
 
-Um caso por exemplo concreto: a evidência dos achados F2, F3, F4, F5 e F9, todas as regressões das rodadas 1 e 2
-(REG-1, REG-2, DESCONTOEMCASA) e os casos que os verificadores disseram que têm de continuar funcionando.
+Um caso por exemplo concreto: a evidência dos achados F2, F3, F4, F5 e F9, todas as regressões das rodadas 1, 2 e 3
+(REG-1, REG-2, DESCONTOEMCASA; TVMAGALU300, MELI15TUDO, TVKABUM10, SMARTTV250, PIX300, TCLTV250, CBFRETE200,
+APPMAGALU350, DESCONTOJA no pc), o item ZOOM e os casos que os verificadores disseram que têm de continuar funcionando.
 Cada linha é entrada -> saída esperada (aceita/recusa, preço, parcelado, alerta sai ou não). Quando uma expectativa
 antiga e uma nova conflitam, vale a do verificador mais recente; o comentário da linha diz por quê.
 
-Textos de cupom: reais, dos state_*.json de 13 a 18/09/2026 (o id do anúncio vai no nome da linha quando ajuda).
-Nada aqui lê ou escreve docs/data. Os snapshots reais das páginas só são lidos; sem eles a linha é pulada.
+Textos de cupom: reais, dos state_*.json de 13 a 18/09/2026 (o id do anúncio vai no nome da linha quando ajuda), ou
+os exemplos exatos dos arquivos de correção. Nada aqui lê ou escreve docs/data: os dados reais da main (8e21e6d) vêm
+do recorte tests/fixtures/dados_8e21e6d.json. Os snapshots reais das páginas só são lidos; sem eles a linha é pulada.
 """
 
 import csv
@@ -18,10 +20,12 @@ from pathlib import Path
 
 import pytest
 
-from monitor import config
-from monitor.estado import Estado, lojas_diretas
+from monitor import config, util
+from monitor.estado import Estado, e_agregador
 from monitor.models import Cupom, Oferta
-from monitor.regras import cupom_compativel, cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, resumo_diario, sanear
+from monitor.regras import (
+    cupom_compativel, cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, restricao_do_codigo, resumo_diario, sanear,
+)
 from monitor.util import agora
 
 SNAP = Path(r"C:\Users\luisd\AppData\Local\Temp\claude\C--Users-luisd-OneDrive--rea-de-Trabalho-promos"
@@ -205,6 +209,36 @@ COMPAT = [
      "Economize R$30 em seus pedidos aplicando cupom Magazine Luiza",
      "produtos Magazine Luiza Economize até R$30 ao usar o código promocional no carrinho de compras (acima de R$250).",
      P_MAGALU, True),
+    # ---- rodada 4: regressões da rodada 3 (exemplos exatos do arquivo de correção; a main aceita e alerta todos) ----
+    # (a) exclusão não é o escopo: "Não válido para a categoria Celulares" / "exceto na categoria Supermercado"
+    ("R4-TVMAGALU300-nao-valido-para-Celulares", MAGALU, "TVMAGALU300",
+     "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000", "Não válido para a categoria Celulares.", P_MAGALU, True),
+    ("R4-TVMAGALU300-promobit-limpo", MAGALU, "TVMAGALU300",
+     "Cupom de desconto Magazine Luiza oferece R$ 300 OFF em TVs", "", P_MAGALU, True),
+    ("R4-MELI15TUDO-site-todo-exceto-Supermercado", ML, "MELI15TUDO",
+     "Cupom Mercado Livre 15% OFF em todo o site (limite R$ 150)",
+     "Válido em todo o site, exceto na categoria Supermercado. Compra mínima R$ 199.", P_ML, True),
+    # (b) todos os alvos contam; "promoção", "oferta" e "Pix" são neutros
+    ("R4-TVKABUM10-TVs-em-promocao", KABUM, "TVKABUM10", "Cupom KaBuM! 10% OFF em TVs em promoção",
+     "produtos KaBuM! 10% OFF em TVs em promoção", P_KABUM, True),
+    ("R4-SMARTTV250-Smart-TVs-em-oferta", MAGALU, "SMARTTV250", "Cupom Magalu R$ 250 OFF em Smart TVs em oferta", "",
+     P_MAGALU, True),
+    ("R4-PIX300-pagamento-em-Pix", MAGALU, "PIX300", "Cupom Magalu de R$ 300 para pagamento em Pix",
+     "Válido em compras acima de R$ 3.000", P_MAGALU, True),
+    # (c) lista de tamanhos com o 55
+    ("R4-TCLTV250-Smart-TV-TCL-50-55-e-65", AMAZON, "TCLTV250",
+     "Cupom Amazon R$ 250 OFF em Smart TV TCL 50, 55 e 65 polegadas", "Válido para TVs vendidas pela Amazon.", P_AMAZON,
+     True),
+    # (d) frete e app não são categorias
+    ("R4-CBFRETE200-OFF-mais-frete-gratis", "Casas Bahia", "CBFRETE200",
+     "Cupom Casas Bahia: R$ 200 OFF + Frete Grátis em compras acima de R$ 1.999",
+     "Aplique o cupom no carrinho. Limitado a 1 uso por CPF.", 3599.09, True),
+    ("R4-APPMAGALU350-usar-no-app", MAGALU, "APPMAGALU350", "Cupom Magalu com R$ 350 OFF para usar no app",
+     "produtos Magazine Luiza Use o código no app em compras acima de R$ 3.000.", P_MAGALU, True),
+    # o anúncio do Pelando do DESCONTOJA é genérico: sozinho ele serve; quem o barra é o outro modo (ver cenários R4)
+    ("R4-DESCONTOJA-pelando-generico-sozinho-serve", ML, "DESCONTOJA",
+     "Cupom Mercado Livre 15% OFF acima de R$ 50 (limi R$ 200 OFF)",
+     "Cupom Mercado Livre 15% OFF acima de R$ 50 (limi R$ 200 OFF)", P_ML, True),
 ]
 
 
@@ -222,10 +256,14 @@ def test_ouro_cupom_compativel(linha):
 
 # ============================================================ 2) cenários: estado + rodada -> alertas/mínimo/histórico
 
-def _grava_state(pasta, modo, minimo=None, ofertas=None, cupons=None):
-    """State já existente (não é partida), no formato do repositório antes da rodada 2 (sem 'cupons_alertados')."""
+def _grava_state(pasta, modo, minimo=None, ofertas=None, cupons=None, alertados=None):
+    """State já existente (não é partida), no formato do repositório antes da rodada 2 (sem 'cupons_alertados').
+    alertados: grava 'cupons_alertados' (state de depois da rodada 2: os cupons vistos que não estão ali não foram
+    alertados)."""
     dados = {"ofertas": ofertas or {}, "cupons": cupons or {}, "minimo": minimo, "saude": {},
              "ultimo_resumo": None, "criado_em": "2026-09-13T15:22:00-03:00"}
+    if alertados is not None:
+        dados["cupons_alertados"] = alertados
     (pasta / f"state_{modo}.json").write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
 
 
@@ -243,7 +281,7 @@ def _rodada(modo, ofertas, cupons=()):
     est = Estado(modo)
     ofertas, _av = sanear(ofertas)
     msgs, alertados = gerar_alertas(est, ofertas, list(cupons))
-    diretas = lojas_diretas(ofertas)
+    diretas = est.lojas_diretas_conhecidas(ofertas)
     for o in ofertas:
         est.registra_oferta(o, alertados.get(o.chave))
         est.atualiza_minimo(o, diretas)
@@ -681,6 +719,266 @@ def c_r3_pagina_do_produto_nao_e_barrada(d, mp):
     return _codigos(msgs)
 
 
+# ---- rodada 4: regressões da rodada 3 (textos exatos do arquivo de correção) ----
+
+def _magalu_oferta():
+    """Magalu 1P em 18/09: R$ 3.749, Pix 3.561,55."""
+    return Oferta("magalu", "loja", MAGALU, "TCL 55C6K", "u", "240162800-magazineluiza", preco=3749.0,
+                  preco_pix=3561.55, vendedor="Magalu")
+
+
+PEL_TVMAGALU300 = _reg("pelando", "tvmagalu300-pelando", MAGALU, "TVMAGALU300",
+                       "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000", "Não válido para a categoria Celulares.",
+                       primeira=1.0)
+PROMOBIT_TVMAGALU300 = _reg("promobit", "tvmagalu300-promobit", MAGALU, "TVMAGALU300",
+                            "Cupom de desconto Magazine Luiza oferece R$ 300 OFF em TVs", "", primeira=0.1)
+
+
+def c_r4_tvmagalu300_alerta_e_painel(d, mp):
+    """A main alerta '🎟️ Novo cupom aplicável à TV • Magazine Luiza TVMAGALU300 … · TV lá: R$ 3.561,55'."""
+    _grava_state(d, "cloud")
+    est = Estado("cloud")
+    c = _de_reg(PEL_TVMAGALU300)
+    msgs, _ = gerar_alertas(est, [_magalu_oferta()], [c])
+    return (_codigos(msgs), "TV lá: R$ 3.561,55" in msgs[0] if msgs else None,
+            [x.codigo for x in cupons_aplicaveis([_magalu_oferta()], [c], est)])
+
+
+def c_r4_tvmagalu300_pelando_no_estado_nao_silencia_o_promobit(d, mp):
+    """Amplificação da rodada 3: com o anúncio do Pelando ('Não válido para a categoria Celulares') no state, o post
+    limpo do Promobit do mesmo código era barrado por restricao_do_codigo. A main alerta. (State de depois da rodada 2:
+    o anúncio do Pelando foi visto e recusado, não alertado.)"""
+    _grava_state(d, "cloud", cupons=_por_chave(PEL_TVMAGALU300), alertados={})
+    est = Estado("cloud")
+    novo = _de_reg(PROMOBIT_TVMAGALU300)
+    msgs, _ = gerar_alertas(est, [_magalu_oferta()], [novo])
+    return (sorted(restricao_do_codigo([novo], est.cupons_vistos())), _codigos(msgs),
+            [x.codigo for x in cupons_aplicaveis([_magalu_oferta()], [novo], est)])
+
+
+def c_r4_tvmagalu300_ja_alertado_nao_repete(d, mp):
+    """F9: se o anúncio do Pelando já virou alerta (aqui, pelo estado antigo: a regra da época o aceitava), o post do
+    Promobit com o mesmo desconto (R$ 300) é repetição."""
+    _grava_state(d, "cloud", cupons=_por_chave(PEL_TVMAGALU300))
+    msgs, _ = gerar_alertas(Estado("cloud"), [_magalu_oferta()], [_de_reg(PROMOBIT_TVMAGALU300)])
+    return msgs
+
+
+def c_r4_meli15tudo_alerta(d, mp):
+    _grava_state(d, "cloud")
+    c = Cupom(fonte="pelando", loja=ML, codigo="MELI15TUDO", url="u", id="meli15tudo",
+              titulo="Cupom Mercado Livre 15% OFF em todo o site (limite R$ 150)",
+              regra="Válido em todo o site, exceto na categoria Supermercado. Compra mínima R$ 199.")
+    msgs, _ = gerar_alertas(Estado("cloud"), [_ml_oferta()], [c])
+    return _codigos(msgs)
+
+
+# anúncios com outro "em" depois do alvo de TV: nem recusam, nem barram o código em outros anúncios
+R4_VARIOS_EM = [
+    _reg("promobit", "tvkabum10", KABUM, "TVKABUM10", "Cupom KaBuM! 10% OFF em TVs em promoção",
+         "produtos KaBuM! 10% OFF em TVs em promoção", primeira=1.0),
+    _reg("promobit", "smarttv250", MAGALU, "SMARTTV250", "Cupom Magalu R$ 250 OFF em Smart TVs em oferta", "",
+         primeira=1.0),
+    _reg("promobit", "pix300", MAGALU, "PIX300", "Cupom Magalu de R$ 300 para pagamento em Pix",
+         "Válido em compras acima de R$ 3.000", primeira=1.0),
+]
+
+
+def c_r4_varios_em_alertam(d, mp):
+    _grava_state(d, "cloud")
+    ofs = [_magalu_oferta(), Oferta("kabum", "loja", KABUM, "TCL 55C6K", "u", "911482", preco=3159.0)]
+    msgs, _ = gerar_alertas(Estado("cloud"), ofs, [_de_reg(r) for r in R4_VARIOS_EM])
+    return sorted(_codigos(msgs))
+
+
+def c_r4_varios_em_nao_barram_outro_post(d, mp):
+    """Com esses anúncios no state, um post genérico do mesmo código (id novo) ainda alerta (a main alerta)."""
+    _grava_state(d, "cloud", cupons=_por_chave(*R4_VARIOS_EM))
+    est = Estado("cloud")
+    genericos = [_de_reg(r, id=r["id"] + "-2", titulo=f"Economize com o cupom {r['codigo']} em suas compras",
+                         regra="") for r in R4_VARIOS_EM]
+    ofs = [_magalu_oferta(), Oferta("kabum", "loja", KABUM, "TCL 55C6K", "u", "911482", preco=3159.0)]
+    restritos = restricao_do_codigo(genericos, est.cupons_vistos())
+    # os anúncios do state já foram vistos (não alertados): o genérico é a primeira vez que o código alerta
+    msgs, _ = gerar_alertas(est, ofs, genericos)
+    return sorted(restritos), sorted(_codigos(msgs))
+
+
+def c_r4_tcltv250_alerta(d, mp):
+    _grava_state(d, "pc")
+    c = Cupom(fonte="promobit", loja=AMAZON, codigo="TCLTV250", url="u", id="tcltv250",
+              titulo="Cupom Amazon R$ 250 OFF em Smart TV TCL 50, 55 e 65 polegadas",
+              regra="Válido para TVs vendidas pela Amazon.")
+    msgs, _ = gerar_alertas(Estado("pc"), [Oferta("amazon", "loja", AMAZON, "TCL 55C6K", "u", "B0F7JZMVKF",
+                                                   preco=3279.0)], [c])
+    return _codigos(msgs)
+
+
+def c_r4_frete_e_app_alertam(d, mp):
+    _grava_state(d, "pc")
+    cb = Cupom(fonte="promobit", loja="Casas Bahia", codigo="CBFRETE200", url="u", id="cbfrete200",
+               titulo="Cupom Casas Bahia: R$ 200 OFF + Frete Grátis em compras acima de R$ 1.999",
+               regra="Aplique o cupom no carrinho. Limitado a 1 uso por CPF.")
+    app = Cupom(fonte="promobit", loja=MAGALU, codigo="APPMAGALU350", url="u", id="appmagalu350",
+                titulo="Cupom Magalu com R$ 350 OFF para usar no app",
+                regra="produtos Magazine Luiza Use o código no app em compras acima de R$ 3.000.")
+    ofs = [Oferta("casasbahia", "loja", "Casas Bahia", "TCL 55C6K", URL_CB, "55069456", preco=3998.99,
+                  preco_pix=3599.09), _magalu_oferta()]
+    msgs, _ = gerar_alertas(Estado("pc"), ofs, [cb, app])
+    return sorted(_codigos(msgs))
+
+
+# ---- rodada 4: DESCONTOJA no pc com os state reais da main (o cloud sabe que o código é só "em Casa") ----
+FIXTURE_8E21 = Path(__file__).parent / "fixtures" / "dados_8e21e6d.json"
+AGORA_8E21 = "2026-09-18T17:50:00-03:00"  # logo depois da coleta das 17:43
+
+
+def _dados_reais(d, mp, arquivos=("state_cloud", "state_pc", "latest_cloud", "latest_pc"), hora=AGORA_8E21):
+    """Grava no diretório de dados temporário os arquivos reais da main e para o relógio na hora deles."""
+    from datetime import datetime
+
+    reais = json.loads(FIXTURE_8E21.read_text(encoding="utf-8"))
+    for nome in arquivos:
+        (d / f"{nome}.json").write_text(json.dumps(reais[nome], ensure_ascii=False), encoding="utf-8")
+    quando = datetime.fromisoformat(hora)
+    mp.setattr(util, "agora", lambda: quando)
+    return reais
+
+
+def _descontoja_do_pelando():
+    t = "Cupom Mercado Livre 15% OFF acima de R$ 50 (limi R$ 200 OFF)"
+    return Cupom(fonte="pelando", loja=ML, codigo="DESCONTOJA", titulo=t, url="u", id="novo-post-descontoja", regra=t)
+
+
+def c_r4_descontoja_pc_gerar_alertas(d, mp):
+    """A main: (False, 'categoria: mercado'), sem alerta. A rodada 3 alertava e punha no latest_pc.cupons."""
+    _dados_reais(d, mp)
+    est = Estado("pc")
+    c = _descontoja_do_pelando()
+    msgs, _ = gerar_alertas(est, [_ml_oferta()], [c])
+    return ("Mercado Livre|DESCONTOJA" in restricao_do_codigo([c], est.cupons_vistos()),
+            [m for m in msgs if "🎟️" in m], [x.codigo for x in cupons_aplicaveis([_ml_oferta()], [c], est)])
+
+
+class _FonteDescontoja:
+    nome = "pelando.cupons"
+    modo = "pc"
+    alerta_falha = True
+
+    def coletar(self):
+        return [_ml_oferta()], [_descontoja_do_pelando()]
+
+
+def c_r4_descontoja_pc_run_main(d, mp):
+    """A mesma rodada pelo run.main() no modo pc (fonte trocada, sem .env, sem Telegram)."""
+    import io
+
+    import run
+    from monitor import sources
+
+    _dados_reais(d, mp)
+    mp.setattr(run, "carrega_env", lambda: None)
+    mp.setattr(sources, "por_modo", lambda modo: [_FonteDescontoja()])
+    mp.setattr(run.time, "sleep", lambda s: None)
+    mp.setattr(sys, "argv", ["run.py", "--mode", "pc", "--no-notify"])
+    saida = io.StringIO()
+    mp.setattr(sys, "stdout", saida)
+    assert run.main() == 0
+    latest = json.loads((d / "latest_pc.json").read_text(encoding="utf-8"))
+    return [b for b in saida.getvalue().split("[alerta]") if "🎟️" in b], [c["codigo"] for c in latest["cupons"]]
+
+
+def c_r4_descontoja_sem_o_arquivo_do_cloud(d, mp):
+    """Sem o state do cloud (arquivo ausente) o pc não quebra e, sem saber do 'em Casa', o anúncio genérico serve."""
+    _dados_reais(d, mp, arquivos=("state_pc", "latest_pc"))
+    msgs, _ = gerar_alertas(Estado("pc"), [_ml_oferta()], [_descontoja_do_pelando()])
+    return _codigos(msgs)
+
+
+def c_r4_descontoja_casa_ha_mais_de_30_dias(d, mp):
+    """A janela de 30 dias continua: 'em Casa' visto no cloud há mais de 30 dias não barra."""
+    _dados_reais(d, mp, hora="2026-10-25T12:00:00-03:00")
+    msgs, _ = gerar_alertas(Estado("pc"), [_ml_oferta()], [_descontoja_do_pelando()])
+    return _codigos(msgs)
+
+
+# ---- ZOOM: agregador de loja que tem fonte direta (em qualquer modo) não é preço ----
+
+def _ofertas_do_latest(reais, modo):
+    campos = set(Oferta.__dataclass_fields__)
+    return [Oferta(**{k: v for k, v in o.items() if k in campos}) for o in reais[f"latest_{modo}"]["ofertas_loja"]]
+
+
+def c_zoom_resumo_cloud_real(d, mp):
+    """O resumo do cloud de 18/09 listou 'Amazon: R$ 3.279' (Zoom parado desde 14/09) como a loja mais barata. A
+    Amazon real (ASIN B0F7JZMVKF, o mesmo do Zoom) estava a R$ 3.749 no pc."""
+    reais = _dados_reais(d, mp)
+    txt = resumo_diario(Estado("cloud"), _ofertas_do_latest(reais, "cloud"), [])
+    lojas = [ln for ln in txt.split("\n") if ln.startswith("• ")]
+    return ("3.279" in txt, lojas[0],
+            "• Amazon/Magalu.: <b>R$ 3.749,00</b> · 12x R$ 312,49 sem juros · visto 18/09 17:43 (PC)" in lojas,
+            [ln for ln in lojas if ln.startswith("• KaBuM!")], "Menor já visto: R$ 2.991,60 (Magazine Luiza" in txt)
+
+
+def c_zoom_resumo_sem_o_pc(d, mp):
+    """Loja que só o agregador conhece (nenhuma fonte direta em nenhum modo) continua com a linha dele."""
+    reais = _dados_reais(d, mp, arquivos=("state_cloud", "latest_cloud"))
+    txt = resumo_diario(Estado("cloud"), _ofertas_do_latest(reais, "cloud"), [])
+    return "• Amazon: <b>R$ 3.279,00</b>" in txt, " · visto " in txt
+
+
+def _zoom_amazon(preco):
+    return Oferta("zoom", "loja", AMAZON, "Smart TV TCL 55C6K", "https://www.zoom.com.br/tv/x?highlightedItemId=1489104908",
+                  "1489104908", preco=preco)
+
+
+def c_zoom_amazon_2800_no_cloud(d, mp):
+    """O Zoom (sem extra.agregador, como o parser grava hoje) mostra a Amazon a R$ 2.800: com o pc vendo a Amazon
+    direto, não sai 🎯/🏆/🔻 nem vira mínimo; sem nenhum arquivo do pc, sai como hoje."""
+    reais = _dados_reais(d, mp)
+    ofs = [o for o in _ofertas_do_latest(reais, "cloud") if not (o.fonte == "zoom" and o.loja == AMAZON)]
+    est, msgs = _rodada("cloud", ofs + [_zoom_amazon(2800.0)])
+    com_pc = ([m.split("\n")[0] for m in msgs if "Amazon" in m.split("\n")[0]], est.minimo()["preco"])
+    for f in ("state_cloud", "state_pc", "latest_pc", "historico_cloud"):
+        (d / f"{f}.json").unlink(missing_ok=True)
+    (d / "historico_cloud.csv").unlink(missing_ok=True)
+    _dados_reais(d, mp, arquivos=("state_cloud", "latest_cloud"))
+    est, msgs = _rodada("cloud", ofs + [_zoom_amazon(2800.0)])
+    sem_pc = [m.split("\n")[0] for m in msgs if "Amazon" in m.split("\n")[0]]
+    return com_pc, len(sem_pc), all(e in sem_pc[0] for e in ("🏆", "🔻", "🎯")), est.minimo()["preco"]
+
+
+def c_zoom_partida_e_cupom(d, mp):
+    """Mensagem de partida sem a linha do agregador coberto; cupom da Amazon no cloud mostra o preço direto do pc."""
+    reais = _dados_reais(d, mp)
+    ofs = _ofertas_do_latest(reais, "cloud")
+    est = Estado("cloud")
+    partida = mensagem_bootstrap(ofs, [], "cloud", est.lojas_diretas_conhecidas(ofs))
+    c = Cupom(fonte="promobit", loja=AMAZON, codigo="AMZ100", url="u", id="amz100",
+              titulo="Cupom Amazon R$ 100 OFF em Eletrônicos acima de R$ 3.500")
+    msgs, _ = gerar_alertas(est, ofs, [c])
+    return "3.279" in partida, [ln for ln in msgs[0].split("\n") if "AMZ100" in ln][0].endswith("TV lá: R$ 3.749,00")
+
+
+def c_zoom_minimo_antigo_do_agregador(d, mp):
+    """Real (5 versões do state_cloud de 13/09): mínimo 3.082,61 'Webcontinental' com URL do Zoom, e a Webcontinental
+    tem fonte direta (vtex). Esse mínimo não vale; fica o menor dos registros que contam."""
+    reais = _dados_reais(d, mp, arquivos=("state_pc", "latest_pc"))
+    st = dict(reais["state_cloud"], minimo={"preco": 3082.61, "loja": "Webcontinental",
+                                            "quando": "2026-09-13T15:23:00-03:00",
+                                            "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k",
+                                            "titulo": "Smart TV TCL 55C6K"})
+    (d / "state_cloud.json").write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+    m = Estado("cloud").minimo_geral()
+    return m["preco"], m["loja"]
+
+
+def c_zoom_linhas_reais_sao_agregador(d, mp):
+    """As linhas do Zoom gravadas hoje não trazem extra.agregador: fonte/URL bastam (o mesmo critério do painel)."""
+    reais = json.loads(FIXTURE_8E21.read_text(encoding="utf-8"))
+    return sorted({(o["loja"], e_agregador(o)) for o in reais["latest_cloud"]["ofertas_loja"] if o["fonte"] == "zoom"})
+
+
 CENARIOS = [
     # F2: o sanear descarta a CB 2.189,30; o mínimo continua 3.199 e a CB não grava último/menor preço
     ("F2-descarte-do-sanear-nao-vira-minimo", c_f2_descarte_nao_vira_minimo, (3199.0, False, None, None)),
@@ -731,6 +1029,36 @@ CENARIOS = [
     ("R3-SAINDOBARRATO-Selecao-Mercado-Livre-nao-barra", c_r3_saindobarrato_selecao_nao_barra, ["SAINDOBARRATO"]),
     ("R3-categoria-vista-ha-mais-de-30-dias-nao-barra", c_r3_categoria_vista_ha_mais_de_30_dias_nao_conta, ["MLDEBOA"]),
     ("R3-cupom-da-pagina-do-produto-nao-e-barrado", c_r3_pagina_do_produto_nao_e_barrada, ["ESQUENTA320"]),
+    # ---- rodada 4: regressões da rodada 3 ----
+    ("R4-TVMAGALU300-alerta-com-TV-la-e-vai-ao-painel", c_r4_tvmagalu300_alerta_e_painel,
+     (["TVMAGALU300"], True, ["TVMAGALU300"])),
+    ("R4-TVMAGALU300-Pelando-no-state-nao-silencia-o-Promobit", c_r4_tvmagalu300_pelando_no_estado_nao_silencia_o_promobit,
+     ([], ["TVMAGALU300"], ["TVMAGALU300"])),
+    ("R4-TVMAGALU300-ja-alertado-no-Pelando-nao-repete-no-Promobit", c_r4_tvmagalu300_ja_alertado_nao_repete, []),
+    ("R4-MELI15TUDO-alerta", c_r4_meli15tudo_alerta, ["MELI15TUDO"]),
+    ("R4-TVKABUM10-SMARTTV250-PIX300-alertam", c_r4_varios_em_alertam, ["PIX300", "SMARTTV250", "TVKABUM10"]),
+    ("R4-TVKABUM10-SMARTTV250-PIX300-nao-barram-outro-post", c_r4_varios_em_nao_barram_outro_post,
+     ([], ["PIX300", "SMARTTV250", "TVKABUM10"])),
+    ("R4-TCLTV250-alerta", c_r4_tcltv250_alerta, ["TCLTV250"]),
+    ("R4-CBFRETE200-e-APPMAGALU350-alertam", c_r4_frete_e_app_alertam, ["APPMAGALU350", "CBFRETE200"]),
+    # (e) o que o cloud sabe do código (DESCONTOJA só "em Casa", promobit:69522) vale no pc: sem alerta e fora do painel
+    ("R4-DESCONTOJA-pc-com-os-state-reais-nao-alerta", c_r4_descontoja_pc_gerar_alertas, (True, [], [])),
+    ("R4-DESCONTOJA-pc-run.main-sem-alerta-e-fora-do-latest", c_r4_descontoja_pc_run_main, ([], [])),
+    ("R4-DESCONTOJA-pc-sem-o-arquivo-do-cloud-nao-quebra", c_r4_descontoja_sem_o_arquivo_do_cloud, ["DESCONTOJA"]),
+    ("R4-DESCONTOJA-Casa-visto-ha-mais-de-30-dias-nao-barra", c_r4_descontoja_casa_ha_mais_de_30_dias, ["DESCONTOJA"]),
+    # ---- ZOOM (18/09): dados reais da main ----
+    # (tem 3.279?, primeira loja do resumo, Amazon direta do pc com quando, linhas da KaBuM!, menor já visto)
+    ("ZOOM-resumo-do-cloud-sem-a-Amazon-parada-do-Zoom", c_zoom_resumo_cloud_real,
+     (False, "• Magazine Luiza/Magalu: <b>R$ 3.561,55</b> · 10x R$ 374,90 sem juros", True,
+      ["• KaBuM!: <b>R$ 4.184,88</b> · 10x de R$ 418,48 sem juros"], True)),
+    ("ZOOM-loja-que-so-o-agregador-conhece-continua", c_zoom_resumo_sem_o_pc, (True, False)),
+    # com o pc: nenhum alerta da Amazon do Zoom e o mínimo fica 2.991,60; sem o pc: 🏆🔻🎯 e mínimo 2.800 (como hoje)
+    ("ZOOM-Amazon-2800-no-Zoom-nao-alerta-quando-o-pc-ve-a-Amazon", c_zoom_amazon_2800_no_cloud,
+     (([], 2991.6), 1, True, 2800.0)),
+    ("ZOOM-partida-e-TV-la-do-cupom-com-o-preco-direto", c_zoom_partida_e_cupom, (False, True)),
+    ("ZOOM-minimo-antigo-vindo-do-Zoom-nao-vale", c_zoom_minimo_antigo_do_agregador, (2991.6, MAGALU)),
+    ("ZOOM-linhas-reais-do-Zoom-sao-agregador", c_zoom_linhas_reais_sao_agregador,
+     [(AMAZON, True), (KABUM, True), (MAGALU, True)]),
 ]
 
 
