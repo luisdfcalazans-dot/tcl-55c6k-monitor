@@ -129,7 +129,10 @@ def jsonld_produtos(html: str) -> list[dict]:
     return prods
 
 
-_RE_PRECO = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?|\d+(?:,\d{2})?)")
+# Valor em reais com ponto de milhar (3.599,00) ou sem (3599,00 / 3599.99). O (?!\d) exige o fim do número:
+# sem ele a primeira alternativa casava só "359" de "R$ 3599" e o valor real sumia.
+_NUM_BRL = r"(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d+(?:[.,]\d{2})?)(?!\d)"
+_RE_PRECO = re.compile(r"R\$\s?" + _NUM_BRL)
 
 
 def parse_preco(texto: Any) -> Optional[float]:
@@ -162,6 +165,46 @@ def precos_no_texto(texto: str) -> list[float]:
         if v:
             out.append(v)
     return out
+
+
+# Valores de uma postagem que NÃO são o preço da TV (olhando o trecho da mesma linha antes/depois do valor):
+# mínimo do cupom ("acima de R$ 2.499"), desconto ("R$ 300 OFF", "economize R$ 1.200"), cashback,
+# parcela ("10x de R$ 1.234") e preço antigo ("De R$ 4.199 por R$ 3.599").
+_RE_ANTES_NAO_PRECO = re.compile(
+    r"(?:acima\s+de|compras?\s+(?:a\s+partir\s+|acima\s+)?de|minimo(?:\s+de)?|economi[sz]e|desconto\s+de|"
+    r"cashback\s+de|off\s+de|\d{1,2}\s*x\s*(?:de)?|(?:^|[^a-z0-9\s])\s*de)\s*[:\-]?\s*$"
+)
+_RE_DEPOIS_NAO_PRECO = re.compile(r"^\s*(?:off\b|de\s+desconto|de\s+cashback|em\s+cashback|de\s+volta|[),;]?\s*por\b)")
+_RE_DEPOIS_AVISTA = re.compile(r"^[^\n]{0,20}?\b(?:pix|a\s+vista|boleto)\b")
+_RE_ANTES_AVISTA = re.compile(r"(?:\bpor|\bpix|a\s+vista)\s*:?\s*$")
+
+
+def preco_postagem(texto: str, piso: float = 1000) -> Optional[float]:
+    """Preço da TV numa postagem livre (Telegram).
+
+    Descarta o mínimo do cupom, descontos, parcelas e o preço antigo "De"; entre os valores que sobram,
+    prefere os marcados como Pix/à vista/"por" e devolve o menor.
+    """
+    texto = texto or ""
+    candidatos: list[float] = []
+    marcados: list[float] = []
+    for m in _RE_PRECO.finditer(texto):
+        v = parse_preco(m.group(1))
+        if not v or v < piso:
+            continue
+        ini_linha = texto.rfind("\n", 0, m.start()) + 1
+        fim_linha = texto.find("\n", m.end())
+        fim_linha = len(texto) if fim_linha < 0 else fim_linha
+        antes = sem_acentos(texto[max(ini_linha, m.start() - 40): m.start()]).lower()
+        depois = sem_acentos(texto[m.end(): min(fim_linha, m.end() + 30)]).lower()
+        if _RE_ANTES_NAO_PRECO.search(antes) or _RE_DEPOIS_NAO_PRECO.search(depois):
+            continue
+        candidatos.append(v)
+        if _RE_DEPOIS_AVISTA.search(depois) or _RE_ANTES_AVISTA.search(antes):
+            marcados.append(v)
+    if marcados:
+        return min(marcados)
+    return min(candidatos) if candidatos else None
 
 
 def fmt_preco(v: Optional[float]) -> str:
@@ -258,26 +301,43 @@ def dias_desde(iso: Optional[str]) -> Optional[float]:
 
 
 _RE_PARCELA = re.compile(
-    r"(?:em\s+at[ée]\s+)?(\d{1,2})\s*x\s*(?:de\s*)?R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)(\s*sem juros)?", re.I
+    r"(?:em\s+at[ée]\s+)?(\d{1,2})\s*x\s*(?:de\s*)?R\$\s?" + _NUM_BRL + r"(\s*sem\s+juros)?", re.I
 )
+_RE_COM_JUROS = re.compile(r"\s*\(?\s*(?:com|c/)\s*juros", re.I)  # usado com .match(texto, pos)
 
 
 def parcelado_no_texto(texto: str) -> Optional[str]:
-    m = _RE_PARCELA.search(texto or "")
-    if not m:
+    """Parcelamento citado no texto. Prefere o 'sem juros'; opção 'com juros' nunca é devolvida."""
+    texto = texto or ""
+    escolhido = None
+    for m in _RE_PARCELA.finditer(texto):
+        if m.group(3):
+            escolhido = m
+            break
+        if escolhido is None and not _RE_COM_JUROS.match(texto, m.end()):
+            escolhido = m
+    if not escolhido:
         return None
-    sj = " sem juros" if m.group(3) else ""
-    return f"{m.group(1)}x R$ {m.group(2)}{sj}"
+    sj = " sem juros" if escolhido.group(3) else ""
+    return f"{escolhido.group(1)}x R$ {escolhido.group(2)}{sj}"
 
 
-_RE_CUPOM = re.compile(r"cupom\s*[:\-]?\s*[\"“']?([A-Z0-9][A-Z0-9\-]{3,24})[\"”']?", re.I)
+# O código tem de terminar numa fronteira de palavra: sem isso "CUPOM DISPONÍVEL" virava o código "DISPON".
+_RE_CUPOM = re.compile(r"cupom\s*[:\-]?\s*[\"“']?([A-Z0-9][A-Z0-9\-]{3,24})(?![\w\-])[\"”']?", re.I)
+# palavras comuns depois de "cupom" que não são código
+_NAO_E_CUPOM = {
+    "DE", "NA", "NO", "PARA", "EXCLUSIVO", "EXCLUSIVA", "VALIDO", "VÁLIDO", "DESCONTO",
+    "DISPONIVEL", "DISPONIVEIS", "ATIVADO", "ATIVADA", "ATIVO", "ATIVA", "APLICADO", "APLICADA", "AUTOMATICO",
+    "AUTOMATICA", "PRIMEIRA", "MERCADO", "LINK", "LOJA", "SITE", "APLICAR", "RESGATE", "RESGATAR", "NOVO", "NOVA",
+    "ABAIXO", "ACIMA", "AQUI", "PAGINA", "ESPECIAL", "SELECIONADO", "SELECIONADOS",
+}
 
 
 def cupom_no_texto(texto: str) -> Optional[str]:
     """Extrai um código de cupom de um texto ('use o cupom TECNOBLOG250')."""
     for m in _RE_CUPOM.finditer(texto or ""):
         cod = m.group(1)
-        if cod.upper() in {"DE", "NA", "NO", "PARA", "EXCLUSIVO", "EXCLUSIVA", "VALIDO", "VÁLIDO", "DESCONTO"}:
+        if cod.upper() in _NAO_E_CUPOM:
             continue
         if any(ch.isdigit() for ch in cod) or cod.isupper():
             return cod.upper()

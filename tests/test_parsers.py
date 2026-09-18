@@ -59,7 +59,7 @@ def test_zoom():
     ofs = zoom.parse_produto(le("zoom_produto.html"))
     lojas = {o.loja for o in ofs}
     assert {"Webcontinental", "Fast Shop", "KaBuM!", "Amazon", "Magazine Luiza"} <= lojas
-    assert min(o.preco for o in ofs) == 3082.61
+    assert min(o.melhor_preco for o in ofs) == 3082.61  # 3082.61 é o Pix da Webcontinental (cartão 3324)
 
 
 def test_magalu():

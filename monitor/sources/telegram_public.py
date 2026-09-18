@@ -5,9 +5,9 @@ from __future__ import annotations
 from bs4 import BeautifulSoup
 
 from .. import config
-from ..filtro import eh_55c6k
+from ..filtro import linha_55c6k
 from ..models import Oferta
-from ..util import cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto, precos_no_texto
+from ..util import cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto, preco_postagem
 from . import Fonte, Resultado
 
 _LOJAS_NO_TEXTO = [
@@ -39,15 +39,15 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
             br.replace_with("\n")
         texto = txt_el.get_text(" ", strip=False)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
-        if not eh_55c6k(texto):
+        # o filtro roda na linha-título: a descrição da TV ("suporte a HDR10+", "controle remoto")
+        # derrubava postagens legítimas quando a mensagem inteira passava pelo filtro
+        titulo = linha_55c6k(texto)
+        if not titulo:
             continue
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
-        precos = precos_no_texto(texto)
-        # preço à vista costuma ser o menor citado; parcelas ficam bem menores que 1000
-        candidatos = [p for p in precos if p >= 1000]
-        preco = min(candidatos) if candidatos else None
-        titulo = next((l for l in texto.splitlines() if "c6k" in l.lower()), texto.splitlines()[0])
+        # ignora mínimo do cupom, desconto, parcela e preço "De"; prefere o valor do Pix/à vista
+        preco = preco_postagem(texto)
         out.append(Oferta(
             fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
             titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}", id=post,
