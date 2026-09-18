@@ -109,7 +109,7 @@ def main() -> int:
         print(f"[sanidade] {a}")
 
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
-    aplicaveis = cupons_aplicaveis(ofertas, cupons)  # type: ignore[arg-type]
+    aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
 
     if estado.bootstrap and (ofertas or cupons):
         msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode)]  # type: ignore[arg-type]

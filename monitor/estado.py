@@ -119,6 +119,15 @@ class Estado:
     def cupom_anterior(self, chave: str) -> dict | None:
         return self.dados["cupons"].get(chave)
 
+    def cupons_vistos(self, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
+        """Anúncios de cupom vistos nos últimos `dias` dias (para saber o que outro anúncio do mesmo código diz)."""
+        out = []
+        for reg in self.dados["cupons"].values():
+            d = dias_desde(reg.get("ultima_vez") or reg.get("primeira_vez"))
+            if d is None or d <= dias:
+                out.append(reg)
+        return out
+
     def alertas_de_cupom(self, marca: str, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
         """Alertas já ENVIADOS para 'loja|CÓDIGO' que ainda valem: alertados há até `dias` dias, ou cujo anúncio
         alertado continua aparecendo. Cupom só visto (ou visto e incompatível) não entra aqui."""

@@ -50,11 +50,49 @@ _RE_LOJA_NO_TEXTO = re.compile(
     r"fast\s*shop|casas\s+bahia)\b")
 # "OFF em compras acima de R$ 3.000" / "a partir de" / "de até": é o valor da compra, não uma categoria
 _RE_ALVO_COMPRAS = re.compile(
-    r"^(?:suas\s+|nas\s+)?(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de|(?:de\s+)?ate)\s*r\$\s?[\d.,]+(.*)$")
+    r"^(?:suas\s+|nas\s+)?(?:compras|pedidos)\s+(?:acima\s+(?:de\s+)?|a\s+partir\s+de|(?:de\s+)?ate|de)\s*r\$\s?[\d.,]+"
+    r"(.*)$")
 _RE_COMPRAS_MINIMO = re.compile(r"\bem\s+(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de)\s*r\$\s?[\d.,]+")
 _RE_FRETE_EXCLUIDO = re.compile(r"\b(?:excluido|exceto|excluindo|sem contar)\s+(?:o\s+)?(?:valor\s+d[oe]\s+)?frete\b")
 # depois de tirar a loja, o valor mínimo e "(acima de R$1) com cupom", estes alvos valem para o site todo
-_ALVOS_GERAIS = {"", "compras", "pedidos", "geral", "tudo", "ofertas", "ofertas gerais", "produtos", "todo site"}
+_ALVOS_GERAIS = {"", "compras", "pedidos", "geral", "tudo", "ofertas", "ofertas gerais", "produtos", "todo site",
+                 "seus pedidos", "suas compras", "toda a loja", "toda loja"}
+
+# ---- cupom que vale só para uma parte da loja (rodada 3) ----
+# Serve para a TV só quando a parte é TV, eletrônicos ou tecnologia, ou quando o texto diz o site todo.
+_RE_TV_TECH = re.compile(r"\btvs?\b|televis|eletronic|tecnolog")
+_RE_SITE_TODO = re.compile(r"site todo|todo o site|todo site|loja toda|toda a loja|todas as categorias|todos os produtos")
+# "pedido mínimo R$ 79 na categoria Casa"
+_RE_NA_CATEGORIA = re.compile(r"\bcategoria[:\s]+(?:de\s+)?([a-z][^.;,()|]{2,40})")
+# seleção sem dizer qual: "itens selecionados", "produtos participantes", "produtos do link", "lista de itens".
+# É vago: o Pelando escreve "em Selecionados" em quase todo cupom do Mercado Livre, inclusive nos que o Promobit
+# mostra valendo para o site todo (REG-1: MELIACHAPROMO). Recusa o anúncio, mas não o código (ver restricao_do_codigo).
+_RE_SELECAO = re.compile(r"\bselecionad\w*|\bselecionas\b|\b(?:produtos|itens)\b[^.;|]{0,40}?\bparticipantes?\b"
+                         r"|\b(?:produtos|itens) do link\b|\blista de itens\b")
+_RE_PALAVRAS_DE_SELECAO = re.compile(
+    r"\b(?:itens|produtos|categorias?|selecionad\w*|selecionas|participantes?|da promocao|do link)\b")
+# cupom de outro produto: um kit, ou uma TV de outro tamanho ("na Smart TV TCL 50 QLED 4K P7L")
+_RE_OUTRO_PRODUTO = re.compile(r"\bkit\b|\bsmart\s*tv\s+(?:[a-z]+\s+){0,2}(?!55\b)\d{2}\b")
+# "acima R$1", "limite R$500", "sem mínimo": condição de valor, não categoria
+_RE_CONDICAO_VALOR = re.compile(
+    r"\b(?:acima|a partir|limite|limitad[oa]|minimo|maximo|sem)\b(?:\s+(?:de|a|do)\b)?\s*(?:r\$\s?[\d.,]+)?|r\$\s?[\d.,]+")
+# só para quem nunca comprou: "(1ª Compra / APP)", "nas 4 primeiras compras", "novos clientes", "contas novas"
+_RE_SO_NOVOS = re.compile(r"\b(?:1a|1o|primeir[oa]s?)\s+(?:compras?|pedidos?)\b"
+                          r"|\bnov[oa]s\s+(?:clientes|usuarios|contas)\b|\bcontas?\s+novas?\b")
+# "... com cupom Mercado Livre", "usando o cupom X aproveite...": o resto do título não é categoria
+_RE_COM_CUPOM_FIM = re.compile(r"\b(?:com|usando|aplicando)\s+(?:o\s+)?(?:cupom|voucher|codigo)\b.*$")
+
+
+def _alvo_do_titulo(titulo: str) -> Optional[str]:
+    """O que vem depois do ÚLTIMO 'em' do título (sem a loja, parênteses e 'com cupom'): '20% OFF em Casa no Mercado
+    Livre (acima de R$79) com cupom' -> 'casa'; '20% OFF, máximo R$ 60, em R$ 79 em Casa' -> 'casa'.
+    None: o título não diz "em <algo>" ('em R$ 79' e 'em até 10x' não contam). '': o anúncio acaba em "em" (cortado)."""
+    t = _RE_LOJA_NO_TEXTO.sub(" ", titulo)
+    t = re.sub(r"\([^)]*\)?", " ", t)
+    t = _RE_COM_CUPOM_FIM.sub(" ", t)
+    t = re.sub(r"[\s!.,:;|-]+$", "", t)
+    ems = [m for m in re.finditer(r"\bem\b\s*", t) if not re.match(r"r\$|\d|ate\s+\d", t[m.end():])]
+    return t[ems[-1].end():] if ems else None
 
 
 def _alvo_categoria(alvo: str) -> str:
@@ -86,6 +124,37 @@ def _motivo_marca(texto: str, codigo: str) -> str:
     return ""
 
 
+def _texto_cat(texto: str) -> str:
+    """Texto para as categorias: sem o nome da loja, sem "em compras acima de R$ X" (valor mínimo, não "site todo")
+    e sem "excluído o valor do frete" (regra do desconto, não cupom de frete)."""
+    return _RE_FRETE_EXCLUIDO.sub(" ", _RE_COMPRAS_MINIMO.sub(" ", _RE_LOJA_NO_TEXTO.sub(" ", texto)))
+
+
+def _parte_da_loja(titulo: str, texto_cat: str) -> tuple[str, str]:
+    """A parte da loja a que o anúncio diz que o cupom se limita, quando não é TV/eletrônicos/tecnologia nem o site
+    todo: ('categoria', 'casa') para "20% OFF em Casa" ou "na categoria Casa"; ('restrito', 'selecionados') para uma
+    seleção sem dizer qual ("em Selecionados", "em itens selecionados acima R$1 - Limite R$500") ou anúncio cortado
+    ("15% de Desconto em"); ('', '') quando o anúncio não limita (ou limita a TV/tecnologia/site todo)."""
+    m = _RE_NA_CATEGORIA.search(texto_cat)
+    if m:
+        cat = m.group(1).strip()
+        if cat not in _ALVOS_GERAIS and not (_RE_TV_TECH.search(cat) or _RE_SITE_TODO.search(cat)):
+            return "categoria", cat[:30]
+    # o que vem depois do último "em" do título: "10% OFF em Cervejas", "20% de Desconto em Periféricos",
+    # "... em R$ 79 em Casa"
+    alvo = _alvo_do_titulo(titulo)
+    if alvo == "":
+        return "restrito", "anúncio cortado (sem a categoria)"
+    if alvo is not None:
+        alvo = _alvo_categoria(alvo)
+        if alvo not in _ALVOS_GERAIS and not any(d in alvo for d in _CATEGORIAS_DENTRO):
+            resto = _RE_PALAVRAS_DE_SELECAO.sub(" ", _RE_CONDICAO_VALOR.sub(" ", alvo))
+            if not re.sub(r"[\W_]+", "", resto):
+                return "restrito", alvo[:30]  # "em Selecionados acima R$1 - Limite R$500": seleção vaga
+            return "categoria", alvo[:30]
+    return "", ""
+
+
 def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     """Verifica se a regra do cupom cabe na TV. Devolve (ok, motivo)."""
     if c.especifico:
@@ -95,19 +164,27 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     marca = _motivo_marca(texto, sem_acentos(c.codigo).lower())
     if marca:
         return False, marca
-    # texto para as categorias: sem o nome da loja, sem "em compras acima de R$ X" (valor mínimo, não "site todo")
-    # e sem "excluído o valor do frete" (regra do desconto, não cupom de frete)
-    texto_cat = _RE_FRETE_EXCLUIDO.sub(" ", _RE_COMPRAS_MINIMO.sub(" ", _RE_LOJA_NO_TEXTO.sub(" ", texto)))
-    dentro = any(d in texto_cat for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto_cat))
-    # "10% OFF em Cervejas": o que vem depois de "em" tem de ser o site todo, TV ou eletrônicos
-    m = _RE_EM_X.search(titulo)
+    m = _RE_OUTRO_PRODUTO.search(texto)
+    if m and "c6k" not in texto:
+        return False, f"outro produto: {m.group(0)}"
+    m = _RE_SO_NOVOS.search(texto)
     if m:
-        alvo = _alvo_categoria(m.group(1))
-        if alvo not in _ALVOS_GERAIS and not any(d in alvo for d in _CATEGORIAS_DENTRO):
-            return False, f"categoria: {alvo[:30]}"
+        return False, f"só para novos clientes: {m.group(0)}"
+    texto_cat = _texto_cat(texto)
+    # cupom de uma parte da loja: só serve se a parte for TV, eletrônicos, tecnologia ou o site todo
+    tipo, parte = _parte_da_loja(titulo, texto_cat)
+    if tipo:
+        return False, f"{tipo}: {parte}"
+    dentro = any(d in texto_cat for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto_cat))
     for cat in _CATEGORIAS_FORA:
+        if cat == "selecionados":
+            continue  # seleção vaga: vale a regra de baixo
         if cat in texto_cat and not dentro:
             return False, f"categoria: {cat.strip()}"
+    # "APLICÁVEL A ITENS SELECIONADOS", "válido para produtos do link": só se a seleção for de TV/tecnologia
+    m = _RE_SELECAO.search(texto_cat)
+    if m and not (_RE_TV_TECH.search(texto_cat) or _RE_SITE_TODO.search(texto_cat) or _RE_EM_TUDO.search(texto_cat)):
+        return False, f"restrito: {m.group(0)}"
     p = preco_loja or config.ALVO_PARCELADO
     m = _RE_ATE.search(texto)
     if m:
@@ -157,14 +234,38 @@ def _compativel_regra_antiga(c: Cupom, preco_loja: Optional[float]) -> bool:
     return True
 
 
+def _cupom_do_registro(reg: dict) -> Cupom:
+    return Cupom(fonte=reg.get("fonte") or "", loja=loja_canonica(reg.get("loja") or ""), codigo=reg.get("codigo") or "",
+                 titulo=reg.get("titulo") or "", url="", id=str(reg.get("id") or ""), regra=reg.get("regra") or "",
+                 especifico=bool(reg.get("especifico")))
+
+
 def _alertado_no_codigo_antigo(reg: dict, preco_por_loja: dict[str, float]) -> bool:
     """Registro de cupom de um estado antigo: o código da época alertou (ou anunciou na partida) este cupom?"""
-    lc = loja_canonica(reg.get("loja") or "")
-    c = Cupom(fonte=reg.get("fonte") or "", loja=lc, codigo=reg.get("codigo") or "", titulo=reg.get("titulo") or "",
-              url="", id=str(reg.get("id") or ""), regra=reg.get("regra") or "", especifico=bool(reg.get("especifico")))
+    c = _cupom_do_registro(reg)
+    lc = c.loja
     if lc not in _LOJAS_COM_TV and lc not in preco_por_loja and not c.especifico:
         return False
     return _compativel_regra_antiga(c, preco_por_loja.get(lc))
+
+
+def restricao_do_codigo(cupons: list[Cupom], registros=()) -> set[str]:
+    """'loja|CÓDIGO' que algum anúncio (desta rodada, ou dos `registros` vistos nos últimos 30 dias) declara ser de
+    uma categoria que não é TV/eletrônicos/tecnologia nem o site todo ("20% OFF em Casa e Decor", "na categoria Casa").
+
+    O mesmo código aparece em anúncios diferentes, e o Promobit alterna títulos genéricos ("20% OFF no Mercado
+    Livre", "Economize 20% em seus pedidos") com o que diz a categoria: o cupom é o mesmo, então o anúncio genérico
+    também não serve. Só conta a categoria declarada: a seleção vaga ("em Selecionados", que o Pelando põe em quase
+    todo cupom do ML, REG-1) e as listas de palavras (que pegam slogans como "MERCADO EM ALTA") não barram o código."""
+    out: set[str] = set()
+    for c in list(cupons) + [_cupom_do_registro(r) for r in registros]:
+        if c.especifico or not (c.codigo or "").strip():
+            continue
+        titulo = sem_acentos(c.titulo).lower().strip()
+        tipo, _parte = _parte_da_loja(titulo, _texto_cat(sem_acentos(f"{c.titulo} {c.regra}").lower()))
+        if tipo == "categoria":
+            out.add(marca_cupom(c.loja, c.codigo))
+    return out
 
 
 _NUM = r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)"
@@ -339,6 +440,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     lojas_com_tv = set(preco_por_loja) | _LOJAS_COM_TV
     # estado antigo não registrava os alertas de cupom: reconstrói (uma vez) o que o código da época alertou
     estado.migra_alertas_de_cupom(lambda reg: _alertado_no_codigo_antigo(reg, preco_por_loja))
+    # códigos que outro anúncio declara serem de outra categoria (ex.: DESCONTOEMCASA "em Casa e Decor")
+    restritos = restricao_do_codigo(cupons, estado.cupons_vistos())
     novos: list[tuple[Cupom, str]] = []
     codigos_vistos: set[str] = set()
     # cupom da página do produto primeiro: se o mesmo código vier também como cupom do site, fica a linha do produto
@@ -352,6 +455,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         if not ok:
             continue
         marca = marca_cupom(lc, c.codigo)
+        if marca in restritos and not c.especifico:
+            continue
         if marca in codigos_vistos:
             continue  # o mesmo cupom no Promobit e no Pelando nesta rodada
         # o mesmo código volta com outro id (a Magalu põe a data no id; Pelando e Promobit têm ids próprios):
@@ -427,14 +532,16 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
     return ofertas, avisos
 
 
-def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom]) -> list[Cupom]:
-    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço dela (para o painel e o resumo)."""
+def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Optional[Estado] = None) -> list[Cupom]:
+    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço dela (para o painel e o resumo).
+    Com o estado, um código que outro anúncio já visto diz ser de outra categoria também fica fora."""
     preco_por_loja: dict[str, float] = {}
     for o in ofertas:
         if o.tipo == "loja" and o.melhor_preco and o.ativo:
             lc = loja_canonica(o.loja)
             preco_por_loja[lc] = min(preco_por_loja.get(lc, 1e9), o.melhor_preco)
     lojas_com_tv = set(preco_por_loja) | _LOJAS_COM_TV
+    restritos = restricao_do_codigo(cupons, estado.cupons_vistos() if estado else [])
     out: list[Cupom] = []
     vistos: set[str] = set()
     for c in cupons:
@@ -443,7 +550,9 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom]) -> list[Cupom]
             continue
         if not cupom_compativel(c, preco_por_loja.get(lc))[0]:
             continue
-        marca = f"{lc}|{c.codigo.upper()}"
+        marca = marca_cupom(lc, c.codigo)
+        if marca in restritos and not c.especifico:
+            continue
         if marca in vistos:
             continue
         vistos.add(marca)
