@@ -33,6 +33,17 @@ def carrega_env() -> None:
         os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def limita_alertas(msgs: list[str], estado, maximo: int) -> list[str]:
+    """Corta as mensagens da rodada no limite. Se a de cupons fica de fora, os cupons dela não foram alertados."""
+    if len(msgs) <= maximo:
+        return msgs
+    from monitor.regras import e_mensagem_de_cupons
+
+    if any(e_mensagem_de_cupons(m) for m in msgs[maximo:]):
+        estado.esquece_alertas_de_cupom_da_rodada()
+    return msgs[:maximo] + [f"… e mais {len(msgs) - maximo} alertas nesta rodada (veja o painel)."]
+
+
 def main() -> int:
     carrega_env()
     ap = argparse.ArgumentParser()
@@ -43,9 +54,10 @@ def main() -> int:
     args = ap.parse_args()
 
     from monitor import config, notificar
-    from monitor.estado import Estado
+    from monitor.estado import Estado, lojas_diretas
     from monitor.regras import (
-        cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada, resumo_diario, sanear,
+        cupons_aplicaveis, e_mensagem_de_cupons, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada,
+        resumo_diario, sanear,
     )
     from monitor.sources import Pular, por_modo
     from monitor.util import agora, hoje
@@ -97,7 +109,7 @@ def main() -> int:
         print(f"[sanidade] {a}")
 
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
-    aplicaveis = cupons_aplicaveis(ofertas, cupons)  # type: ignore[arg-type]
+    aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
 
     if estado.bootstrap and (ofertas or cupons):
         msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode)]  # type: ignore[arg-type]
@@ -110,36 +122,36 @@ def main() -> int:
             msgs.append(resumo_diario(estado, ofertas, aplicaveis))  # type: ignore[arg-type]
         estado.dados["ultimo_resumo"] = hoje()
 
-    msgs = avisos + msgs
-    if len(msgs) > config.MAX_ALERTAS_POR_EXECUCAO:
-        resto = len(msgs) - config.MAX_ALERTAS_POR_EXECUCAO
-        msgs = msgs[:config.MAX_ALERTAS_POR_EXECUCAO] + [f"… e mais {resto} alertas nesta rodada (veja o painel)."]
+    msgs = limita_alertas(avisos + msgs, estado, config.MAX_ALERTAS_POR_EXECUCAO)
 
     enviados = 0
     for m in msgs:
         if args.no_notify:
             print("[alerta]\n" + m + "\n")
-        else:
-            notificar.enviar(m)
+        elif not notificar.enviar(m) and config.TELEGRAM_BOT_TOKEN and e_mensagem_de_cupons(m):
+            estado.esquece_alertas_de_cupom_da_rodada()  # não chegou ao Telegram: os cupons não foram alertados
         enviados += 1
 
     # persistência
     chaves_vistas = set()
+    diretas = lojas_diretas(ofertas)  # type: ignore[arg-type]
     for o in ofertas:  # type: ignore[assignment]
         estado.registra_oferta(o, alertados.get(o.chave))  # type: ignore[union-attr]
-        estado.atualiza_minimo(o)  # type: ignore[arg-type]
+        # inativa/descartada nunca vira "menor já visto"; agregador só quando a loja não tem fonte direta
+        estado.atualiza_minimo(o, diretas)  # type: ignore[arg-type]
         chaves_vistas.add(o.chave)  # type: ignore[union-attr]
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
-    estado.anexa_historico([o for o in ofertas if o.tipo == "loja"])  # type: ignore[union-attr]
+    # histórico/gráfico: só preços ativos (esgotado ou descartado pelo sanear não é preço da TV)
+    estado.anexa_historico([o for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco])  # type: ignore[union-attr]
     if not args.so:  # uma execução parcial (--so) não deve sobrescrever o painel com dados incompletos
         estado.escreve_latest(ofertas, aplicaveis)  # type: ignore[arg-type]
     estado.salva()
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]
     n_post = len(ofertas) - n_loja
-    melhor = min([o.melhor_preco for o in ofertas if o.tipo == "loja" and o.melhor_preco] or [0])  # type: ignore[union-attr]
+    melhor = min([o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco] or [0])  # type: ignore[union-attr]
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
           f"{enviados} alertas, melhor preço {melhor:.2f}, {time.time()-t0:.0f}s")
     return 0
