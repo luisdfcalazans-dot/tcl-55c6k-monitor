@@ -85,6 +85,7 @@ class Estado:
         # estado gravado antes de os alertas de cupom serem registrados: ver migra_alertas_de_cupom
         self._cupons_legado = bool(self.dados["cupons"]) and "cupons_alertados" not in carregado
         self._alertas_cupom_rodada: list[tuple[str, dict]] = []  # para desfazer se a mensagem não sair
+        self._cache_cupons_outros: dict[str, list[dict]] = {}  # cupons do state do outro modo (só leitura)
         self.bootstrap = not self.dados["ofertas"] and self.dados.get("criado_em") is None
         if self.dados.get("criado_em") is None:
             self.dados["criado_em"] = agora_iso()
@@ -119,14 +120,34 @@ class Estado:
     def cupom_anterior(self, chave: str) -> dict | None:
         return self.dados["cupons"].get(chave)
 
-    def cupons_vistos(self, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
-        """Anúncios de cupom vistos nos últimos `dias` dias (para saber o que outro anúncio do mesmo código diz)."""
+    def cupons_vistos(self, dias: float = JANELA_CUPOM_DIAS, todos_os_modos: bool = True) -> list[dict]:
+        """Anúncios de cupom vistos nos últimos `dias` dias (para saber o que outro anúncio do mesmo código diz).
+
+        todos_os_modos: inclui os do outro modo (state_<outro>.json, só leitura; arquivo ausente ou quebrado é
+        ignorado). O cloud lê o Promobit e o pc lê o Pelando: o que um sabe de um código (ex.: DESCONTOJA é só
+        "em Casa") vale para o outro."""
+        regs = list(self.dados["cupons"].values())
+        if todos_os_modos:
+            for m in MODOS:
+                if m != self.modo:
+                    regs += self._cupons_do_modo(m)
         out = []
-        for reg in self.dados["cupons"].values():
+        for reg in regs:
             d = dias_desde(reg.get("ultima_vez") or reg.get("primeira_vez"))
             if d is None or d <= dias:
                 out.append(reg)
         return out
+
+    def _cupons_do_modo(self, modo: str) -> list[dict]:
+        if modo not in self._cache_cupons_outros:
+            try:
+                cupons = json.loads((self.arq_estado.parent / f"state_{modo}.json").read_text(encoding="utf-8"))
+                cupons = cupons.get("cupons") or {}
+                regs = [r for r in cupons.values() if isinstance(r, dict)] if isinstance(cupons, dict) else []
+            except (OSError, ValueError, AttributeError):
+                regs = []
+            self._cache_cupons_outros[modo] = regs
+        return self._cache_cupons_outros[modo]
 
     def alertas_de_cupom(self, marca: str, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
         """Alertas já ENVIADOS para 'loja|CÓDIGO' que ainda valem: alertados há até `dias` dias, ou cujo anúncio

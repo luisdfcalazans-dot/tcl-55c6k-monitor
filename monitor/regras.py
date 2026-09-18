@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import re
+from functools import lru_cache
 from typing import Optional
 
 from . import config
@@ -44,66 +45,111 @@ _MARCAS_OUTRAS = [
 _CODIGO_OUTRAS = [m for m in _MARCAS_OUTRAS if " " not in m and len(m) >= 3]
 _RE_EM_X = re.compile(r"\boff\s+em\s+(.{3,60})$")
 _RE_EM_TUDO = re.compile(r"\bem tudo\b(?!\s+(?:pra|para)\b)")
+# ---- cupom: o texto diz que serve para a TV? (rodada 4: regras gerais, não um padrão por exemplo) ----
+# (a) Exclusão não é o escopo do cupom. "exceto (na categoria) X", "não (é) válido para X", "não vale para X", "não se
+#     aplica a X", "exclui X", ", menos X", ", fora X" saem do texto (até o fim da frase) antes de qualquer análise de
+#     categoria ou marca: "Válido em todo o site, exceto na categoria Supermercado" é o site todo. Mas se o que a
+#     exclusão tira é TV (ou eletrônicos, tecnologia, TCL), o cupom não serve para a TV.
+# (b) Contam TODOS os alvos do texto ("em X", "na categoria X", "válido para X"), não só o último. Um alvo de TV (TV,
+#     eletrônicos, tecnologia, áudio e vídeo, eletro) ou do site todo basta para a categoria servir. Alvos neutros (Pix,
+#     cartão, app, site, loja, compras, pedidos, carrinho, promoção, ofertas, frete...) não são categoria. Só recusa
+#     por categoria quando um alvo declara uma categoria que não é TV e nenhum alvo é de TV.
+# (c) Lista ou faixa de tamanhos ("50, 55 e 65 polegadas", "55 a 85") serve quando o 55 está nela.
+# (d) Frete e app não são categorias. Cupom só de frete (sem R$ ou % de desconto no preço) não é desconto na TV.
+
+# texto UTF-8 que uma coleta antiga leu como cp1252: "vÃ¡lido" -> "válido", "1Âª Compra" -> "1ª Compra"
+_RE_MOJIBAKE = re.compile("[ÂÃ][-¿ŒœŠšŸŽžƒˆ˜"
+                          "–—‘-„†-•…‰‹›€™]")
+
+
+def _conserta_mojibake(s: str) -> str:
+    def um(m: re.Match) -> str:
+        for cod in ("cp1252", "latin-1"):
+            try:
+                return m.group(0).encode(cod).decode("utf-8")
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                continue
+        return m.group(0)
+
+    return _RE_MOJIBAKE.sub(um, s or "")
+
+
+def _norm(s: str) -> str:
+    """Minúsculo, sem acento, sem mojibake; quebra de linha vira fim de frase ("|")."""
+    t = sem_acentos(_conserta_mojibake(s)).lower()
+    # "Áudio e Vídeo" é a categoria onde ficam as TVs (e "audio" sozinho é marca/produto de outra coisa)
+    t = re.sub(r"\baudio\s*(?:e|&|,|/)\s*video\b", "tv e video", t)
+    t = re.sub(r"\s*\n\s*", " | ", t)
+    return re.sub(r"[ \t\r\f\v]+", " ", t).strip()
+
+
 # nome da loja no texto não é categoria ("Mercado Livre" não é o "mercado" das compras de supermercado)
 _RE_LOJA_NO_TEXTO = re.compile(
-    r"\b(?:(?:na|no|da|do)\s+)?(?:mercado\s*livre|magazine\s+luiza|magalu|amazon|aliexpress|kabum|shopee|"
-    r"fast\s*shop|casas\s+bahia)\b")
-# "OFF em compras acima de R$ 3.000" / "a partir de" / "de até": é o valor da compra, não uma categoria
-_RE_ALVO_COMPRAS = re.compile(
-    r"^(?:suas\s+|nas\s+)?(?:compras|pedidos)\s+(?:acima\s+(?:de\s+)?|a\s+partir\s+de|(?:de\s+)?ate|de)\s*r\$\s?[\d.,]+"
-    r"(.*)$")
-_RE_COMPRAS_MINIMO = re.compile(r"\bem\s+(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de)\s*r\$\s?[\d.,]+")
-_RE_FRETE_EXCLUIDO = re.compile(r"\b(?:excluido|exceto|excluindo|sem contar)\s+(?:o\s+)?(?:valor\s+d[oe]\s+)?frete\b")
-# depois de tirar a loja, o valor mínimo e "(acima de R$1) com cupom", estes alvos valem para o site todo
-_ALVOS_GERAIS = {"", "compras", "pedidos", "geral", "tudo", "ofertas", "ofertas gerais", "produtos", "todo site",
-                 "seus pedidos", "suas compras", "toda a loja", "toda loja"}
-
-# ---- cupom que vale só para uma parte da loja (rodada 3) ----
-# Serve para a TV só quando a parte é TV, eletrônicos ou tecnologia, ou quando o texto diz o site todo.
-_RE_TV_TECH = re.compile(r"\btvs?\b|televis|eletronic|tecnolog")
-_RE_SITE_TODO = re.compile(r"site todo|todo o site|todo site|loja toda|toda a loja|todas as categorias|todos os produtos")
-# "pedido mínimo R$ 79 na categoria Casa"
-_RE_NA_CATEGORIA = re.compile(r"\bcategoria[:\s]+(?:de\s+)?([a-z][^.;,()|]{2,40})")
-# seleção sem dizer qual: "itens selecionados", "produtos participantes", "produtos do link", "lista de itens".
-# É vago: o Pelando escreve "em Selecionados" em quase todo cupom do Mercado Livre, inclusive nos que o Promobit
-# mostra valendo para o site todo (REG-1: MELIACHAPROMO). Recusa o anúncio, mas não o código (ver restricao_do_codigo).
-_RE_SELECAO = re.compile(r"\bselecionad\w*|\bselecionas\b|\b(?:produtos|itens)\b[^.;|]{0,40}?\bparticipantes?\b"
-                         r"|\b(?:produtos|itens) do link\b|\blista de itens\b")
-_RE_PALAVRAS_DE_SELECAO = re.compile(
-    r"\b(?:itens|produtos|categorias?|selecionad\w*|selecionas|participantes?|da promocao|do link)\b")
-# cupom de outro produto: um kit, ou uma TV de outro tamanho ("na Smart TV TCL 50 QLED 4K P7L")
-_RE_OUTRO_PRODUTO = re.compile(r"\bkit\b|\bsmart\s*tv\s+(?:[a-z]+\s+){0,2}(?!55\b)\d{2}\b")
-# "acima R$1", "limite R$500", "sem mínimo": condição de valor, não categoria
-_RE_CONDICAO_VALOR = re.compile(
-    r"\b(?:acima|a partir|limite|limitad[oa]|minimo|maximo|sem)\b(?:\s+(?:de|a|do)\b)?\s*(?:r\$\s?[\d.,]+)?|r\$\s?[\d.,]+")
+    r"\b(?:(?:em|na|no|da|do|pela|pelo)\s+)?(?:mercado\s*livre|magazine\s+luiza|magalu|amazon|aliexpress|kabum|"
+    r"shopee|fast\s*shop|casas\s+bahia)\b!?")
+# (a) exclusões, até o fim da frase ("." de número não fecha a frase: "R$ 1.999")
+_FIM_DA_FRASE = r"(?:[^.;!?|()]|\.(?=\d))*"
+_RE_EXCLUSAO = re.compile(
+    r"\b(?:exceto|excepto|excluindo|exclui|excluid[oa]s?|sem\s+contar|nao\s+(?:e\s+|sao\s+)?valid[oa]s?|nao\s+vale|"
+    r"nao\s+se\s+aplica|nao\s+contempla|nao\s+inclui)\b" + _FIM_DA_FRASE
+    + r"|(?:,|\b(?:tudo|site|loja|produtos|categorias))\s*\b(?:menos|fora)\b" + _FIM_DA_FRASE)
+# o que conta como TV num alvo (b) e numa exclusão (a)
+_RE_TV = re.compile(r"\btvs?\b|televis|smart\s*tvs?\b|eletronic|\beletro\b|tecnolog")
+_RE_TV_EXCLUIDA = re.compile(_RE_TV.pattern + r"|\btcl\b|c6k")
+# acessório de TV não é TV: "Acessórios para TV", "Suporte de TV"
+_RE_ACESSORIO_DE_TV = re.compile(
+    r"\b(?:acessorios?|suportes?|racks?|paineis|painel|controles?|cabos?|antenas?|conversor(?:es)?|capas?|moveis|"
+    r"estantes?|protetor(?:es)?|peliculas?|home\s+theaters?)\s+(?:para|pra|p/|de|da|do)\s+(?:sua\s+|seu\s+)?"
+    r"(?:smart\s*)?tvs?\b")
+_RE_SITE_TODO = re.compile(r"site todo|todo o site|todo site|loja toda|toda a loja|toda loja|todas as categorias|"
+                           r"todos os produtos|\bem tudo\b(?!\s+(?:pra|para)\b)")
+# (c) "Smart TV TCL 50 QLED" é outra TV; "Smart TV TCL 50, 55 e 65 polegadas" e "55 a 85" incluem a 55"
+_RE_SMART_TV_TAMANHOS = re.compile(
+    r"\bsmart\s*tvs?\s+(?:[a-z]+\s+){0,2}?(\d{2}(?:\s*(?:,|\be\b|\bou\b|/|\ba\b|\bate\b|-)\s*\d{2})*)(?![\w.,])")
+_RE_KIT = re.compile(r"\bkit\b")
 # só para quem nunca comprou: "(1ª Compra / APP)", "nas 4 primeiras compras", "novos clientes", "contas novas"
 _RE_SO_NOVOS = re.compile(r"\b(?:1a|1o|primeir[oa]s?)\s+(?:compras?|pedidos?)\b"
                           r"|\bnov[oa]s\s+(?:clientes|usuarios|contas)\b|\bcontas?\s+novas?\b")
-# "... com cupom Mercado Livre", "usando o cupom X aproveite...": o resto do título não é categoria
-_RE_COM_CUPOM_FIM = re.compile(r"\b(?:com|usando|aplicando)\s+(?:o\s+)?(?:cupom|voucher|codigo)\b.*$")
-
-
-def _alvo_do_titulo(titulo: str) -> Optional[str]:
-    """O que vem depois do ÚLTIMO 'em' do título (sem a loja, parênteses e 'com cupom'): '20% OFF em Casa no Mercado
-    Livre (acima de R$79) com cupom' -> 'casa'; '20% OFF, máximo R$ 60, em R$ 79 em Casa' -> 'casa'.
-    None: o título não diz "em <algo>" ('em R$ 79' e 'em até 10x' não contam). '': o anúncio acaba em "em" (cortado)."""
-    t = _RE_LOJA_NO_TEXTO.sub(" ", titulo)
-    t = re.sub(r"\([^)]*\)?", " ", t)
-    t = _RE_COM_CUPOM_FIM.sub(" ", t)
-    t = re.sub(r"[\s!.,:;|-]+$", "", t)
-    ems = [m for m in re.finditer(r"\bem\b\s*", t) if not re.match(r"r\$|\d|ate\s+\d", t[m.end():])]
-    return t[ems[-1].end():] if ems else None
-
-
-def _alvo_categoria(alvo: str) -> str:
-    """'compras acima de r$ 740 na aliexpress com cupom' -> ''; '... limitado a r$500 em selecionados' -> 'selecionados'."""
-    m = _RE_ALVO_COMPRAS.match(alvo)
-    if m:
-        em = re.search(r"\bem\s+(.{3,60})$", m.group(1))
-        alvo = em.group(1) if em else ""
-    alvo = _RE_LOJA_NO_TEXTO.sub(" ", alvo)
-    alvo = re.sub(r"\([^)]*\)?|\bcom cupom\b", " ", alvo)
-    return re.sub(r"[\s!.,:;-]+", " ", alvo).strip()
+# seleção sem dizer qual: "itens selecionados", "produtos participantes", "produtos do link", "lista de itens"
+_RE_SELECAO = re.compile(r"\bselecionad\w*|\bselecionas\b|\b(?:produtos|itens)\b[^.;|]{0,40}?\bparticipantes?\b"
+                         r"|\b(?:produtos|itens) do link\b|\blista de itens\b")
+_PALAVRAS_DE_SELECAO = {"selecionado", "selecionados", "selecionada", "selecionadas", "selecionas", "participante",
+                        "participantes", "link", "lista", "campanha"}
+# (b) palavras de um alvo que não são categoria: condição de pagamento/compra, promoção, frete, app, loja...
+_NEUTRAS = set("""
+o a os as de da do das dos e ou um uma uns umas sua suas seu seus meu meus minha minhas nosso nossa todo toda todos
+todas cada qualquer mais seu voce
+compra compras pedido pedidos produto produtos item itens carrinho site loja lojas app aplicativo pix boleto cartao
+cartoes credito debito pagamento pagamentos promocao promocoes promo promos oferta ofertas frete fretes gratis cupom
+cupons voucher vouchers codigo desconto descontos off valor total usar uso utilizar finalizacao resgate area pagina
+carteira elegivel elegiveis estoque dobro destaque especial especiais geral gerais participar conta minima minimo alta
+""".split())
+# categoria de alvo fraco ("para X", "na X", título antes de ":"): só conta quando é uma categoria conhecida
+_NOMES_DE_CATEGORIA = re.compile(
+    r"\b(?:moda|roupas?|beleza|perfum\w*|maquiagem|supermercado|mercado|bebidas?|cervejas?|vinhos?|livros?|brinquedos?|"
+    r"pets?|petshop|games|celulares?|smartphones?|notebooks?|moveis|cama|banho|esportes?|treino|bikes?|calcados?|"
+    r"tenis|infantil|bebes?|papelaria|farmacia|saude|automotivo|ferramentas?|jardim|cozinha|eletroportateis|"
+    r"eletrodomesticos|geladeiras?|fogao|fogoes|lavadoras?|ar[- ]condicionado|informatica|perifericos|acessorios|"
+    r"casa|decor\w*|limpeza|higiene|alimentos?|mercearia|utilidades|relogios?|joias?|oculos|bolsas?|malas?|"
+    r"suplementos?|fitness|colchoes?)\b")
+# palavras que encerram um alvo ("em TVs em promoção", "em compras acima de R$ 3.000", "em Casa com cupom")
+_RE_INTRODUTOR = re.compile(r"\b(?:em|na|no|nas|nos|para|pra|categorias?)\b")
+_RE_FIM_DO_ALVO = re.compile(
+    r"\b(?:em|na|no|nas|nos|para|pra|com|acima|a\s+partir|limitad[oa]s?|limite|ate|minim[oa]|maxim[oa]|sem|usando|"
+    r"aplicando|ao|aos|pel[oa]s?|por|que|valid[oa]s?|vale|categorias?)\b")
+_RE_PARA_FORTE = re.compile(r"\b(?:valid[oa]s?|vale|somente|apenas|exclusiv[oa]s?|so)\s*$")
+_RE_DELIMITADOR = re.compile(r"[.;:!?|()\[\]+,/]|\s[-–]\s")
+# (d) cupom de frete: "frete grátis", "R$ 20 OFF no frete"; e o que resta de desconto no preço
+_RE_FRETE = re.compile(r"\bfretes?\b")
+_RE_DESCONTO_NO_FRETE = re.compile(
+    r"(?:r\$\s?[\d.,]+|\d{1,3}(?:[.,]\d{1,2})?\s*%)\s*(?:off\s+|de\s+desconto\s+)?(?:n[oa]|d[oa]|em|sobre\s+o)\s+"
+    r"(?:valor\s+d[oa]\s+)?fretes?|fretes?\s+gratis|desconto\s+(?:n[oa]|d[oa])\s+fretes?|cupom\s+de\s+fretes?")
+_RE_CONDICAO_DE_VALOR = re.compile(
+    r"(?:acima\s+de|a\s+partir\s+de|partir\s+de|minim[oa](?:\s+de)?|(?:compras?|pedidos?)\s+(?:de|acima\s+de)|"
+    r"limite(?:\s+de)?|limitad[oa]\s+a|maxim[oa](?:\s+de)?|ate|em|de)\s*r\$\s?[\d.,]+\+?")
+_RE_TEM_DESCONTO = re.compile(r"r\$\s?\d|\d\s*%")
+_CATEGORIAS_FORA_TEXTO = [c for c in _CATEGORIAS_FORA if c not in ("frete", "app ", "aplicativo", "selecionados")]
+_RE_COMPRAS_MINIMO = re.compile(r"\bem\s+(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de)\s*r\$\s?[\d.,]+")
 
 
 def _num(s: str) -> Optional[float]:
@@ -124,74 +170,172 @@ def _motivo_marca(texto: str, codigo: str) -> str:
     return ""
 
 
-def _texto_cat(texto: str) -> str:
-    """Texto para as categorias: sem o nome da loja, sem "em compras acima de R$ X" (valor mínimo, não "site todo")
-    e sem "excluído o valor do frete" (regra do desconto, não cupom de frete)."""
-    return _RE_FRETE_EXCLUIDO.sub(" ", _RE_COMPRAS_MINIMO.sub(" ", _RE_LOJA_NO_TEXTO.sub(" ", texto)))
+def _sem_exclusoes(t: str) -> tuple[str, list[str]]:
+    """(a) Tira as exclusões do texto: (texto sem elas, exclusões)."""
+    excl = [m.group(0) for m in _RE_EXCLUSAO.finditer(t)]
+    return _RE_EXCLUSAO.sub(" ", t), excl
 
 
-def _parte_da_loja(titulo: str, texto_cat: str) -> tuple[str, str]:
-    """A parte da loja a que o anúncio diz que o cupom se limita, quando não é TV/eletrônicos/tecnologia nem o site
-    todo: ('categoria', 'casa') para "20% OFF em Casa" ou "na categoria Casa"; ('restrito', 'selecionados') para uma
-    seleção sem dizer qual ("em Selecionados", "em itens selecionados acima R$1 - Limite R$500") ou anúncio cortado
-    ("15% de Desconto em"); ('', '') quando o anúncio não limita (ou limita a TV/tecnologia/site todo)."""
-    m = _RE_NA_CATEGORIA.search(texto_cat)
-    if m:
-        cat = m.group(1).strip()
-        if cat not in _ALVOS_GERAIS and not (_RE_TV_TECH.search(cat) or _RE_SITE_TODO.search(cat)):
-            return "categoria", cat[:30]
-    # o que vem depois do último "em" do título: "10% OFF em Cervejas", "20% de Desconto em Periféricos",
-    # "... em R$ 79 em Casa"
-    alvo = _alvo_do_titulo(titulo)
-    if alvo == "":
-        return "restrito", "anúncio cortado (sem a categoria)"
-    if alvo is not None:
-        alvo = _alvo_categoria(alvo)
-        if alvo not in _ALVOS_GERAIS and not any(d in alvo for d in _CATEGORIAS_DENTRO):
-            resto = _RE_PALAVRAS_DE_SELECAO.sub(" ", _RE_CONDICAO_VALOR.sub(" ", alvo))
-            if not re.sub(r"[\W_]+", "", resto):
-                return "restrito", alvo[:30]  # "em Selecionados acima R$1 - Limite R$500": seleção vaga
-            return "categoria", alvo[:30]
-    return "", ""
+def _outro_tamanho(t: str) -> Optional[str]:
+    """(c) 'smart tv tcl 50' quando o cupom é de uma TV de outro tamanho; None quando a lista/faixa inclui o 55."""
+    for m in _RE_SMART_TV_TAMANHOS.finditer(t):
+        expr = m.group(1)
+        nums = [int(n) for n in re.findall(r"\d{2}", expr)]
+        faixa = re.search(r"(\d{2})\s*(?:\ba\b|\bate\b|-)\s*(\d{2})", expr)
+        if 55 in nums or (faixa and int(faixa.group(1)) <= 55 <= int(faixa.group(2))):
+            continue
+        return m.group(0)
+    return None
+
+
+def _alvos(titulo: str, regra: str) -> list[tuple[str, bool]]:
+    """(b) Todos os alvos do anúncio: [(frase, forte)]. Forte: "em X", "na categoria X", "válido para X". Fraco: "para
+    X", "na/no X" e qualquer alvo no título antes de ":" (a chamada do anúncio, "MERCADO EM ALTA: ...")."""
+    out: list[tuple[str, bool]] = []
+    for parte, e_titulo in ((titulo, True), (regra, False)):
+        t = re.sub(r"(\d)[.,](\d)", r"\1\2", parte)  # "R$ 1.999", "10,00%": número não é fim de frase
+        t = re.sub(r"\bcategorias?\s*:", "categoria ", t)
+        chamada = e_titulo and ":" in t
+        for i, clausula in enumerate(_RE_DELIMITADOR.split(t)):
+            fraco_por_chamada = chamada and i == 0
+            for m in _RE_INTRODUTOR.finditer(clausula):
+                intro = m.group(0)
+                resto = clausula[m.end():]
+                if intro in ("em", "categoria", "categorias"):
+                    forte = True
+                elif intro in ("para", "pra"):
+                    forte = bool(_RE_PARA_FORTE.search(clausula[:m.start()]))
+                else:
+                    forte = False
+                fim = _RE_FIM_DO_ALVO.search(resto)
+                # "Tudo Pra Casa" é uma categoria, não "tudo"
+                if fim and re.fullmatch(r"\s*tudo\s*", resto[:fim.start()]) and fim.group(0) in ("pra", "para"):
+                    fim = _RE_FIM_DO_ALVO.search(resto, fim.end())
+                frase = (resto[:fim.start()] if fim else resto).strip(" -'\"")
+                out.append((frase, forte and not fraco_por_chamada))
+    return out
+
+
+def _classe_do_alvo(frase: str, forte: bool) -> tuple[str, str]:
+    """('tv'|'site'|'valor'|'neutro'|'selecao'|'categoria', rótulo)."""
+    f = frase.strip()
+    if not f:
+        return "neutro", ""
+    if re.match(r"(?:r\$|\d|ate\s+\d)", f):
+        return "valor", f  # "em R$ 79", "em até 10x": valor mínimo/parcelas, não categoria
+    if _RE_TV.search(f):
+        return "tv", f
+    if _RE_SITE_TODO.search(f) or f == "tudo":
+        return "site", f
+    sem_valor = re.sub(r"r\$\s?[\d.,]+\+?|\b\d+\s*(?:x|%)(?!\w)", " ", f)
+    palavras = [w for w in re.findall(r"[a-z0-9_]+", sem_valor) if w not in _NEUTRAS]
+    if not forte:
+        # "para usar", "no carrinho", "no link do post", "na página de cupons": não é categoria
+        if _RE_SELECAO.search(f):
+            return "selecao", f
+        return ("categoria", " ".join(palavras)) if palavras and _NOMES_DE_CATEGORIA.search(f) else ("neutro", f)
+    if any(w in _PALAVRAS_DE_SELECAO for w in palavras):
+        resto = [w for w in palavras if w not in _PALAVRAS_DE_SELECAO]
+        # "Selecionados Cacife", "produtos TCL participantes": seleção com nome é uma parte da loja
+        return ("categoria", " ".join(resto)) if resto else ("selecao", f)
+    if not palavras:
+        return "neutro", f
+    return "categoria", " ".join(palavras)
+
+
+class _Escopo:
+    """O que o anúncio diz sobre onde o cupom vale, já sem exclusões e sem o nome da loja."""
+
+    def __init__(self, titulo: str, regra: str):
+        self.titulo_n = _norm(titulo)
+        self.regra_n = _norm(regra)
+        self.texto = f"{self.titulo_n} {self.regra_n}"  # para as regras de valor (teto e mínimo da compra)
+        tit, ex_t = _sem_exclusoes(self.titulo_n)
+        reg, ex_r = _sem_exclusoes(self.regra_n)
+        self.exclusoes = ex_t + ex_r
+        self.escopo = f"{tit} {reg}"  # para marca, tamanho, cliente novo e frete
+        # sem a loja; "Acessórios para TV" vira uma palavra só (é acessório, não TV)
+        self.tit_cat = _RE_ACESSORIO_DE_TV.sub(" acessorio_de_t_v ", _RE_LOJA_NO_TEXTO.sub(" ", tit))
+        self.reg_cat = _RE_ACESSORIO_DE_TV.sub(" acessorio_de_t_v ", _RE_LOJA_NO_TEXTO.sub(" ", reg))
+        self.cat = f"{self.tit_cat} {self.reg_cat}"  # para as categorias
+        m = next((m for m in map(_RE_TV_EXCLUIDA.search, self.exclusoes) if m), None)
+        self.tv_excluida = m.group(0) if m else ""
+        alvos = _alvos(self.tit_cat, self.reg_cat)
+        self.classes = [(*_classe_do_alvo(f, forte), forte) for f, forte in alvos]
+        self.tem_tv = any(k == "tv" for k, _r, _f in self.classes)
+        self.site_todo = any(k == "site" for k, _r, _f in self.classes) or bool(_RE_SITE_TODO.search(self.cat))
+        self.categorias = [r for k, r, _f in self.classes if k == "categoria"]
+        self.categorias_explicitas = [r for k, r, forte in self.classes if k == "categoria" and forte]
+        self.selecao = next((r for k, r, _f in self.classes if k == "selecao"), "")
+        # anúncio cortado: "15% de Desconto em" e nada mais (a categoria sumiu)
+        self.cortado = bool(re.search(r"\bem\s*[!.:\s]*$", self.tit_cat))
+
+    def categoria_declarada(self, so_explicita: bool = False) -> str:
+        """(b) A categoria que não é TV que o anúncio declara ser o escopo ('' se não declara nenhuma, ou se algum alvo
+        é TV ou o site todo). so_explicita: só "em X", "na categoria X", "válido para X" (para restricao_do_codigo)."""
+        if self.tem_tv or self.site_todo:
+            return ""
+        cats = self.categorias_explicitas if so_explicita else self.categorias
+        return cats[0][:30] if cats else ""
+
+
+@lru_cache(maxsize=8192)
+def _escopo(titulo: str, regra: str) -> _Escopo:
+    return _Escopo(titulo or "", regra or "")
+
+
+def _so_frete(e: _Escopo) -> bool:
+    """(d) Cupom que só tira o frete: fala de frete e não sobra desconto em R$ ou % no preço."""
+    if not _RE_FRETE.search(e.escopo):
+        return False
+    resto = _RE_CONDICAO_DE_VALOR.sub(" ", _RE_DESCONTO_NO_FRETE.sub(" ", e.escopo))
+    return not _RE_TEM_DESCONTO.search(resto)
 
 
 def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     """Verifica se a regra do cupom cabe na TV. Devolve (ok, motivo)."""
     if c.especifico:
         return True, "cupom do produto"
-    texto = sem_acentos(f"{c.titulo} {c.regra}").lower()
-    titulo = sem_acentos(c.titulo).lower().strip()
-    marca = _motivo_marca(texto, sem_acentos(c.codigo).lower())
+    e = _escopo(c.titulo, c.regra)
+    if e.tv_excluida:
+        return False, f"exclui: {e.tv_excluida}"
+    marca = _motivo_marca(e.escopo, sem_acentos(c.codigo).lower())
     if marca:
         return False, marca
-    m = _RE_OUTRO_PRODUTO.search(texto)
-    if m and "c6k" not in texto:
-        return False, f"outro produto: {m.group(0)}"
-    m = _RE_SO_NOVOS.search(texto)
+    outro = _outro_tamanho(e.escopo) or (_RE_KIT.search(e.escopo) and "c6k" not in e.escopo and "kit")
+    if outro:
+        return False, f"outro produto: {outro}"
+    m = _RE_SO_NOVOS.search(e.escopo)
     if m:
         return False, f"só para novos clientes: {m.group(0)}"
-    texto_cat = _texto_cat(texto)
-    # cupom de uma parte da loja: só serve se a parte for TV, eletrônicos, tecnologia ou o site todo
-    tipo, parte = _parte_da_loja(titulo, texto_cat)
-    if tipo:
-        return False, f"{tipo}: {parte}"
-    dentro = any(d in texto_cat for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto_cat))
-    for cat in _CATEGORIAS_FORA:
-        if cat == "selecionados":
-            continue  # seleção vaga: vale a regra de baixo
-        if cat in texto_cat and not dentro:
-            return False, f"categoria: {cat.strip()}"
-    # "APLICÁVEL A ITENS SELECIONADOS", "válido para produtos do link": só se a seleção for de TV/tecnologia
-    m = _RE_SELECAO.search(texto_cat)
-    if m and not (_RE_TV_TECH.search(texto_cat) or _RE_SITE_TODO.search(texto_cat) or _RE_EM_TUDO.search(texto_cat)):
-        return False, f"restrito: {m.group(0)}"
+    if _so_frete(e):
+        return False, "só frete"
+    # categoria declarada num alvo ("em Casa", "na categoria Casa") sem nenhum alvo de TV/site todo
+    cat = e.categoria_declarada()
+    if cat:
+        return False, f"categoria: {cat}"
+    if e.cortado and not (e.tem_tv or e.site_todo):
+        return False, "restrito: anúncio cortado (sem a categoria)"
+    # palavras de categoria soltas no texto (sem "em"): valem se nada no texto diz TV, site todo ou "suas compras"
+    texto_cat = _RE_COMPRAS_MINIMO.sub(" ", e.cat)
+    dentro = e.tem_tv or e.site_todo or any(d in texto_cat for d in _CATEGORIAS_DENTRO) \
+        or bool(_RE_EM_TUDO.search(texto_cat))
+    if not dentro:
+        for w in _CATEGORIAS_FORA_TEXTO:
+            if w in texto_cat:
+                return False, f"categoria: {w.strip()}"
+    # "APLICÁVEL A ITENS SELECIONADOS", "válido para produtos do link": só se o texto também diz TV ou o site todo
+    m = _RE_SELECAO.search(e.cat)
+    selecao = m.group(0) if m else e.selecao
+    if selecao and not (e.tem_tv or e.site_todo or _RE_TV.search(e.cat)):
+        return False, f"restrito: {selecao}"
     p = preco_loja or config.ALVO_PARCELADO
-    m = _RE_ATE.search(texto)
+    m = _RE_ATE.search(e.texto)
     if m:
         lim = _num(m.group(1) or m.group(2))
         if lim and lim < p * 0.5:  # "compras até R$ 300" não serve para uma TV de R$ 3 mil
             return False, f"só até R$ {lim:.0f}"
-    m = _RE_ACIMA.search(texto)
+    m = _RE_ACIMA.search(e.texto)
     if m:
         lim = _num(m.group(1))
         if lim and lim > p:
@@ -250,22 +394,32 @@ def _alertado_no_codigo_antigo(reg: dict, preco_por_loja: dict[str, float]) -> b
 
 
 def restricao_do_codigo(cupons: list[Cupom], registros=()) -> set[str]:
-    """'loja|CÓDIGO' que algum anúncio (desta rodada, ou dos `registros` vistos nos últimos 30 dias) declara ser de
-    uma categoria que não é TV/eletrônicos/tecnologia nem o site todo ("20% OFF em Casa e Decor", "na categoria Casa").
+    """'loja|CÓDIGO' que algum anúncio (desta rodada, ou dos `registros` vistos nos últimos 30 dias, nos dois modos)
+    declara ser de uma categoria que não é TV/eletrônicos/tecnologia nem o site todo ("20% OFF em Casa e Decor", "na
+    categoria Casa"), ou que exclui a TV ("exceto TVs").
 
     O mesmo código aparece em anúncios diferentes, e o Promobit alterna títulos genéricos ("20% OFF no Mercado
     Livre", "Economize 20% em seus pedidos") com o que diz a categoria: o cupom é o mesmo, então o anúncio genérico
-    também não serve. Só conta a categoria declarada: a seleção vaga ("em Selecionados", que o Pelando põe em quase
-    todo cupom do ML, REG-1) e as listas de palavras (que pegam slogans como "MERCADO EM ALTA") não barram o código."""
-    out: set[str] = set()
+    também não serve. Só conta a categoria declarada num alvo explícito ("em X", "na categoria X", "válido para X"),
+    depois de tirar as exclusões (a): a seleção vaga ("em Selecionados", que o Pelando põe em quase todo cupom do ML,
+    REG-1), alvos neutros (Pix, app, promoção, ofertas, frete), exclusões de outras categorias ("Não válido para a
+    categoria Celulares") e as listas de palavras (que pegam slogans como "MERCADO EM ALTA") não barram o código.
+    Se outro anúncio do mesmo código diz TV ("em TVs e Celulares"), a categoria de um anúncio não barra o código."""
+    categoria: set[str] = set()
+    exclui_tv: set[str] = set()
+    diz_tv: set[str] = set()
     for c in list(cupons) + [_cupom_do_registro(r) for r in registros]:
         if c.especifico or not (c.codigo or "").strip():
             continue
-        titulo = sem_acentos(c.titulo).lower().strip()
-        tipo, _parte = _parte_da_loja(titulo, _texto_cat(sem_acentos(f"{c.titulo} {c.regra}").lower()))
-        if tipo == "categoria":
-            out.add(marca_cupom(c.loja, c.codigo))
-    return out
+        e = _escopo(c.titulo, c.regra)
+        marca = marca_cupom(c.loja, c.codigo)
+        if e.tv_excluida:
+            exclui_tv.add(marca)
+        elif e.tem_tv:
+            diz_tv.add(marca)
+        elif e.categoria_declarada(so_explicita=True):
+            categoria.add(marca)
+    return exclui_tv | (categoria - diz_tv)
 
 
 _NUM = r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)"
