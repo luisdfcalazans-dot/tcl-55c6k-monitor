@@ -4,7 +4,10 @@ Cobre:
 - F6: Zoom/Buscapé é agregador; a linha dele some quando a loja tem fonte direta, não vira "Melhor preço agora",
   não entra no "Menor já visto" nem no gráfico dessa loja; vendedor 1P ("Magalu", "Amazon.com.br") conta como a loja.
 - F11: a coluna "Visto" mostra o horário do próprio modo (latest_<modo>.atualizado) e linhas de modo parado há
-  mais de 3 h ficam marcadas como antigas e fora do "Melhor preço agora".
+  mais de 6 h ficam marcadas como antigas e fora do "Melhor preço agora".
+- REG-1: o limite de "antigo" (6 h) fica acima do intervalo real entre coletas da nuvem (o GitHub espaça o cron
+  para ~1 execução a cada 4 h; intervalos de até ~5,1 h observados), então o monitor rodando no ritmo normal
+  não tira o menor preço do destaque.
 """
 
 from __future__ import annotations
@@ -61,7 +64,7 @@ const fmtData = s => new Date(s).toLocaleString('pt-BR', {day: '2-digit', month:
 AGORA = "2026-09-18T14:40:00-03:00"
 CLOUD_AT = "2026-09-18T11:48:36-03:00"   # 2h51 antes de AGORA: ainda vale
 PC_AT = "2026-09-18T14:37:35-03:00"
-PC_PARADO = "2026-09-18T09:00:00-03:00"  # 5h40 antes de AGORA: antigo
+PC_PARADO = "2026-09-18T08:00:00-03:00"  # 6h40 antes de AGORA: antigo (limite de 6 h)
 
 URL_ZOOM = "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId="
 URL_MAGALU = "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k/p/240162700/et/elit/"
@@ -123,14 +126,14 @@ MIN_MAGALU = {"preco": 2991.6, "loja": "Magazine Luiza", "quando": "2026-09-14T2
 MIN_AMAZON = {"preco": 3199.0, "loja": "Amazon", "quando": "2026-09-14T21:08:06-03:00", "url": URL_AMAZON, "titulo": "TV"}
 
 
-def roda_painel(tmp_path, cloud, pc, csv_cloud=CSV_CLOUD, csv_pc=CSV_PC, formatar=()):
+def roda_painel(tmp_path, cloud, pc, csv_cloud=CSV_CLOUD, csv_pc=CSV_PC, formatar=(), agora=None):
     if not NODE:
         pytest.skip("node não encontrado no PATH")
     harness = tmp_path / "painel_harness.js"
     harness.write_text(HARNESS, encoding="utf-8")
     dados = tmp_path / "dados.json"
     dados.write_text(json.dumps({
-        "agora": AGORA, "formatar": list(formatar),
+        "agora": agora or AGORA, "formatar": list(formatar),
         "arquivos": {"data/latest_cloud.json": cloud, "data/latest_pc.json": pc,
                      "data/historico_cloud.csv": csv_cloud, "data/historico_pc.csv": csv_pc},
     }, ensure_ascii=False), encoding="utf-8")
@@ -246,7 +249,7 @@ def test_f11_modo_parado_fica_marcado_e_fora_do_melhor_preco(tmp_path):
           oferta("amazon", "Amazon", 3749.0, vendedor="Magalu.", url=URL_AMAZON)]
     out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
                       latest("pc", PC_PARADO, pc, MIN_AMAZON), formatar=[PC_PARADO])
-    # antes: "R$ 3.000,00" da Casas Bahia coletada há 5h40
+    # antes: "R$ 3.000,00" da Casas Bahia coletada há 6h40
     assert out["melhor"] == brl(3561.55), out["melhor"]
     ls = linhas(out["tabela"])
     cb = next(l for l in ls if l["loja"] == "Casas Bahia")
@@ -258,7 +261,7 @@ def test_f11_modo_parado_fica_marcado_e_fora_do_melhor_preco(tmp_path):
 
 
 def test_f11_tudo_parado_nao_tem_melhor_preco(tmp_path):
-    out = roda_painel(tmp_path, latest("cloud", "2026-09-18T08:00:00-03:00", ofertas_cloud_hoje(), MIN_MAGALU),
+    out = roda_painel(tmp_path, latest("cloud", "2026-09-18T07:30:00-03:00", ofertas_cloud_hoje(), MIN_MAGALU),
                       latest("pc", PC_PARADO, ofertas_pc_hoje(), MIN_AMAZON))
     assert out["melhor"] == "—"
     assert "best" not in out["tabela"]
@@ -269,3 +272,46 @@ def test_f11_visto_nao_cai_no_horario_mais_recente_entre_modos():
     # checagem estática (roda mesmo sem Node): a coluna não usa mais o "ultimo" global como horário da linha
     js = INDEX.read_text(encoding="utf-8")
     assert "o.ultima_vez || ultimo" not in js
+
+
+# ---------------- REG-1: limite de "antigo" acima do intervalo real entre coletas ----------------
+
+def _velho_ms_do_painel() -> float:
+    js = INDEX.read_text(encoding="utf-8")
+    m = re.search(r"const VELHO_H = ([\d.]+), VELHO_MS = VELHO_H \* 3600e3;", js)
+    assert m, "VELHO_H/VELHO_MS não encontrados no index.html"
+    return float(m.group(1)) * 3600e3
+
+
+def test_reg1_limite_de_antigo_cobre_o_intervalo_real_do_cron():
+    # checagem estática (roda mesmo sem Node): intervalos de até ~5,1 h entre coletas da nuvem foram observados
+    assert _velho_ms_do_painel() == 6 * 3600e3
+    assert "coleta com mais de 3 h" not in INDEX.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("agora", [
+    "2026-09-18T14:50:00-03:00",  # nuvem com 3h01: antes o destaque ia para a Casas Bahia (R$ 3.599,09, mais caro)
+    "2026-09-18T16:54:00-03:00",  # nuvem com 5h05 (maior intervalo observado entre coletas)
+    "2026-09-18T17:45:00-03:00",  # nuvem com 5h56 e pc com 3h07: antes "—" / "sem coleta recente"
+])
+def test_reg1_intervalo_normal_entre_coletas_nao_marca_antigo(tmp_path, agora):
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
+                      latest("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON), agora=agora)
+    assert out["melhor"] == brl(3561.55), out["melhor"]
+    assert out["melhor_s"].startswith("Magazine Luiza"), out["melhor_s"]
+    assert "antigo" not in out["tabela"]
+    ls = linhas(out["tabela"])
+    assert "best" in ls[0]["classe"] and ls[0]["fonte"] == "magalu"
+    assert not [l for l in ls if "velho" in l["classe"]]
+
+
+def test_reg1_passou_de_6h_continua_antigo(tmp_path):
+    # nuvem com 6h05: aí sim é antigo; o destaque vai para o menor preço do modo recente (pc)
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
+                      latest("pc", "2026-09-18T17:40:00-03:00", ofertas_pc_hoje(), MIN_AMAZON),
+                      agora="2026-09-18T17:53:36-03:00")
+    assert out["melhor"] == brl(3599.09), out["melhor"]
+    ls = linhas(out["tabela"])
+    antigas = {l["fonte"] + "/" + l["loja"] for l in ls if "antigo" in l["html"]}
+    assert antigas == {"magalu/Magazine Luiza", "kabum/KaBuM!", "zoom/Carrefour"}, antigas
+    assert 'title="coleta com mais de 6 h"' in out["tabela"]

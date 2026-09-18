@@ -111,7 +111,9 @@ const dias = s => { if (!s) return null; const d = new Date(s); return isNaN(d) 
 // Zoom/Buscapé é agregador, não loja: o preço que ele mostra para uma loja pode ficar parado por dias
 // (ex.: Amazon a R$ 3.279 em 81 coletas seguidas, com a loja a R$ 4.034,50). O monitor marca extra.agregador;
 // fonte/URL do Zoom cobrem os dados gravados antes disso e o "minimo" (que não traz a fonte).
-const VELHO_MS = 3 * 3600e3;  // modo sem atualizar há mais que isso: linhas marcadas como antigas
+// Modo sem atualizar há mais que isso: linhas marcadas como antigas. O GitHub espaça o cron da nuvem para
+// cerca de 1 execução a cada 4 h (intervalos de até ~5,1 h observados), então o limite precisa ficar acima disso.
+const VELHO_H = 6, VELHO_MS = VELHO_H * 3600e3;
 const normLoja = s => String(s ?? '').trim().toLowerCase();
 const ehAgregador = o => o?.extra?.agregador === true || ['zoom', 'buscape'].includes(normLoja(o?.fonte))
   || /^https?:\/\/(www\.)?(zoom|buscape)\.com\.br\//i.test(o?.url || '');
@@ -173,7 +175,7 @@ function parseCsv(txt) {
     <td class="num">${esc(o.parcelado || '—')}</td>
     <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
     <td><span class="chip mute">${esc(o.fonte)}</span>${ehAgregador(o) ? '<span class="sub2">agregador</span>' : ''}</td>
-    <td class="num">${dt(o._visto)}${o._velho ? ' <span class="chip warn" title="coleta com mais de 3 h">antigo</span>' : ''}</td>
+    <td class="num">${dt(o._visto)}${o._velho ? ` <span class="chip warn" title="coleta com mais de ${VELHO_H} h">antigo</span>` : ''}</td>
     <td><a href="${esc(o.url)}" target="_blank" rel="noopener">abrir</a></td></tr>`).join('')
     : '<tr><td colspan="8" class="empty">Nenhum preço de loja ainda.</td></tr>';
 
