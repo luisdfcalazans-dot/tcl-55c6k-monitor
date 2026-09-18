@@ -43,6 +43,8 @@ LOJAS_VTEX = {
 
 # --- Lojas que exigem IP residencial / navegador real (rodam no PC) ---
 URL_AMAZON_PRODUTO = "https://www.amazon.com.br/dp/B0F7JZMVKF"
+URL_AMAZON_CARRINHO = "https://www.amazon.com.br/gp/cart/view.html"
+URL_AMAZON_LOGIN = "https://www.amazon.com.br/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com.br%2Fgp%2Fcart%2Fview.html&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select"
 URL_AMAZON_BUSCA = "https://www.amazon.com.br/s?k=tcl+55c6k"
 URL_CASASBAHIA_PRODUTO = (
     "https://www.casasbahia.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv/p/55069456"
