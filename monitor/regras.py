@@ -7,11 +7,15 @@ import re
 from typing import Optional
 
 from . import config
-from .estado import Estado
+from .estado import Estado, conta_como_preco, lojas_diretas
 from .models import Cupom, Oferta
 from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
 
-_RE_ATE = re.compile(r"(?:compras?\s+)?(?:at[ée]|m[áa]ximo(?: de)?)\s*R\$\s?([\d.]+)", re.I)
+# "até R$ X" só limita o valor da COMPRA quando vem ligado a ela: "compras até R$ 600", "válido para compras até
+# R$300", "pedidos de até R$ 1000", "compra máxima de R$ 500". Já "Economize até R$ 300", "25% OFF até R$ 800" e
+# "desconto máximo de R$ 500" são tetos do DESCONTO, que não impedem o cupom de servir para a TV.
+_RE_ATE = re.compile(
+    r"(?:compras?|pedidos?)\s+(?:de\s+)?at[ée]\s*R\$\s?([\d.]+)|compra\s+m[áa]xima(?:\s+de)?\s*R\$\s?([\d.]+)", re.I)
 _RE_ACIMA = re.compile(r"(?:acima de|a partir de|m[íi]nimo(?: de)?|compras?\s+(?:de|a partir de))\s*R\$\s?([\d.]+)", re.I)
 _CATEGORIAS_FORA = [
     "moda", "roupa", "beleza", "perfum", "maquiagem", "supermercado", "mercado ", "bebida", "cerveja", "vinho", "livro",
@@ -22,7 +26,7 @@ _CATEGORIAS_FORA = [
     "ar-condicionado", "ar condicionado", "informatica", "audio", "fone", "relogio", "oculos", "bolsa", "joia",
 ]
 _CATEGORIAS_DENTRO = [
-    "tv", "televis", "eletronic", "tecnolog", "site todo", "loja toda", "todo o site", "qualquer", "suas compras",
+    "tv", "televis", "eletronic", "tecnolog", "site todo", "loja toda", "todo o site", "todo site", "qualquer", "suas compras",
     "em compras", "no site", "todos os produtos", "primeira compra no site",
 ]
 # Marcas e produtos que não são a TV: se aparecem no título/regra (palavra inteira) ou dentro do código, o cupom não serve
@@ -34,10 +38,34 @@ _MARCAS_OUTRAS = [
     "pet", "cama", "notebook", "monitor", "ssd", "placa de video", "processador", "mouse", "teclado", "headset",
     "cadeira", "fone", "caixa de som", "smartwatch", "relogio", "perfume", "cerveja", "vinho", "suplemento", "whey",
     "fralda", "bebe", "brinquedo", "pneu", "prime day", "pra casa", "para casa",
+    # cosméticos que aparecem em cupons do Mercado Livre com título genérico (ISDIN15, MANTECORP14...)
+    "isdin", "mantecorp", "avene", "garnier", "loreal", "maybelline",
 ]
 _CODIGO_OUTRAS = [m for m in _MARCAS_OUTRAS if " " not in m and len(m) >= 3]
 _RE_EM_X = re.compile(r"\boff\s+em\s+(.{3,60})$")
 _RE_EM_TUDO = re.compile(r"\bem tudo\b(?!\s+(?:pra|para)\b)")
+# nome da loja no texto não é categoria ("Mercado Livre" não é o "mercado" das compras de supermercado)
+_RE_LOJA_NO_TEXTO = re.compile(
+    r"\b(?:(?:na|no|da|do)\s+)?(?:mercado\s*livre|magazine\s+luiza|magalu|amazon|aliexpress|kabum|shopee|"
+    r"fast\s*shop|casas\s+bahia)\b")
+# "OFF em compras acima de R$ 3.000" / "a partir de" / "de até": é o valor da compra, não uma categoria
+_RE_ALVO_COMPRAS = re.compile(
+    r"^(?:suas\s+|nas\s+)?(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de|(?:de\s+)?ate)\s*r\$\s?[\d.,]+(.*)$")
+_RE_COMPRAS_MINIMO = re.compile(r"\bem\s+(?:compras|pedidos)\s+(?:acima\s+de|a\s+partir\s+de)\s*r\$\s?[\d.,]+")
+_RE_FRETE_EXCLUIDO = re.compile(r"\b(?:excluido|exceto|excluindo|sem contar)\s+(?:o\s+)?(?:valor\s+d[oe]\s+)?frete\b")
+# depois de tirar a loja, o valor mínimo e "(acima de R$1) com cupom", estes alvos valem para o site todo
+_ALVOS_GERAIS = {"", "compras", "pedidos", "geral", "tudo", "ofertas", "ofertas gerais", "produtos", "todo site"}
+
+
+def _alvo_categoria(alvo: str) -> str:
+    """'compras acima de r$ 740 na aliexpress com cupom' -> ''; '... limitado a r$500 em selecionados' -> 'selecionados'."""
+    m = _RE_ALVO_COMPRAS.match(alvo)
+    if m:
+        em = re.search(r"\bem\s+(.{3,60})$", m.group(1))
+        alvo = em.group(1) if em else ""
+    alvo = _RE_LOJA_NO_TEXTO.sub(" ", alvo)
+    alvo = re.sub(r"\([^)]*\)?|\bcom cupom\b", " ", alvo)
+    return re.sub(r"[\s!.,:;-]+", " ", alvo).strip()
 
 
 def _num(s: str) -> Optional[float]:
@@ -60,21 +88,24 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     for w in _CODIGO_OUTRAS:
         if w in codigo:
             return False, f"código de outra marca: {w}"
-    dentro = any(d in texto for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto))
+    # texto para as categorias: sem o nome da loja, sem "em compras acima de R$ X" (valor mínimo, não "site todo")
+    # e sem "excluído o valor do frete" (regra do desconto, não cupom de frete)
+    texto_cat = _RE_FRETE_EXCLUIDO.sub(" ", _RE_COMPRAS_MINIMO.sub(" ", _RE_LOJA_NO_TEXTO.sub(" ", texto)))
+    dentro = any(d in texto_cat for d in _CATEGORIAS_DENTRO) or bool(_RE_EM_TUDO.search(texto_cat))
     # "10% OFF em Cervejas": o que vem depois de "em" tem de ser o site todo, TV ou eletrônicos
     m = _RE_EM_X.search(titulo)
     if m:
-        alvo = m.group(1)
-        if not any(d in alvo for d in _CATEGORIAS_DENTRO):
+        alvo = _alvo_categoria(m.group(1))
+        if alvo not in _ALVOS_GERAIS and not any(d in alvo for d in _CATEGORIAS_DENTRO):
             return False, f"categoria: {alvo[:30]}"
     for cat in _CATEGORIAS_FORA:
-        if cat in texto and not dentro:
+        if cat in texto_cat and not dentro:
             return False, f"categoria: {cat.strip()}"
     p = preco_loja or config.ALVO_PARCELADO
     m = _RE_ATE.search(texto)
     if m:
-        lim = _num(m.group(1))
-        if lim and lim < p * 0.5:  # "até R$ 300" não serve para uma TV de R$ 3 mil
+        lim = _num(m.group(1) or m.group(2))
+        if lim and lim < p * 0.5:  # "compras até R$ 300" não serve para uma TV de R$ 3 mil
             return False, f"só até R$ {lim:.0f}"
     m = _RE_ACIMA.search(texto)
     if m:
@@ -117,16 +148,19 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     """Devolve (mensagens, {chave_oferta: preco_alertado})."""
     msgs: list[str] = []
     alertados: dict[str, float] = {}
-    minimo_antes = estado.minimo()
+    # o "menor já visto" é o dos dois modos (o painel mostra o menor entre cloud e pc)
+    minimo_antes = estado.minimo_geral()
     preco_minimo_antes = float(minimo_antes["preco"]) if minimo_antes else None
 
     lojas = [o for o in ofertas if o.tipo == "loja"]
     posts = [o for o in ofertas if o.tipo == "post"]
+    diretas = lojas_diretas(ofertas)
 
     # ---- preços de loja ----
     for o in lojas:
         p = o.melhor_preco
-        if not p or not o.ativo:
+        # inativa, sem preço, ou agregador (Zoom) de loja que tem fonte direta nesta rodada: não gera alerta de preço
+        if not p or not conta_como_preco(o, diretas):
             continue
         prev = estado.oferta_anterior(o.chave)
         etiquetas: list[str] = []
@@ -181,6 +215,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     lojas_com_tv = set(preco_por_loja) | {"Amazon", "Magazine Luiza", "Mercado Livre", "KaBuM!", "Casas Bahia", "Fast Shop"}
     novos: list[str] = []
     codigos_vistos: set[str] = set()
+    # o mesmo código volta com outro id (a Magalu põe a data no id; Pelando e Promobit têm ids próprios)
+    ja_conhecidos = estado.codigos_cupom_recentes()
     for c in cupons:
         if estado.cupom_anterior(c.chave) is not None or estado.bootstrap:
             continue
@@ -191,8 +227,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         if not ok:
             continue
         marca = f"{lc}|{c.codigo.upper()}"
-        if marca in codigos_vistos:
-            continue  # o mesmo cupom no Promobit e no Pelando
+        if marca in codigos_vistos or marca in ja_conhecidos:
+            continue  # o mesmo cupom no Promobit e no Pelando, ou já visto em outra rodada com outro id
         codigos_vistos.add(marca)
         pl = preco_por_loja.get(lc)
         linha = f"• <b>{_esc(lc)}</b> <code>{_esc(c.codigo)}</code> — {_esc(c.titulo[:90])}"
@@ -292,7 +328,7 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             linhas.append(f"• {_esc(quem)}: <b>{fmt_preco(o.melhor_preco)}</b>{_esc(extra)}")
     else:
         linhas.append("• nenhum preço de loja coletado")
-    m = estado.minimo()
+    m = estado.minimo_geral()
     if m:
         linhas.append(f"Menor já visto: {fmt_preco(float(m['preco']))} ({_esc(m['loja'])}, {m['quando'][:10]})")
     linhas.append(f"Alvo: Pix {fmt_preco(config.ALVO_PIX)} · parcelado {fmt_preco(config.ALVO_PARCELADO)}")
@@ -303,7 +339,7 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
 
 
 def mensagem_bootstrap(ofertas: list[Oferta], cupons: list[Cupom], modo: str) -> str:
-    lojas = sorted([o for o in ofertas if o.tipo == "loja" and o.melhor_preco], key=lambda o: o.melhor_preco or 0)
+    lojas = sorted([o for o in ofertas if o.tipo == "loja" and o.melhor_preco and o.ativo], key=lambda o: o.melhor_preco or 0)
     posts = [o for o in ofertas if o.tipo == "post"]
     linhas = [f"✅ <b>Monitor da TCL 55C6K iniciado</b> (modo {modo})"]
     for o in lojas[:8]:
