@@ -1,4 +1,4 @@
-"""Estado, histórico e alertas: casos reais de 17-18/09/2026 (F2, F3, F4, F5, F9) e a convenção do agregador (Zoom).
+"""Estado, histórico e alertas: casos reais de 13-18/09/2026 (F2-F5, F9, REG-1, REG-2) e o agregador (Zoom).
 
 Cada teste usa um diretório de dados temporário; nada aqui lê ou escreve docs/data.
 """
@@ -13,9 +13,10 @@ from monitor import config
 from monitor.estado import Estado
 from monitor.models import Cupom, Oferta
 from monitor.regras import (
-    cupom_compativel, cupons_aplicaveis, gerar_alertas, mensagem_bootstrap, resumo_diario, sanear,
+    _compativel_regra_antiga, _desconto, cupom_compativel, cupons_aplicaveis, gerar_alertas, mensagem_bootstrap,
+    resumo_diario, sanear,
 )
-from monitor.util import agora, agora_iso
+from monitor.util import agora
 
 URL_CB = "https://www.casasbahia.com.br/x/p/55069456"
 
@@ -43,7 +44,7 @@ def reg_oferta(fonte, oid, loja, ultimo):
 
 
 def rodada(modo, ofertas, cupons=()):
-    """Mesma sequência do run.py: sanear -> alertas -> registra/mínimo -> histórico -> salva."""
+    """Mesma sequência do run.py: sanear -> alertas -> registra/mínimo -> cupons -> histórico -> salva."""
     from monitor.estado import lojas_diretas
 
     est = Estado(modo)
@@ -53,6 +54,8 @@ def rodada(modo, ofertas, cupons=()):
     for o in ofertas:
         est.registra_oferta(o, alertados.get(o.chave))
         est.atualiza_minimo(o, diretas)
+    for c in cupons:
+        est.registra_cupom(c)
     est.anexa_historico([o for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco])
     est.salva()
     return est, msgs
@@ -177,46 +180,273 @@ def test_resumo_diario_mostra_o_menor_dos_dois_modos(dados_tmp):
     assert "Menor já visto: R$ 2.991,60 (Magazine Luiza" in txt
 
 
-# ---------------- F9: cupom repetido com outro id não alerta de novo ----------------
+# ---------------- F9: cupom repetido com outro id (e as regressões REG-1 e REG-2 da rodada 1) ----------------
+# Só é repetição o código (loja + código) já ALERTADO com o mesmo desconto. Textos reais do state_cloud de 13-18/09;
+# as datas ficam relativas a agora para o prazo de 30 dias não vencer com o tempo.
 
-def _reg_cupom(fonte, cid, loja, codigo, ultima_vez):
-    return {"fonte": fonte, "id": cid, "loja": loja, "codigo": codigo, "titulo": f"R$ 250,00 OFF com cupom: {codigo}",
-            "url": "u", "regra": "", "validade": None, "publicado": None, "especifico": fonte == "magalu",
-            "chave": f"{fonte}:{cid}", "primeira_vez": "2026-09-13T15:23:17-03:00", "ultima_vez": ultima_vez}
-
-
-def _lu250(cid):
-    return Cupom(fonte="magalu", loja="Magazine Luiza", codigo="LU250", titulo="R$ 250,00 OFF com cupom: LU250",
-                 url="https://x", id=cid, regra="R$ 250,00 OFF com cupom: LU250",
-                 validade="2026-09-20T23:59:00-03:00", especifico=True)
+def _ha(dias):
+    return (agora() - timedelta(days=dias)).isoformat(timespec="seconds")
 
 
-def test_cupom_da_magalu_com_nova_data_no_id_nao_realerta(dados_tmp):
-    grava_state(dados_tmp, "cloud", cupons={
-        "magalu:LU250-2026-09-18": _reg_cupom("magalu", "LU250-2026-09-18", "Magazine Luiza", "LU250", agora_iso())})
-    msgs, _ = gerar_alertas(Estado("cloud"), [], [_lu250("LU250-2026-09-20")])
+def _reg(fonte, cid, loja, codigo, titulo, regra="", especifico=False, primeira=5.0, ultima=None):
+    """Registro de cupom como o run.py grava em state['cupons'] (primeira/ultima: dias atrás)."""
+    return {"fonte": fonte, "id": cid, "loja": loja, "codigo": codigo, "titulo": titulo, "url": "u", "regra": regra,
+            "validade": None, "publicado": None, "especifico": especifico, "chave": f"{fonte}:{cid}",
+            "primeira_vez": _ha(primeira), "ultima_vez": _ha(primeira if ultima is None else ultima)}
+
+
+def _cupom(reg, **kw):
+    campos = {k: reg[k] for k in ("fonte", "loja", "codigo", "titulo", "url", "id", "regra", "especifico")}
+    campos.update(kw)
+    return Cupom(**campos)
+
+
+def _por_chave(*regs):
+    return {r["chave"]: r for r in regs}
+
+
+# pelando 13/09 15:23 (rodada de partida): recusado pelas duas regras ("em Selecionados")
+PEL_MELIACHAPROMO = _reg("pelando", "01627720-85c6-4e77-ab35-5e49b007e8e2", "Mercado Livre", "MELIACHAPROMO",
+                         "Cupom Mercado Livre - 10% OFF Acima de R$99 limitado à R$300 em Selecionados",
+                         "Em Itens Selecionados", primeira=5.1, ultima=3.9)
+PROMOBIT_69374 = _reg("promobit", "69374", "Mercado Livre", "MELIACHAPROMO",
+                      "A chance de economizar 10% em compras na Mercado Livre",
+                      "produtos Mercado Livre Economize até 10% ao usar o código promocional no carrinho de compras "
+                      "(compra mínima R$99).", primeira=5.0)
+PROMOBIT_69469 = _reg("promobit", "69469", "Mercado Livre", "MELIACHAPROMO",
+                      "Cupom de desconto Mercado Livre oferece 10,00% OFF em suas compras",
+                      "produtos Mercado Livre Desconto de até 10% em compra a partir de R$99, excluído o valor do "
+                      "frete, com desconto máximo de R$300 válido para itens elegíveis.", primeira=5.0)
+PEL_PROMOMELI = _reg("pelando", "f07c1dba-68a1-4030-93bb-954eb65a5ae0", "Mercado Livre", "PROMOMELI",
+                     "Cupom Mercado Livre - 10% acima de R$149 limitado à R$200 em Tecnologia", "Em itens Selecionados",
+                     primeira=5.1)
+PROMOBIT_69433 = _reg("promobit", "69433", "Mercado Livre", "PROMOMELI",
+                      "A chance de economizar 10% em compras no Mercado Livre", "produtos Mercado Livre -", primeira=5.0)
+# ESQUENTA320: a regra antiga recusava os dois ("Economize até R$320", "OFF em compras acima de"): nunca alertou
+PEL_ESQUENTA320 = _reg("pelando", "a44fdd07-3363-4c9e-a5ff-088bffddb12a", "Magazine Luiza", "ESQUENTA320",
+                       "Magalu: Ganhe R$320 OFF em compras acima de R$3.000",
+                       "R$320 partir de R$3.000 (válido para itens elegíveis )", primeira=5.1, ultima=3.9)
+PROMOBIT_69223 = _reg("promobit", "69223", "Magazine Luiza", "ESQUENTA320",
+                      "Os melhores itens do site com R$320 OFF aplicando cupom Magazine Luiza",
+                      "produtos Magazine Luiza Economize até R$320 ao usar o código promocional no carrinho de compras "
+                      "(a partir de R$3.000).", primeira=5.0, ultima=0.3)
+LU250 = [_reg("magalu", f"LU250-2026-09-{d}", "Magazine Luiza", "LU250", "R$ 250,00 OFF com cupom: LU250",
+              "R$ 250,00 OFF com cupom: LU250", especifico=True, primeira=p, ultima=u)
+         for d, p, u in (("14", 5.1, 5.0), ("18", 3.9, 2.1), ("16", 2.0, 2.0))]
+
+
+def _esquenta_do_produto(cid="ESQUENTA320-2026-09-25"):
+    return Cupom(fonte="magalu", loja="Magazine Luiza", codigo="ESQUENTA320", titulo="R$ 320,00 OFF com cupom: ESQUENTA320",
+                 url="https://www.magazineluiza.com.br/x/p/240162800/", id=cid,
+                 regra="R$ 320,00 OFF com cupom: ESQUENTA320", validade="2026-09-25T23:59:00-03:00", especifico=True)
+
+
+def _codigos(msgs):
+    import re
+    return [c for m in msgs for c in re.findall(r"<code>([^<]+)</code>", m)]
+
+
+def test_reg1_codigo_so_visto_como_incompativel_ainda_alerta(dados_tmp):
+    """REG-1: com só o registro do Pelando ('em Selecionados', recusado) no estado, o Promobit 69374 (compatível)
+    tem de alertar. A rodada 1 silenciava porque o código tinha sido VISTO nos últimos 30 dias."""
+    assert cupom_compativel(_cupom(PEL_MELIACHAPROMO), 3491.03)[0] is False
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_MELIACHAPROMO))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(PROMOBIT_69374)])
+    assert len(msgs) == 1 and "🎟️" in msgs[0] and _codigos(msgs) == ["MELIACHAPROMO"], msgs
+
+
+def test_reg1_depois_de_alertado_o_mesmo_codigo_so_repete_se_o_desconto_mudar(dados_tmp):
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_MELIACHAPROMO))
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69374)])
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+    salvo = json.loads((dados_tmp / "state_cloud.json").read_text(encoding="utf-8"))
+    alertas = salvo["cupons_alertados"]["Mercado Livre|MELIACHAPROMO"]
+    assert [(a["chave"], a["origem"]) for a in alertas] == [("promobit:69374", "alerta")]
+    # outra rodada: o mesmo código com outro id e o mesmo desconto (10%, agora com o teto de R$300) não repete
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69469)])
+    assert msgs == []
+    # desconto mudou (15%): é novidade
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69374, id="69999",
+                                             titulo="A chance de economizar 15% em compras na Mercado Livre")])
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+
+
+def test_reg2_cupom_da_pagina_do_produto_alerta_mesmo_com_o_codigo_visto_no_site(dados_tmp):
+    """REG-2: registros reais do ESQUENTA320 (Pelando e Promobit) no estado + o cupom na página da TV na Magalu."""
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_ESQUENTA320, PROMOBIT_69223))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_esquenta_do_produto()])
+    assert len(msgs) == 1 and _codigos(msgs) == ["ESQUENTA320"], msgs
+    assert "⭐" in msgs[0] and "cupom do produto" in msgs[0]
+
+
+def test_cupom_do_produto_e_novidade_mesmo_com_o_codigo_ja_alertado_como_cupom_do_site(dados_tmp):
+    grava_state(dados_tmp, "cloud")
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69223)])  # alertado como cupom do site
+    assert _codigos(msgs) == ["ESQUENTA320"] and "⭐" not in msgs[0]
+    _est, msgs = rodada("cloud", [], [_esquenta_do_produto()])
+    assert _codigos(msgs) == ["ESQUENTA320"] and "⭐" in msgs[0], "vale para esta TV: é informação nova"
+    # agora sim é repetição: a tag do produto com outra data no id, e o cupom do site num novo post
+    _est, msgs = rodada("cloud", [], [_esquenta_do_produto("ESQUENTA320-2026-09-30"),
+                                      _cupom(PROMOBIT_69223, id="69998")])
     assert msgs == []
 
 
-def test_mesmo_codigo_em_outro_site_de_promocao_nao_realerta(dados_tmp):
-    grava_state(dados_tmp, "cloud", cupons={
-        "pelando:abc": _reg_cupom("pelando", "abc", "mercado-livre", "PROMOMELI", agora_iso())})
-    novo = Cupom(fonte="promobit", loja="Mercado Livre", codigo="promomeli", url="u", id="69433",
-                 titulo="Cupom de desconto Mercado Livre oferece 10% OFF em suas compras")
+def test_codigo_visto_mas_recusado_pela_regra_da_epoca_alerta_quando_volta(dados_tmp):
+    """O ESQUENTA320 foi visto no Pelando e no Promobit, mas a regra antiga recusava os dois: nunca virou alerta."""
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_ESQUENTA320, PROMOBIT_69223))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(PROMOBIT_69223, id="69998")])
+    assert _codigos(msgs) == ["ESQUENTA320"]
+
+
+def test_estado_antigo_cupom_da_magalu_com_nova_data_no_id_nao_realerta(dados_tmp):
+    """F9 (rodada 1, mantido): LU250 com três chaves no state_cloud; a quarta data não é novidade."""
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(*LU250))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(LU250[2], id="LU250-2026-09-20")])
+    assert msgs == []
+
+
+def test_estado_antigo_mesmo_codigo_em_outro_post_nao_realerta(dados_tmp):
+    """F9 (rodada 1, mantido): o PROMOMELI já tinha sido alertado pelo Promobit 69433."""
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_PROMOMELI, PROMOBIT_69433))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(PROMOBIT_69433, id="69999")])
+    assert msgs == []
+
+
+def test_estado_antigo_desconto_diferente_alerta(dados_tmp):
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(*LU250))
+    novo = _cupom(LU250[2], id="LU250-2026-09-25", titulo="R$ 300,00 OFF com cupom: LU250",
+                  regra="R$ 300,00 OFF com cupom: LU250")
     msgs, _ = gerar_alertas(Estado("cloud"), [], [novo])
+    assert _codigos(msgs) == ["LU250"]
+
+
+def test_sequencia_real_de_13_09(dados_tmp):
+    """13/09: partida às 15:23 com os posts do Pelando; às 15:29 o Promobit traz MELIACHAPROMO (2 posts) e
+    PROMOMELI. O MELIACHAPROMO alerta uma vez (era 'em Selecionados' no Pelando); o PROMOMELI já tinha sido
+    anunciado na partida com os mesmos 10%. Depois, um repost do MELIACHAPROMO não repete."""
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_MELIACHAPROMO, PEL_PROMOMELI))
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69374), _cupom(PROMOBIT_69469), _cupom(PROMOBIT_69433)])
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+    _est, msgs = rodada("cloud", [], [_cupom(PROMOBIT_69374, id="69504")])
     assert msgs == []
 
 
-def test_cupom_novo_ou_que_voltou_depois_de_muito_tempo_alerta(dados_tmp):
-    antigo = (agora() - timedelta(days=60)).isoformat(timespec="seconds")
-    grava_state(dados_tmp, "cloud", cupons={
-        "magalu:LU250-2026-07-01": _reg_cupom("magalu", "LU250-2026-07-01", "Magazine Luiza", "LU250", antigo)})
-    msgs, _ = gerar_alertas(Estado("cloud"), [], [_lu250("LU250-2026-09-20")])
-    assert len(msgs) == 1 and "LU250" in msgs[0]
+def test_partida_anuncia_os_cupons_aplicaveis(dados_tmp):
+    """Na partida nada vira alerta de cupom, mas os aplicáveis ficam como anunciados: o mesmo código com outro id
+    não é novidade depois. O que a partida recusou continua podendo alertar."""
+    amazon = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "u", "B0F7JZMVKF", preco=3279.0)
+    est, msgs = rodada("cloud", [amazon], [_cupom(PEL_PROMOMELI), _cupom(PEL_MELIACHAPROMO)])
+    assert est.bootstrap and msgs == []
+    assert [a["origem"] for a in est.dados["cupons_alertados"]["Mercado Livre|PROMOMELI"]] == ["partida"]
+    assert "Mercado Livre|MELIACHAPROMO" not in est.dados["cupons_alertados"]
+    _est, msgs = rodada("cloud", [amazon], [_cupom(PROMOBIT_69433), _cupom(PROMOBIT_69374)])
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+
+
+def test_estado_antigo_e_migrado_uma_vez(dados_tmp):
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(PEL_ESQUENTA320, PROMOBIT_69223, PEL_PROMOMELI,
+                                                      PROMOBIT_69433, *LU250))
+    est = Estado("cloud")
+    gerar_alertas(est, [], [])
+    alertados = est.dados["cupons_alertados"]
+    assert "Magazine Luiza|ESQUENTA320" not in alertados, "a regra antiga recusava: nunca alertou"
+    assert {a["chave"] for a in alertados["Mercado Livre|PROMOMELI"]} == {PEL_PROMOMELI["chave"], "promobit:69433"}
+    assert len(alertados["Magazine Luiza|LU250"]) == 3
+    assert all(a["origem"] == "legado" for v in alertados.values() for a in v)
+    est.salva()
+    # depois da migração, cupom só visto (registrado sem alerta) não conta como alertado
+    est = Estado("cloud")
+    est.registra_cupom(_cupom(PROMOBIT_69374))
+    est.salva()
+    est = Estado("cloud")
+    assert not est.alertas_de_cupom("Mercado Livre|MELIACHAPROMO")
+    msgs, _ = gerar_alertas(est, [], [_cupom(PROMOBIT_69469)])
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+
+
+def test_cupom_alertado_ha_muito_tempo_alerta_de_novo(dados_tmp):
+    velho = _reg("magalu", "LU250-2026-07-01", "Magazine Luiza", "LU250", "R$ 250,00 OFF com cupom: LU250",
+                 "R$ 250,00 OFF com cupom: LU250", especifico=True, primeira=60, ultima=60)
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(velho))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(velho, id="LU250-2026-09-20")])
+    assert _codigos(msgs) == ["LU250"]
     outro = Cupom(fonte="magalu", loja="Magazine Luiza", codigo="LU300", titulo="R$ 300,00 OFF com cupom: LU300",
                   url="u", id="LU300-2026-09-20", especifico=True)
     msgs, _ = gerar_alertas(Estado("cloud"), [], [outro])
-    assert len(msgs) == 1 and "LU300" in msgs[0]
+    assert _codigos(msgs) == ["LU300"]
+
+
+def test_cupom_alertado_ha_tempo_mas_ainda_no_ar_nao_repete(dados_tmp):
+    ainda = _reg("magalu", "LU250-2026-07-01", "Magazine Luiza", "LU250", "R$ 250,00 OFF com cupom: LU250",
+                 "R$ 250,00 OFF com cupom: LU250", especifico=True, primeira=45, ultima=0.1)
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(ainda))
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(ainda, id="LU250-2026-09-20")])
+    assert msgs == []
+
+
+def test_sem_desconto_legivel_compara_o_titulo(dados_tmp):
+    grava_state(dados_tmp, "cloud")
+    base = Cupom(fonte="promobit", loja="KaBuM!", codigo="KABUMSITE", titulo="Cupom especial KaBuM! no site todo",
+                 url="u", id="1")
+    _est, msgs = rodada("cloud", [], [base])
+    assert _codigos(msgs) == ["KABUMSITE"]
+    _est, msgs = rodada("cloud", [], [Cupom(**{**base.__dict__, "id": "2"})])
+    assert msgs == []
+    _est, msgs = rodada("cloud", [], [Cupom(**{**base.__dict__, "id": "3",
+                                                "titulo": "Cupom KaBuM! vale no site todo, inclusive TVs"})])
+    assert _codigos(msgs) == ["KABUMSITE"]
+
+
+def test_so_os_cupons_que_foram_na_mensagem_ficam_como_alertados(dados_tmp):
+    grava_state(dados_tmp, "cloud")
+    cs = [Cupom(fonte="promobit", loja="Magazine Luiza", codigo=f"TV{i:02d}", titulo=f"R$ {100 + i} OFF em suas compras",
+                url="u", id=str(i)) for i in range(13)]
+    est, msgs = rodada("cloud", [], cs)
+    assert len(_codigos(msgs)) == 12 and "e mais 1" in msgs[0]
+    assert sorted(est.dados["cupons_alertados"]) == sorted(f"Magazine Luiza|TV{i:02d}" for i in range(12))
+
+
+def test_mensagem_de_cupons_que_nao_sai_nao_conta_como_alertada(dados_tmp):
+    """run.py corta as mensagens no limite da rodada: se a de cupons fica de fora, nada nela foi alertado."""
+    import run
+
+    grava_state(dados_tmp, "cloud", cupons=_por_chave(*LU250))
+    est = Estado("cloud")
+    msgs, _ = gerar_alertas(est, [], [_cupom(PROMOBIT_69374)])
+    assert est.alertas_de_cupom("Mercado Livre|MELIACHAPROMO")
+    assert run.limita_alertas(["⚠️ aviso"] + msgs, est, 15) == ["⚠️ aviso"] + msgs  # dentro do limite: nada muda
+    assert est.alertas_de_cupom("Mercado Livre|MELIACHAPROMO")
+    saida = run.limita_alertas(["⚠️ aviso"] * 15 + msgs, est, 15)
+    assert len(saida) == 16 and "e mais 1 alertas" in saida[-1]
+    assert not est.alertas_de_cupom("Mercado Livre|MELIACHAPROMO")
+    assert len(est.alertas_de_cupom("Magazine Luiza|LU250")) == 3, "o que veio do estado antigo continua"
+    est.salva()
+    msgs, _ = gerar_alertas(Estado("cloud"), [], [_cupom(PROMOBIT_69469)])  # o mesmo código num novo post
+    assert _codigos(msgs) == ["MELIACHAPROMO"]
+
+
+@pytest.mark.parametrize("titulo,regra,esperado", [
+    ("Cupom de desconto Mercado Livre oferece 10,00% OFF em suas compras", "", (("%", 10.0), None)),
+    ("A chance de economizar 10% em compras na Mercado Livre", "", (("%", 10.0), None)),
+    ("R$ 250,00 OFF com cupom: LU250", "", (("R$", 250.0), None)),
+    ("Cupom Mercado Livre - 25% OFF em Compras Acima de R$1 limitado à R$500", "", (("%", 25.0), 500.0)),
+    ("A chance de economizar R$ 100 em compras na Magazine Luiza", "", (("R$", 100.0), None)),
+    ("Magalu: Ganhe R$320 OFF em compras acima de R$3.000", "", (("R$", 320.0), None)),
+    ("Use cupom Magalu e tenha desconto de 25% OFF até R$ 800", "", (("%", 25.0), 800.0)),
+    ("Cupom Magalu", "Economize até R$ 1.000 ao usar o código", (("R$", 1000.0), None)),
+    ("Garanta desconto no site aplicando o cupom KaBuM!", "", (None, None)),
+])
+def test_desconto_lido_do_titulo_e_da_regra(titulo, regra, esperado):
+    assert _desconto(titulo, regra) == esperado
+
+
+def test_regra_antiga_reproduz_o_que_o_codigo_da_epoca_alertava():
+    """Estados antigos não registravam os alertas de cupom: a migração usa a regra da época (recusava os de F3)."""
+    for cupom, preco in SERVEM[:5]:  # INFLU300, RODEIO220, INFLU25, ESQUENTA320 x2
+        assert _compativel_regra_antiga(cupom, preco) is False, cupom.codigo
+    for reg in (PROMOBIT_69374, PROMOBIT_69433, PEL_PROMOMELI, LU250[0]):
+        assert _compativel_regra_antiga(_cupom(reg), 3491.03) is True, reg["chave"]
+    assert _compativel_regra_antiga(_cupom(PEL_MELIACHAPROMO), 3491.03) is False
 
 
 # ---------------- F3: cupons do site todo que servem para a TV ----------------

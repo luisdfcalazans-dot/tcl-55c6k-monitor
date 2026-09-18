@@ -9,7 +9,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from . import config
 from .models import Cupom, Oferta
@@ -19,6 +19,13 @@ CAMPOS_HISTORICO = [
     "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url",
 ]
 MODOS = ("cloud", "pc")
+# um cupom já alertado só volta a ser alerta depois deste prazo sem aparecer (ou se o desconto mudar)
+JANELA_CUPOM_DIAS = 30
+
+
+def marca_cupom(loja: str, codigo: str) -> str:
+    """Identidade do cupom entre fontes e ids: 'Loja canônica|CÓDIGO'."""
+    return f"{loja_canonica(loja or '')}|{str(codigo or '').upper()}"
 
 
 def e_agregador(o: Oferta) -> bool:
@@ -65,12 +72,19 @@ class Estado:
             "saude": {},          # fonte -> {"falhas", "ultimo_ok", "ultimo_erro"}
             "ultimo_resumo": None,
             "criado_em": None,
+            # 'loja|CÓDIGO' -> alertas de cupom enviados (chave, fonte, título, regra, especifico, quando)
+            "cupons_alertados": {},
         }
+        carregado: dict[str, Any] = {}
         if self.arq_estado.exists():
             try:
-                self.dados.update(json.loads(self.arq_estado.read_text(encoding="utf-8")))
+                carregado = json.loads(self.arq_estado.read_text(encoding="utf-8"))
+                self.dados.update(carregado)
             except json.JSONDecodeError:
                 pass
+        # estado gravado antes de os alertas de cupom serem registrados: ver migra_alertas_de_cupom
+        self._cupons_legado = bool(self.dados["cupons"]) and "cupons_alertados" not in carregado
+        self._alertas_cupom_rodada: list[tuple[str, dict]] = []  # para desfazer se a mensagem não sair
         self.bootstrap = not self.dados["ofertas"] and self.dados.get("criado_em") is None
         if self.dados.get("criado_em") is None:
             self.dados["criado_em"] = agora_iso()
@@ -105,17 +119,64 @@ class Estado:
     def cupom_anterior(self, chave: str) -> dict | None:
         return self.dados["cupons"].get(chave)
 
-    def codigos_cupom_recentes(self, dias: float = 30) -> set[str]:
-        """'loja|CÓDIGO' dos cupons já vistos nos últimos `dias` (o mesmo código volta com outro id)."""
-        out: set[str] = set()
-        for reg in self.dados["cupons"].values():
-            d = dias_desde(reg.get("ultima_vez") or reg.get("primeira_vez"))
-            if d is not None and d > dias:
-                continue
-            codigo = str(reg.get("codigo") or "").upper()
-            if codigo:
-                out.add(f"{loja_canonica(reg.get('loja') or '')}|{codigo}")
+    def alertas_de_cupom(self, marca: str, dias: float = JANELA_CUPOM_DIAS) -> list[dict]:
+        """Alertas já ENVIADOS para 'loja|CÓDIGO' que ainda valem: alertados há até `dias` dias, ou cujo anúncio
+        alertado continua aparecendo. Cupom só visto (ou visto e incompatível) não entra aqui."""
+        out = []
+        for a in self.dados.get("cupons_alertados", {}).get(marca, []):
+            reg = self.dados["cupons"].get(a.get("chave")) or {}
+            ds = [d for d in (dias_desde(a.get("quando")), dias_desde(reg.get("ultima_vez"))) if d is not None]
+            if ds and min(ds) <= dias:
+                out.append(a)
         return out
+
+    def registra_alerta_cupom(self, c: Cupom | dict, quando: str | None = None, origem: str = "alerta") -> None:
+        """Guarda o que foi alertado (título e regra da época), para decidir se o mesmo código é novidade depois.
+
+        origem: "alerta" (mensagem de cupom), "partida" (anunciado na mensagem de início do monitor, que avisa que
+        "a partir de agora só chegam novidades") ou "legado" (reconstruído de um estado antigo).
+        """
+        d = c.to_dict() if isinstance(c, Cupom) else c
+        marca = marca_cupom(d.get("loja") or "", d.get("codigo") or "")
+        alerta = {
+            "chave": d.get("chave") or f"{d.get('fonte')}:{d.get('id')}", "fonte": d.get("fonte"),
+            "titulo": (d.get("titulo") or "")[:200], "regra": (d.get("regra") or "")[:400],
+            "especifico": bool(d.get("especifico")), "quando": quando or agora_iso(), "origem": origem,
+        }
+        self.dados.setdefault("cupons_alertados", {}).setdefault(marca, []).append(alerta)
+        if origem == "alerta":
+            self._alertas_cupom_rodada.append((marca, alerta))
+
+    def esquece_alertas_de_cupom_da_rodada(self) -> int:
+        """A mensagem de cupons desta rodada não saiu (cortada pelo limite ou falha no envio): os cupons dela não
+        foram alertados e continuam podendo virar alerta."""
+        todos = self.dados.get("cupons_alertados", {})
+        n = 0
+        for marca, alerta in self._alertas_cupom_rodada:
+            lista = todos.get(marca, [])
+            resto = [a for a in lista if a is not alerta]
+            n += len(lista) - len(resto)
+            if resto:
+                todos[marca] = resto
+            else:
+                todos.pop(marca, None)
+        self._alertas_cupom_rodada = []
+        return n
+
+    def migra_alertas_de_cupom(self, alertou: Callable[[dict], bool]) -> int:
+        """Estado antigo (sem 'cupons_alertados') não diz quais cupons viraram alerta. O código da época alertava
+        (ou, na partida, anunciava) todo cupom de chave nova que a regra de então aceitava: `alertou(reg)` responde
+        isso para cada registro. Roda uma vez; depois só vale o que registra_alerta_cupom gravou."""
+        if not self._cupons_legado:
+            return 0
+        self._cupons_legado = False
+        self.dados.setdefault("cupons_alertados", {})
+        n = 0
+        for reg in self.dados["cupons"].values():
+            if reg.get("codigo") and alertou(reg):
+                self.registra_alerta_cupom(reg, quando=reg.get("primeira_vez"), origem="legado")
+                n += 1
+        return n
 
     def registra_cupom(self, c: Cupom) -> None:
         reg = self.dados["cupons"].get(c.chave) or {"primeira_vez": agora_iso()}
