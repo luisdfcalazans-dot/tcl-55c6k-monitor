@@ -835,6 +835,10 @@ def explica_compat(a: tuple, b: tuple, d: dict) -> tuple[str, str]:
             alvo = ma.split(": ", 1)[1].strip()
             if re.fullmatch(r"(?:loja\s+)?(?:oficial\s+)?(?:semp\s+)?tcl", alvo):
                 return "R5-E5-alvo-tcl", "o alvo 'OFF em TCL' é a marca da própria TV (E5)"
+            # "em Lojas Oficiais" sem nome de marca: no ML a própria 55C6K é vendida pela "Loja oficial Magalu"
+            if re.match(r"lojas?\s+oficia(?:l|is)\b", alvo) and not re.search(
+                    r"lojas?\s+oficia(?:l|is)\s+(?!acima|em\b|no\b|na\b|com\b|de\s+r\$|\W|$)[a-z]", t):
+                return "R5-E5-lojas-oficiais-neutro", "'lojas oficiais' sem nome de marca não é categoria (E5)"
             if alvo == "mercado":
                 sem_loja = re.sub(r"mercado\s*(?:livre|pago)", " ", t)
                 if "mercado " not in sem_loja + " ":

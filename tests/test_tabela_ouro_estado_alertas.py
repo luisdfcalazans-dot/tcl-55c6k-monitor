@@ -476,6 +476,16 @@ COMPAT = [
     ("R5-E5-TVs-TCL-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF em TVs TCL", "", P_MAGALU, True),
     ("R5-E5-TVs-Samsung-LG-e-TCL-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs Samsung, LG e TCL", "",
      P_MAGALU, True),
+    # conferência da passada final: "loja oficial" sem nome de marca (ou com nome de varejista) não recusa; no ML a
+    # própria 55C6K é vendida pela "Loja oficial Magalu" (vendedor visto em latest_pc)
+    ("R5-E5-Loja-Oficial-Magalu-no-ML-serve", ML, "X", "Cupom Mercado Livre 15% OFF na Loja Oficial Magalu", "", P_ML,
+     True),
+    ("R5-E5-em-lojas-oficiais-serve", ML, "X", "Cupom Mercado Livre 10% OFF em lojas oficiais acima de R$ 1.999", "",
+     P_ML, True),
+    ("R5-E5-Lojas-Oficiais-na-regra-serve", ML, "X", "Cupom Mercado Livre 12% OFF acima de R$ 1.999 em Lojas Oficiais",
+     "Válido apenas para produtos de lojas oficiais", P_ML, True),
+    ("R5-E5-vendidos-pela-Loja-Oficial-serve", MAGALU, "X", "Cupom Magalu R$ 200 OFF",
+     "Válido para produtos vendidos pela Loja Oficial", P_MAGALU, True),
 ]
 
 

@@ -239,7 +239,7 @@ compra compras pedido pedidos produto produtos item itens carrinho site loja loj
 cartoes credito debito pagamento pagamentos promocao promocoes promo promos oferta ofertas frete fretes gratis cupom
 cupons voucher vouchers codigo desconto descontos off valor total usar uso utilizar finalizacao resgate area pagina
 carteira elegivel elegiveis estoque dobro destaque especial especiais geral gerais participar conta minima minimo alta
-diversos diversas varios varias milhares centenas muitos muitas outros outras demais principais
+diversos diversas varios varias milhares centenas muitos muitas outros outras demais principais oficial oficiais
 """.split())
 # nomes de categoria de loja (que não é TV): recusam o cupom quando são o alvo declarado do desconto
 _NOMES_DE_CATEGORIA = re.compile(
@@ -493,8 +493,9 @@ def _loja_de_marca(campos: tuple[str, ...]) -> str:
         m = _RE_LOJA_DE_MARCA.search(t)
         if m:
             return m.group("nome")
-    # "na Loja Oficial" sem dizer de quem: também é a loja de uma marca, e nada diz que é a TCL
-    return next(("loja oficial" for t in campos if re.search(r"\blojas?\s+oficia(?:l|is)\b", t)), "")
+    # "Loja Oficial" sem nome (ou com o nome de um varejista, que _RE_LOJA_NO_TEXTO já apagou) NÃO recusa: no ML a
+    # própria 55C6K é vendida pela "Loja oficial Magalu"; quem decide é o teste no carrinho.
+    return ""
 
 
 class _Alvo:
