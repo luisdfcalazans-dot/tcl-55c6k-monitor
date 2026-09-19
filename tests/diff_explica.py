@@ -17,7 +17,9 @@ _NOVOS_NEGATIVOS = ("placa", "peca", "t-con", "cabo flat", "barra de led", "par 
                     "fonte de alimenta", "controles remotos", "alto-falante", "difusor",
                     # estado do produto escrito de outros jeitos (rodada 4, retrabalho)
                     "trincada", "rachada", "quebrada", "queimada", "listras", "sem imagem", "nao liga", "conserto",
-                    "caixa aberta", "danificada", "exposicao", "grade b")
+                    "caixa aberta", "danificada", "exposicao", "grade b",
+                    # rodada 5 (N6): mais palavras de estado no título
+                    "semi nova", "mancha", "risco na tela", "pixel morto", "marcas de uso", "outlet")
 _OUTROS_MODELOS = ("c655", "c6ks", "c7k", "c8k", "c9k", "p7k", "p8k", "q6k", "q7k", "x955", "s5k", "p755")
 _NEG_DESCRICAO = ("suporte", "controle remoto", "base", "pedestal", "capa", "cabo hdmi", "pelicula")
 
@@ -54,6 +56,8 @@ def _titulo(texto: str, a: dict, b: dict) -> str | None:
         if m == "negativo: controle remoto" and re.search(r"(?:com|c/)\s+controles?\s+remotos?|controles?\s+remotos?\s+"
                                                           r"(?:com|por|de|via)\s+(?:comando\s+de\s+)?voz", t):
             return "R1-REG5b ('com controle remoto'/'controle remoto por voz' é recurso da TV)"
+        if m.startswith("negativo: pe") and re.search(r"\bpecas?\s+(?:ja|agora|o\s+seu|a\s+sua|aqui)\b", t):
+            return "princípio d ('Peça já'/'Peça o seu' é o verbo pedir, não a peça)"
     return None
 
 
@@ -96,6 +100,12 @@ def _cupom(texto: str, cm: str | None, cb: str | None) -> str | None:
             and re.search(r"(?<![A-Za-z])CUPO(?:M|NS)[^\w:\n]*\s+" + re.escape(cm) + r"(?![A-Za-z0-9])", texto)):
         # "CUPOM MELI+", "🚨 CUPOM VALENDO 🚨": só letras logo depois de "CUPOM" em maiúsculas, sem ':' nem verbo
         return f"N-F10/princípio c (manchete em maiúsculas: '{cm}' logo depois de 'CUPOM', sem ':' nem verbo)"
+    if (cm is not None and cb is None and cm.isalpha() and cm.isupper() and not _VERBO_ANTES_DO_CUPOM.search(texto)
+            and re.search(r"(?i:(?<![a-z])cupo(?:m|ns))[^\w:\n\"“”'‘’`«\-–—]*\s+" + re.escape(cm) + r"(?![A-Za-z0-9])",
+                          texto)):
+        # "Cupom SHOPEE liberado", "Cupom CLIENTE:": só letras logo depois de "cupom" sem marcador explícito (':' antes,
+        # aspas, traço, verbo, "código")
+        return f"N7 (só letras logo depois de 'cupom' sem marcador explícito: '{cm}' não é código)"
     if cm is not None and sem_acentos(cm).upper() in _NAO_E_CUPOM | {"DISPON"}:
         if cb is None or re.search(re.escape(cb), texto, re.I):
             return f"N-F10/princípio c ('{cm}' é palavra comum, não código)"
@@ -175,9 +185,15 @@ _OUTRO_PRODUTO = re.compile(
     r"\btvs?\s+(?:\w+\s+){0,3}(?:samsung|lg|philips|aoc|philco|hisense)\b")
 
 
+# rodada 5 (N8): linha que ABRE com outro produto pela família/marca ("📱 Galaxy S24 FE", "📺 Samsung 55\" Crystal")
+_OUTRO_PRODUTO_NA_LINHA = re.compile(
+    r"(?m)^[^a-z\n]*(?:galaxy|redmi|poco\s+[a-z]\d|motorola|moto\s+[a-z]\d|airpods|echo\s+dot|notebook|celular|"
+    r"smartphone|iphone|(?:samsung|lg|philips|aoc|philco|hisense|xiaomi|sony)\s+(?:\w+\s+){0,2}\d{2,3}\s*(?:\"|pol))")
+
+
 def _cita_outro_produto(texto: str) -> bool:
     t = re.sub(r"(?<![a-z0-9])55\s?c6k|(?<![a-z0-9])c6k", " ", sem_acentos(texto).lower())
-    return bool(_OUTRO_PRODUTO.search(t))
+    return bool(_OUTRO_PRODUTO.search(t) or _OUTRO_PRODUTO_NA_LINHA.search(t))
 
 
 def _preco(texto: str, om: dict, ob: dict, db: dict) -> str | None:

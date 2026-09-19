@@ -62,7 +62,16 @@ _RE_ESTADO = [
     ("danificada", re.compile(r"\bdanificad[oa]s?\b|\bamassad[oa]s?\b|\barranhad[oa]s?\b")),
     ("exposicao", re.compile(r"\bexposicao\b")),
     ("grade b", re.compile(r"\bgrade\s*:?\s*[bc]\b")),
+    # "Semi Nova" (com espaço), mancha/risco na tela, pixel morto, marcas de uso, outlet
+    ("semi nova", re.compile(r"\bsemi\s+nov[oa]s?\b")),
+    ("mancha", re.compile(r"\bmanchas?\s+na\s+tela\b|\bmanchad[oa]s?\b|\bcom\s+manchas?\b")),
+    ("risco na tela", re.compile(r"\briscos?\s+na\s+tela\b|\briscad[oa]s?\b")),
+    ("pixel morto", re.compile(r"\bpixe(?:l|is|ls)\s+mortos?\b")),
+    ("marcas de uso", re.compile(r"\bmarcas?\s+de\s+uso\b")),
+    ("outlet", re.compile(r"\boutlet\b")),
 ]
+# "Preço quebrado"/"preço queimado" é o preço, não o estado da TV
+_RE_PRECO_QUEBRADO = re.compile(r"\bprecos?\s+(?:quebrad|queimad)[oa]s?\b")
 # peças escritas de vários jeitos: "peça", "peças", "pecas" ("para retirada de peças"), "t-con", "cabo flat",
 # "barra led", "par de pés", "tela/painel avulso"
 _RE_NEGATIVOS = [
@@ -74,17 +83,18 @@ _RE_NEGATIVOS = [
     ("barra de led", re.compile(r"\bbarras?\s+(?:de\s+)?leds?\b")),
     ("par de pes", re.compile(r"\bpar\s+de\s+(?:pes|pezinhos?)\b")),
     ("avulso", re.compile(r"\bavuls[oa]s?\b")),
-    # "Tv Tcl 55c6k Alto Falante Original", "Backlight Tv Tcl 55c6k"; os recursos da TV ("Alto-Falantes Onkyo 2.1",
-    # "com alto-falantes", "QD-Mini LED Backlight") saem antes, em _RE_RECURSO_SOM_LUZ
-    ("alto-falante", re.compile(r"\balto[\s-]?falantes?\b")),
-    ("backlight", re.compile(r"\bbacklight\b")),
+    # alto-falante e backlight NÃO são negativos globais: num título real da TV são recurso ("... Google TV
+    # Alto-Falantes Onkyo", "Backlight Local Dimming"). A peça começa por eles ("Alto Falante Tv Tcl 55c6k Original",
+    # _RE_INICIO_ACESSORIO) ou termina neles ("Tv Tcl 55c6k Alto Falante Original", _RE_PECA_NO_FIM)
     *_RE_ESTADO,
 ]
-# alto-falantes e backlight como recurso da TV: "com alto-falantes", "Alto-Falantes Onkyo 2.1", "Mini LED Backlight"
+# recursos da TV com nome de peça: "com alto-falantes", "Alto-Falantes Onkyo 2.1", "Mini LED Backlight", "sensor de
+# luz ambiente" (tirados antes de procurar a peça pelo 1º substantivo ou no fim do título)
 _RE_RECURSO_SOM_LUZ = re.compile(
     r"(?:com|c/)\s+alto[\s-]?falantes?|"
     r"alto[\s-]?falantes?\s+(?:onkyo|dolby|jbl|harman|embutid\w*|integrad\w*|frontais|laterais|estereo|\d)|"
-    r"(?:mini[\s-]?led|qd-?mini(?:[\s-]?led)?)\s+backlight|backlight\s+(?:(?:qd-?)?mini|full\s+array)"
+    r"(?:mini[\s-]?led|qd-?mini(?:[\s-]?led)?)\s+backlight|backlight\s+(?:(?:qd-?)?mini|full\s+array)|"
+    r"\bsensor(?:es)?\s+de\s+(?:luz|luminosidade|presenca)(?:\s+ambiente)?"
 )
 # "com controle remoto" / "controle (remoto) por|de|com voz" é recurso da TV, não o controle vendido sozinho.
 # No começo do título ("Controle por voz para TV ...") quem decide é _RE_INICIO_ACESSORIO, que olha o texto original.
@@ -135,13 +145,20 @@ _RE_RECURSO_TV = re.compile(r"\d{2,3}\s*hz|mini\s*-?led|qd-?mini|qled|oled|\b[48
 _RE_CABECA_DE_PECA = re.compile(r"\b(?:para|pra|p/)\s+(?:as?\s+|os?\s+)?(?:smart\s*)?tvs?\b|compativel|original|"
                                 r"reposicao|substitui|\bpecas?\b|avuls")
 _RE_TV_DEPOIS_DOIS_PONTOS = re.compile(r"^[^a-z0-9]*(?:smart\s*tvs?|tvs?|tcl|televisor)(?![a-z0-9])")
+# ... ou "<recursos da TV> na <Smart TV/TV/TCL ...>" (manchete sem dois-pontos): "Tela Mini LED e 144 Hz na Smart TV
+# TCL 55C6K", "Painel Mini LED, 144Hz e Google TV na TCL 55C6K". A peça é "Tela para TV ..."
+_RE_NA_TV = re.compile(r"\s(?:na|nesta|no|neste)\s+(?=(?:nova\s+)?(?:smart\s*tvs?|tvs?|tcl|televisor)(?![a-z0-9]))")
 
 
 def _cabeca_de_recursos(t: str) -> bool:
-    """True se t é "<recursos da TV>: <Smart TV/TV/TCL ...>" (ver acima)."""
+    """True se t é "<recursos da TV>: <Smart TV/TV/TCL ...>" ou "<recursos da TV> na <Smart TV/TV/TCL ...>"."""
     cabeca, sep, resto = t.partition(":")
-    return bool(sep and _RE_RECURSO_TV.search(cabeca) and not _RE_CABECA_DE_PECA.search(cabeca)
-                and _RE_TV_DEPOIS_DOIS_PONTOS.match(resto))
+    if not (sep and _RE_TV_DEPOIS_DOIS_PONTOS.match(resto)):
+        m = _RE_NA_TV.search(t)
+        if not m:
+            return False
+        cabeca = t[:m.start()]
+    return bool(_RE_RECURSO_TV.search(cabeca) and not _RE_CABECA_DE_PECA.search(cabeca))
 
 
 # 1º substantivo do título: se é peça/acessório, não é a TV ("Controle remoto para TV TCL 55C6K",
@@ -157,6 +174,24 @@ _RE_ACESSORIO_FRASE = [
     re.compile(r"\b((?:telas?|displays?|painel|paineis)\b.{0,40}?\b(?:para|pra|p/)\s*(?:as?\s+)?(?:smart\s*)?tvs?)\b"),
     re.compile(r"\b(compativel\s+(?:com\s+)?(?:as?\s+|os?\s+)?(?:smart\s*)?(?:tvs?|televis\w*|tcl))\b"),
 ]
+# peça com o nome da TV primeiro (anúncio de marketplace): depois do modelo vem SÓ a peça, com qualificadores de peça
+# ("Tv Tcl 55c6k Pezinho", "Tv Tcl 55c6k Pés Originais", "Tv Tcl 55c6k Só A Tela", "Tv Tcl 55c6k Módulo Wifi",
+# "Tv Tcl 55c6k Alto Falante Original"). Com recurso da TV depois é a TV ("Smart TV TCL 55C6K Pés Ajustáveis",
+# "... Fonte bivolt", "... Módulo Wi-Fi integrado", "... Painel 144Hz")
+_PECA_NO_FIM = rf"(?:{_ACESSORIOS}|telas?|displays?|painel|paineis|pes|pezinhos?|pe)"
+_QUALIFICADOR_PECA = (r"originais|original|traseir[oa]s?|frontal|frontais|wi-?fi|wireless|bluetooth|de\s+reposicao|"
+                      r"reposicao|par|kit|avuls[oa]s?|nov[oa]s?|esquerd[oa]s?|direit[oa]s?|inferior|superior|completo|"
+                      r"completa|de\s+luz|difusor(?:a|as|es)?|ir|infravermelho|power|principal")
+_RE_PECA_NO_FIM = re.compile(
+    rf"[\s\-–—|,:.]*(?:(?:so|apenas|somente)\s+(?:(?:a|o|as|os)\s+)?)?({_PECA_NO_FIM})(?![a-z0-9])"
+    rf"(?:\s+(?:(?:{_QUALIFICADOR_PECA})|(?:e|de|do|da)\s+{_PECA_NO_FIM})(?![a-z0-9]))*[\s.!]*$")
+
+
+def _peca_no_fim(t_neg: str) -> str:
+    """Nome da peça quando o título termina nela logo depois do modelo ("Tv Tcl 55c6k Pezinho"), senão ''."""
+    fins = [m.end() for m in _RE_C6K.finditer(t_neg)]
+    m = _RE_PECA_NO_FIM.match(t_neg, fins[-1]) if fins else None
+    return m.group(1) if m else ""
 
 
 def normaliza(texto: str) -> str:
@@ -173,6 +208,9 @@ def _acessorio(t: str, t_neg: str) -> str:
         m = r.search(t_neg)
         if m:
             return m.group(1)
+    peca = _peca_no_fim(t_neg)
+    if peca:
+        return peca             # "Tv Tcl 55c6k Pezinho": a TV primeiro, a peça no fim
     for m in _RE_1O_NOME.finditer(t_neg.split(",", 1)[0]):
         if m.group(1):          # "com controle remoto": recurso da TV, segue procurando
             continue
@@ -187,7 +225,7 @@ def _motivo(t: str) -> str:
     if not _RE_C6K.search(t):
         return "sem C6K"
     t_neg = _RE_CONTROLE_RECURSO.sub(" ", _RE_SUPORTE_A_RECURSO.sub(" ", t))
-    t_neg = _RE_RECURSO_SOM_LUZ.sub(" ", t_neg)
+    t_neg = _RE_PRECO_QUEBRADO.sub(" ", _RE_RECURSO_SOM_LUZ.sub(" ", t_neg))
     neg = [n for n in _NEGATIVOS if n in t_neg] + [n for n, r in _RE_NEGATIVOS if r.search(t_neg)]
     if neg:
         return f"negativo: {neg[0].strip()}"
@@ -219,8 +257,10 @@ def motivo_rejeicao(texto: str) -> str:
 # ---------------------------------------------------------------- mensagem livre (Telegram)
 #
 # A mensagem é SEGMENTADA POR PRODUTO, linha a linha. Um "cabeçalho de produto" é uma linha que cita um código de
-# modelo de TV (43S5K, 65C6K, 50P7K, 55P8K, 65QM8K), uma TV de outro tamanho (43", 65 polegadas, "TV de 43") ou o
-# título de uma TV de outra marca ("Smart TV Samsung ..."). Cada linha pertence ao cabeçalho mais próximo ACIMA
+# modelo de TV (43S5K, 65C6K, 50P7K, 55P8K, 65QM8K), uma TV de outro tamanho (43", 65 polegadas, "TV de 43"), o
+# título de uma TV de outra marca ("Smart TV Samsung ...", "📺 Samsung 55\" Crystal UHD") ou uma linha que abre com
+# outro produto pelo tipo/família ("📱 Galaxy S24 FE", "💻 Notebook Acer"; sem preço na linha, só fora do trecho
+# entre o título da 55C6K e o preço dela). Cada linha pertence ao cabeçalho mais próximo ACIMA
 # dela: o bloco da 55C6K vai do cabeçalho dela até o cabeçalho do próximo produto. Uma linha que cita a 55C6K e
 # outro produto é cortada na menção do outro (o que vem antes fica com a 55C6K). As linhas antes do 1º cabeçalho
 # só são da 55C6K se a mensagem não tem outro produto; o código de cupom delas vale para todos ("Use o Cupom: X"
@@ -248,15 +288,16 @@ _NEGATIVOS_TEXTO_LIVRE = [
     "reembalad", "mostruario", "recertificad", "remanufaturad", "avaria",
     "combo", "soundbar", "sound bar", "kit ", "acompanha suporte",
 ]
-# o estado escrito de outros jeitos (_RE_ESTADO dos títulos), linha a linha; "quebrado"/"queimado" só colados na
-# tela/TV ("Preço quebrado", "Queimadão" não são o estado da TV)
+# o estado escrito de outros jeitos, linha a linha, só com palavra EXPLÍCITA do estado do item (trincada, para
+# conserto, retirada de peças, caixa aberta, embalagem danificada, exposição, grade B). Vocabulário de dano no
+# corpo é marketing ou negação, não o estado da TV: "sem risco de tela queimada", "não sofre com display queimado",
+# "Seguro contra TV quebrada", "Se chegar danificado, a Amazon troca", "Preço quebrado". O título continua com
+# todas as palavras de estado (_RE_ESTADO)
 _RE_ESTADO_TEXTO_LIVRE = re.compile(
     r"\btrincad[oa]s?\b|\brachad[oa]s?\b|\blistras?\s+na\s+tela\b|"
     r"\b(?:para|pra|p/)\s+(?:conserto|reparo)\b|\bretirada\s+de\s+pecas\b|\bsucata\b|"
-    r"\b(?:caixa|embalagem)\s+(?:aberta|danificada|avariada|violada|amassada)\b|\bdanificad[oa]s?\b|"
-    r"\bproduto\s+de\s+exposicao\b|\bgrade\s*:?\s*[bc]\b|"
-    r"\b(?:tela|display|painel)\s+(?:\w+\s+)?(?:quebrad|queimad)[oa]s?\b|"
-    r"\b(?:tv|televisao|televisor)\s+(?:quebrad|queimad)[oa]s?\b")
+    r"\b(?:caixa|embalagem)\s+(?:aberta|danificada|avariada|violada|amassada)\b|"
+    r"\bproduto\s+de\s+exposicao\b|\bgrade\s*:?\s*[bc]\b")
 
 _UNIDADE = r"(?:\"|''|’’|pol\b|polegadas\b)"
 # links e códigos de cupom não citam produto ("tidd.ly/45ab3cd", "cupom 50OFF100")
@@ -281,9 +322,13 @@ _QUALIFICADORES = (r"tcl|de|da|do|led|qled|oled|4k|8k|uhd|fhd|full\s+hd|hd|smart
                    r"ultra|\d{2,3}\s*(?:\"|pol\w*)")
 _MARCAS = r"samsung|lg|philips|aoc|philco|hisense|xiaomi|sony|panasonic|toshiba|multilaser|britania|roku|jvc|sharp"
 # título de outra TV: a marca logo depois de "Smart TV" (só qualificadores no meio), no começo de uma frase da
-# linha. "Melhor que muita TV da LG" / "TV que bate LG e Samsung" não contam
+# linha; ou a marca abrindo a frase seguida do tamanho/tipo de tela ("📺 Samsung 55\" Crystal UHD", "LG 65 polegadas
+# OLED"). "Melhor que muita TV da LG" / "TV que bate LG e Samsung" / "Bate a Samsung de 55\"" não contam
 _RE_OUTRA_MARCA = re.compile(rf"(?:^|(?<=[|/•·;:(—–]))[^a-z]*(?:smart\s*)?(?:tvs?|televisor(?:es)?)\s+"
-                             rf"(?:(?:{_QUALIFICADORES})\s+)*(?:{_MARCAS})\b")
+                             rf"(?:(?:{_QUALIFICADORES})\s+)*(?:{_MARCAS})\b|"
+                             rf"(?:^|(?<=[|/•·;:(—–]))[^a-z]*(?:{_MARCAS})\s+(?:(?:{_QUALIFICADORES})\s+)*?"
+                             rf"(?:\d{{2,3}}\s*(?:\"|''|pol\w*)|qled|oled|qned|nanocell|crystal|neo\s*qled|"
+                             rf"smart\s*tv|tv)(?![a-z0-9])")
 # contexto logo antes da menção
 _RE_ANTES_CONDICAO = re.compile(
     r"(?:a\s+partir\s+(?:de|das?|dos?)|acima\s+(?:de|das?|dos?)|\bate|maiores?\s+(?:que|de|do)|mais\s+de|entre|"
@@ -315,9 +360,11 @@ _RE_TVS_GENERICO = re.compile(r"(?:^|\b)(?:tvs|televisores)\s+(?:(?:de|com|tcl)\
 _RE_BRINDE = re.compile(r"\bbrindes?\b|\bde\s+presente\b")
 # linha que continua a de cima ("💳 ou R$ 1.899 no Pix", "Pix: R$ 3.599")
 _RE_CONTINUACAO = re.compile(r"^[^a-z0-9]*(?:ou\b|no\s+pix|pix\b|a\s+vista|no\s+boleto|boleto\b|no\s+cartao)")
-# produto que não é TV no começo da linha ("💻 Notebook Acer Aspire 5 — R$ 2.499", "🪑 Cadeira Gamer — R$ 1.899")
+# produto que não é TV no começo da linha ("💻 Notebook Acer Aspire 5 — R$ 2.499", "🪑 Cadeira Gamer — R$ 1.899",
+# "📱 Galaxy S24 FE — R$ 2.599"): pelo tipo ou pela família/marca do produto
 _RE_OUTRO_ITEM = re.compile(
     r"^[^a-z0-9]*(?:\d{1,2}\s*[-.)]\s*)?(?:notebook|laptop|chromebook|macbook|celular|smartphone|iphone|ipad|tablet|"
+    r"galaxy|redmi|poco\s+[a-z]\d|motorola|moto\s+[a-z]\d*|xiaomi|airpods|apple\s+watch|echo\s+dot|"
     r"cadeira|mesa|escrivaninha|geladeira|refrigerador|freezer|fogao|cooktop|micro-?ondas|forno|air\s*fryer|"
     r"fritadeira|lavadora|lava\s+e\s+seca|maquina\s+de\s+lavar|secadora|ar[\s-]condicionado|ventilador|aspirador|"
     r"robo\s+aspirador|cafeteira|liquidificador|batedeira|panela|monitor|fones?|headset|headphone|mouse|teclado|"
@@ -442,8 +489,16 @@ def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
         proximo = None              # destino da linha de continuação seguinte, se não for o do fim desta linha
         cabecalho = False
         if not mencoes:
-            if _RE_OUTRO_ITEM.search(n) and _tem_preco(linha):
+            outro_item = bool(_RE_OUTRO_ITEM.search(n)) and not _RE_BRINDE.search(n)
+            if outro_item and _tem_preco(linha):
                 pedacos, proximo = [("fora", linha)], "fora"     # "💻 Notebook Acer Aspire 5 — R$ 2.499"
+            elif outro_item and not (dono_atual == "55" and not preco_55):
+                # "📱 Galaxy S24 FE" sem preço: cabeçalho de outro produto (preço antes do nome: "💰 R$ 2.599" /
+                # "📱 Galaxy S24 FE"; ou o preço nas linhas de baixo). Entre o título da 55C6K e o preço dela continua
+                # sendo linha da 55C6K, como na main
+                dono_atual = "outro"
+                pedacos = [("outro", linha)]
+                cabecalho = True
             else:
                 dest = dest_anterior if continuacao else (dono_atual or "antes")
                 pedacos = [(dest, linha)]

@@ -12,7 +12,7 @@ Corpus:
   (a) entradas reais de TODAS as versões de docs/data/latest_*.json e state_*.json no histórico do git (títulos
       de ofertas, postagens e cupons; título e regra dos cupons; texto das postagens do Telegram) e os títulos da
       versão mais nova de docs/data/historico_*.csv;
-  (b) entradas sintéticas: tabela de ouro, test_filtro, arquivos de retrabalho das rodadas 1-4 (trechos entre
+  (b) entradas sintéticas: tabela de ouro, test_filtro, arquivos de retrabalho das rodadas 1-5 (trechos entre
       aspas simples em todas as strings) e os casos dos verificadores das rodadas 3 e 4 (v4n/*.json, v5n/*.json),
       quando estão nesta máquina;
   (c) páginas reais: prévias t.me salvas (probes/tg*_*.out) e a fixture do Telegram;
@@ -207,7 +207,7 @@ def _sinteticos(c: Corpus) -> None:
     tf = importlib.import_module("tests.test_filtro")
     for t in tf.ACEITA + tf.REJEITA:
         c.add("titulo", "test_filtro", texto=t)
-    # arquivos de retrabalho das rodadas 1-4: todas as strings, com os trechos entre aspas simples
+    # arquivos de retrabalho das rodadas 1-5: todas as strings, com os trechos entre aspas simples
     for arq in sorted(glob.glob(str(SCRATCH / "correcoes" / "extracao-nuvem*.json"))):
         bruto = json.load(open(arq, encoding="utf-8"))
         for s in _strings(bruto):

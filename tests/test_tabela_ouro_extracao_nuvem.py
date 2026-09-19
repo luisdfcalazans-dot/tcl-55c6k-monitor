@@ -1,4 +1,4 @@
-"""Tabela de ouro do grupo extracao-nuvem (rodadas 3 e 4; as linhas da rodada 4 estão no fim do arquivo).
+"""Tabela de ouro do grupo extracao-nuvem (rodadas 3, 4 e 5; as linhas das rodadas 4 e 5 estão no fim do arquivo).
 
 Uma linha por exemplo concreto do arquivo de retrabalho: evidência de cada achado original (N-F1..N-F10),
 cada regressão das rodadas 1 e 2 e cada caso "tem de continuar funcionando" citado pelos verificadores.
@@ -1114,3 +1114,191 @@ POSTS_R4B_SONDAS2 = [
 @pytest.mark.parametrize("linhas,esperado", [pytest.param(l, e, id=i) for i, l, e in POSTS_R4B_SONDAS2])
 def test_postagem_r4b_sondas2(linhas, esperado, monkeypatch):
     _confere(_post(_canal(*linhas), monkeypatch), esperado)
+
+
+# ================================================================ rodada 5 (lista fechada N1-N9)
+# Uma linha por entrada exata do veredito final da rodada 4 (regressões, itens não resolvidos e preexistentes), mais
+# os controles que a correção não pode quebrar. Quando a main também erra, vale o resultado correto.
+
+_T5 = '📺 Smart TV TCL 55" QD-Mini LED 4K 55C6K'
+_T5_ALI = '💥   😱  Smart TV 55" TCL 4K UHD MiniLED 55C6K'
+_3599_SEM_ALVO = {"preco": 3599.0, "alvo": False}
+
+# N1: mínimo do cupom sem "de" ou sem ponto de milhar é condição, nunca o preço
+_N1_ALI = ['🎟️ Cupom TV300 (a partir de R$2500)', '🎟️ Cupom TV300 | a partir de R$ 2500', '🎟️ Cupom: IFPF2XZ6 (acima R$2500)',
+           '🎟️ 10% OFF, a partir de R$2500', '🎟️ R$ 300 OFF na AliExpress com cupom (a partir de R$2500): BRGM6',
+           '🎟️ Cupom TV300 válido acima R$2500', '🎟️ Cupom TV300: R$ 300 OFF p/ compras +R$2500',
+           '🎟️ Cupom de R$ 300 (a partir de R$2500): TV300', '🎟️ Cupom TV300 - compras acima R$2500']
+_N1_PRE = ['🎟️ Cupom TV300 (a partir de R$ 2.500)', '🎟️ Cupom TV300 | a partir de R$ 2.500',
+           '🎟️ Cupom de R$ 300 (a partir de R$ 2.500): TV300', '🎟️  Cupom:  BRAE11  (acima R$ 2.550)',
+           '🎟️  Cupom BRAE11: R$ 305 acima R$ 2.550', '🏷️ Cupom MAGALU250 válido acima R$ 2.500',
+           '🎟️ Cupom TV300: R$ 300 OFF p/ compras +R$2.500', '🎟️ Cupom TV300 válido p/ compras acima R$ 2.500',
+           '🎟️ 10% OFF, a partir de R$ 2.500', '🎟️ R$ 300 OFF na AliExpress com cupom (a partir de R$ 2.200): BRGM6',
+           '🎟️ DESCONTO IMPERDÍVEL: R$ 300 OFF na AliExpress (a partir de R$ 2.200) com cupom: MEGABR06']
+# as redações do mínimo já na tabela (_NF3_V 1-5), escritas sem ponto de milhar
+_N1_SEM_PONTO = [c.replace("R$ 2.500", "R$2500") for c in _NF3_V[:5]]
+
+POSTS_R5 = [
+    # --- N1 (regressão ALTA do veredito: o valor sem ponto de milhar virava o preço)
+    ("N1 a pelando DIADOCLIENTE14H", (_T5, '💰 R$ 3.599 no Pix',
+                                      '🎟️ Cupom Magazine Luiza R$ 250 acima R$2500: DIADOCLIENTE14H'),
+     {**_3599_SEM_ALVO, "cupom": "DIADOCLIENTE14H"}),
+    ("N1 b cupom CLIENTE em faixas", (_T5, '💰 R$ 3.599 no Pix',
+                                      '🎟️ Compras de R$800 a R$1999 | 8% de Desconto | Limitado a R$160',
+                                      'Compras de R$ 2000 a R$3999 | 10% de Desconto | Limitado a R$220',
+                                      'Compras acima R$4000 | 12% de Desconto | Limitado a R$500: CLIENTE'), _3599_SEM_ALVO),
+    *[(f"N1 c {x}", (_T5_ALI, '🤑  R$ 3.599 no Pix', x), _3599_SEM_ALVO) for x in _N1_ALI],
+    # a linha de preço do canal da AliExpress ("R$ 3599 em 12x sem juros"): a main dava preço None (lia 359)
+    *[(f"N1 c ali {x}", (_T5_ALI, '💵  R$ 3599 em 12x sem juros', x), _3599_SEM_ALVO) for x in _N1_ALI],
+    *[(f"N1 pre {x} {suf}", (_T5, preco, x), _3599_SEM_ALVO)
+      for x in _N1_PRE for preco, suf in [("R$ 3.599", "sem Pix"), ("R$ 3.599 no Pix", "no Pix")]],
+    *[(f"N1 sem ponto {x} {suf}", (_T, preco, x), _3599_SEM_ALVO)
+      for x in _N1_SEM_PONTO for preco, suf in [("R$ 3.599", "sem Pix"), ("R$ 3.599 no Pix", "no Pix")]],
+    ("N1 faixas em linhas", (_T5, 'R$ 3.599', '🎟️ Cupom CLIENTE:', '• Compras de R$ 800 a R$ 1.999: 8% OFF',
+                             '• Compras de R$ 2.000 a R$ 3.999: 10% OFF', '• Acima de R$ 4.000: 12% OFF'), _3599_SEM_ALVO),
+    # controles: o mínimo no Pix continua condição
+    ("N1 controle cupom a partir de ... no Pix", (_T5, 'R$ 3.599', 'Cupom TV300 a partir de R$ 2.500 no Pix'), _3599_SEM_ALVO),
+    ("N1 controle (a partir de ... no Pix)", (_T5, 'R$ 3.599', '🎟️ Cupom TV300 (a partir de R$ 2.500 no Pix)'),
+     _3599_SEM_ALVO),
+    # --- N2: dano no CORPO só rejeita com palavra explícita de estado do item; marketing/negação não
+    *[(f"N2 {x}", ('📺   Smart TV TCL QLED Mini LED C6K de 55"   55C6K', 'Por  R$  2.849  no Pix', x),
+       {"preco": 2849.0, "alvo": True})
+      for x in ['✨  Mini LED: sem risco de tela queimada', '✨  Diferente da OLED, não tem problema de tela queimada',
+                '✨  Mini LED traz melhor contraste sem risco de tela queimada']],
+    ("N2 com cupom TECNOBLOG300", ('📺   Smart TV TCL QLED Mini LED C6K de 55"   55C6K', 'Por  R$  2.849  no Pix',
+                                   '✨  Mini LED traz melhor contraste sem risco de tela queimada',
+                                   '🏷  Aplique o cupom TECNOBLOG300'),
+     {"preco": 2849.0, "alvo": True, "cupom": "TECNOBLOG300"}),
+    *[(f"N2 {x}", (_T5, '💰 R$ 2.899 no Pix', x), _ALVO_2899)
+      for x in ['✅ Mini LED não sofre com display queimado (burn-in)', '🛡️ Seguro contra TV quebrada por + R$ 149',
+                '📦 Se chegar danificado, a Amazon troca sem custo']],
+    # controles: palavra explícita de estado do item no corpo continua rejeitando
+    ("N2 controle avariada", (_T5, '💰 R$ 2.899 no Pix', '⚠️ TV avariada no transporte'), REJEITA),
+    ("N2 controle retirada de pecas", (_T5, 'R$ 1.899', 'Para retirada de peças'), REJEITA),
+    ("N2 controle com defeito", (_T5, '💰 R$ 2.899 no Pix', 'Com defeito na tela'), REJEITA),
+    ("N2 controle seminova", (_T5, '💰 R$ 2.899 no Pix', 'Seminova, na caixa'), REJEITA),
+    # --- N3: valor depois de ':' que segue o desconto/cupom é o preço final
+    ("N3 OFF no app:", (_T5, '💰 R$ 3.199', '🔻 R$ 300 OFF no app: R$ 2.899'), _ALVO_2899),
+    ("N3 cupom aplicado no carrinho:", (_T5, '💰 R$ 3.199 no Pix', '✅ Cupom de R$ 300 aplicado no carrinho: R$ 2.899'),
+     _ALVO_2899),
+    ("N3 OFF hoje:", (_T5, 'De R$ 3.299', '🔥 R$ 400 OFF hoje: R$ 2.899'), _ALVO_2899),
+    ("N3 de desconto no carrinho:", (_T5, 'De R$ 3.199', 'R$ 300 de desconto no carrinho: R$ 2.899'), _ALVO_2899),
+    # controles: com termo de compra antes do ':' continua sendo o mínimo do cupom; faixa depois do preço
+    ("N3 controle valido para compras:", (_T5, 'R$ 3.599', 'Cupom de R$ 300 válido para compras: R$ 2.500'),
+     _3599_SEM_ALVO),
+    ("N3 controle pedidos acima de:", (_T5, 'R$ 3.599', 'R$ 300 OFF para pedidos acima de: R$ 2.500'), _3599_SEM_ALVO),
+    ("N1 controle faixa depois do preco", (_T, 'R$ 2.899 no Pix', 'Compras de R$ 2.000 a R$ 3.999 ganham 10% OFF'),
+     _ALVO_2899),
+    # --- N4: preço no Pix continua candidato com "a partir de"/"mínimo" na frase
+    ("N4 no Pix sai a partir de", (_T5, '💳 R$ 3.049 em até 10x sem juros', '💠 No Pix sai a partir de R$ 2.899'), _ALVO_2899),
+    ("N4 Pix a partir de", (_T5, 'R$ 3.049 no cartão', 'Pix a partir de R$ 2.899'), _ALVO_2899),
+    ("N4 ou a partir de ... no Pix", (_T5, '💰 R$ 3.049', 'ou a partir de R$ 2.899 no Pix'), _ALVO_2899),
+    ("N4 preco a partir de ... no Pix", (_T5, '💳 R$ 3.049 no cartão', 'Preço a partir de R$ 2.899 no Pix'), _ALVO_2899),
+    ("N4 historico minimo no Pix", (_T5, '💳 R$ 3.049 no cartão', '📉 Histórico mínimo: R$ 2.899 no Pix'), _ALVO_2899),
+    ("N4 com o cupom, a partir de", (_T5, '💰 R$ 3.199 no Pix', '🎟️ Com o cupom TV300, a partir de R$ 2.899'),
+     {**_ALVO_2899, "cupom": "TV300"}),
+    # --- N5: manchete que começa pelos recursos é a TV
+    ("N5 tela mini led na smart tv", ('🔥 Tela Mini LED e 144 Hz na Smart TV TCL 55C6K', '💰 R$ 2.899 no Pix'), _ALVO_2899),
+    ("N5 painel mini led na TCL", ('🔥 Painel Mini LED, 144Hz e Google TV na TCL 55C6K por R$ 2.899 no Pix',), _ALVO_2899),
+    # --- N7: código entre aspas ou depois de um traço é marcador explícito
+    ("N7 CUPOM entre aspas", (_T5, '💰 R$ 2.899 no Pix', '🎟️ CUPOM "LEVOUBARATO"'), {**_ALVO_2899, "cupom": "LEVOUBARATO"}),
+    ("N7 CUPOM - codigo", (_T5, '💰 R$ 2.899 no Pix', '🎟️ CUPOM - LEVOUBARATO'), {**_ALVO_2899, "cupom": "LEVOUBARATO"}),
+    ("N7 Cupom SHOPEE liberado no post", ('🎟️ Cupom SHOPEE liberado', _T5, '💰 R$ 2.899 no Pix'), {**_ALVO_2899, "cupom": None}),
+    # --- N8 (ALTA): vários produtos, nunca o preço do outro (nem 🎯 falso)
+    ("N8 roundup Galaxy", ('🔥 OFERTAS DO DIA 🔥', '📺 Smart TV TCL 55C6K — R$ 3.599 no Pix', '📱 Galaxy S24 FE — R$ 2.599'),
+     OuRejeita(preco=3599.0, alvo=False)),
+    ("N8 Samsung 55 sem TV antes", ('📺 Smart TV TCL 55C6K — R$ 3.599 no Pix', '📺 Samsung 55" Crystal UHD — R$ 2.199 no Pix'),
+     OuRejeita(preco=3599.0, alvo=False)),
+    ("N8 preco antes, Galaxy", ('💰 R$ 3.599 no Pix', '📺 Smart TV TCL 55C6K', '💰 R$ 2.599', '📱 Galaxy S24 FE'),
+     OuRejeita(preco=3599.0, alvo=False)),
+    ("N8 preco antes, Samsung 55", ('💰 R$ 3.599 no Pix', '📺 Smart TV TCL 55C6K', '💰 R$ 2.199 no Pix',
+                                    '📺 Samsung 55" Crystal UHD'), OuRejeita(preco=3599.0, alvo=False)),
+    ("N8 Galaxy primeiro", ('📱 Galaxy S24 FE', 'R$ 2.599', '📺 Smart TV TCL 55C6K', 'R$ 3.599 no Pix'),
+     OuRejeita(preco=3599.0, alvo=False)),
+    ("N8 Samsung 55 primeiro", ('📺 Samsung 55" Crystal UHD', 'R$ 2.199 no Pix', '📺 Smart TV TCL 55C6K', 'R$ 3.599 no Pix'),
+     OuRejeita(preco=3599.0, alvo=False)),
+    # controles: linha comum que cita a marca no meio da frase continua da 55C6K; linha que abre com outro tipo de
+    # produto entre o título e o preço da 55C6K continua da 55C6K (como na main)
+    ("N8 controle Samsung no meio da frase", (_T, 'Bate a Samsung de 55" no contraste', "R$ 2.899 no Pix"), _ALVO_2899),
+    ("N8 controle celular entre titulo e preco", (_T, "📱 Celular? Compre pelo app", "R$ 2.899 no Pix"), _ALVO_2899),
+    ("N8 controle fone de brinde", ("💰 R$ 2.899 no Pix", _T, "🎧 Fone JBL de brinde"), _ALVO_2899),
+]
+
+
+@pytest.mark.parametrize("linhas,esperado", [pytest.param(l, e, id=i) for i, l, e in POSTS_R5])
+def test_postagem_r5(linhas, esperado, monkeypatch):
+    _confere(_post(_canal(*linhas), monkeypatch), esperado)
+
+
+@pytest.mark.parametrize("extra", ["✨  Mini LED traz melhor contraste sem risco de tela queimada",
+                                   "✅ Mini LED não sofre com display queimado (burn-in)"])
+def test_n2_real_11614_com_linha_de_marketing(extra, monkeypatch):
+    """N2: o texto real do achadosdotb/11614 com uma linha de marketing sobre tela queimada continua valendo."""
+    _confere(_post(_post_real_11614(extra), monkeypatch), {"preco": 2910.14, "cupom": "TECNOBLOG250", "alvo": False})
+
+
+TITULOS_R5 = [
+    # N2: "Preço quebrado" não é dano
+    ("N2 preco quebrado no titulo", 'Smart TV TCL 55" QD-Mini LED 55C6K 4K 144Hz Google TV - Preço quebrado', True),
+    # N5: manchete que começa pelos recursos da TV
+    ("N5 tela mini led na smart tv", "Tela Mini LED e 144 Hz na Smart TV TCL 55C6K", True),
+    ("N5 painel mini led na TCL", "Painel Mini LED, 144Hz e Google TV na TCL 55C6K por R$ 2.899", True),
+    ("N5 sensor de luz ambiente", "TCL 55C6K Sensor de Luz Ambiente, 144Hz, Google TV", True),
+    ("N5 controle tela para TV (peca)", "Tela para TV TCL 55C6K", False),
+    ("N5 controle tela mini led para TV (peca)", "Tela Mini LED para TV TCL 55C6K", False),
+    # N6: peça com o nome da TV primeiro (o anúncio termina na peça)
+    *[(f"N6 {t}", t, False) for t in [
+        "Tv Tcl 55c6k Pezinho", "Tv Tcl 55c6k Pés Originais", "Tv Tcl 55c6k Fonte", "Tv Tcl 55c6k Tampa Traseira",
+        "Tv Tcl 55c6k Carcaça Traseira", "Tv Tcl 55c6k Módulo Wifi", "Tv Tcl 55c6k Só A Tela", "Tv Tcl 55c6k Lente",
+        "Tv Tcl 55c6k Base",
+        # estado do produto escrito de outros jeitos (veredito: N-F1 e preexistentes)
+        "Tv Tcl 55c6k Semi Nova", "Tv Tcl 55c6k Com Mancha Na Tela", "Tv Tcl 55c6k Tela Manchada",
+        "Smart Tv Tcl 55c6k Pixel Morto", "Tv Tcl 55c6k Com Marcas De Uso", "Tv Tcl 55c6k Com Risco Na Tela",
+        "Smart TV TCL 55C6K Outlet"]],
+    # controles: recurso da TV depois do modelo continua sendo a TV
+    ("N6 controle pes ajustaveis", "Smart TV TCL 55C6K Pés Ajustáveis", True),
+    ("N6 controle fonte bivolt", "Smart TV TCL 55C6K Fonte bivolt", True),
+    ("N6 controle modulo wi-fi integrado", "Smart TV TCL 55C6K Módulo Wi-Fi integrado", True),
+    ("N6 controle original", "Smart TV TCL 55C6K Original", True),
+    # N9: alto-falantes/backlight num título real da TV; só a peça que começa por eles (ou termina neles) é peça
+    ("N9 backlight local dimming", "Smart TV TCL 55C6K QD-Mini LED 4K Backlight Local Dimming", True),
+    ("N9 backlight LED", "Smart TV TCL 55C6K 4K 144Hz Backlight LED", True),
+    ("N9 alto-falantes Onkyo no fim", "Smart TV TCL 55C6K 144Hz Google TV Alto-Falantes Onkyo", True),
+    ("N9 alto-falantes 20W", "Smart TV TCL 55C6K 4K Alto-Falantes 20W e Subwoofer", True),
+    ("N9 controle alto falante original (peca)", "Tv Tcl 55c6k Alto Falante Original", False),
+    ("N9 controle backlight no fim (peca)", "Tv Tcl 55c6k Backlight", False),
+]
+
+
+@pytest.mark.parametrize("titulo,aceita", [pytest.param(t, a, id=i) for i, t, a in TITULOS_R5])
+def test_titulo_r5(titulo, aceita):
+    assert eh_55c6k(titulo) is aceita
+
+
+UTIL_R5 = [
+    # N7: palavra só de letras logo depois de "cupom" só é código com marcador explícito
+    ("N7 CUPOM VALENDO", cupom_no_texto, "CUPOM VALENDO", None),
+    ("N7 CUPOM FUNCIONANDO", cupom_no_texto, "CUPOM FUNCIONANDO", None),
+    ("N7 CUPOM MAGALU", cupom_no_texto, "CUPOM MAGALU", None),
+    ("N7 Cupom SHOPEE liberado", cupom_no_texto, "🎟️ Cupom SHOPEE liberado", None),
+    ("N7 Cupom MAGALU de R$ 300 OFF", cupom_no_texto, "Cupom MAGALU de R$ 300 OFF", None),
+    ("N7 Cupom DESBLOQUEADO", cupom_no_texto, "🔓 Cupom DESBLOQUEADO no app", None),
+    ("N7 Cupom TELEGRAM", cupom_no_texto, "Cupom TELEGRAM", None),
+    ("N7 Cupom NATAL", cupom_no_texto, "Cupom NATAL", None),
+    ("N7 CUPOM entre aspas", cupom_no_texto, '🎟️ CUPOM "LEVOUBARATO"', "LEVOUBARATO"),
+    ("N7 CUPOM - codigo", cupom_no_texto, "🎟️ CUPOM - LEVOUBARATO", "LEVOUBARATO"),
+    ("N7 Codigo LEVOUBARATO", cupom_no_texto, "Código LEVOUBARATO", "LEVOUBARATO"),
+    ("N7 Magalu10", cupom_no_texto, "Cupom: Magalu10", "MAGALU10"),
+    ("N7 TCL-300", cupom_no_texto, "Cupom: TCL-300", "TCL-300"),
+    ("N7 50OFF100", cupom_no_texto, "Cupom 50OFF100", "50OFF100"),
+    # N1 / N3 / N4 (util)
+    ("N1 acima sem de (util)", preco_postagem, "🎟️ Cupom Magazine Luiza R$ 250 acima R$2500: DIADOCLIENTE14H", None),
+    ("N1 faixa (util)", preco_postagem, "🎟️ Compras de R$800 a R$1999 | 8% de Desconto | Limitado a R$160", None),
+    ("N3 OFF no app: (util)", preco_postagem, "🔻 R$ 300 OFF no app: R$ 2.899", 2899.0),
+    ("N4 Pix a partir de (util)", preco_postagem, "R$ 3.049 no cartão\nPix a partir de R$ 2.899", 2899.0),
+]
+
+
+@pytest.mark.parametrize("func,entrada,esperado", [pytest.param(f, e, s, id=i) for i, f, e, s in UTIL_R5])
+def test_util_r5(func, entrada, esperado):
+    assert func(entrada) == esperado
