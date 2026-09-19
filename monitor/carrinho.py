@@ -37,6 +37,25 @@ def falha_da_ferramenta(mensagem: str) -> bool:
     return bool(_RE_FALHA.search(mensagem or ""))
 
 
+# serviço vendido junto com a TV ("Garantia Estendida 12 meses - Smart TV 55" TCL ... 55C6K", "Seguro Roubo e
+# Furto Smart TV TCL 55C6K", "Instalação de TV - ..."): o nome traz o título da TV e eh_55c6k aceita, mas NÃO é a
+# TV. Conta só quando a palavra do serviço vem ANTES do nome da TV: a linha da própria TV pode oferecer o serviço
+# depois do título ("Smart TV ... 55C6K\nAdicionar garantia estendida").
+_RE_SERVICO = re.compile(r"\b(?:garantia|seguro|prote[çc][ãa]o|instala[çc][ãa]o|servi[çc]os?|assist[êe]ncia)\b", re.I)
+_RE_NOME_TV = re.compile(r"smart\s*tv|\btv\b|televis|55\s*c6k|\btcl\b", re.I)
+
+
+def eh_servico(texto: str) -> bool:
+    t = texto or ""
+    m = _RE_NOME_TV.search(t)
+    return bool(_RE_SERVICO.search(t[: m.start()] if m else t))
+
+
+def eh_linha_da_tv(texto: str) -> bool:
+    """Linha/item do carrinho que é a própria TV 55C6K (não um serviço com o nome dela)."""
+    return eh_55c6k(texto) and not eh_servico(texto)
+
+
 @dataclass
 class ResultadoCupom:
     codigo: str
@@ -414,8 +433,8 @@ class Magalu(LojaCarrinho):
 
     @staticmethod
     def _so_tvs(itens: Optional[list[dict]]) -> bool:
-        """True só quando a sacola foi lida e TODO item dela é a 55C6K."""
-        return itens is not None and all(eh_55c6k(i.get("titulo") or "") for i in itens)
+        """True só quando a sacola foi lida e TODO item dela é a 55C6K (garantia/seguro da TV não é a TV)."""
+        return itens is not None and all(eh_linha_da_tv(i.get("titulo") or "") for i in itens)
 
     def esvaziar(self, page) -> None:
         """Remove itens da sacola SOMENTE se todos forem a 55C6K.
@@ -899,7 +918,8 @@ class MercadoLivre(LojaCarrinho):
         É a TV quando o link é de um item conhecido da 55C6K (coleta ou opções do catálogo), quando o link é
         do catálogo da TV, ou quando o texto da linha é o título da 55C6K. Sem nada disso NÃO é a TV (na
         dúvida, o carrinho é tratado como "tem outro produto" e ninguém mexe nele). Bloco grande demais (vários
-        preços, texto longo, vários itens) não é uma linha só: também NÃO é a TV."""
+        preços, texto longo, vários itens) não é uma linha só: também NÃO é a TV. Serviço com o nome da TV
+        (garantia estendida, seguro, instalação) NÃO é a TV, mesmo com o link do anúncio dela."""
         catalogos = {c for c in (catalogo, catalogo_ml_da_url(config.URL_ML_CATALOGO)) if c}
         conhecidos = set(ids_tv) | {item_alvo}
         out = []
@@ -908,7 +928,8 @@ class MercadoLivre(LojaCarrinho):
             ids = set(ids_ml(juntos)) - catalogos
             do_catalogo = any(f"/p/{c}".upper() in juntos.upper() for c in catalogos)
             poluido = len(l["texto"]) > _ML_MAX_TEXTO_LINHA or l["texto"].count("R$") > 8 or len(ids) > 3
-            tv = not poluido and (bool(ids & conhecidos) or do_catalogo or eh_55c6k(l["texto"]))
+            tv = not poluido and not eh_servico(l["texto"]) and \
+                (bool(ids & conhecidos) or do_catalogo or eh_linha_da_tv(l["texto"]))
             out.append({**l, "ids": ids, "tv": tv, "alvo": item_alvo in ids})
         return out
 

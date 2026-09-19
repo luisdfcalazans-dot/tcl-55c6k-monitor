@@ -834,3 +834,48 @@ def test_sacola_que_nao_carrega_pausa_a_loja():
     import pytest
     with pytest.raises(LojaIndisponivel):
         Magalu().itens_da_sacola(PaginaFalha())
+
+
+# ------------------------------------------------------------------------------------------------
+# revisão de 19/09: serviço vendido junto (garantia, seguro, instalação) não é a TV
+# ------------------------------------------------------------------------------------------------
+
+GARANTIA = 'Garantia Estendida 12 meses - Smart TV 55" TCL 4K UHD MiniLED 55C6K'
+SERVICOS = [GARANTIA, "Seguro Roubo e Furto Smart TV TCL 55C6K", "Instalação de TV - Smart TV TCL 55C6K",
+            "Proteção contra quebra acidental para Smart TV TCL 55C6K 55 polegadas"]
+
+
+def test_servico_com_o_nome_da_tv_nao_e_a_tv():
+    from monitor.carrinho import eh_linha_da_tv, eh_servico
+    from monitor.filtro import eh_55c6k
+
+    for s in SERVICOS:
+        assert eh_55c6k(s), "o filtro de título aceita (não dá para mexer nele aqui)"
+        assert eh_servico(s) and not eh_linha_da_tv(s), s
+    for tv in (TITULO, TV_MAGALU, TV_COLOMBO, TITULO + "\nAdicionar garantia estendida\nExcluir",
+               "Loja oficial Magalu\n" + TITULO + "\nCompra Garantida\nExcluir"):
+        assert not eh_servico(tv) and eh_linha_da_tv(tv), tv
+
+
+def test_ml_linha_de_garantia_nao_e_trocada_como_tv():
+    # a garantia aparece como linha própria e com o link do anúncio da TV: antes virava "TV" e a troca a excluía
+    for id_servico in ("MLB555555555", PARCELADO):
+        ml = MercadoLivre()
+        p = PaginaML([{"id": id_servico, "preco": 299, "qtd": 1, "titulo": GARANTIA},
+                      {"id": PARCELADO, "preco": 3749, "qtd": 1}])
+        linhas = [{"links": [f"https://produto.mercadolivre.com.br/MLB-{id_servico[3:]}-tv"], "texto": GARANTIA,
+                   "excluir": True}]
+        assert MercadoLivre.classificar_linhas(linhas, ALVO, "MLB48808732", {PARCELADO})[0]["tv"] is False
+        with pytest.raises(CarrinhoOcupado):
+            ml.garantir_item(p, URL_CATALOGO)
+        assert p.cliques == [] and len(p.carrinho) == 2, "nada é excluído"
+
+
+def test_magalu_sacola_com_servico_nao_e_esvaziada():
+    assert Magalu._so_tvs([{"titulo": TV_MAGALU}]) is True
+    assert Magalu._so_tvs([{"titulo": TV_MAGALU}, {"titulo": GARANTIA}]) is False
+    p = PaginaMagalu([{"id": "kc7h6f4k4b", "quantity": 1, "name": TV_COLOMBO, "seller": COLOMBO},
+                      {"id": "gar123", "quantity": 1, "name": GARANTIA}])
+    with pytest.raises(CarrinhoOcupado):
+        Magalu().garantir_item(p, URL_1P, ALVO_1P)
+    assert p.cliques == [] and len(p.itens) == 2
