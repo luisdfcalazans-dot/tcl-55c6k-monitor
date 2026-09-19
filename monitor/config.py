@@ -35,6 +35,16 @@ URL_MAGALU_PRODUTO = (
     "https://www.magazinevoce.com.br/magazinecanaltechbr/"
     "smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/"
 )
+# Descoberta de TODOS os anúncios do Magalu (19/09): várias buscas + anúncios vistos nos últimos 14 dias.
+MAGALU_TERMOS = ["tcl 55c6k", "55c6k", "tcl c6k 55", "smart tv tcl 55 mini led"]
+MAGALU_MAX_BUSCAS = 5            # páginas de busca por rodada (uma por termo + 1 página seguinte)
+MAGALU_MAX_REQUISICOES = 12      # teto de requisições ao magazinevoce por rodada (buscas + anúncios)
+MAGALU_PAUSA_S = float(_env("MAGALU_PAUSA_S", "1.5"))
+# Anúncios que a busca não mostra (URL do magazineluiza.com.br com o slug real). Também por variável:
+# MAGALU_ANUNCIOS_EXTRA="https://www.magazineluiza.com.br/.../p/<id>/et/elit/,https://..."
+MAGALU_ANUNCIOS_EXTRA: list[str] = [
+    u.strip() for u in os.environ.get("MAGALU_ANUNCIOS_EXTRA", "").split(",") if u.strip()
+]
 LOJAS_VTEX = {
     "Fast Shop": "https://site.fastshop.com.br",
     "Loja TCL": "https://www.lojatcl.com.br",
@@ -46,12 +56,24 @@ URL_AMAZON_PRODUTO = "https://www.amazon.com.br/dp/B0F7JZMVKF"
 URL_AMAZON_CARRINHO = "https://www.amazon.com.br/gp/cart/view.html"
 URL_AMAZON_LOGIN = "https://www.amazon.com.br/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com.br%2Fgp%2Fcart%2Fview.html&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select"
 URL_AMAZON_BUSCA = "https://www.amazon.com.br/s?k=tcl+55c6k"
+ASIN_AMAZON = "B0F7JZMVKF"
+# lista de todos os vendedores do anúncio (painel "Outras opções de compra"); responde a HTTP simples
+URL_AMAZON_OFERTAS = "https://www.amazon.com.br/gp/product/ajax/aodAjaxMain/?asin={asin}&pc=dp&experienceId=aodAjaxMain"
+AMAZON_MAX_CARGAS = 3            # páginas/requisições à Amazon por rodada
 URL_CASASBAHIA_PRODUTO = (
     "https://www.casasbahia.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv/p/55069456"
 )
-URL_CASASBAHIA_BUSCA = "https://www.casasbahia.com.br/busca/tcl%2055c6k"
+# "/busca/<termo>" diz "não encontramos nada"; a busca do site é "/<termo-com-hífen>/b"
+URL_CASASBAHIA_BUSCA = "https://www.casasbahia.com.br/tcl-55c6k/b"
+CASASBAHIA_MAX_CARGAS = 3
 URL_ML_CATALOGO = "https://www.mercadolivre.com.br/p/MLB48808732"
 URL_ML_BUSCA = "https://lista.mercadolivre.com.br/tcl-55c6k"
+ML_CATALOGO_ID = "MLB48808732"
+ML_MAX_CARGAS = 3                # páginas do ML por rodada (catálogo, busca, conferência de vendedor)
+# Anúncio fora do catálogo MAIS BARATO que o catálogo só entra depois de conferir o vendedor na página
+# do anúncio: com menos vendas que isto é descartado (19/09: "FEGU2024...", 0 vendas, R$ 2.769).
+ML_VENDAS_MINIMAS = 50
+PAUSA_ENTRE_PAGINAS_MS = 2500    # pausa entre páginas na mesma janela do Chrome
 URL_ALIEXPRESS_BUSCA = "https://pt.aliexpress.com/w/wholesale-tcl-55c6k.html?SearchText=tcl+55c6k&g=y"
 URL_SHOPEE_BUSCA = "https://shopee.com.br/search?keyword=tcl%2055c6k"
 
