@@ -157,3 +157,18 @@ def test_parcelado_real_corrige_o_que_a_loja_nao_atualiza():
     ok = ResultadoCupom(codigo="X", aceito=True, total_cartao=4169.0, frete=0.0,
                         parcelado="10x R$ 416,90 sem juros")
     assert ok.parcelado_real == "10x R$ 416,90 sem juros"
+
+
+def test_sanear_compara_parcelado_com_o_preco_do_cartao():
+    # Pix com desconto grande (25%) não pode derrubar o parcelado do cartão
+    from monitor.models import Oferta
+    from monitor.regras import sanear
+    o = Oferta(fonte="amazon", tipo="loja", loja="Amazon", titulo="Smart TV TCL 55C6K", url="u", id="a",
+               preco=3749.0, preco_pix=2811.75, parcelado="12x R$ 312,49 sem juros")
+    sanear([o])
+    assert o.parcelado == "12x R$ 312,49 sem juros"
+    # parcelado de outro produto continua caindo (caso real da Casas Bahia de 17/09)
+    cb = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo="Smart TV TCL 55C6K", url="u", id="c",
+                preco=2189.3, parcelado="6x R$ 795,32 sem juros")
+    sanear([cb])
+    assert cb.parcelado is None and cb.extra["parcelado_descartado"] == "6x R$ 795,32 sem juros"

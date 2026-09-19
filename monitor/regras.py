@@ -1034,8 +1034,11 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
         if not m:
             continue
         total = int(m.group(1)) * (parse_preco(m.group(2)) or 0)
-        if total and abs(total - o.melhor_preco) > max(80.0, o.melhor_preco * 0.2):
-            avisos.append(f"{o.loja}: parcelado '{o.parcelado}' não fecha com {fmt_preco(o.melhor_preco)}")
+        # o parcelamento é do preço do cartão; comparar com o Pix derrubaria parcelado bom quando o desconto do Pix
+        # passa de 20% (a Amazon já mostra 10% no Pix)
+        ref = o.preco or o.melhor_preco
+        if total and abs(total - ref) > max(80.0, ref * 0.2):
+            avisos.append(f"{o.loja}: parcelado '{o.parcelado}' não fecha com {fmt_preco(ref)}")
             o.extra["parcelado_descartado"] = o.parcelado
             o.parcelado = None
 
