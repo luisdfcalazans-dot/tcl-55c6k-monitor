@@ -626,6 +626,8 @@ def _ml_opcoes_de_itens(itens: Any) -> list[dict]:
             continue
         op: dict[str, Any] = {"item_id": str(it["item_id"]), "tipo": it.get("type"),
                               "selecionada": bool(it.get("selected"))}
+        if isinstance(it.get("title"), str) and it["title"].strip():
+            op["titulo"] = it["title"].strip()
         for comp in it.get("components") or []:
             if not isinstance(comp, dict) or comp.get("state") == "HIDDEN":
                 continue
@@ -633,6 +635,11 @@ def _ml_opcoes_de_itens(itens: Any) -> list[dict]:
                 op["preco"] = parse_preco(comp["price"].get("value"))
                 op["preco_de"] = parse_preco(comp["price"].get("original_value"))
                 op["desconto"] = bool(comp.get("discount_label"))
+            if comp.get("id") in ("title", "header") and "titulo" not in op:
+                bloco = comp.get("title") if isinstance(comp.get("title"), dict) else comp
+                txt = str((bloco or {}).get("text") or "").strip()
+                if txt:
+                    op["titulo"] = txt
             subs = [comp] if comp.get("id") == "seller" else []
             subs += [s for s in comp.get("subtitles") or [] if isinstance(s, dict)]
             for s in subs:
@@ -700,26 +707,49 @@ def _ml_vendedor(html: str) -> dict:
     return info
 
 
-def _ml_alternativas(html: str, capturados: list[Any]) -> list[dict]:
+def _ml_alternativas(html: str, capturados: list[Any], catalogo: str = "") -> list[dict]:
     """Opções de compra do catálogo além do buy box ("Outras opções de compra" = bbw_alternatives).
 
     Vem no HTML quando o ML já desenha a lista e, quando não, na resposta de /p/api/deferred que a
     página pede ao rolar. Os itens têm a mesma forma dos do buy box. Devolve o formato de _ml_opcoes_buybox.
+
+    Só entra o que a resposta PROVA ser opção de compra deste catálogo: no HTML, o recorte do componente
+    bbw_alternatives; nas capturas, o id do catálogo na resposta e uma lista debaixo do componente de
+    opções (_listas_de_opcoes). A mesma resposta de /p/api/deferred traz o carrossel de recomendados, e
+    aceitar qualquer lista com item_id fazia um produto recomendado virar anúncio da 55C6K, com o título
+    e a URL da TV e um preço que não é dela (19/09; mesma classe do erro da Casas Bahia de 17/09).
     """
-    fontes: list[Any] = []
+    out: dict[str, dict] = {}
     bbw = _json_apos(html, '"bbw_alternatives":')
     if isinstance(bbw, dict):
-        fontes.append(bbw)
+        for itens in _listas_de_itens(bbw):   # já recortado do componente do catálogo
+            for op in _ml_opcoes_de_itens(itens):
+                out.setdefault(op["item_id"], op)
+    cat = str(catalogo or "")
     for c in capturados or []:
         j = c.get("json") if isinstance(c, dict) else None
-        if j is not None:
-            fontes.append(j)
-    out: dict[str, dict] = {}
-    for f in fontes:
-        for itens in _listas_de_itens(f):
+        if j is None:
+            continue
+        if cat and cat not in str(c.get("url") or "") and cat not in json.dumps(j, ensure_ascii=False)[:200000]:
+            print(f"[mercadolivre] resposta capturada sem o catálogo {cat}: não conta como opção de compra")
+            continue
+        for itens in _listas_de_opcoes(j):
             for op in _ml_opcoes_de_itens(itens):
                 out.setdefault(op["item_id"], op)
     return list(out.values())
+
+
+FAIXA_PRECO_ML = (0.7, 1.6)   # rede de segurança: quanto o preço de uma opção pode fugir das outras
+
+
+def _preco_plausivel(preco: float | None, referencias: list[float]) -> bool:
+    """O preço de uma "outra opção" cabe na faixa das outras ofertas desta rodada?
+
+    Sem referência (buy box ilegível), aceita: quem barra o resto é a prova de componente/catálogo."""
+    validos = [p for p in referencias if p]
+    if not preco or not validos:
+        return True
+    return min(validos) * FAIXA_PRECO_ML[0] <= preco <= max(validos) * FAIXA_PRECO_ML[1]
 
 
 def _ml_total_de_opcoes(html: str) -> int | None:
@@ -728,6 +758,29 @@ def _ml_total_de_opcoes(html: str) -> int | None:
     rotulo = ((((bbw or {}).get("action") or {}).get("label") or {}).get("text") or "") if isinstance(bbw, dict) else ""
     m = re.search(r"(\d+)\s+op", str(rotulo))
     return int(m.group(1)) if m else None
+
+
+_RE_COMPONENTE_OPCOES_ML = re.compile(r"alternative|buy_?box|buying_option", re.I)
+
+
+def _listas_de_opcoes(obj: Any, dentro: bool = False, prof: int = 0) -> list[list]:
+    """Listas de itens que estão debaixo de um componente de OPÇÕES DE COMPRA do catálogo.
+
+    O nome do componente (bbw_alternatives, buy_box_offers, buying_options…) é a prova de que a lista é
+    das opções daquele catálogo, e não do carrossel de recomendados que vem na mesma resposta."""
+    if prof > 10:
+        return []
+    achadas: list[list] = []
+    if isinstance(obj, list):
+        if dentro and obj and all(isinstance(x, dict) and x.get("item_id") for x in obj):
+            achadas.append(obj)
+        else:
+            for x in obj:
+                achadas += _listas_de_opcoes(x, dentro, prof + 1)
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            achadas += _listas_de_opcoes(v, dentro or bool(_RE_COMPONENTE_OPCOES_ML.search(str(k))), prof + 1)
+    return achadas
 
 
 def _listas_de_itens(obj: Any, prof: int = 0) -> list[list]:
@@ -866,8 +919,17 @@ class MercadoLivre(Fonte):
             ofertas[0].id = vend["item_id"]
         # "Outras opções de compra" que não estão no buy box
         ja = {x.id for x in ofertas}
-        for op in _ml_alternativas(html, capt):
+        refs = [x.melhor_preco for x in ofertas if x.melhor_preco]
+        for op in _ml_alternativas(html, capt, config.ML_CATALOGO_ID):
             if op["item_id"] in ja:
+                continue
+            if op.get("titulo") and not eh_55c6k(op["titulo"]):
+                print(f"[mercadolivre] opção {op['item_id']} com título de outro produto "
+                      f"({op['titulo'][:60]!r}) — descartada")
+                continue
+            if not _preco_plausivel(op["preco"], refs):
+                print(f"[mercadolivre] opção {op['item_id']} a {fmt_preco(op['preco'])} fora da faixa das "
+                      f"outras ofertas desta rodada — descartada")
                 continue
             x = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=o.titulo, url=o.url,
                        id=op["item_id"], preco=op["preco"], parcelado=op.get("parcelado"), vendedor=op.get("vendedor"))

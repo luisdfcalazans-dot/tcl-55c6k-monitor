@@ -116,6 +116,79 @@ def test_outras_opcoes_de_compra_vindas_do_json_adiado(monkeypatch, tmp_path):
     assert x.url.endswith("?pdp_filters=item_id%3AMLB9999999999") and x.extra["catalogo"] == "MLB48808732"
 
 
+# ------------------------------------------------------------------------------------------------
+# revisao de 19/09 (M2): so entra como "outra opcao" o que a resposta prova ser opcao DESTE catalogo
+# ------------------------------------------------------------------------------------------------
+
+def _item(item_id: str, preco: float, vendedor: str = "Outra Loja", tipo: str = "OTHER", titulo=None) -> dict:
+    comps = [{"id": "price", "price": {"value": preco}},
+             {"id": "seller", "text": "Vendido por {seller}", "values": {"seller": {"text": vendedor}}}]
+    if titulo:
+        comps.insert(0, {"id": "title", "title": {"text": titulo}})
+    return {"item_id": item_id, "type": tipo, "selected": False, "components": comps}
+
+
+def _capt(corpo: dict, url: str = "https://www.mercadolivre.com.br/p/api/deferred?id=MLB48808732"
+                                 "&component_ids=bbw_alternatives,reco") -> list[dict]:
+    return [{"url": url, "json": corpo}]
+
+
+def test_recomendado_do_deferred_nao_vira_anuncio_da_55c6k(monkeypatch, tmp_path, capsys):
+    """O carrossel de recomendados vem na MESMA resposta de /p/api/deferred que as outras opcoes.
+    Sem conferir de que componente a lista veio, ele virava um anuncio da 55C6K com o titulo e a URL
+    da TV e um preco que nao e dela (mesma classe do erro da Casas Bahia de 17/09)."""
+    capt = _capt({"components": {"bbw_alternatives": {"items": []},
+                                 "reco_carousel": {"items": [_item("MLB3333333333", 1899)]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    ofertas = ps.MercadoLivre().coletar()[0]
+    assert "MLB3333333333" not in {o.id for o in ofertas}, "produto recomendado virou anuncio da 55C6K"
+    assert {o.id for o in ofertas} == {"MLB7574364080"}
+
+
+def test_resposta_de_outro_catalogo_nao_entra(monkeypatch, tmp_path):
+    """Outra aba/pedido do ML pode devolver as opcoes de OUTRO catalogo na mesma captura."""
+    capt = _capt({"components": {"bbw_alternatives": {"items": [_item("MLB8888888888", 3690)]}}},
+                 url="https://www.mercadolivre.com.br/p/api/deferred?id=MLB99999999&component_ids=bbw_alternatives")
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    assert {o.id for o in ps.MercadoLivre().coletar()[0]} == {"MLB7574364080"}
+
+
+def test_opcao_com_titulo_de_outro_produto_e_descartada(monkeypatch, tmp_path, capsys):
+    capt = _capt({"components": {"bbw_alternatives": {"items": [
+        _item("MLB7777777777", 3600, titulo="Suporte de parede para TV 55 polegadas")]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    assert {o.id for o in ps.MercadoLivre().coletar()[0]} == {"MLB7574364080"}
+    assert "MLB7777777777" in capsys.readouterr().out
+
+
+def test_opcao_com_preco_fora_da_faixa_da_rodada_e_descartada(monkeypatch, tmp_path, capsys):
+    # o buy box desta rodada esta em R$ 3.749; R$ 899 nao e o preco desta TV
+    capt = _capt({"components": {"bbw_alternatives": {"items": [_item("MLB6666666666", 899)]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    assert {o.id for o in ps.MercadoLivre().coletar()[0]} == {"MLB7574364080"}
+    assert "MLB6666666666" in capsys.readouterr().out
+
+
+def test_opcao_do_catalogo_com_titulo_da_tv_continua_entrando(monkeypatch, tmp_path):
+    capt = _capt({"components": {"bbw_alternatives": {"items": [
+        _item("MLB5555555555", 3690, vendedor="Loja Boa", titulo=TITULO)]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    por_id = {o.id: o for o in ps.MercadoLivre().coletar()[0]}
+    assert por_id["MLB5555555555"].preco == 3690.0 and por_id["MLB5555555555"].vendedor == "Loja Boa"
+
+
+def test_listas_de_opcoes_so_debaixo_do_componente_do_catalogo():
+    corpo = {"components": {"bbw_alternatives": {"items": [{"item_id": "MLB1"}]},
+                            "reco_carousel": {"items": [{"item_id": "MLB2"}]}}}
+    achadas = [i["item_id"] for lista in ps._listas_de_opcoes(corpo) for i in lista]
+    assert achadas == ["MLB1"]
+
+
 def test_catalogo_bloqueado_usa_o_cartao_da_busca(monkeypatch, tmp_path):
     bloqueio = ('<html><body><a href="https://www.mercadolivre.com.br/gz/account-verification?go=suspicious-traffic">'
                 "x</a></body></html>")
