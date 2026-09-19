@@ -513,7 +513,7 @@ def _testar_fila(loja: LojaCarrinho, page, a: Anuncio, fila: list[str], testados
         testados[chave] = {
             "testado_em": agora_iso(), "status": st, "aceito": r.aceito, "mensagem": r.mensagem[:200],
             "vendedor": a.vendedor or loja.loja_canonica, "anuncio": a.chave, "url": a.url,
-            "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao,
+            "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "pix_real": r.pix_real,
             "total_pix": r.total_pix, "total_cartao": r.total_cartao, "frete": r.frete,
             "desconto": r.desconto, "parcelado": r.parcelado, "quantidade": r.quantidade,
         }
@@ -597,6 +597,7 @@ def _resultado_do_registro(codigo: str, reg: dict, a: Anuncio) -> ResultadoCupom
     return ResultadoCupom(
         codigo=codigo, aceito=True, mensagem=reg.get("mensagem") or "", frete=reg.get("frete"),
         desconto=reg.get("desconto"), total_pix=reg.get("total_pix"), total_cartao=reg.get("total_cartao"),
+        pix_real=bool(reg.get("pix_real", True)),  # registro antigo, sem o campo: trata como Pix de verdade
         parcelado=reg.get("parcelado"), quantidade=int(reg.get("quantidade") or 1),
         extra={"vendedor": a.vendedor or reg.get("vendedor"), "anuncio": a.chave, "anterior": True})
 
@@ -844,14 +845,27 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     return resultado
 
 
+def preco_a_vista(r: Optional[ResultadoCupom]) -> Optional[float]:
+    """Preço à vista (Pix) de uma leitura do carrinho — só quando o Pix dela é mesmo Pix.
+
+    Carrinho que não mostra o Pix (ML sempre; Amazon quando a página não traz o preço à vista) copia o total
+    do CARTÃO para total_pix, e aí `tv_pix` é preço de cartão. Misturar esse número com o Pix coletado de
+    outro anúncio marcava como "não compensa" um cupom que era o melhor preço NO CARTÃO (19/09, item B1)."""
+    if r is None or not getattr(r, "pix_real", True):
+        return None
+    return r.tv_pix
+
+
 def referencia_sem_cupom(p: Percurso, anuncios: list[Anuncio]) -> tuple[Optional[float], Optional[float]]:
     """(à vista, cartão) mais baratos da loja SEM cupom, entre todos os anúncios: a leitura do carrinho nesta
-    rodada ou, sem ela, o preço coletado."""
+    rodada ou, sem ela, o preço coletado.
+
+    Cada lista só junta preços da MESMA base: à vista com à vista (Pix de verdade), cartão com cartão."""
     vista: list[float] = []
     cartao: list[float] = []
     for a in anuncios:
         r = p.sem_cupom.get(a.chave)
-        v = ((r.tv_pix or r.tv_cartao) if r is not None else None) or a.preco
+        v = preco_a_vista(r) or a.preco            # Pix com Pix (a.preco é o menor preço coletado, à vista)
         c = (r.tv_cartao if r is not None else None) or a.preco_cartao
         if v:
             vista.append(v)
@@ -864,10 +878,17 @@ def marcar_se_compensa(resultados: list[ResultadoCupom], ref_vista: Optional[flo
                        ref_cartao: Optional[float]) -> None:
     """Cupom aceito que não deixa a TV mais barata que o anúncio mais barato sem cupom não é "melhor preço"
     (ex.: LU250 no Colombo a R$ 3.687,15 com o 1P a R$ 3.561,55 sem cupom). pior_a_vista / pior_parcelado
-    tiram o resultado da disputa do melhor à vista / melhor parcelado na mensagem (msg_melhor)."""
+    tiram o resultado da disputa do melhor à vista / melhor parcelado na mensagem (msg_melhor).
+
+    Cada comparação é entre preços da MESMA base. Quando o carrinho não mostra o Pix (ML, Amazon sem preço à
+    vista na página), o número que a mensagem mostra como "à vista" é o do CARTÃO, então ele é comparado com a
+    referência de cartão; sem referência na base certa, não marca (19/09, item B1)."""
     for r in resultados:
-        preco = r.tv_pix or r.tv_cartao
-        r.extra["pior_a_vista"] = bool(ref_vista and preco and preco >= ref_vista - 0.005)
+        vista = preco_a_vista(r)
+        if vista is not None:
+            r.extra["pior_a_vista"] = bool(ref_vista and vista >= ref_vista - 0.005)
+        else:   # msg_melhor cai no tv_cartao: compara com o cartão, nunca com o Pix de outro anúncio
+            r.extra["pior_a_vista"] = bool(ref_cartao and r.tv_cartao and r.tv_cartao >= ref_cartao - 0.005)
         r.extra["pior_parcelado"] = bool(ref_cartao and r.tv_cartao and r.tv_cartao >= ref_cartao - 0.005)
 
 

@@ -872,3 +872,66 @@ def test_amazon_le_cada_vendedor_sem_carrinho(amb):
         "a página que mostrou outro vendedor não grava preço"
     assert precos_lidos["B0F7JZMVKF-ACUNARZFR75ET"]["tv_pix"] == 3374.10
     assert aceitos == [] and estado["amazon"]["cupons"] == {}
+
+
+# ------------------------------------------------------------------------------------------------
+# 4e. bases de preço: Pix se compara com Pix, cartão com cartão (revisão de 19/09, item B1)
+# ------------------------------------------------------------------------------------------------
+
+class CarrinhoSemPixNoResumo(CarrinhoFalsoMagalu):
+    """Carrinho que NÃO mostra o preço do Pix, como o do Mercado Livre.
+
+    Lá o resumo só traz o total no cartão e ler_totais copia esse número para total_pix (o desconto do Pix
+    só aparece no pagamento), então `tv_pix` da leitura é, na verdade, um preço de CARTÃO. `precos` aqui são
+    os totais no cartão. Sem linha de parcelado no resumo.
+    """
+
+    def _res(self, codigo: str, desconto: float = 0.0) -> ResultadoCupom:
+        cartao = round(self.precos[self.no_carrinho] - desconto, 2)
+        return ResultadoCupom(codigo=codigo, aceito=bool(desconto), produtos=cartao, frete=0.0,
+                              desconto=desconto or None, total_pix=cartao, total_cartao=cartao,
+                              pix_real=False, parcelado=None)
+
+
+# 1P: Pix 3.491,03 e cartão 3.599,00 (o mais barato nas duas bases, e o robô NÃO abre este anúncio)
+A_PIX = oferta_magalu("240162700", "magazineluiza", "Magalu", 3491.03, cartao=3599.00)
+# Colombo: sem desconto de Pix, 3.749,00 nas duas bases; é o único com cupom pendente
+B_CART = oferta_magalu("kc7h6f4k4b", "lojascolombooficial", "Lojas Colombo Oficial", 3749.00, cartao=3749.00)
+
+
+def _so_o_mais_caro_pendente(amb, aceita):
+    """Rodada em que só o anúncio mais caro tem cupom para testar (o 1P foi recusado há 1 h)."""
+    amb.latest("cloud", [A_PIX, B_CART], codigos=["MLBAIXA200"])
+    estado = {"magalu": {"cupons": {f"MLBAIXA200@{KA}": _rec("recusado", FIXO - timedelta(hours=1))}}}
+    loja = CarrinhoSemPixNoResumo(amb.pasta, aceita=aceita, precos={KA: 3599.00, KB: 3749.00})
+    return amb.rodar(loja, estado)
+
+
+def test_cupom_que_e_o_melhor_no_cartao_nao_e_comparado_com_o_pix_de_outro_anuncio(amb):
+    # 3.549,00 no cartão bate o cartão mais barato sem cupom (1P, 3.599,00); o Pix do 1P (3.491,03) é de
+    # OUTRA base e não pode marcar este cupom como "não compensa" (senão a mensagem some).
+    aceitos, _ = _so_o_mais_caro_pendente(amb, {(KB, "MLBAIXA200"): 200.0})
+    r = aceitos[0]
+    assert (r.codigo, r.tv_cartao) == ("MLBAIXA200", 3549.00)
+    assert r.extra["pior_a_vista"] is False, "leitura sem Pix de verdade não se compara com o Pix coletado"
+    assert r.extra["pior_parcelado"] is False, "3.549,00 é o melhor preço no cartão"
+    assert "3.549,00" in tc.msg_melhor([("Magazine Luiza", r) for r in aceitos])
+
+
+def test_referencia_sem_cupom_nao_mistura_cartao_lido_com_pix_coletado(amb):
+    p = tc.Percurso(inicio=FIXO)
+    anuncios = [tc.anuncio_da_oferta(CarrinhoSemPixNoResumo(amb.pasta), o) for o in (A_PIX, B_CART)]
+    # o Colombo foi aberto: a leitura traz 3.749,00 no cartão e um "Pix" que é o mesmo cartão
+    p.sem_cupom[KB] = ResultadoCupom(codigo="(sem cupom)", aceito=False, frete=0.0,
+                                     total_pix=3749.00, total_cartao=3749.00, pix_real=False)
+    ref_vista, ref_cartao = tc.referencia_sem_cupom(p, anuncios)
+    assert ref_vista == 3491.03, "à vista: só preços de Pix de verdade (o do 1P, coletado)"
+    assert ref_cartao == 3599.00, "cartão: o menor entre a leitura do Colombo e o cartão coletado do 1P"
+
+
+def test_cupom_pior_que_o_cartao_mais_barato_continua_marcado(amb):
+    # com 50 de desconto o Colombo fica em 3.699,00 no cartão, pior que os 3.599,00 do 1P: segue marcado
+    aceitos, _ = _so_o_mais_caro_pendente(amb, {(KB, "MLBAIXA200"): 50.0})
+    r = aceitos[0]
+    assert r.tv_cartao == 3699.00 and r.extra["pior_parcelado"] is True
+    assert tc.msg_melhor([("Magazine Luiza", r) for r in aceitos]) == "", "não é o melhor em base nenhuma"

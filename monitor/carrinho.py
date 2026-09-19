@@ -66,6 +66,10 @@ class ResultadoCupom:
     desconto: Optional[float] = None
     total_pix: Optional[float] = None
     total_cartao: Optional[float] = None
+    # total_pix é mesmo um preço de Pix? Carrinho que não mostra o Pix (ML sempre; Amazon quando a página
+    # não traz o preço à vista) copia o total do CARTÃO para total_pix: ali tv_pix é preço de cartão e não
+    # pode ser comparado com um preço de Pix (ver referencia_sem_cupom em testar_cupons.py).
+    pix_real: bool = True
     parcelado: Optional[str] = None
     quantidade: int = 1
     extra: dict = field(default_factory=dict)
@@ -1163,7 +1167,8 @@ class MercadoLivre(LojaCarrinho):
                 r.total_cartao = valor_apos(k)
             elif re.search(r"(cupom|desconto)", rot, re.I) and "Inserir" not in rot and r.desconto is None:
                 r.desconto = valor_apos(k)
-        r.total_pix = r.total_cartao  # o ML só mostra o desconto do Pix no pagamento
+        # o ML só mostra o desconto do Pix no pagamento: este "Pix" é o total do CARTÃO (pix_real=False)
+        r.total_pix, r.pix_real = r.total_cartao, False
         m = _RE_PARCELA.search("\n".join(linhas))
         r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
         return r
@@ -1348,6 +1353,7 @@ class Amazon(LojaCarrinho):
         cartao, pix, parcelado = separa_pix_cartao(
             preco, _txt("#oneTimePaymentPrice_feature_div"), _txt("#best-offer-string-cc"))
         r.total_pix = pix or cartao
+        r.pix_real = pix is not None  # sem Pix na página, total_pix é o preço do CARTÃO
         r.total_cartao = cartao
         r.produtos = cartao or pix
         r.frete = 0.0
