@@ -200,6 +200,7 @@ Atenção: a linha `TELEGRAM_SESSION` dá acesso total à sua conta. Ela fica s�
 | Mudar o alvo de preço (ex.: R$ 2.800 no Pix) | `gh variable set ALVO_PIX --body 2800` e a mesma linha no `.env` do PC |
 | Mudar o alvo parcelado | `gh variable set ALVO_PARCELADO --body 2900` |
 | Acompanhar mais canais públicos do Telegram | `gh variable set TELEGRAM_CANAIS_EXTRA --body "canal1,canal2"` |
+| Fazer o coletor abrir um anúncio do Magalu que a busca não mostra | `gh variable set MAGALU_ANUNCIOS_EXTRA --body "https://www.magazineluiza.com.br/.../p/<id>/et/elit/"` (vários: separados por vírgula) |
 | Pausar a nuvem | `gh workflow disable "monitor 55C6K"` (retomar: `enable`) |
 | Pausar o PC | `Disable-ScheduledTask -TaskName "Monitor TCL 55C6K"` (retomar: `Enable-ScheduledTask …`) |
 | Forçar uma coleta agora | `gh workflow run "monitor 55C6K"` ou `python run.py --mode all` |

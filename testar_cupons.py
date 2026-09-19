@@ -16,7 +16,10 @@ TV na loja (latest_cloud.json + latest_pc.json, um por anúncio+vendedor) e vai 
 Antes de mexer no carrinho calcula a fila de cada anúncio; anúncio sem cupom pendente é pulado sem tocar no
 carrinho. Cupom já aceito num anúncio mais barato (e ainda válido) não é testado nos mais caros; cupom
 recusado (ou com erro) no mais barato passa para o próximo. Limites por rodada: MAX_APLICACOES_POR_RODADA
-testes por loja e loja.max_anuncios anúncios visitados (Magalu 4, ML 3, Amazon 3 só leitura).
+testes por loja e loja.max_anuncios anúncios visitados (Magalu 4, ML 3, Amazon 3 só leitura). No fim da rodada o
+carrinho fica com o melhor cupom conhecido, se ele deixar a TV mais barata; senão, com o anúncio mais barato sem
+cupom (nunca com um anúncio mais caro só porque foi o último testado). Anúncio do ML cujo vendedor a coleta não
+conferiu (extra.vendedor_conferido=False) não entra.
 
 O robô nunca avança para pagamento nem digita dados de conta. Só aplica cupom, lê o total e remove.
 """
@@ -171,6 +174,10 @@ def anuncio_da_oferta(loja: LojaCarrinho, o: dict) -> Optional[Anuncio]:
     """Oferta do latest (contrato: tipo 'loja', um id por anúncio+vendedor) -> Anuncio, ou None se não serve."""
     url = o.get("url") or ""
     if o.get("tipo", "loja") != "loja" or not o.get("ativo", True) or loja.dominio_url not in url:
+        return None
+    if (o.get("extra") or {}).get("vendedor_conferido") is False:
+        # ML: anúncio fora do catálogo cujo vendedor a coleta não conferiu (vendas, página do anúncio).
+        # Não vai para o carrinho da pessoa nem para a mensagem "é só entrar e finalizar".
         return None
     titulo = o.get("titulo") or ""
     if titulo and not _eh_a_tv(titulo):
@@ -410,6 +417,8 @@ class Percurso:
     lidos: dict = field(default_factory=dict)         # chave do anúncio -> melhor leitura (sem cupom ou com)
     visitados: list = field(default_factory=list)     # chaves dos anúncios em que o robô abriu/mexeu no carrinho
     gravados: set = field(default_factory=set)        # chaves de estado escritas nesta rodada
+    sem_cupom: dict = field(default_factory=dict)     # chave do anúncio -> leitura do carrinho sem cupom
+    no_carrinho: Optional[str] = None                 # anúncio que está no carrinho agora (None: não se sabe)
 
 
 @contextmanager
@@ -551,8 +560,10 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
         print(f"[{loja.nome}] anúncio {len(p.visitados)}/{loja.max_anuncios}: {a.rotulo} ({fmt_preco(a.preco)}), "
               f"{len(fila)} cupom(ns) pendente(s)")
         if not loja.garantir_item(page, a.url, a.alvo(ids_tv)):
+            p.no_carrinho = None  # pode ter parado no meio da troca: no fim da rodada o carrinho é conferido
             print(f"[{loja.nome}] não consegui deixar só {a.rotulo} no carrinho; passo para o próximo anúncio")
             continue
+        p.no_carrinho = a.chave
         base = loja.ler_totais(page)
         if loja.tem_cupom_aplicado(page, base):
             print(f"[{loja.nome}] o carrinho estava com um cupom de antes; tiro para medir o preço cheio")
@@ -560,6 +571,7 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
             base = loja.ler_totais(page)
         base.codigo = "(sem cupom)"
         base.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica)
+        p.sem_cupom[a.chave] = base
         _registra_leitura(p, a, base)
         print(f"[{loja.nome}] {a.rotulo}: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
               f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
@@ -593,6 +605,49 @@ def escolher_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
     if not cands:
         return None
     return min(cands, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)
+
+
+def destino_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
+                  momento: datetime | None = None) -> Optional[tuple[Anuncio, Optional[ResultadoCupom]]]:
+    """Como o carrinho termina a rodada (só quando o robô mexeu nele).
+
+    (anúncio, cupom): deixa o melhor cupom conhecido aplicado (escolher_final);
+    (anúncio, None):  volta para o anúncio mais barato que entrou no carrinho nesta rodada, sem cupom;
+    None:             o carrinho já está no lugar certo.
+    "Priorize o mais barato": o cupom só fica se deixar a TV mais barata que esse anúncio sem cupom. Sem isto, testar
+    um anúncio mais caro (ou um cupom que não compensa) deixaria no carrinho da pessoa uma TV mais cara que a de antes.
+    """
+    def preco(r: ResultadoCupom) -> float:
+        return r.tv_pix or r.tv_cartao or 9e9
+
+    final = escolher_final(p, anuncios, testados, momento)
+    base = next(((a, p.sem_cupom[a.chave]) for a in anuncios if a.chave in p.sem_cupom), None)
+    if final and (base is None or preco(final[1]) < preco(base[1])):
+        return final
+    if base is None or base[0].chave == p.no_carrinho:
+        return None
+    return base[0], None
+
+
+def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], visivel: bool, reg: dict) -> bool:
+    """Deixa no carrinho só o anúncio `a`, sem cupom (as mesmas regras de garantir_item: carrinho com outro
+    produto não é mexido)."""
+    print(f"[{loja.nome}] volto o carrinho para o anúncio mais barato, sem cupom: {a.rotulo} ({fmt_preco(a.preco)})")
+    try:
+        with _sessao(loja, visivel) as page:
+            if loja.garantir_item(page, a.url, a.alvo(x.item_id for x in anuncios if x.item_id)):
+                return True
+        print(f"[{loja.nome}] não consegui voltar o carrinho para {a.rotulo}")
+    except LojaIndisponivel as e:
+        ate = agora() + PAUSA_LOJA_INDISPONIVEL
+        reg["pausa_ate"] = ate.isoformat(timespec="seconds")
+        reg["pausa_motivo"] = str(e)
+        print(f"[{loja.nome}] {e}; pausa até {ate.strftime('%d/%m %H:%M')}")
+    except (CarrinhoOcupado, PrecisaLogin) as e:
+        print(f"[{loja.nome}] não voltei o carrinho para {a.rotulo}: {e}")
+    except Exception as e:  # noqa: BLE001
+        print(f"[{loja.nome}] não voltei o carrinho para {a.rotulo}: {type(e).__name__}: {str(e)[:120]}")
+    return False
 
 
 def _precos_por_anuncio(antigos: Optional[dict], p: Percurso, anuncios: list[Anuncio]) -> dict:
@@ -652,15 +707,19 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
             reg["precos"] = _precos_por_anuncio(reg.get("precos"), p, anuncios)
 
     # passo final: se o carrinho foi mexido, deixa nele o melhor cupom conhecido (desta rodada ou de antes, hoje)
+    # quando ele deixa a TV mais barata; senão, o anúncio mais barato sem cupom (ver destino_final)
     final = None
     if p.visitados and not so_leitura and not interrompida:
-        final = escolher_final(p, anuncios, reg["cupons"])
-        if final:
+        destino = destino_final(p, anuncios, reg["cupons"])
+        if destino and destino[1] is not None:
+            final = destino
             a, melhor = final
             if melhor.extra.get("anterior"):
                 print(f"[{loja_id}] volto o carrinho para o melhor conhecido: {a.rotulo} com {melhor.codigo}")
             with _sessao(loja, visivel) as page:
                 deixar_cupom_no_carrinho(loja, page, a.url, melhor, a.alvo(x.item_id for x in anuncios if x.item_id))
+        elif destino:
+            voltar_ao_anuncio(loja, destino[0], anuncios, visivel, reg)
     print(f"[{loja_id}] {len(p.aceitos)} cupom(ns) aceito(s)")
     resultado = list(p.aceitos)
     if resultado and final and final[1].extra.get("anterior"):

@@ -286,7 +286,9 @@ def test_cupom_de_horario_aceito_no_mais_barato_nao_vai_para_os_outros(amb):
     amb.rodar(loja, estado)
     assert _aplicados(loja) == [(KA, "TOMA30"), (KB, "TOMA30")], \
         "às 15h o 14H não é testado no Colombo (ou vale e o 1P ganha, ou a janela passou)"
-    assert _garantidos(loja) == [KA, KB], "e não é reaplicado no passo final fora da hora dele"
+    # e não é reaplicado no passo final fora da hora dele: o carrinho só volta para o 1P, sem cupom
+    assert _garantidos(loja) == [KA, KB, KA]
+    assert loja.eventos[-1] == ("garantir", KA)
 
 
 def test_cupom_de_antes_sai_do_carrinho_antes_de_medir(amb):
@@ -330,7 +332,7 @@ def test_limite_de_anuncios_por_loja(amb):
     loja = CarrinhoFalsoMagalu(amb.pasta)
     loja.max_anuncios = 2
     amb.rodar(loja)
-    assert _garantidos(loja) == [KA, KB]
+    assert _garantidos(loja) == [KA, KB, KA], "o 3º anúncio fica para a próxima; no fim o carrinho volta ao 1P"
     assert CarrinhoFalsoMagalu.max_anuncios == 4 and MercadoLivre.max_anuncios == 3
 
 
@@ -350,6 +352,73 @@ def test_carrinho_com_outro_produto_para_a_loja_na_rodada(amb):
     assert loja.eventos == [("garantir", KA)], "não tenta os outros anúncios nem o passo final"
     assert aceitos == [] and estado["magalu"]["cupons"] == {}
     assert "pausa_ate" not in estado["magalu"], "não é antirrobô: sem pausa"
+
+
+# ------------------------------------------------------------------------------------------------
+# 4b. fim da rodada: o carrinho nunca fica num anúncio mais caro só porque foi o último testado
+# ------------------------------------------------------------------------------------------------
+
+def test_sem_cupom_que_funcione_o_carrinho_volta_para_o_mais_barato(amb):
+    # caso real de 19/09 13h: DIADOCLIENTE18H volta à fila a cada hora nova, nos dois anúncios
+    amb.latest("cloud", [A, B], codigos=["DIADOCLIENTE18H"])
+    uma_hora = FIXO - timedelta(hours=1)
+    estado = {"magalu": {"cupons": {f"DIADOCLIENTE18H@{KA}": _rec("recusado", uma_hora),
+                                    f"DIADOCLIENTE18H@{KB}": _rec("recusado", uma_hora, "Lojas Colombo Oficial")}}}
+    loja = CarrinhoFalsoMagalu(amb.pasta)
+    aceitos, _ = amb.rodar(loja, estado)
+    assert _aplicados(loja) == [(KA, "DIADOCLIENTE18H"), (KB, "DIADOCLIENTE18H")]
+    assert _garantidos(loja) == [KA, KB, KA] and loja.eventos[-1] == ("garantir", KA)
+    assert loja.no_carrinho == KA and aceitos == []
+
+
+def test_cupom_que_nao_compensa_no_mais_caro_nao_fica_no_carrinho(amb):
+    # LU250 funciona no Colombo (3.937,15 - 250 = 3.687,15), mas o 1P sem cupom custa 3.561,55
+    amb.latest("cloud", [A, B], codigos=["LU250"])
+    loja = CarrinhoFalsoMagalu(amb.pasta, aceita={(KB, "LU250"): 250.0})
+    aceitos, _ = amb.rodar(loja)
+    assert loja.eventos[-1] == ("garantir", KA), "o carrinho volta para o mais barato, sem cupom"
+    assert [(r.codigo, r.extra["anuncio"]) for r in aceitos] == [("LU250", KB)], "o aceite ainda vai na mensagem"
+    assert "no_carrinho" not in aceitos[0].extra
+    assert "ficou aplicado" not in tc.msg_melhor([("Magazine Luiza", r) for r in aceitos])
+
+
+def test_cupom_que_compensa_no_mais_caro_fica_no_carrinho(amb):
+    amb.latest("cloud", [A, B], codigos=["COLOMBO500"])
+    loja = CarrinhoFalsoMagalu(amb.pasta, aceita={(KB, "COLOMBO500"): 500.0})  # 3.437,15 < 3.561,55
+    aceitos, _ = amb.rodar(loja)
+    assert loja.eventos[-2:] == [("garantir", KB), ("aplicar", KB, "COLOMBO500")]
+    assert aceitos[0].extra["no_carrinho"] is True
+
+
+def test_anuncio_mais_caro_que_nao_entrou_o_carrinho_e_conferido_no_fim(amb):
+    # a troca pelo Colombo falhou no meio (o carrinho pode ter ficado vazio): no fim, garante o 1P de novo
+    amb.latest("cloud", [A, B], codigos=["TOMA30"])
+    loja = CarrinhoFalsoMagalu(amb.pasta, nao_entra={KB})
+    amb.rodar(loja)
+    assert _garantidos(loja) == [KA, KB, KA]
+
+
+def test_so_o_mais_barato_visitado_nao_mexe_de_novo_no_fim(amb):
+    amb.latest("cloud", [A, B], codigos=["TOMA30"])
+    estado = {"magalu": {"cupons": {f"TOMA30@{KB}": _rec("recusado", FIXO - timedelta(hours=1), "Lojas Colombo Oficial")}}}
+    loja = CarrinhoFalsoMagalu(amb.pasta)
+    amb.rodar(loja, estado)
+    assert _garantidos(loja) == [KA]
+
+
+def test_carrinho_ocupado_ao_voltar_nao_quebra_a_rodada(amb):
+    amb.latest("cloud", [A, B], codigos=["TOMA30"])
+
+    class OcupaNoFim(CarrinhoFalsoMagalu):
+        def garantir_item(self, page, url, alvo=None):
+            if len(self.alvos) == 2:  # 3ª chamada: a volta para o 1P
+                self.alvos.append(alvo)
+                raise CarrinhoOcupado("a pessoa pôs outro produto na sacola no meio da rodada")
+            return super().garantir_item(page, url, alvo)
+
+    loja = OcupaNoFim(amb.pasta)
+    aceitos, estado = amb.rodar(loja)
+    assert len(loja.alvos) == 3 and aceitos == [] and "pausa_ate" not in estado["magalu"]
 
 
 def test_alvo_passado_ao_carrinho_tem_vendedor_e_chave(amb):

@@ -31,7 +31,7 @@ Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO`.
 ### 2. GitHub
 1. Crie um repositório **público** e envie este projeto (`git push`).
 2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
-3. (Opcional) **Variables**: `ALVO_PIX`, `ALVO_PARCELADO`, `TELEGRAM_CANAIS_EXTRA` (canais públicos separados por vírgula).
+3. (Opcional) **Variables**: `ALVO_PIX`, `ALVO_PARCELADO`, `TELEGRAM_CANAIS_EXTRA` (canais públicos separados por vírgula), `MAGALU_ANUNCIOS_EXTRA` (links de anúncios do Magalu que a busca não mostra, separados por vírgula).
 4. **Settings → Pages → Source: Deploy from a branch → main / docs**. O painel fica em `https://<usuário>.github.io/<repo>/`.
 5. **Actions → monitor 55C6K → Run workflow** para a primeira coleta. A primeira rodada só registra o que existe (uma mensagem de "monitor iniciado"); a partir da segunda chegam as novidades.
 
