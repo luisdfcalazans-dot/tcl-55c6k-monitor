@@ -172,15 +172,21 @@ def precos_no_texto(texto: str) -> list[float]:
 #
 # Cada valor "R$ ..." de uma postagem é classificado pelo que está em volta dele (na mesma linha; a linha de cima
 # só entra quando a frase dela termina em "de", ":" ou ">" e o valor abre a linha de baixo):
-#   preco     candidato: cartão, Pix, "com cupom", "Preço mínimo: R$ X", o valor DEPOIS de uma seta e "A partir
-#             de R$ X" abrindo a linha/frase sem contexto de cupom (formato do Canaltech)
-#   fraco     só vale se não houver candidato: "a partir de R$ X" no meio da frase e "mín./mínimo: R$ X", sem
-#             contexto de cupom, e "R$ X mais barato..." (diferença quando há outro preço; o preço quando é o único)
-#   antigo    "De R$ X", "era/estava/antes R$ X", o valor ANTES de uma seta (->, =>, >>, ➡️, →, ⏩) ou de "por R$ Y"
-#   condicao  mínimo do cupom: "acima de", "a partir de"/"mín." num contexto de cupom/desconto, "compras de",
-#             "valor/pedido mínimo", "compra mínima", "> R$" / ">= R$" (fora de seta), "gastando", "em compras"
+#   preco     candidato: cartão, Pix, "com cupom", "Preço mínimo: R$ X", "Preço final com o desconto: R$ X", o
+#             valor DEPOIS de uma seta e "a partir de R$ X" sem cupom/desconto na mesma frase
+#   fraco     só vale se não houver candidato: "a partir de R$ X" no meio da frase e "mín./mínimo: R$ X" sem
+#             cupom, e "R$ X mais barato (que...)" (diferença quando há outro preço; o preço quando é o único).
+#             "R$ X (mais barato do ano!)" e "R$ X mais barato no Pix" são o preço.
+#   antigo    "De R$ X", "era/estava/antes R$ X", o valor ANTES de uma seta seguida de outro valor, ou de "por R$ Y"
+#   condicao  mínimo do cupom: "acima de", "superior a", "compras de", "comprando/levando/gastar", "valor/pedido/
+#             compra mínimo" (também "mín:"), "+R$", "R$ X ou mais/pra cima", "> R$" depois de uma palavra (no começo
+#             da linha ">" é marcador), "a partir de"/"mín." numa frase de cupom/desconto; e, na frase que anuncia o
+#             desconto do cupom ("R$ 300 OFF ...", "Cupom de R$ 300 ..."), o valor DEPOIS do desconto que não está
+#             marcado como preço (por, Pix, à vista, final, com cupom...): é um termo do cupom, não o preço da TV
 #   teto      "máximo de", "desconto máximo", "limitado a", "limite de"
-#   desconto  "R$ X OFF", "R$ X de desconto", "economize", "desconto de", "cupom de", "cashback", "de volta"
+#   desconto  "R$ X OFF", "R$ X de desconto", "economize", "desconto de", "cupom de", "cashback", "de volta" e o
+#             rótulo "Desconto: R$ X" ("com o desconto: R$ X", "após o desconto: R$ X", "Pix c/ desconto: R$ X"
+#             são o preço final)
 #   parcela   "10x de R$ X", "10x R$ X", "parcelas de", "R$ X/mês"
 # O preço da TV é o menor candidato >= piso (abaixo de R$ 1.500 nenhum valor é o preço desta TV); sem candidato,
 # o menor "fraco" >= piso.
@@ -188,43 +194,81 @@ def precos_no_texto(texto: str) -> list[float]:
 PISO_PRECO_TV = 1500.0  # abaixo disso nenhum valor é o preço da 55C6K (peça, acessório, parcela, desconto)
 _RE_VALOR_POST = re.compile(r"R\$\s*" + _NUM_BRL)  # aceita "R$  3.599" (espaço duplo, comum nos canais)
 _SETA = r"(?:-+>|=+>|>>|➡️|➡|→|⏩|⇒|➔|➜|⟶)"
-_RE_SETA_ANTES = re.compile(_SETA + r"\s*$")
-_RE_SETA_DEPOIS = re.compile(r"^\s*" + _SETA)
+_RE_SETA_ANTES = re.compile(r"(?:" + _SETA + r"|(?<![<>!=])=)\s*$")  # "= R$ 2.899" também é o resultado
+# a seta só separa o preço antigo do novo quando outro valor vem logo depois ("R$ 2.799 ➡️ https://..." é o preço)
+_RE_SETA_DEPOIS = re.compile(r"^\s*" + _SETA + r"[^a-z0-9\n]*(?:(?:por|para|pra)\s*:?\s*)?r\$")
 _RE_DEPOIS = [
     ("desconto", re.compile(r"^\s*\)?\s*(?:off\b|de\s+desconto|de\s+economia|de\s+cashback|em\s+cashback|"
-                            r"de\s+volta|a\s+menos\b)")),
-    ("condicao", re.compile(r"^\s*(?:em\s+(?:compras|pedidos|produtos)|nas\s+compras|ou\s+mais\s+em\s+compras)")),
+                            r"de\s+volta|a\s+menos\b|de\s+diferenca)")),
+    ("condicao", re.compile(r"^(?:\s*(?:em\s+(?:compras|pedidos|produtos)|nas\s+compras|ou\s+mais\b(?!\s+barat)|"
+                            r"ou\s+acima\b|(?:pra|para)\s+cima\b|em\s+diante\b)|\+(?=\s|$|[)\].,;:!]))")),
     ("parcela", re.compile(r"^\s*(?:x\s*\d|/\s*mes|por\s+mes\b|mensais)")),
     ("antigo", re.compile(r"^\s*[),;]?\s*(?:por|para|pra)\s*:?\s*r\$")),
-    ("fraco", re.compile(r"^\s*(?:de\s+|\(\s*)?mais\s+barat")),
+    # "mais barato (que ...)" é diferença; "mais barato do ano/de sempre/no Pix/à vista" é o preço
+    ("fraco", re.compile(r"^\s*(?:de\s+|\(\s*)?mais\s+barat[oa]s?(?!\s+(?:d[oa]s?\s+(?:ano|mes|historia|brasil|site|"
+                         r"momento|dia|semana|mercado|internet)\b|de\s+(?:sempre|todos)\b|ja\s+vist|"
+                         r"(?:no|via|pelo)\s+(?:pix|app|boleto)\b|a\s+vista\b))")),
 ]
 _RE_ANTES = [
     ("parcela", re.compile(r"(?:\b\d{1,2}\s*(?:x|vezes)\s*(?:(?:sem|s/)\s*juros\s*)?(?:de\s*)?|"
                            r"\bparcelas?\s+(?:de\s*)?)[:\-]?\s*$")),
     ("teto", re.compile(r"(?:\bmaxim[oa]|\bmax\.?|\blimitad[oa]\s+a|\blimite|\bteto)(?:\s+de)?\s*[:\-]?\s*$")),
-    ("desconto", re.compile(r"(?:\beconomi\w*|\bdesconto\s+de|(?<!com\s)(?<!%\sde\s)\bdesconto\s*:|\bcashback|"
-                            r"\bcupom\s+de|\boff\s+de|\bganhe|"
+    # "Desconto: R$ X" só como rótulo (começo da linha/frase, "valor do desconto:"); "com o desconto:",
+    # "após o desconto:", "c/ desconto:", "5% desconto:" vêm antes do preço final
+    ("desconto", re.compile(r"(?:\beconomi\w*|\bdesconto\s+de|(?:^|[^a-z0-9\s/%])\s*(?:(?:valor|total)\s+(?:do|de)\s+)?"
+                            r"desconto\s*:|\bcashback|\bcupom\s+de|\boff\s+de|\bganhe|"
                             r"\bvolta\s+de)(?:\s+de)?\s*[:\-]?\s*$")),
     ("condicao", re.compile(
-        r"(?:\bacima\s+de|"
-        r"\b(?:compras?|pedidos?|carrinho|produtos?|gastos?)\s+(?:(?:a\s+partir|acima|minim[oa]s?)\s+)?de|"
-        r"\b(?:gastando|gaste|gastar)(?:\s+(?:a\s+partir\s+de|acima\s+de|mais\s+de|de))?|"
-        r"\b(?:comprando|compre)\s+(?:a\s+partir\s+de|acima\s+de|mais\s+de)|"
-        r"\b(?:valor|pedido|compra|carrinho|gasto)s?\s+minim[oa]s?(?:\s+(?:de|do|da|no|na|para)\b)?"
+        r"(?:\bacima\s+de|\b(?:superior|superiores|maior|maiores)\s+(?:a|ao|que|de)|"
+        r"\b(?:compras?|pedidos?|carrinhos?|produtos?|gastos?)\s+(?:(?:a\s+partir|acima|minim[oa]s?)\s+)?de|"
+        r"\b(?:gastando|gaste|gastar|comprando|levando)(?:\s+(?:a\s+partir\s+de|acima\s+de|mais\s+de|de|"
+        r"ao\s+menos|pelo\s+menos))?|"
+        r"\b(?:compre|comprar)\s+(?:a\s+partir\s+de|acima\s+de|mais\s+de|ao\s+menos|pelo\s+menos)|"
+        r"\b(?:valor|pedido|compra|carrinho|gasto)s?\s+min(?:im[oa]s?)?\b\.?(?:\s+(?:de|do|da|no|na|para)\b)?"
         r"(?:\s+(?:pedido|compra|carrinho|valor|gasto)s?\b)?|"
-        r"\bminim[oa]s?\s+(?:de|do|da|no|na|para)\s+(?:pedido|compra|carrinho|valor|gasto)s?\b|"
-        r"(?<![-=>])>=?|≥"
-        r")\s*[:\-]?\s*$")),
+        r"\bmin(?:im[oa]s?)?\b\.?\s+(?:de|do|da|no|na|para)\s+(?:pedido|compra|carrinho|valor|gasto)s?\b|"
+        r"≥"
+        r")\s*[:\-]?\s*\+?\s*$")),
     ("antigo", re.compile(r"(?:(?:^|[^a-z0-9\s])\s*de|\bera|\bestava|\bcustava|\bantes|\bantigo|\bsaia\s+por|"
                           r"\b(?:caiu|baixou|saiu|desceu)\s+de)\s*[:\-]?\s*$")),
 ]
-# "a partir de R$ X" e "mín./mínimo: R$ X" soltos: mínimo de cupom quando a mesma frase fala de cupom/desconto
-# antes ("Cupom TV300 (mín. R$ 2.500)", "R$ 250 OFF a partir de R$ 2.500"); senão, preço "fraco" ("A partir de
-# R$ 3.349,00" do Canaltech, "com cupom a partir de R$ 2.899", "📉 Mínimo: R$ 2.899")
-_RE_A_PARTIR_DE = re.compile(r"(?:\ba\s+partir\s+de|(?<!preco\s)(?<!precos\s)\bmin(?:\.|im[oa]s?\b))\s*[:\-]?\s*$")
-_RE_CONTEXTO_CUPOM = re.compile(r"cupo(?:m|ns)\s*:?\s*[a-z]*\d|\boff\b|descont|valid|compra|pedido|produto|frete|"
-                                r"cashback|economi|%|\bgast|carrinho")
-_RE_SEP_FRASE = re.compile(r"[|•·;/(]")
+# "💳 10x sem juros: R$ 2.990": rótulo com dois-pontos (sem "de") e 4 parcelas ou mais; um valor >= piso aí é o
+# total, porque a parcela seria absurda para esta TV
+_RE_TOTAL_PARCELADO = re.compile(r"\b(?:[4-9]|1\d|2[0-4])\s*(?:x|vezes)\s*(?:(?:sem|s/)\s*juros\s*)?:\s*$")
+# "> R$ 2.500" / ">= R$ 2.500" depois de uma palavra é o mínimo do cupom ("R$ 300 OFF > R$ 2.500"); fora de seta
+# ("->", "=>", ">>") e não no começo da linha, onde ">" é marcador de lista ("> R$ 2.899 no Pix")
+_RE_MAIOR = re.compile(r"(?<![-=>])>=?\s*$")
+# "a partir de R$ X" e "mín./mínimo: R$ X" soltos: mínimo de cupom quando a mesma frase ("mín.": a mesma linha)
+# fala de cupom/desconto antes ("Cupom TV300 (mín. R$ 2.500)", "R$ 250 OFF a partir de R$ 2.500", "Cupom TV300,
+# a partir de R$ 2.500"); o preço quando a frase fala do produto ("TCL 55C6K a partir de R$ 2.899", "Com frete
+# grátis, a partir de R$ 2.899", "A partir de R$ 3.349,00" do Canaltech); "fraco" no meio de outra frase
+# ("📉 Mínimo: R$ 2.899")
+_RE_A_PARTIR_DE = re.compile(r"(?:\ba\s+partir\s+de|(?<!preco\s)(?<!precos\s)\bmin(?:im[oa]s?)?\b\.?(?:\s+de)?)"
+                             r"\s*[:\-]?\s*$")
+_RE_CONTEXTO_CUPOM = re.compile(r"cupo(?:m|ns)\s*:?\s*[a-z]*\d|\boff\b|descont|valid|compra|pedido|cashback|economi|%|"
+                                r"\bgast|carrinho|levando|(?:\bem|\bpara|\bnos|\bde)\s+(?:qualquer\s+|todos\s+os\s+)?"
+                                r"produtos?\b")
+# cupom com código ou com o valor do desconto: a frase é do cupom mesmo depois de uma vírgula
+# ("Cupom 10% OFF, a partir de R$ 2.500"). Só "X% OFF" sem cupom é promoção da loja: "Com 5% OFF no Pix, a partir
+# de R$ 2.899", "Até 10% OFF, a partir de R$ 2.899" descrevem o preço
+_RE_CUPOM_FORTE = re.compile(r"cupo(?:m|ns)\s*:?\s*[a-z]*\d|cupo(?:m|ns)\s+de\s+(?:r\$\s*)?\d|"
+                             r"r\$\s*\d[\d.,]*\s*\)?\s*(?:off\b|de\s+desconto)")
+_RE_SEP_FRASE = re.compile(r"[|•·;/(]|\s[-—–]\s")
+_RE_MODELO_NA_FRASE = re.compile(r"c6k(?![a-z0-9])")
+# frase que anuncia o desconto do cupom: "R$ 300 OFF", "R$ 300 de desconto", "cupom de R$ 300", "economize R$ 300"
+_RE_DESCONTO_DO_CUPOM = re.compile(r"\bcupo(?:m|ns)\s+de\s+r\$\s*\d[\d.,]*(?:\s*(?:off\b|de\s+desconto))?|"
+                                   r"r\$\s*\d[\d.,]*\s*\)?\s*(?:off\b|de\s+desconto)|"
+                                   r"\b(?:ganhe|economize)\s+(?:ate\s+)?r\$\s*\d[\d.,]*")
+# o texto entre o desconto e o valor fala da própria TV (não da compra): o valor é o preço dela
+_RE_A_PROPRIA_TV = re.compile(r"\b(?:tvs?|smart|tcl|c6k|55c6k|televis\w*)\b")
+_RE_SEP_CLAUSULA = re.compile(r"[|•·;()\[\]/,]|\s[-—–]\s|[.!?](?=\s|$)")
+# marcas de que o valor é o preço resultante (não um termo do cupom)
+_RE_MARCA_PRECO_ANTES = re.compile(
+    r"(?:\bpor|\bsai(?:\s+(?:a|por))?|\bfica(?:\s+(?:por|em|a))?|\bpagando|\bpague|\bpaga|\bfinal|\btotal|\bpix|"
+    r"\ba\s+vista|\bpreco|\b(?:com|apos|depois\s+d[oa])\s+(?:o\s+|a\s+)?(?:cupom|desconto)\b.*|"
+    r"\bc/\s*(?:cupom|desconto)\b.*)\s*[:\-]?\s*$")
+_RE_MARCA_PRECO_DEPOIS = re.compile(r"^\s*[(\[]?\s*(?:(?:no|via|pelo|com|em)\s+)?(?:pix|a\s+vista|boleto)\b|"
+                                    r"^\s*com\s+(?:o\s+)?(?:cupom|desconto)\b")
 # a linha de cima continua na de baixo quando termina numa preposição/dois-pontos ("... acima de" / "R$ 2.500")
 _RE_FRASE_ABERTA = re.compile(r"(?:\bde|:|>|\bacima|\bpartir|\bminim[oa]|\bmin\.)\s*$")
 
@@ -238,11 +282,45 @@ def _contexto(texto: str, ini: int, fim: int) -> tuple[str, str]:
     if ini_linha > 0 and not re.search(r"[a-z0-9]", antes):
         anterior = sem_acentos(texto[texto.rfind("\n", 0, ini_linha - 1) + 1: ini_linha - 1]).lower()
         if _RE_FRASE_ABERTA.search(anterior):
-            antes = anterior + " " + antes
+            antes = anterior + "\n" + antes
     return antes, sem_acentos(texto[fim:fim_linha]).lower()
 
 
-def classifica_valor(antes: str, depois: str) -> str:
+def _a_partir_de(antes: str, m: re.Match) -> str:
+    """Tipo de "a partir de R$ X" / "mín. R$ X" (m: o marcador no fim de antes)."""
+    pre = antes[:m.start()]
+    duro = max((s.end() for s in _RE_SEP_FRASE.finditer(pre)), default=0)
+    virgula = pre.rfind(",") + 1
+    modelo = max((s.end() for s in _RE_MODELO_NA_FRASE.finditer(pre)), default=0)
+    ini = max(duro, virgula, modelo)
+    frase = pre[ini:]
+    if _RE_CONTEXTO_CUPOM.search(frase):
+        return "condicao"
+    if not m.group().lstrip().startswith("a") and _RE_CONTEXTO_CUPOM.search(pre[pre.rfind("\n") + 1:]):
+        return "condicao"  # "mín." numa linha de cupom: "🎟️ R$ 250 OFF (mín R$ 2.500)"
+    if ini == virgula and virgula > max(duro, modelo) and _RE_CUPOM_FORTE.search(pre[max(duro, modelo):virgula]):
+        return "condicao"  # "Cupom TV300, a partir de R$ 2.500": a mesma frase do cupom continua depois da vírgula
+    abre_frase = not re.search(r"[a-z0-9]", frase)
+    return "preco" if abre_frase and m.group().lstrip().startswith("a") else "fraco"
+
+
+def _termo_do_cupom(antes: str, depois: str) -> bool:
+    """True se o valor vem depois do desconto do cupom, na mesma frase, sem marca de preço ("R$ 300 OFF para
+    compras superiores a R$ 2.500", "R$ 300 OFF comprando R$ 2.500 ou mais"). "R$ 300 OFF: R$ 3.299" (nada entre
+    o desconto e o valor), "..., sai por R$ 3.299", "R$ 3.299 no Pix" e o valor que se refere à própria TV
+    ("R$ 300 OFF nesta TV de R$ 3.599") continuam sendo preço."""
+    ini = max((s.end() for s in _RE_SEP_CLAUSULA.finditer(antes)), default=0)
+    frase = antes[ini:]
+    descontos = list(_RE_DESCONTO_DO_CUPOM.finditer(frase))
+    if not descontos:
+        return False
+    entre = frase[descontos[-1].end():]
+    if not re.search(r"[a-z0-9]", entre) or _RE_A_PROPRIA_TV.search(entre):
+        return False
+    return not (_RE_MARCA_PRECO_ANTES.search(frase) or _RE_MARCA_PRECO_DEPOIS.search(depois))
+
+
+def classifica_valor(antes: str, depois: str, valor: Optional[float] = None) -> str:
     """Tipo de um valor da postagem pelo contexto (ver o comentário acima)."""
     if _RE_SETA_DEPOIS.search(depois):
         return "antigo"
@@ -253,15 +331,17 @@ def classifica_valor(antes: str, depois: str) -> str:
         return "preco"
     m = _RE_A_PARTIR_DE.search(antes)
     if m:
-        frase = _RE_SEP_FRASE.split(antes)[-1]
-        if _RE_CONTEXTO_CUPOM.search(frase):
-            return "condicao"
-        # "A partir de R$ 3.349,00" abrindo a linha (ou a frase, depois de "|" ou "/"): o preço do Canaltech
-        abre_frase = not re.search(r"[a-z0-9]", _RE_SEP_FRASE.split(antes[:m.start()])[-1])
-        return "preco" if abre_frase and m.group().lstrip().startswith("a") else "fraco"
+        return _a_partir_de(antes, m)
     for tipo, r in _RE_ANTES:
         if r.search(antes):
+            if tipo == "parcela" and valor is not None and valor >= PISO_PRECO_TV and _RE_TOTAL_PARCELADO.search(antes):
+                return "preco"
             return tipo
+    m = _RE_MAIOR.search(antes)
+    if m and re.search(r"[a-z0-9]", antes[antes.rfind("\n", 0, m.start()) + 1:m.start()]):
+        return "condicao"  # só com palavra antes do ">" na MESMA linha
+    if _termo_do_cupom(antes, depois):
+        return "condicao"
     return "preco"
 
 
@@ -272,7 +352,7 @@ def valores_postagem(texto: str) -> list[tuple[float, str]]:
     for m in _RE_VALOR_POST.finditer(texto):
         v = parse_preco(m.group(1))
         if v:
-            out.append((v, classifica_valor(*_contexto(texto, m.start(), m.end()))))
+            out.append((v, classifica_valor(*_contexto(texto, m.start(), m.end()), valor=v)))
     return out
 
 
@@ -399,7 +479,8 @@ def dias_desde(iso: Optional[str]) -> Optional[float]:
 # "10x de R$ 399,90 sem juros", "10x sem juros de R$ 399,90", "10x R$ 399,90 (s/ juros)"
 _RE_PARCELA = re.compile(
     r"(?:em\s+at[ée]\s+)?(?P<n>\d{1,2})\s*x(?:[^\S\n]*(?P<sj1>(?:sem|s/)[^\S\n]*juros)[^\S\n]*|\s*)(?:de\s*)?"
-    rf"R\$\s?(?P<v>{_NUM_BRL_SRC})(?!\d)(?P<sj2>[^\S\n]*\(?[^\S\n]*(?:sem|s/)[^\S\n]*juros)?",
+    rf"R\$\s?(?P<v>{_NUM_BRL_SRC})(?!\d)(?P<sj2>[^\S\n]*(?:[-–—,][^\S\n]*|no[^\S\n]+cart[aã]o"
+    r"(?:[^\S\n]+de[^\S\n]+cr[eé]dito)?[^\S\n]*)?\(?[^\S\n]*(?:sem|s/)[^\S\n]*juros)?",
     re.I,
 )
 
@@ -418,15 +499,26 @@ def parcelado_no_texto(texto: str) -> Optional[str]:
 
 
 # ---------- código de cupom ----------
-# Código: palavra de 4 a 20 letras/dígitos ASCII depois de "cupom", "código", "cód." (pulando palavras comuns,
-# pontuação e emoji). Só letras: tem de estar em maiúsculas e ser a 1ª palavra depois do marcador. Com dígito:
-# pode vir mais adiante na mesma linha ("CUPOM EXTRA NO APP: TCL300", "Cupom de R$ 200 OFF: TCL200"). Entre
-# vários, vale o 1º com dígito. Nunca uma palavra do português ("CUPOM LIBERADO", "CUPOM DISPONÍVEL") nem um
+# Código: palavra de 4 a 20 letras/dígitos ASCII (hífen no meio vale: "TCL-300") depois de "cupom", "código",
+# "cód." (pulando palavras comuns, pontuação e emoji).
+#   - com dígito: pode vir mais adiante na mesma linha ("CUPOM EXTRA NO APP: TCL300", "Cupom de R$ 200 OFF: TCL200");
+#     em maiúsculas, em minúsculas começando por letra ("tcl300") ou misturado logo depois do marcador ou de ':'
+#     ("Cupom: Magalu10", "Use o cupom BlackFriday10");
+#   - só letras: em maiúsculas e logo depois de ':' ("Use o cupom: APROVEITANOML", "Cupom exclusivo: SOLTAODESCONTO"),
+#     ou logo depois do marcador quando um verbo vem antes dele ("Use o cupom SOLTAODESCONTO") ou quando o marcador
+#     não está em maiúsculas ("Cupom LEVOUBARATO"). Numa manchete toda em maiúsculas ("🚨 CUPOM VALENDO 🚨",
+#     "CUPOM AMAZON LIBERADO") a palavra seguinte é da manchete, não o código.
+# Entre vários, vale o 1º com dígito. Nunca uma palavra do português ("CUPOM LIBERADO", "CUPOM DISPONÍVEL") nem um
 # código de modelo de TV (55C6K).
 _RE_MARCADOR_CUPOM = re.compile(r"(?<![a-z])(?:cupo(?:m|ns)|c[oó]digos?|c[oó]d\.?)(?![a-z])", re.I)
-_RE_CODIGO = re.compile(r"[A-Za-z0-9]{4,20}")
-_RE_MODELO_TV = re.compile(r"\d{2,3}[A-Z]{1,5}\d{1,3}[A-Z]{0,3}")
-_BORDA_TOKEN = "\"“”'‘’:;,.!?()[]{}*_~-–—#>«»|/"
+_RE_CODIGO = re.compile(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*")
+# código de modelo de TV (55C6K, 43S5K, 65QM8K, 50QNED70); "50OFF100" é cupom
+_RE_MODELO_TV = re.compile(r"\d{2,3}(?!OFF)[A-Z]{1,5}\d{1,3}[A-Z]{0,3}")
+# verbo (ou "com o") logo antes do marcador: "Use o cupom X", "Aplique o cupom X", "Com o cupom X"
+_RE_VERBO_CUPOM = re.compile(r"\b(?:use|usem|usar|usando|utilize|utilizem|utilizar|aplique|apliquem|aplicar|aplicando|"
+                             r"insira|inserir|digite|digitar|coloque|colocar|resgate|resgatar|ative|ativar|com|c/)\s+"
+                             r"(?:(?:o|os|a|as|seu|esse|este|nosso)\s+)?$")
+_BORDA_TOKEN = "\"“”'‘’`:;,.!?()[]{}*_~-–—#>«»|/"
 _NAO_E_CUPOM = {
     # artigos, preposições e palavras que aparecem depois de "cupom" nas postagens
     "DE", "DO", "DA", "DOS", "DAS", "NA", "NO", "NAS", "NOS", "EM", "COM", "SEM", "PARA", "PRA", "POR", "OU", "E",
@@ -441,13 +533,16 @@ _NAO_E_CUPOM = {
     "USE", "USAR", "USEM", "APLIQUE", "INSIRA", "DIGITE", "COPIE", "PRIME", "MEMBROS", "SMART", "NAO", "MAIS",
     "ATE", "FINAL", "VALOR", "MINIMO", "DIRETO", "CARRINHO", "CHECKOUT", "OFERTA", "OFERTAS", "PRECO", "LIMITADO",
     "LIMITADA", "ESTOQUE", "MOEDAS", "HDR10", "HDMI", "QLED", "OLED", "MINI", "LEVE",
+    # palavras de manchete depois de "CUPOM" (verificador da rodada 4)
+    "VALENDO", "FUNCIONANDO", "QUENTE", "ACABOU", "OFICIAL", "RENOVADO", "ABERTO", "BOMBA", "INSANO", "ENCONTRADO",
+    "REATIVADO", "ACUMULATIVO", "DESCRICAO", "APROVEITE", "APROVEITEM", "CORRE", "CORRAM", "CORRA",
 }
 
 
-def _tokens(linha: str) -> list[tuple[str, bool]]:
-    """Palavras da linha, sem pontuação em volta, e se cada uma abre a frase (1ª da linha ou depois de ':')."""
+def _tokens(linha: str) -> list[tuple[str, bool, bool]]:
+    """Palavras da linha, sem pontuação em volta: (palavra, é a 1ª da linha, vem logo depois de ':')."""
     out = []
-    abre = True
+    primeiro, apos_dois_pontos = True, False
     for bruto in linha.split():
         tok = bruto.strip(_BORDA_TOKEN)
         # código colado numa palavra comum em minúsculas: "BRAE2ou BRFSAFF02", "cupom RISE15de Desconto"
@@ -455,19 +550,27 @@ def _tokens(linha: str) -> list[tuple[str, bool]]:
         if m and m.group(2).upper() in _NAO_E_CUPOM:
             tok = m.group(1)
         if tok and re.search(r"\w", tok):
-            out.append((tok, abre))
-            abre = False
+            out.append((tok, primeiro, apos_dois_pontos or bruto.startswith(":")))
+            primeiro, apos_dois_pontos = False, False
         if bruto.endswith(":"):
-            abre = True
+            apos_dois_pontos = True
     return out
 
 
 def _eh_codigo(tok: str) -> bool:
-    """4-20 letras/dígitos ASCII, com letra; em maiúsculas, ou em minúsculas começando por letra ("tv300", não
-    "23h59"); nunca misturado ("BRAE2ou") nem código de modelo de TV (55C6K)."""
-    return bool(_RE_CODIGO.fullmatch(tok) and re.search(r"[A-Za-z]", tok)
-                and (tok.isupper() or (tok.islower() and tok[0].isalpha()))
+    """4-20 letras/dígitos ASCII (hífen só no meio), com letra; nunca código de modelo de TV (55C6K)."""
+    return bool(4 <= len(tok) <= 20 and _RE_CODIGO.fullmatch(tok) and re.search(r"[A-Za-z]", tok)
                 and not _RE_MODELO_TV.fullmatch(tok.upper()))
+
+
+def _caixa_de_codigo(tok: str, logo_depois: bool) -> bool:
+    """Caixa de um código: maiúsculas; minúsculas começando por letra ("tcl300", não "23h59"); misturada só com
+    dígito e logo depois do marcador ou de ':' ("Magalu10"), nunca colada numa palavra ("BRAE2ou")."""
+    if tok.isupper():
+        return True
+    if tok.islower():
+        return tok[0].isalpha()
+    return logo_depois and tok[0].isalpha() and bool(re.search(r"\d", tok))
 
 
 def cupom_no_texto(texto: str) -> Optional[str]:
@@ -475,29 +578,36 @@ def cupom_no_texto(texto: str) -> Optional[str]:
     texto = texto or ""
     candidatos: list[tuple[int, str]] = []  # (prioridade, código): 0 com dígito, 1 só letras
     for m in _RE_MARCADOR_CUPOM.finditer(texto):
+        ini_linha = texto.rfind("\n", 0, m.start()) + 1
         fim_linha = texto.find("\n", m.end())
         resto = texto[m.end(): len(texto) if fim_linha < 0 else fim_linha]
+        verbo = bool(_RE_VERBO_CUPOM.search(sem_acentos(texto[ini_linha:m.start()]).lower()))
+        manchete = m.group().isupper()  # "CUPOM" em maiúsculas: a palavra seguinte pode ser da manchete
         toks = _tokens(resto)
         antes = len(candidatos)
-        for tok, abre in toks:
-            if sem_acentos(tok).upper() in _NAO_E_CUPOM:
+        for tok, primeiro, apos_dois_pontos in toks:
+            if sem_acentos(tok).upper() in _NAO_E_CUPOM or not _eh_codigo(tok):
                 continue
-            valido = _eh_codigo(tok)
-            if valido and re.search(r"\d", tok):
+            logo_depois = primeiro or apos_dois_pontos
+            if not _caixa_de_codigo(tok, logo_depois):
+                continue
+            if re.search(r"\d", tok):
                 candidatos.append((0, tok.upper()))
-            elif valido and abre and tok.isupper():
-                # só letras: logo depois do marcador ou de ':' ("Cupom exclusivo: SOLTAODESCONTO"); nunca a
-                # palavra seguinte a uma palavra comum ("CUPOM PRIMEIRA COMPRA")
+            elif tok.isupper() and (apos_dois_pontos or (primeiro and (verbo or not manchete))):
+                # só letras: logo depois de ':' ou do marcador (com verbo antes, ou fora de manchete em
+                # maiúsculas); nunca a palavra seguinte a uma palavra comum ("CUPOM PRIMEIRA COMPRA")
                 candidatos.append((1, tok))
         if len(candidatos) == antes and fim_linha >= 0:
             # nada na linha do marcador: o código pode abrir a linha de baixo ("Use o cupom abaixo 👇" / "TCL300").
-            # Só com dígito, ou só letras quando a linha do marcador termina em ':' ("Cupom:" / "LEVOUBARATO")
+            # Só com dígito, ou só letras quando a linha do marcador termina em ':' ("Cupom:" / "LEVOUBARATO") ou
+            # é só o rótulo ("🎟️ Cupom" / "DESCONTAO"; não "🔥 CUPOM 🔥" / "APROVEITE", manchete em maiúsculas)
             prox = _tokens(texto[fim_linha + 1:].split("\n", 1)[0])[:1]
-            for tok, _ in prox:
-                if _eh_codigo(tok) and sem_acentos(tok).upper() not in _NAO_E_CUPOM:
+            for tok, _, _ in prox:
+                if _eh_codigo(tok) and _caixa_de_codigo(tok, True) and sem_acentos(tok).upper() not in _NAO_E_CUPOM:
                     if re.search(r"\d", tok):
                         candidatos.append((0, tok.upper()))
-                    elif tok.isupper() and resto.rstrip().endswith(":"):
+                    elif tok.isupper() and (resto.rstrip().endswith(":")
+                                            or (not re.search(r"[A-Za-z0-9]", resto) and not manchete)):
                         candidatos.append((1, tok))
     if not candidatos:
         return None

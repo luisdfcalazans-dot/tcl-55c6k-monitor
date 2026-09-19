@@ -13,8 +13,8 @@ Corpus:
       de ofertas, postagens e cupons; título e regra dos cupons; texto das postagens do Telegram) e os títulos da
       versão mais nova de docs/data/historico_*.csv;
   (b) entradas sintéticas: tabela de ouro, test_filtro, arquivos de retrabalho das rodadas 1-4 (trechos entre
-      aspas simples em todas as strings) e os casos do verificador da rodada 3 (v4n/*.json), quando estão nesta
-      máquina;
+      aspas simples em todas as strings) e os casos dos verificadores das rodadas 3 e 4 (v4n/*.json, v5n/*.json),
+      quando estão nesta máquina;
   (c) páginas reais: prévias t.me salvas (probes/tg*_*.out) e a fixture do Telegram;
   (d) fixtures e snapshots das fontes deste grupo (vtex, zoom, kabum, magalu).
 A main é extraída com `git show <base>:<arquivo>` para um diretório temporário e roda num subprocesso.
@@ -192,15 +192,16 @@ def _sinteticos(c: Corpus) -> None:
     sys.path.insert(0, str(RAIZ))
     import importlib
     ouro = importlib.import_module("tests.test_tabela_ouro_extracao_nuvem")
-    for lista in ("TITULOS", "TITULOS_R4"):
-        for i, t, _a in getattr(ouro, lista, []):
+    # todas as listas da tabela: TITULOS*, POSTS*, UTIL*
+    for lista in sorted(n for n in dir(ouro) if n.startswith("TITULOS")):
+        for i, t, _a in getattr(ouro, lista):
             c.add("titulo", f"ouro:{i}", texto=t)
-    for lista in ("POSTS", "POSTS_R4"):
-        for i, linhas, _e in getattr(ouro, lista, []):
+    for lista in sorted(n for n in dir(ouro) if n.startswith("POSTS")):
+        for i, linhas, _e in getattr(ouro, lista):
             c.add("post", f"ouro:{i}", html=_html_canal(list(linhas), ja_html=True))
             c.add("texto", f"ouro:{i}", texto="\n".join(linhas))
-    for lista in ("UTIL", "UTIL_R4"):
-        for i, _f, e, _s in getattr(ouro, lista, []):
+    for lista in sorted(n for n in dir(ouro) if n.startswith("UTIL")):
+        for i, _f, e, _s in getattr(ouro, lista):
             if isinstance(e, str):
                 c.add("texto", f"ouro:{i}", texto=e)
     tf = importlib.import_module("tests.test_filtro")
@@ -212,18 +213,20 @@ def _sinteticos(c: Corpus) -> None:
         for s in _strings(bruto):
             for t in _trechos_entre_aspas(s):
                 c.texto_livre(t, f"retrabalho:{Path(arq).name}")
-    # casos do verificador da rodada 3
-    for arq in sorted(glob.glob(str(SCRATCH / "v4n" / "*.json"))):
+    # casos dos verificadores das rodadas 3 (v4n) e 4 (v5n)
+    arqs = [(a, "r3") for a in sorted(glob.glob(str(SCRATCH / "v4n" / "*.json")))]
+    arqs += [(a, "r4") for a in sorted(glob.glob(str(SCRATCH / "v5n" / "*.json")))]
+    for arq, rodada in arqs:
         if not re.fullmatch(r"casos\d+|titulos", Path(arq).stem):
             continue
         for caso in json.load(open(arq, encoding="utf-8")):
-            origem = f"verificador r3:{Path(arq).stem}:{caso.get('id')}"
+            origem = f"verificador {rodada}:{Path(arq).stem}:{caso.get('id')}"
             if caso.get("tipo") == "titulo":
                 c.add("titulo", origem, texto=caso["texto"])
-            elif caso.get("tipo") == "util":
+            elif caso.get("tipo") in ("util", "cupom", "parc", "precos"):
                 c.add("texto", origem, texto=caso["texto"])
             elif caso.get("linhas"):
-                c.add("post", origem, html=_html_canal(caso["linhas"], ja_html=True))
+                c.add("post", origem, html=_html_canal(caso["linhas"], ja_html=caso.get("html", rodada == "r3")))
                 c.add("texto", origem, texto="\n".join(caso["linhas"]))
             elif caso.get("html"):
                 c.add("post", origem, html=caso["html"])
@@ -281,7 +284,26 @@ def _diag_postagem(filtro, util, texto: str) -> dict:
     if any(n in tudo for n in filtro._NEGATIVOS_TEXTO_LIVRE):
         d["rejeicao"] = "estado/combo: " + next(n for n in filtro._NEGATIVOS_TEXTO_LIVRE if n in tudo)
         return d
-    segs = filtro._segmenta(linhas)
+    r = getattr(filtro, "_RE_ESTADO_TEXTO_LIVRE", None)
+    m = next((x for x in (r.search(filtro.normaliza(l)) for l in linhas) if x), None) if r else None
+    if m:
+        d["rejeicao"] = "estado/combo: " + m.group()
+        return d
+    if hasattr(filtro, "_segmenta_linhas"):
+        ls = filtro._segmenta_linhas(linhas)
+        segs = [l.pedacos for l in ls]
+        if any(dn == "outro" for sj in segs for dn, _ in sj):
+            relido = filtro._le_de_baixo(ls)
+            if relido is not None:
+                segs, d["leitura"] = relido, "de baixo para cima"
+            elif (any(all(dn == "antes" for dn, _ in l.pedacos) and filtro._tem_preco(filtro._texto_do_bloco(l))
+                      for l in ls)
+                  and not all(filtro._tem_preco(filtro._texto_do_bloco(l)) for l in ls if l.cabecalho)):
+                d["rejeicao"] = "preço antes do 1º produto sem leitura coerente"
+                d["segs"] = segs
+                return d
+    else:
+        segs = filtro._segmenta(linhas)
     d["donos"] = sorted({dn for sj in segs for dn, _ in sj})
     d["segs"] = segs
     titulo = filtro._titulo(linhas, segs)

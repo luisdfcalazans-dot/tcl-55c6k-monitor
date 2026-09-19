@@ -14,7 +14,10 @@ from monitor.util import _NAO_E_CUPOM, sem_acentos
 # negativos/acessórios que a branch acrescentou ao filtro de título (N-F1 e princípio d)
 _NOVOS_NEGATIVOS = ("placa", "peca", "t-con", "cabo flat", "barra de led", "par de pes", "avulso", "backlight",
                     "sucata", "reembalad", "mostruario", "recertificad", "remanufaturad", "avaria",
-                    "fonte de alimenta", "controles remotos", "alto-falante")
+                    "fonte de alimenta", "controles remotos", "alto-falante", "difusor",
+                    # estado do produto escrito de outros jeitos (rodada 4, retrabalho)
+                    "trincada", "rachada", "quebrada", "queimada", "listras", "sem imagem", "nao liga", "conserto",
+                    "caixa aberta", "danificada", "exposicao", "grade b")
 _OUTROS_MODELOS = ("c655", "c6ks", "c7k", "c8k", "c9k", "p7k", "p8k", "q6k", "q7k", "x955", "s5k", "p755")
 _NEG_DESCRICAO = ("suporte", "controle remoto", "base", "pedestal", "capa", "cabo hdmi", "pelicula")
 
@@ -74,8 +77,9 @@ def _parcelado(texto: str, pm: str | None, pb: str | None) -> str | None:
         return "R1-REG2 (só a 1ª parcela e só quando diz 'sem juros'; 1x não é parcelamento)"
     if pb is not None and pm is None and re.search(r"x\s*(?:sem|s/)\s*juros\s*de|\(\s*s/\s*juros", t):
         return "R1-REG2 (formatos '10x sem juros de R$' e '(s/ juros)')"
-    if pb is not None and pm is not None and pb == pm + " sem juros" and "s/ juros" in t:
-        return "R1-REG2 (formato '(s/ juros)')"
+    if pb is not None and pm is not None and pb == pm + " sem juros" and (
+            "s/ juros" in t or re.search(r"r\$\s*[\d.,]+\s*(?:[-–—,]|no\s+cartao(?:\s+de\s+credito)?)\s*sem\s+juros", t)):
+        return "R1-REG2 (formatos '(s/ juros)', '- sem juros', 'no cartão sem juros')"
     if pb is not None and pm is not None:
         vm, vb = pm.split("R$ ")[-1].split(" ")[0], pb.split("R$ ")[-1].split(" ")[0]
         if vb.startswith(vm) and len(vb) > len(vm) and "." not in vb.split(",")[0]:
@@ -83,7 +87,15 @@ def _parcelado(texto: str, pm: str | None, pb: str | None) -> str | None:
     return None
 
 
+_VERBO_ANTES_DO_CUPOM = re.compile(r"(?i)\b(?:use|usem|usar|utilize|aplique|insira|digite|coloque|resgate|com|c/)\s+"
+                                   r"(?:o\s+|os\s+)?cupo")
+
+
 def _cupom(texto: str, cm: str | None, cb: str | None) -> str | None:
+    if (cm is not None and cb is None and cm.isalpha() and not _VERBO_ANTES_DO_CUPOM.search(texto)
+            and re.search(r"(?<![A-Za-z])CUPO(?:M|NS)[^\w:\n]*\s+" + re.escape(cm) + r"(?![A-Za-z0-9])", texto)):
+        # "CUPOM MELI+", "🚨 CUPOM VALENDO 🚨": só letras logo depois de "CUPOM" em maiúsculas, sem ':' nem verbo
+        return f"N-F10/princípio c (manchete em maiúsculas: '{cm}' logo depois de 'CUPOM', sem ':' nem verbo)"
     if cm is not None and sem_acentos(cm).upper() in _NAO_E_CUPOM | {"DISPON"}:
         if cb is None or re.search(re.escape(cb), texto, re.I):
             return f"N-F10/princípio c ('{cm}' é palavra comum, não código)"
@@ -204,6 +216,8 @@ def _post(it: dict, a: dict, b: dict) -> str | None:
         pm = om[0]["preco"]
         if rej == "outro produto sem preço da 55C6K" and _cita_outro_produto(texto):
             return f"princípio a (outro produto na postagem e o bloco da 55C6K sem preço; main dava {pm})"
+        if rej == "preço antes do 1º produto sem leitura coerente" and _cita_outro_produto(texto):
+            return f"princípio a (preço antes do 1º produto e nenhuma leitura coerente; main dava {pm})"
         if rej == "abaixo do piso" and (pm is None or pm < 1500):
             return "princípio b (o único preço anunciado fica abaixo de R$ 1.500: peça/acessório, não a TV)"
         return None
@@ -214,6 +228,8 @@ def _post(it: dict, a: dict, b: dict) -> str | None:
             return f"princípio a (segmentação: a main descartava a postagem inteira por citar outro produto: {m})"
         if m.startswith("negativo: ") and m[10:] in _NEG_DESCRICAO:
             return f"N-F6 (o filtro de título roda só na linha-título; a main descartava por '{m[10:]}' no corpo)"
+        if db.get("leitura") == "de baixo para cima" and _cita_outro_produto(texto):
+            return "princípio a (preço antes do nome de cada produto: leitura de baixo para cima)"
         return None
     if len(om) != 1 or len(ob) != 1:
         return None
