@@ -360,30 +360,38 @@ def _onde(nome: str, r: ResultadoCupom) -> str:
 
 
 def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
-    """Uma mensagem só, com o melhor preço à vista e o melhor parcelado entre todas as lojas e anúncios."""
-    validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao)]
-    if not validos:
-        return ""
-    melhor_vista = min(validos, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)
-    com_parcela = [(n, r) for n, r in validos if r.parcelado and r.tv_cartao]
-    melhor_parc = min(com_parcela, key=lambda x: x[1].tv_cartao or 9e9) if com_parcela else None
+    """Uma mensagem só, com o melhor preço à vista e o melhor parcelado entre todas as lojas e anúncios.
 
-    r = melhor_vista[1]
-    alvo = (r.tv_pix is not None and r.tv_pix <= config.ALVO_PIX) or \
+    Cupom marcado por marcar_se_compensa (não deixa a TV mais barata que o anúncio mais barato da loja sem cupom)
+    não disputa o melhor à vista (pior_a_vista) nem o melhor parcelado (pior_parcelado); se nenhum cupom
+    compensa, não há mensagem."""
+    validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao)]
+    vista = [(n, r) for n, r in validos if not r.extra.get("pior_a_vista")]
+    com_parcela = [(n, r) for n, r in validos if r.parcelado and r.tv_cartao and not r.extra.get("pior_parcelado")]
+    if not vista and not com_parcela:
+        return ""
+    melhor_vista = min(vista, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9) if vista else None
+    melhor_parc = min(com_parcela, key=lambda x: x[1].tv_cartao or 9e9) if com_parcela else None
+    principal = melhor_vista or melhor_parc
+
+    r = principal[1]
+    alvo = (melhor_vista is not None and r.tv_pix is not None and r.tv_pix <= config.ALVO_PIX) or \
            (melhor_parc and (melhor_parc[1].tv_cartao or 9e9) <= config.ALVO_PARCELADO)
     linhas = ["🎯 <b>META ATINGIDA</b>" if alvo else "✅ <b>Cupom funcionou</b>", ""]
-    linhas.append(f"<b>Melhor à vista</b>: {fmt_preco(r.tv_pix or r.tv_cartao)} na {_onde(*melhor_vista)} "
-                  f"com <code>{r.codigo}</code>" + (" (aceito mais cedo, hoje)" if r.extra.get("anterior") else ""))
-    if r.extra.get("antes_pix") and r.frete is not None:
-        antes = round((r.extra["antes_pix"] - r.frete) / max(1, r.quantidade), 2)  # de UMA TV, como tv_pix
-        if antes > (r.tv_pix or 0):
-            linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
+    if melhor_vista:
+        linhas.append(f"<b>Melhor à vista</b>: {fmt_preco(r.tv_pix or r.tv_cartao)} na {_onde(*melhor_vista)} "
+                      f"com <code>{r.codigo}</code>" + (" (aceito mais cedo, hoje)" if r.extra.get("anterior") else ""))
+        if r.extra.get("antes_pix") and r.frete is not None:
+            antes = round((r.extra["antes_pix"] - r.frete) / max(1, r.quantidade), 2)  # de UMA TV, como tv_pix
+            if antes > (r.tv_pix or 0):
+                linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
     if melhor_parc:
         p = melhor_parc[1]
         linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado_real} na {_onde(*melhor_parc)} "
                       f"com <code>{p.codigo}</code>")
     outros = [f"{_onde(n, x)}: {fmt_preco(x.tv_pix or x.tv_cartao)} ({x.codigo})" for n, x in
-              sorted(validos, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)[1:5]]
+              sorted((v for v in validos if v[1] is not r),
+                     key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)[:4]]
     if outros:
         linhas.append("")
         linhas.append("Outros que funcionaram: " + " · ".join(outros))
@@ -391,14 +399,14 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
     linhas.append(f"Alvo: Pix {fmt_preco(config.ALVO_PIX)} · parcelado {fmt_preco(config.ALVO_PARCELADO)}")
     # só afirma que o cupom ficou no carrinho quando o passo final foi conferido (ver testar_loja)
     if r.extra.get("no_carrinho") is True:
-        linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {melhor_vista[0]}, "
+        linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {principal[0]}, "
                       "só com a TV; é só entrar e finalizar.")
     elif r.extra.get("no_carrinho") is False:
         motivo = r.extra.get("motivo_carrinho") or "não deu para conferir"
-        linhas.append(f"⚠️ Não consegui deixar o cupom aplicado no carrinho da {melhor_vista[0]} ({motivo}); "
+        linhas.append(f"⚠️ Não consegui deixar o cupom aplicado no carrinho da {principal[0]} ({motivo}); "
                       f"aplique <code>{r.codigo}</code> à mão e confira o total antes de finalizar.")
     elif r.extra.get("so_leitura"):
-        linhas.append(f"Na {melhor_vista[0]} o robô não monta o carrinho: marque o cupom na página do produto "
+        linhas.append(f"Na {principal[0]} o robô não monta o carrinho: marque o cupom na página do produto "
                       "e confira o total antes de finalizar.")
     return "\n".join(linhas)
 
@@ -419,6 +427,7 @@ class Percurso:
     gravados: set = field(default_factory=set)        # chaves de estado escritas nesta rodada
     sem_cupom: dict = field(default_factory=dict)     # chave do anúncio -> leitura do carrinho sem cupom
     no_carrinho: Optional[str] = None                 # anúncio que está no carrinho agora (None: não se sabe)
+    falhou: set = field(default_factory=set)          # anúncios que não entraram no carrinho nesta rodada
 
 
 @contextmanager
@@ -456,6 +465,7 @@ def _ler_anuncio_so_leitura(loja: LojaCarrinho, page, a: Anuncio, p: Percurso, i
     base = loja.ler_totais(page)
     base.codigo = "(sem cupom)"
     base.extra.update(anuncio=a.chave, vendedor=a.vendedor or base.extra.get("vendedor"), so_leitura=True)
+    p.sem_cupom[a.chave] = base
     _registra_leitura(p, a, base)
     print(f"[{loja.nome}] {a.rotulo}: Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
           + (f" · {base.parcelado}" if base.parcelado else ""))
@@ -559,8 +569,9 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
         p.visitados.append(a.chave)
         print(f"[{loja.nome}] anúncio {len(p.visitados)}/{loja.max_anuncios}: {a.rotulo} ({fmt_preco(a.preco)}), "
               f"{len(fila)} cupom(ns) pendente(s)")
+        p.no_carrinho = None  # se a troca parar no meio (falha ou exceção), no fim da rodada o carrinho é conferido
         if not loja.garantir_item(page, a.url, a.alvo(ids_tv)):
-            p.no_carrinho = None  # pode ter parado no meio da troca: no fim da rodada o carrinho é conferido
+            p.falhou.add(a.chave)
             print(f"[{loja.nome}] não consegui deixar só {a.rotulo} no carrinho; passo para o próximo anúncio")
             continue
         p.no_carrinho = a.chave
@@ -592,10 +603,10 @@ def escolher_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
     """Melhor cupom conhecido para deixar no carrinho: aceitos nesta rodada e aceites ainda válidos de
     rodadas anteriores de hoje (senão, testar um anúncio mais caro deixaria o carrinho pior que antes)."""
     momento = momento or agora()
-    por_chave = {a.chave: a for a in anuncios}
+    por_chave = {a.chave: a for a in anuncios if a.chave not in p.falhou}
     cands = [(por_chave[r.extra["anuncio"]], r) for r in p.aceitos if r.extra.get("anuncio") in por_chave]
     codigos = {k.split("@", 1)[0] for k in testados if "@" in k}
-    for a in anuncios:
+    for a in por_chave.values():
         for cod in sorted(codigos):
             if f"{cod}@{a.chave}" in p.gravados:
                 continue  # testado nesta rodada: se foi aceito, já está em p.aceitos
@@ -607,31 +618,60 @@ def escolher_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
     return min(cands, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)
 
 
+def _preco(r: ResultadoCupom) -> float:
+    return r.tv_pix or r.tv_cartao or 9e9
+
+
+def ordem_sem_cupom(p: Percurso, anuncios: list[Anuncio]) -> list[Anuncio]:
+    """Anúncios que podem ficar no carrinho sem cupom no fim da rodada, do mais barato ao mais caro: TODOS os
+    anúncios da loja (visitados ou não nesta rodada), na ordem do preço coletado (a mesma do percurso), menos os
+    que não entraram no carrinho nesta rodada."""
+    return [a for a in anuncios if a.chave not in p.falhou]
+
+
+def preco_sem_cupom(p: Percurso, a: Anuncio) -> float:
+    """Preço do anúncio sem cupom: a leitura do carrinho nesta rodada ou, sem ela, o preço coletado."""
+    r = p.sem_cupom.get(a.chave)
+    v = (r.tv_pix or r.tv_cartao) if r is not None else None
+    return v or a.preco or 9e9
+
+
 def destino_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
                   momento: datetime | None = None) -> Optional[tuple[Anuncio, Optional[ResultadoCupom]]]:
     """Como o carrinho termina a rodada (só quando o robô mexeu nele).
 
     (anúncio, cupom): deixa o melhor cupom conhecido aplicado (escolher_final);
-    (anúncio, None):  volta para o anúncio mais barato que entrou no carrinho nesta rodada, sem cupom;
+    (anúncio, None):  volta para o anúncio mais barato da loja, sem cupom;
     None:             o carrinho já está no lugar certo.
-    "Priorize o mais barato": o cupom só fica se deixar a TV mais barata que esse anúncio sem cupom. Sem isto, testar
-    um anúncio mais caro (ou um cupom que não compensa) deixaria no carrinho da pessoa uma TV mais cara que a de antes.
+    "Priorize o mais barato": o anúncio mais barato é o de TODOS os anúncios (ordem_sem_cupom), não só dos que o
+    robô abriu nesta rodada: o mais barato sem nada pendente é pulado sem tocar no carrinho, e testar um mais caro
+    não pode deixar a TV mais cara no carrinho da pessoa. O cupom só fica se deixar a TV mais barata que esse
+    anúncio sem cupom.
     """
-    def preco(r: ResultadoCupom) -> float:
-        return r.tv_pix or r.tv_cartao or 9e9
-
     final = escolher_final(p, anuncios, testados, momento)
-    base = next(((a, p.sem_cupom[a.chave]) for a in anuncios if a.chave in p.sem_cupom), None)
-    if final and (base is None or preco(final[1]) < preco(base[1])):
+    ordem = ordem_sem_cupom(p, anuncios)
+    base = ordem[0] if ordem else None
+    if final and (base is None or _preco(final[1]) < preco_sem_cupom(p, base)):
         return final
-    if base is None or base[0].chave == p.no_carrinho:
+    if base is None or base.chave == p.no_carrinho:
         return None
-    return base[0], None
+    return base, None
 
 
-def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], visivel: bool, reg: dict) -> bool:
+def _pausar(loja: LojaCarrinho, reg: dict, e: Exception) -> None:
+    ate = agora() + PAUSA_LOJA_INDISPONIVEL
+    reg["pausa_ate"] = ate.isoformat(timespec="seconds")
+    reg["pausa_motivo"] = str(e)
+    print(f"[{loja.nome}] {e}; pausa até {ate.strftime('%d/%m %H:%M')}")
+
+
+def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], visivel: bool,
+                      reg: dict) -> Optional[bool]:
     """Deixa no carrinho só o anúncio `a`, sem cupom (as mesmas regras de garantir_item: carrinho com outro
-    produto não é mexido)."""
+    produto não é mexido).
+
+    True: o carrinho ficou só com `a`; False: não deu (quem chama pode tentar o próximo mais barato);
+    None: parar de mexer (carrinho com outro produto, loja fora do ar ou sessão expirada)."""
     print(f"[{loja.nome}] volto o carrinho para o anúncio mais barato, sem cupom: {a.rotulo} ({fmt_preco(a.preco)})")
     try:
         with _sessao(loja, visivel) as page:
@@ -639,15 +679,59 @@ def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], v
                 return True
         print(f"[{loja.nome}] não consegui voltar o carrinho para {a.rotulo}")
     except LojaIndisponivel as e:
-        ate = agora() + PAUSA_LOJA_INDISPONIVEL
-        reg["pausa_ate"] = ate.isoformat(timespec="seconds")
-        reg["pausa_motivo"] = str(e)
-        print(f"[{loja.nome}] {e}; pausa até {ate.strftime('%d/%m %H:%M')}")
+        _pausar(loja, reg, e)
+        return None
     except (CarrinhoOcupado, PrecisaLogin) as e:
         print(f"[{loja.nome}] não voltei o carrinho para {a.rotulo}: {e}")
+        return None
     except Exception as e:  # noqa: BLE001
         print(f"[{loja.nome}] não voltei o carrinho para {a.rotulo}: {type(e).__name__}: {str(e)[:120]}")
     return False
+
+
+MAX_VOLTAS = 2  # no fim da rodada: tenta o mais barato e, se ele não entrar, o próximo (a sacola não fica vazia)
+
+
+def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], reg: dict,
+                     visivel: bool) -> Optional[tuple[Anuncio, ResultadoCupom]]:
+    """Passo final, só quando o robô mexeu no carrinho: o melhor cupom conhecido (desta rodada ou de antes, hoje)
+    quando ele deixa a TV mais barata; senão, o anúncio mais barato da loja sem cupom (destino_final).
+
+    Se o cupom não ficar (a loja recusou agora, o anúncio não entrou, falha do robô), o carrinho também volta para
+    o anúncio mais barato sem cupom: nunca termina num anúncio mais caro só porque o cupom dele era o melhor. Se o
+    mais barato não entrar, tenta o próximo (até MAX_VOLTAS), para a sacola da pessoa não terminar vazia.
+    Devolve (anúncio, cupom) quando havia um cupom para deixar (a mensagem diz se ficou)."""
+    destino = destino_final(p, anuncios, reg["cupons"])
+    if destino is None:
+        return None
+    a, melhor = destino
+    pular: set = set()
+    if melhor is not None:
+        if melhor.extra.get("anterior"):
+            print(f"[{loja.nome}] volto o carrinho para o melhor conhecido: {a.rotulo} com {melhor.codigo}")
+        try:
+            with _sessao(loja, visivel) as page:
+                situacao, erro = _deixar_cupom(loja, page, a.url, melhor,
+                                               a.alvo(x.item_id for x in anuncios if x.item_id))
+        except Exception as e:  # noqa: BLE001 - o navegador não abriu
+            situacao, erro = "erro", e
+            _marca_sem_cupom_no_carrinho(loja, melhor, f"erro: {type(e).__name__}")
+        if situacao == "ok":
+            return destino
+        if situacao == "parar":
+            if isinstance(erro, LojaIndisponivel):
+                _pausar(loja, reg, erro)
+            return destino
+        ordem = ordem_sem_cupom(p, anuncios)
+        if situacao == "sem_cupom" and ordem and ordem[0].chave == a.chave:
+            return destino  # a TV do anúncio mais barato ficou no carrinho, só sem o cupom
+        if situacao == "sem_tv":
+            pular.add(a.chave)
+        print(f"[{loja.nome}] sem o cupom, o carrinho volta para o anúncio mais barato")
+    for x in [x for x in ordem_sem_cupom(p, anuncios) if x.chave not in pular][:MAX_VOLTAS]:
+        if voltar_ao_anuncio(loja, x, anuncios, visivel, reg) is not False:
+            break
+    return destino if melhor is not None else None
 
 
 def _precos_por_anuncio(antigos: Optional[dict], p: Percurso, anuncios: list[Anuncio]) -> dict:
@@ -682,49 +766,109 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     so_leitura = getattr(loja, "so_leitura", False)
     p = Percurso(inicio=agora().replace(microsecond=0), orcamento=MAX_APLICACOES_POR_RODADA)
     interrompida = False
-    with _sessao(loja, visivel) as page:
-        try:
-            percorrer(loja, page, anuncios, fila_base, reg, p, forcar, bool(codigos))
-            _foto(page, loja_id)
-        except LojaIndisponivel as e:
-            interrompida = True
-            ate = agora() + PAUSA_LOJA_INDISPONIVEL
-            reg["pausa_ate"] = ate.isoformat(timespec="seconds")
-            reg["pausa_motivo"] = str(e)
-            print(f"[{loja_id}] {e}; pausa até {ate.strftime('%d/%m %H:%M')}")
-        except CarrinhoOcupado as e:
-            interrompida = True
-            print(f"[{loja_id}] {e}. Pulo a loja nesta rodada.")
-        except PrecisaLogin as e:
-            interrompida = True
-            print(f"[{loja_id}] {e}")
-            if notify and reg.get("aviso_login") != hoje():
-                notificar.enviar(f"🔐 <b>{loja.loja_canonica}</b>: a sessão expirou, não consigo testar cupons.\n"
-                                 f"No PC, rode:\n<code>python testar_cupons.py --loja {loja_id} --login</code>")
-                reg["aviso_login"] = hoje()
-        finally:
-            reg["ultima_execucao"] = agora_iso()
-            reg["precos"] = _precos_por_anuncio(reg.get("precos"), p, anuncios)
+    try:
+        with _sessao(loja, visivel) as page:
+            try:
+                percorrer(loja, page, anuncios, fila_base, reg, p, forcar, bool(codigos))
+                _foto(page, loja_id)
+            except LojaIndisponivel as e:
+                interrompida = True
+                _pausar(loja, reg, e)
+            except CarrinhoOcupado as e:
+                interrompida = True
+                print(f"[{loja_id}] {e}. Pulo a loja nesta rodada.")
+            except PrecisaLogin as e:
+                interrompida = True
+                print(f"[{loja_id}] {e}")
+                if notify and reg.get("aviso_login") != hoje():
+                    notificar.enviar(f"🔐 <b>{loja.loja_canonica}</b>: a sessão expirou, não consigo testar cupons.\n"
+                                     f"No PC, rode:\n<code>python testar_cupons.py --loja {loja_id} --login</code>")
+                    reg["aviso_login"] = hoje()
+            finally:
+                reg["ultima_execucao"] = agora_iso()
+                reg["precos"] = _precos_por_anuncio(reg.get("precos"), p, anuncios)
+    except Exception as e:  # noqa: BLE001
+        # falha do robô ou do navegador no meio da rodada (ex.: TimeoutError no page.goto de uma troca de anúncio):
+        # a troca pode ter parado no meio, então o passo final ainda roda e os aceites da rodada não se perdem
+        p.no_carrinho = None
+        print(f"[{loja_id}] a rodada parou por uma falha do robô: {type(e).__name__}: {str(e)[:160]}")
 
-    # passo final: se o carrinho foi mexido, deixa nele o melhor cupom conhecido (desta rodada ou de antes, hoje)
-    # quando ele deixa a TV mais barata; senão, o anúncio mais barato sem cupom (ver destino_final)
     final = None
     if p.visitados and not so_leitura and not interrompida:
-        destino = destino_final(p, anuncios, reg["cupons"])
-        if destino and destino[1] is not None:
-            final = destino
-            a, melhor = final
-            if melhor.extra.get("anterior"):
-                print(f"[{loja_id}] volto o carrinho para o melhor conhecido: {a.rotulo} com {melhor.codigo}")
-            with _sessao(loja, visivel) as page:
-                deixar_cupom_no_carrinho(loja, page, a.url, melhor, a.alvo(x.item_id for x in anuncios if x.item_id))
-        elif destino:
-            voltar_ao_anuncio(loja, destino[0], anuncios, visivel, reg)
+        final = arrumar_carrinho(loja, p, anuncios, reg, visivel)
     print(f"[{loja_id}] {len(p.aceitos)} cupom(ns) aceito(s)")
     resultado = list(p.aceitos)
     if resultado and final and final[1].extra.get("anterior"):
         resultado.append(final[1])  # a mensagem compara com o melhor que já funcionou hoje
+    marcar_se_compensa(resultado, *referencia_sem_cupom(p, anuncios))
     return resultado
+
+
+def referencia_sem_cupom(p: Percurso, anuncios: list[Anuncio]) -> tuple[Optional[float], Optional[float]]:
+    """(à vista, cartão) mais baratos da loja SEM cupom, entre todos os anúncios: a leitura do carrinho nesta
+    rodada ou, sem ela, o preço coletado."""
+    vista: list[float] = []
+    cartao: list[float] = []
+    for a in anuncios:
+        r = p.sem_cupom.get(a.chave)
+        v = ((r.tv_pix or r.tv_cartao) if r is not None else None) or a.preco
+        c = (r.tv_cartao if r is not None else None) or a.preco_cartao
+        if v:
+            vista.append(v)
+        if c:
+            cartao.append(c)
+    return (min(vista) if vista else None), (min(cartao) if cartao else None)
+
+
+def marcar_se_compensa(resultados: list[ResultadoCupom], ref_vista: Optional[float],
+                       ref_cartao: Optional[float]) -> None:
+    """Cupom aceito que não deixa a TV mais barata que o anúncio mais barato sem cupom não é "melhor preço"
+    (ex.: LU250 no Colombo a R$ 3.687,15 com o 1P a R$ 3.561,55 sem cupom). pior_a_vista / pior_parcelado
+    tiram o resultado da disputa do melhor à vista / melhor parcelado na mensagem (msg_melhor)."""
+    for r in resultados:
+        preco = r.tv_pix or r.tv_cartao
+        r.extra["pior_a_vista"] = bool(ref_vista and preco and preco >= ref_vista - 0.005)
+        r.extra["pior_parcelado"] = bool(ref_cartao and r.tv_cartao and r.tv_cartao >= ref_cartao - 0.005)
+
+
+MOTIVO_SEM_TV = "o carrinho não ficou só com a TV"
+MOTIVO_OCUPADO = "o carrinho tem outros produtos além da TV"
+
+
+def _marca_sem_cupom_no_carrinho(loja: LojaCarrinho, melhor: ResultadoCupom, motivo: str) -> None:
+    melhor.extra["no_carrinho"] = False
+    melhor.extra["motivo_carrinho"] = motivo[:120]
+    print(f"[{loja.nome}] não deixei {melhor.codigo} aplicado no carrinho: {motivo[:120]}")
+
+
+def _deixar_cupom(loja: LojaCarrinho, page, url: str, melhor: ResultadoCupom,
+                  alvo: Optional[dict] = None) -> tuple[str, Optional[Exception]]:
+    """deixar_cupom_no_carrinho dizendo como o carrinho ficou:
+    'ok' | 'sem_tv' (o anúncio não ficou sozinho no carrinho) | 'sem_cupom' (a TV ficou, o cupom não) |
+    'parar' (carrinho com outro produto, loja fora do ar, sessão expirada: não mexer mais) | 'erro' (falha do robô)."""
+    melhor.extra["no_carrinho"] = False
+    erro: Optional[Exception] = None
+    try:
+        if not loja.garantir_item(page, url, alvo):
+            situacao, motivo = "sem_tv", MOTIVO_SEM_TV
+        else:
+            final = loja.aplicar(page, melhor.codigo)
+            if final.aceito and final.codigo == melhor.codigo:
+                melhor.extra["no_carrinho"] = True
+                if final.total_pix is not None or final.total_cartao is not None:
+                    # o preço de agora (para um aceite de mais cedo, o total pode ter mudado)
+                    for k in ("total_pix", "total_cartao", "frete", "desconto", "parcelado", "quantidade"):
+                        setattr(melhor, k, getattr(final, k))
+                return "ok", None
+            situacao, motivo = "sem_cupom", final.mensagem or "a loja não confirmou o cupom"
+    except CarrinhoOcupado as e:
+        situacao, motivo, erro = "parar", MOTIVO_OCUPADO, e
+    except (LojaIndisponivel, PrecisaLogin) as e:
+        situacao, motivo, erro = "parar", f"erro: {type(e).__name__}", e
+    except Exception as e:  # noqa: BLE001
+        situacao, motivo, erro = "erro", f"erro: {type(e).__name__}", e
+    _marca_sem_cupom_no_carrinho(loja, melhor, motivo)
+    return situacao, erro
 
 
 def deixar_cupom_no_carrinho(loja: LojaCarrinho, page, url: str, melhor: ResultadoCupom,
@@ -734,27 +878,7 @@ def deixar_cupom_no_carrinho(loja: LojaCarrinho, page, url: str, melhor: Resulta
     Marca melhor.extra["no_carrinho"] = True só quando garantir_item conferiu o carrinho e a loja
     aceitou o MESMO código; senão grava o motivo, e o alerta manda aplicar à mão.
     """
-    melhor.extra["no_carrinho"] = False
-    try:
-        if not loja.garantir_item(page, url, alvo):
-            motivo = "o carrinho não ficou só com a TV"
-        else:
-            final = loja.aplicar(page, melhor.codigo)
-            if final.aceito and final.codigo == melhor.codigo:
-                melhor.extra["no_carrinho"] = True
-                if final.total_pix is not None or final.total_cartao is not None:
-                    # o preço de agora (para um aceite de mais cedo, o total pode ter mudado)
-                    for k in ("total_pix", "total_cartao", "frete", "desconto", "parcelado", "quantidade"):
-                        setattr(melhor, k, getattr(final, k))
-                return True
-            motivo = final.mensagem or "a loja não confirmou o cupom"
-    except CarrinhoOcupado:
-        motivo = "o carrinho tem outros produtos além da TV"
-    except Exception as e:  # noqa: BLE001
-        motivo = f"erro: {type(e).__name__}"
-    melhor.extra["motivo_carrinho"] = motivo[:120]
-    print(f"[{loja.nome}] não deixei {melhor.codigo} aplicado no carrinho: {motivo[:120]}")
-    return False
+    return _deixar_cupom(loja, page, url, melhor, alvo)[0] == "ok"
 
 
 def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
