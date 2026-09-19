@@ -17,9 +17,11 @@ Antes de mexer no carrinho calcula a fila de cada anúncio; anúncio sem cupom p
 carrinho. Cupom já aceito num anúncio mais barato (e ainda válido) não é testado nos mais caros; cupom
 recusado (ou com erro) no mais barato passa para o próximo. Limites por rodada: MAX_APLICACOES_POR_RODADA
 testes por loja e loja.max_anuncios anúncios visitados (Magalu 4, ML 3, Amazon 3 só leitura). No fim da rodada o
-carrinho fica com o melhor cupom conhecido, se ele deixar a TV mais barata; senão, com o anúncio mais barato sem
-cupom (nunca com um anúncio mais caro só porque foi o último testado). Anúncio do ML cujo vendedor a coleta não
-conferiu (extra.vendedor_conferido=False) não entra.
+carrinho fica com o melhor cupom conhecido, se ele deixar a TV mais barata; senão, com o anúncio mais barato da loja
+sem cupom, entre TODOS (aberto ou não nesta rodada; se ele não entrar, o próximo), nunca com um anúncio mais caro só
+porque foi o último testado. Falha do robô no meio da rodada não pula esse passo. Cupom que não deixa a TV mais
+barata que o anúncio mais barato sem cupom não vira "melhor preço" na mensagem. Anúncio do ML cujo vendedor a
+coleta não conferiu (extra.vendedor_conferido=False) não entra.
 
 O robô nunca avança para pagamento nem digita dados de conta. Só aplica cupom, lê o total e remove.
 """
