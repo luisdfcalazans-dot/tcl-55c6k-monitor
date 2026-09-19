@@ -333,3 +333,53 @@ def test_vendedor_de_fora_do_buybox_antes_dos_anuncios_do_estado(monkeypatch, se
     # a página do vendedor veio antes do 1º anúncio do estado
     primeiro_estado = next(i for i, u in enumerate(site.pedidas) if "/p/zz000000" in u)
     assert any("seller_id=lojaxyz" in u for u in site.pedidas[:primeiro_estado])
+
+
+# ------------------------------------------------------------------------------------------------
+# variação que não é de polegadas não apaga o anúncio (revisão de 19/09, item B2)
+# ------------------------------------------------------------------------------------------------
+
+def _com_variacao_de_cor(valor: str = "Preto") -> dict:
+    """O anúncio 1P real, mas o Magalu passou a variar COR em vez de polegadas."""
+    p = _produto(P1P)
+    p["variations"] = [
+        {"id": "240162700", "label": "Cor", "type": "color", "value": valor, "available": True,
+         "path": "smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq/p/240162700/et/elit/"},
+        {"id": "240162701", "label": "Cor", "type": "color", "value": "Cinza", "available": True,
+         "path": "smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-cinza/p/240162701/et/elit/"},
+    ]
+    return p
+
+
+def test_variacao_de_cor_nao_apaga_o_anuncio_1p():
+    # o título continua sendo o da 55C6K de 55": quem decide é ele, não o valor da variação
+    ofertas, cupons, _ = magalu.parse_produto_todas(_html_produto(_com_variacao_de_cor()))
+    assert [o.id for o in ofertas][:1] == ["240162800-magazineluiza"]
+    assert magalu.parse_produto(_html_produto(_com_variacao_de_cor()))[0] is not None
+    assert cupons == magalu.parse_produto_todas(P1P)[1], "os cupons do anúncio continuam sendo lidos"
+
+
+def test_variacao_de_voltagem_na_busca_nao_apaga_o_anuncio():
+    produto = dict(_produto(P1P), variations=[
+        {"id": "240162700", "label": "Voltagem", "type": "voltage", "value": "110V", "available": True,
+         "path": "smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz/p/240162700/et/elit/"}])
+    nd = {"props": {"pageProps": {"data": {"search": {"products": [produto]}}}}}
+    html = f'<script id="__NEXT_DATA__" type="application/json">{json.dumps(nd, ensure_ascii=False)}</script>'
+    assert [o.id for o in magalu.parse_busca(html)] == ["240162800-magazineluiza"]
+
+
+def test_variacao_de_polegadas_continua_mandando():
+    # a regra antiga não se perde: variação de tamanho de outro tamanho segue rejeitando o anúncio
+    p = _produto(P1P)
+    p["variationId"] = "240162600"
+    assert magalu.parse_produto_todas(_html_produto(p)) == ([], [], [])
+    # e uma variação de tamanho sem 'label'/'type', só com o valor '65"', também
+    p = _produto(P1P)
+    p["variations"] = [{"id": "240162700", "value": '65"', "available": True,
+                        "path": "smart-tv-65-tcl-65c6k/p/240162700/et/elit/"}]
+    assert magalu.parse_produto_todas(_html_produto(p)) == ([], [], [])
+
+
+def test_variacao_que_nao_e_de_tamanho_nao_vira_candidata():
+    _, _, variacoes = magalu.parse_produto_todas(_html_produto(_com_variacao_de_cor()))
+    assert variacoes == [], "a outra cor não é outro tamanho para visitar"

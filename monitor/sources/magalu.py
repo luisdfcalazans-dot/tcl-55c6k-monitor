@@ -69,13 +69,28 @@ def _parcelado(inst: dict) -> str | None:
     return None
 
 
+# a variação do Magalu é de TAMANHO? ("Polegadas"/inch, ou valor como 55", 55 pol, 55 polegadas)
+_RE_VARIACAO_TAMANHO = re.compile(r"polegad|\binch\b|tamanho", re.I)
+_RE_VALOR_POLEGADAS = re.compile(r"(?<!\d)\d{2,3}\s*(?:[\"”″]|''|pol)", re.I)
+
+
+def _variacao_de_tamanho(v: dict) -> bool:
+    """Só numa variação de tamanho o valor ('55"') diz o tamanho do produto.
+
+    Se o Magalu passar a variar cor/voltagem/combo, decidir por ela apagaria o anúncio inteiro da coleta,
+    sem aviso nenhum — aí quem decide é o título (19/09, item B2)."""
+    if _RE_VARIACAO_TAMANHO.search(f"{v.get('label') or ''} {v.get('type') or ''}"):
+        return True
+    return bool(_RE_VALOR_POLEGADAS.search(str(v.get("value") or "")))
+
+
 def _e_55(p: dict) -> bool:
-    """Só a 55C6K de 55": título e, quando o produto lista variações, a variação desta página."""
+    """Só a 55C6K de 55": título e, quando o produto lista variações DE TAMANHO, a variação desta página."""
     if not eh_55c6k(p.get("title") or ""):
         return False
     var_id = str(p.get("variationId") or "")
     for v in p.get("variations") or []:
-        if isinstance(v, dict) and str(v.get("id")) == var_id and v.get("value"):
+        if isinstance(v, dict) and str(v.get("id")) == var_id and v.get("value") and _variacao_de_tamanho(v):
             return re.search(r"(?<!\d)55(?!\d)", str(v["value"])) is not None
     return True
 
@@ -226,6 +241,8 @@ def parse_produto_todas(html: str) -> tuple[list[Oferta], list[Cupom], list[str]
     for v in p.get("variations") or []:
         if not isinstance(v, dict) or str(v.get("id")) in ("", var_id) or not v.get("available", True):
             continue
+        if not _variacao_de_tamanho(v):
+            continue   # cor/voltagem/combo não é "outro tamanho" para visitar (19/09, item B2)
         if re.search(r"(?<!\d)55(?!\d)", str(v.get("value") or "")) and eh_55c6k((v.get("path") or "").replace("-", " ")):
             variacoes.append("/magazinecanaltechbr/" + str(v["path"]).lstrip("/"))
     return ofertas, cupons, variacoes
