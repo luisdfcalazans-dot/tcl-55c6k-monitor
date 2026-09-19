@@ -640,6 +640,47 @@ PRINCIPIOS = [
     # compra mínima depois de "OFF em"
     (_MG, "Cupom Magalu R$ 350 OFF em R$ 3500", "", True),
     (_MG, "Cupom Magalu R$ 350 OFF em R$ 5000", "", False),
+    # ---- 2ª passada da rodada 4 ----
+    # teto: da COMPRA/do ITEM (como a main) salvo quando o valor é o próprio desconto (F3)
+    (_MG, "Cupom Magalu 10% OFF em compras até R$ 2.500", "", False),
+    (_MG, "Cupom Magalu R$ 200 OFF", "Válido para compras até R$ 5.000", True),
+    (_MG, "Economize até R$ 150 em compras acima de R$ 1.000", "", True),
+    (_AMZ, "Ganhe 15% de desconto (até R$ 200) na Amazon", "", True),
+    (_KB, "Cupom KaBuM! 15% OFF - máximo de R$ 100", "", True),
+    (_MG, "Cupom Magalu R$ 30 OFF em compras até R$ 300", "", False),
+    (_CB, "Cupom Casas Bahia 20% OFF, desconto até R$ 50", "", True),
+    (_MG, "Até R$ 1.500 OFF em TVs com cupom Magalu", "", True),
+    (_AMZ, "Cupom Amazon 10% OFF em produtos até R$ 3.000", "", False),
+    # (c) tamanhos com polegada, sem vírgula, com 4K no meio; "12x"/"20%" não são tamanho
+    (_AMZ, 'Cupom Amazon R$ 300 OFF em Smart TV 4K 55"', "", True),
+    (_AMZ, "Cupom Amazon R$ 300 OFF na Smart TV 50 4K UHD", "", False),
+    (_MG, "Cupom Magalu R$ 300 OFF em TVs 4K de 50 a 85 polegadas", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em Smart TVs de 50 polegadas, 55 polegadas e 65 polegadas", "", True),
+    (_MG, "Cupom Magalu 10% OFF Smart TVs 12x sem juros", "", True),
+    (_MG, "Cupom Magalu Smart TV com 20% OFF", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em Smart TVs 50+ polegadas", "", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em TVs de 65 e 75 polegadas", "", False),
+    (_MG, "Cupom Magalu R$ 300 OFF em TVs", "Não válido para TVs de 32 e 43 polegadas", True),
+    # qualificador de venda/pagamento não é categoria; condição do produto e vendedor terceiro são
+    (_MG, "Cupom Magalu 10% OFF em compras parceladas", "", True),
+    (_AMZ, "Cupom Amazon 10% OFF em produtos Seminovos", "", False),
+    (_AMZ, "Cupom Amazon R$ 50 OFF em produtos vendidos por terceiros", "", False),
+    # cliente novo
+    (_ML, "Cupom Mercado Livre R$ 50 OFF", "Válido para novos e antigos clientes", True),
+    (_MG, "Cupom Magalu R$ 300 OFF em compras acima de R$ 3.000", "Não é necessário ser cliente novo", True),
+    (_MG, "Cupom Magalu R$ 300 OFF", "Para compras pela primeira vez no app", False),
+    (_MG, "Cupom Magalu R$ 300 OFF para membros novos do Clube", "", True),
+    # (a) a exclusão acaba na vírgula que abre outra condição; "com exceção de" é exclusão
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares, Games e Informática", True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto TVs, em compras acima de R$ 1.000", False),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Válido em compras acima de R$ 1.000, com exceção de iPhone e Apple",
+     True),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares, compra mínima de R$ 5.000", False),
+    (_MG, "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares, e TVs acima de R$ 5.000", True),
+    (_ML, "Cupom Mercado Livre 20% OFF", "Desconto de 20% com teto de até R$ 100", True),
+    (_MG, "Cupom Magalu 10% OFF", "Válido para produtos novos e usados", True),
+    (_MG, "Cupom Magalu 10% OFF para compras de até R$ 1.999", "", False),
+    (_MG, "Cupom Magalu R$ 300 OFF", "Não é exclusivo para novos clientes", True),
 ]
 
 

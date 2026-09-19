@@ -21,8 +21,13 @@ Comparações
       na hora da rodada: ofertas de loja do latest, cupons e posts do state com ultima_vez da rodada. Compara os alertas
       de preço, de post e de cupom, os cupons do painel, o mínimo gravado, as linhas do resumo diário e da partida.
 
-Toda diferença recebe uma explicação (a correção intencional que a causa) ou vira "SEM EXPLICAÇÃO", que é bug. O
-resumo no fim dá o tamanho do corpus e as contagens; com --detalhe lista cada diferença.
+Toda diferença recebe uma explicação (a correção intencional que a causa) ou vira "SEM EXPLICAÇÃO", que é bug. A
+explicação de cupom (C1, e os cupons de C2/C3) só vale com PROVA lida no próprio texto do cupom por regex próprias
+deste arquivo (explica_compat): teto do desconto x teto da compra, a palavra só dentro de uma exclusão, alvo com
+palavras neutras, texto de cliente novo, lista de tamanhos que cobre a 55"... O motivo da main sozinho não explica: foi
+assim que as regressões achadas pelo verificador na 1ª passada da rodada 4 passaram como "explicadas". O corpus
+sintético inclui as sondas do verificador (scratchpad/vr4) e sondas próprias de cada regra nova. O resumo no fim dá o
+tamanho do corpus e as contagens; com --detalhe lista cada diferença.
 """
 
 from __future__ import annotations
@@ -203,6 +208,297 @@ def sinteticos_dos_testes() -> list[dict]:
     return out
 
 
+# sondas do verificador da rodada 4 (scratchpad/vr4/sonda_*.py: textos novos e realistas que ele usou para achar
+# casos piores que a main)
+SONDAS_DO_VERIFICADOR = [
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50", 55" e 65"', 'Válido para TVs vendidas pela Amazon.'),  # sonda_pol.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50", 55" e 65"', ''),  # sonda_pol.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs de 50" a 65"', ''),  # sonda_pol.py
+    ('KaBuM!', 'SONDA', 'Cupom 10% OFF em Smart TVs 43" a 55"', ''),  # sonda_pol.py
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 200 OFF em Smart TVs 50" ou 55"', ''),  # sonda_pol.py
+    ('Magazine Luiza', 'SONDA', "Cupom Magalu R$ 300 OFF em Smart TVs 50'' a 65''", ''),  # sonda_pol.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50 55 e 65 polegadas', ''),  # sonda_pol.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50" / 55" / 65"', ''),  # sonda_pol.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs 50 pol. a 65 pol.', ''),  # sonda_pol.py
+    ('KaBuM!', 'SONDA', 'Cupom KaBuM! R$ 200 OFF em Smart TVs TCL 50P7K e 55C6K', ''),  # sonda_pol.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50" e 55" C6K', ''),  # sonda_pol.py
+    ('AliExpress', 'TUDO99', 'Os melhores itens do site com R$ 10 OFF aplicando cupom AliExpress', 'produtos Aliexpress Válido para itens de até R$ 99.'),  # sonda_a2.py
+    ('Magazine Luiza', 'PRECINHO', 'Cupom de desconto Magalu oferece 15% OFF em suas compras', 'produtos Magazine Luiza Válido para produtos de até R$ 150 vendidos pela Magalu.'),  # sonda_a2.py
+    ('Magazine Luiza', 'FAIXA30', 'Cupom de desconto Magalu de R$30 OFF em suas compras', 'produtos Magazine Luiza Válido em compras de R$ 200 até R$ 499.'),  # sonda_a2.py
+    ('Magazine Luiza', 'MAX300', 'Cupom Magalu 10% OFF (limite R$ 30)', 'Válido para pedidos de no máximo R$ 300.'),  # sonda_a2.py
+    ('Amazon', 'PEQ20', 'Desconto Amazon: economize 20% em suas compras', 'produtos Amazon Válido somente para itens com preço de até R$ 100.'),  # sonda_a2.py
+    ('KaBuM!', 'ATE500', 'Use o cupom KaBum! e economize 10% em suas compras', 'produtos KaBuM! VÁLIDO PARA PRODUTOS ATÉ R$ 500'),  # sonda_a2.py
+    ('Casas Bahia', 'CB20', 'Cupom Casas Bahia R$ 20 OFF', 'Válido para carrinhos de até R$ 300.'),  # sonda_a2.py
+    ('Mercado Livre', 'ML10', 'Cupom Mercado Livre 10% OFF em compras até R$ 500', ''),  # sonda_a2.py
+    ('Magazine Luiza', 'M50', 'Cupom Magalu R$ 50 OFF em pedidos até R$ 400', ''),  # sonda_a2.py
+    ('Amazon', 'VALE', 'Cupom Amazon 15% OFF em produtos com valor até R$ 200', ''),  # sonda_a2.py
+    ('Mercado Livre', 'RECOND10', 'Cupom Mercado Livre - 10% OFF em Produtos Recondicionados', 'Em itens Selecionados'),  # sonda_a3.py
+    ('Amazon', 'USADOS15', 'Cupom Amazon 15% OFF em Produtos Usados', 'Válido para produtos vendidos pela Amazon'),  # sonda_a3.py
+    ('KaBuM!', 'REEMB15', '15% de Desconto em produtos reembalados', 'produtos KaBuM! 15% OFF em produtos reembalados'),  # sonda_a3.py
+    ('Mercado Livre', 'CONGEL10', 'Cupom Mercado Livre 10% OFF em Congelados e Resfriados', ''),  # sonda_a3.py
+    ('Amazon', 'IMPORT', 'Cupom Amazon 10% OFF em Itens Importados', ''),  # sonda_a3.py
+    ('Magazine Luiza', 'PERSO', 'Cupom Magalu 20% OFF em Produtos Personalizados', ''),  # sonda_a3.py
+    ('Mercado Livre', 'OFDIA', 'Cupom Mercado Livre 10% OFF em Ofertas do Dia', ''),  # sonda_a3.py
+    ('Amazon', 'VENDAMZ', 'Cupom Amazon R$ 100 OFF em produtos vendidos e entregues pela Amazon', 'Compra mínima R$ 1.000'),  # sonda_a3.py
+    ('Magazine Luiza', 'ELETRO10', 'Cupom Magalu 10% OFF em Eletro', ''),  # sonda_a3.py
+    ('Casas Bahia', 'MOVELETRO', 'Cupom Casas Bahia R$ 100 OFF em Móveis e Eletro', ''),  # sonda_a3.py
+    ('Mercado Livre', 'MAISVEND', 'OFERTA TOP: 15% OFF em Mais Vendidos no Mercado Livre (acima de R$ 99) com cupom', 'produtos Mercado Livre'),  # sonda_a3.py
+    ('Amazon', 'RENEW', 'Cupom Amazon 20% OFF em produtos Renovados', ''),  # sonda_a3.py
+    ('Mercado Livre', 'OPENBOX', 'Cupom Mercado Livre 12% OFF em produtos Open Box', ''),  # sonda_a3.py
+    ('KaBuM!', 'OPENB10', '10% de Desconto em produtos Open Box', 'produtos KaBuM! 10% OFF em produtos Open Box'),  # sonda_a3.py
+    ('Magazine Luiza', 'LANC', 'Cupom Magalu 10% OFF em Lançamentos', ''),  # sonda_a3.py
+    ('Mercado Livre', 'EMBAL', 'Cupom Mercado Livre 20% OFF em Itens Embalados a Vácuo', ''),  # sonda_a3.py
+    ('Amazon', 'DIGITAL', 'Cupom Amazon 30% OFF em Produtos Digitais', ''),  # sonda_a3.py
+    ('Mercado Livre', 'SEMINOVO', 'Cupom Mercado Livre 10% OFF em Celulares Seminovos', ''),  # sonda_a3.py
+    ('Amazon', 'NOVOAPP', 'Cupom Amazon R$ 20 OFF para quem ainda não comprou no app', ''),  # sonda_a4.py
+    ('Mercado Livre', 'NUNCA30', 'Cupom Mercado Livre R$ 30 OFF para quem nunca comprou', 'Compra mínima R$ 60'),  # sonda_a4.py
+    ('Magazine Luiza', 'BEMVINDO', 'Cupom Magalu R$ 20 OFF para clientes novos no app', 'Válido para compras acima de R$ 100'),  # sonda_a4.py
+    ('Casas Bahia', 'APPNOVO', 'Cupom Casas Bahia 10% OFF no app para novos cadastros', ''),  # sonda_a4.py
+    ('Amazon', 'PRIMEIRA', 'Cupom Amazon R$ 25 OFF no primeiro pedido pelo app', ''),  # sonda_a4.py
+    ('Magazine Luiza', 'SELTCL', 'Cupom Magalu - 10% OFF em Selecionados TCL', 'Em itens Selecionados'),  # sonda_a4.py
+    ('Mercado Livre', 'TCLDAYS', 'Cupom Mercado Livre - 10% OFF Acima de R$1.500 limitado à R$400 em Selecionados TCL', 'Em itens Selecionados'),  # sonda_a4.py
+    ('Magazine Luiza', 'TV300', 'Cupom Magalu R$ 300 OFF em TVs a partir de 55 polegadas', 'Válido em compras acima de R$ 2.999'),  # sonda_a4.py
+    ('KaBuM!', 'TV43', 'Cupom KaBuM! R$ 100 OFF em Smart TVs de 32 e 43 polegadas', ''),  # sonda_a4.py
+    ('Amazon', 'VALEPRESENTE', 'Cupom Amazon R$ 50 OFF na compra de Vale-Presente', ''),  # sonda_a4.py
+    ('Magazine Luiza', 'CARTAOLUIZA', 'Cupom Magalu R$ 200 OFF pagando com Cartão Luiza em compras acima de R$ 2.000', ''),  # sonda_a4.py
+    ('Mercado Livre', 'MELIPLUS', 'Cupom Mercado Livre 10% OFF para assinantes Meli+ (limite R$ 100)', ''),  # sonda_a4.py
+    ('Amazon', 'ALEXA', 'Cupom Amazon R$ 100 OFF em dispositivos Echo e Fire TV', ''),  # sonda_a4.py
+    ('Magazine Luiza', 'SEGURO', 'Cupom Magalu 20% OFF em Garantia Estendida', ''),  # sonda_a4.py
+    ('Casas Bahia', 'TVCB', 'Cupom Casas Bahia R$ 250 OFF em TVs Mini LED', 'Válido para compras acima de R$ 3.000. Exceto marketplace.'),  # sonda_a4.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 100 OFF em TVs de 43 polegadas', ''),  # sonda_pre.py
+    ('Fast Shop', 'SONDA', 'Cupom Fast Shop 10% OFF em Smart TVs Samsung', ''),  # sonda_pre.py
+    ('KaBuM!', 'SONDA', 'Cupom KaBuM! 10% OFF em TVs e Monitores Gamer', ''),  # sonda_pre.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em TV e Áudio', ''),  # sonda_pre.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 100 OFF em TVs até R$ 2.000', ''),  # sonda_pre.py
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF em Cama, Mesa e Banho e Smart TVs', ''),  # sonda_pre.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 400 OFF em Smart TVs 55", 65" e 75"', ''),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Cupom Amazon: R$ 300 OFF em TVs TCL C6K (50" a 98")', ''),  # sonda_tv.py
+    ('KaBuM!', 'SONDA', 'Cupom KaBuM! 12% OFF em Smart TVs TCL de 55 polegadas ou mais', 'produtos KaBuM! 12% OFF em Smart TVs TCL'),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'R$ 500 OFF na Smart TV TCL 55" C6K Mini LED', ''),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 200 OFF na Smart TV TCL 55C6K e na 65C6K', ''),  # sonda_tv.py
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia 10% OFF em TVs a partir de R$ 2.000 (exceto 32 e 43 polegadas)', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 250 OFF em Smart TV acima de R$ 3.000 no Pix', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TVs 4K e 8K', ''),  # sonda_tv.py
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 15% OFF em TVs Mini LED (limite R$ 500)', ''),  # sonda_tv.py
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre - 8% OFF Acima de R$ 2.000 limitado à R$ 300 em Eletrônicos, Áudio e Vídeo', 'Em itens Selecionados'),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 150 OFF em Smart TVs Google TV', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom de R$ 200 OFF em TVs QLED e Mini LED da TCL', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu: R$ 300 OFF em Eletrônicos (Smart TVs, Notebooks e Celulares)', ''),  # sonda_tv.py
+    ('KaBuM!', 'SONDA', 'Cupom 10% OFF em Smart TVs 43" a 55"', ''),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 300 OFF em Smart TVs 55" vendidas pela Amazon', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu - R$ 300 OFF em TVs Selecionadas Acima de R$ 2.999', 'Em itens Selecionados'),  # sonda_tv.py
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 200 OFF em Smart TVs no app (1 uso por CPF)', ''),  # sonda_tv.py
+    ('Fast Shop', 'SONDA', 'Cupom Fast Shop 5% OFF em TVs e Home Theaters', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em TVs, exceto TVs de 32" e 43"', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu - 10% OFF em TVs e Eletroportáteis (Exceto Linha Branca)', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF na Semana da TV', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom de desconto Magazine Luiza oferece R$ 300 OFF em TVs', 'produtos Magazine Luiza Válido para compras a partir de R$ 3.000 em TVs de 50 polegadas ou mais'),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Smart TV TCL 55C6K por R$ 3.299 com cupom', ''),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs de 55 a 65 polegadas, exceto Samsung', ''),  # sonda_tv.py
+    ('KaBuM!', 'SONDA', 'Cupom 10% OFF em Smart TVs 50" ou maiores', ''),  # sonda_tv.py
+    ('Mercado Livre', 'SONDA', 'TELA GRANDE: 12% OFF em TVs no Mercado Livre (acima de R$ 1.500) com cupom', 'produtos Mercado Livre Desconto de até 12% em compra a partir de R$1.500, com desconto máximo de R$400 válido para itens elegíveis.'),  # sonda_tv.py
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre - 10% OFF Acima de R$1.999 limitado à R$300 em Smart TVs', 'Em Smart Tvs Selecionadas'),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu - R$ 250 OFF em Tv, Som e Vídeo', ''),  # sonda_tv.py
+    ('Amazon', 'SONDA', 'Cupom Amazon 10% OFF em TV e Home Theater (limite R$ 200)', 'Válido para produtos vendidos e entregues pela Amazon. Não válido para Fire TV e Echo.'),  # sonda_tv.py
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 300 OFF em Televisores acima de R$ 2.999', 'Não cumulativo com outras promoções. Não válido para produtos de marketplace.'),  # sonda_tv.py
+    ('KaBuM!', 'SONDA', 'R$300,00 de Desconto em Smart TVs', 'produtos KaBuM! R$300,00 OFF em Smart TVs'),  # sonda_tv.py
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 8% OFF em Eletrônicos no Pix', 'Válido em compras acima de R$ 1.000, exceto celulares'),  # sonda_tv.py
+    ('AliExpress', 'ATE99', 'Cupom AliExpress R$ 10 OFF em itens até R$ 99', 'Válido para itens da seção Tudo até R$ 99'),  # sonda_a.py
+    ('Magazine Luiza', 'MAGA15', 'Cupom Magalu 15% OFF em produtos de até R$ 150', ''),  # sonda_a.py
+    ('Magazine Luiza', 'FAIXA30', 'Cupom Magalu R$ 30 OFF em compras de R$ 200 até R$ 499', ''),  # sonda_a.py
+    ('Mercado Livre', 'MAX300', 'Cupom Mercado Livre 10% OFF (limite R$ 30)', 'Válido para pedidos de no máximo R$ 300.'),  # sonda_a.py
+    ('Amazon', 'ACHADOS', 'Cupom Amazon 10% OFF em itens de até R$ 200 vendidos pela Amazon', ''),  # sonda_a.py
+    ('KaBuM!', 'TVS5', 'Cupom KaBuM! 5% OFF em Smart TVs de 50" a 65"', 'produtos KaBuM! 5% OFF em Smart TVs'),  # sonda_a.py
+    ('Magazine Luiza', 'TV55MAIS', 'Cupom Magalu R$ 300 OFF em Smart TVs 55" ou mais', ''),  # sonda_a.py
+    ('Casas Bahia', 'TV4K150', 'Cupom Casas Bahia R$ 150 OFF em TVs 4K acima de R$ 2.500', ''),  # sonda_a.py
+    ('Mercado Livre', 'AVTV12', 'Cupom Mercado Livre - 12% OFF Acima de R$199 limitado à R$120 em TVs, Áudio e Vídeo', 'Em itens Selecionados'),  # sonda_a.py
+    ('Mercado Livre', 'NOVOML25', 'Cupom Mercado Livre R$ 25 OFF para quem nunca comprou no app (acima de R$ 50)', 'Válido somente para a primeira compra no app'),  # sonda_a.py
+    ('Amazon', 'BEMVINDO20', 'Cupom Amazon R$ 20 OFF para clientes novos no app', ''),  # sonda_a.py
+    ('Magazine Luiza', 'SITE10', 'Cupom Magazine Luiza oferece 10% OFF em todo o site', 'produtos Magazine Luiza Não válido para produtos de Mercado, Eletroportáteis e Smart TVs.'),  # sonda_a.py
+    ('Amazon', 'TV65', 'Cupom Amazon R$ 400 OFF em Smart TVs 65" ou maiores', ''),  # sonda_a.py
+    ('Amazon', 'FIRETV', 'Cupom Amazon R$ 50 OFF em Fire TV Stick', ''),  # sonda_a.py
+    ('Magazine Luiza', 'ELETRO200', 'Cupom Magalu - R$ 200 OFF em compras acima de R$ 2.000 em Eletroportáteis, TVs, Celulares e mais', ''),  # sonda_a.py
+    ('Magazine Luiza', 'MAGALU300', 'Cupom Magalu - R$ 300 OFF em compras acima de R$ 3.000 (Exceto Celulares, Games e Informática)', 'Válido para produtos vendidos e entregues por Magalu.'),  # sonda_a.py
+    ('Casas Bahia', 'TVCB8', 'Cupom Casas Bahia 8% OFF em Smart TVs, exceto TVs Samsung e LG', ''),  # sonda_a.py
+    ('Casas Bahia', 'ELE8', 'Cupom Casas Bahia 8% OFF em Eletrônicos, exceto Smart TVs abaixo de 50"', ''),  # sonda_a.py
+    ('Magazine Luiza', 'PIX5', 'Cupom Magalu 5% OFF extra no pagamento via Pix', 'Válido para compras acima de R$ 1.000'),  # sonda_a.py
+    ('Magazine Luiza', 'CARTAO150', 'Cupom Magalu R$ 150 OFF para Cartão Magalu', 'Válido em compras acima de R$ 1.500 pagas com Cartão Luiza'),  # sonda_a.py
+    ('Mercado Livre', 'TECH15', 'LIQUIDA TECH: 15% OFF em Tecnologia no Mercado Livre (acima de R$ 199) com cupom', 'produtos Mercado Livre'),  # sonda_a.py
+    ('Magazine Luiza', 'TCLAPP250', 'Cupom de R$ 250 OFF na TV TCL 55C6K pelo app da Magalu', ''),  # sonda_a.py
+    ('Magazine Luiza', 'SEMANA10', 'Cupom Magalu 10% OFF na Semana do Cliente', 'Limitado a R$ 200 de desconto.'),  # sonda_a.py
+    ('Mercado Livre', 'FULL100', 'Cupom Mercado Livre: R$ 100 OFF em compras acima de R$ 1.000 em produtos com Frete Full', ''),  # sonda_a.py
+    ('Magazine Luiza', 'CAMA15', 'Cupom Magalu 15% OFF em Cama, Mesa e Banho', ''),  # sonda_a.py
+    ('Mercado Livre', 'SUPER20', 'Cupom Mercado Livre 20% OFF em Supermercado (acima de R$ 99)', ''),  # sonda_a.py
+    ('Amazon', 'PRIME30', 'Cupom Amazon R$ 30 OFF para membros Prime em compras acima de R$ 150', ''),  # sonda_a.py
+    ('KaBuM!', 'HARDWARE8', '8% de Desconto em Hardware', 'produtos KaBuM! 8% OFF em Hardware'),  # sonda_a.py
+    ('KaBuM!', 'GAMER10', '10% de Desconto em Cadeiras e Mesas Gamer', 'produtos KaBuM! 10% OFF'),  # sonda_a.py
+    ('Magazine Luiza', 'TVAUDIO', 'Cupom Magalu 10% OFF em TV e Áudio', ''),  # sonda_a.py
+    ('Fast Shop', 'FAST300', 'Cupom Fast Shop R$ 300 OFF em compras acima de R$ 3.000', 'Não válido para produtos Apple.'),  # sonda_a.py
+    ('Amazon', 'SMARTTV10', 'Cupom Amazon 10% OFF em Smart TVs (limite R$ 300)', 'Válido em Smart TVs vendidas e entregues pela Amazon. Não cumulativo.'),  # sonda_a.py
+    ('Mercado Livre', 'DIADOSPAIS', 'Cupom Mercado Livre - 15% OFF acima de R$ 299 limitado a R$ 200 em Presentes para o Dia dos Pais', 'Em itens Selecionados'),  # sonda_a.py
+    ('Casas Bahia', 'CBAPP', 'Cupom Casas Bahia R$ 100 OFF no App em compras acima de R$ 1.000', 'Exclusivo para compras no app.'),  # sonda_a.py
+    ('Magazine Luiza', 'LOJA10', 'Cupom Magalu 10% OFF em produtos vendidos pela loja parceira Lojas Colombo', ''),  # sonda_a.py
+    ('Mercado Livre', 'ELETRODOM', 'Cupom Mercado Livre 10% OFF em Eletrodomésticos (acima de R$ 500)', ''),  # sonda_a.py
+    ('Mercado Livre', 'CELTV', 'Cupom Mercado Livre - 10% OFF em Celulares e Smartphones', 'Não válido para TVs'),  # sonda_a.py
+    ('Magazine Luiza', 'VIDEO10', 'Cupom Magalu 10% OFF em TV e Vídeo', 'Compra mínima R$ 1.000'),  # sonda_a.py
+    ('Amazon', 'OUTLET', 'Cupom Amazon 15% OFF em produtos do Outlet', 'Até R$ 100 de desconto'),  # sonda_a.py
+    ('Mercado Livre', 'MELI3MIL', 'Cupom Mercado Livre R$ 300 OFF em compras de R$ 3.000 ou mais', 'Limitado a 1 uso por conta.'),  # sonda_a.py
+    ('Magazine Luiza', 'TV100X', 'Cupom Magalu R$ 100 OFF em TVs até R$ 2.000', ''),  # sonda_a.py
+    ('KaBuM!', 'TVKABUM', 'Cupom KaBuM! R$ 200 OFF em TVs de até R$ 5.000', ''),  # sonda_a.py
+    ('Casas Bahia', 'ENTREGA50', 'Cupom Casas Bahia R$ 50 OFF na entrega de compras acima de R$ 1.000', ''),  # sonda_a.py
+    ('Amazon', 'EBOOK', 'Cupom Amazon 20% OFF em eBooks Kindle', ''),  # sonda_a.py
+    ('Magazine Luiza', 'INFO10', 'Cupom Magalu 10% OFF em Informática e Games', ''),  # sonda_a.py
+]
+# sondas próprias da 2ª passada da rodada 4: variações de cada regra nova (teto, tamanhos, qualificador, cliente novo,
+# fim da exclusão), para achar casos em que o branch fica pior que a main
+SONDAS_PROPRIAS = [
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF em compras até R$ 2.500", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 200 OFF", "Válido para compras até R$ 5.000"),
+    ("Magazine Luiza", "SONDA", "Economize até R$ 150 em compras acima de R$ 1.000", ""),
+    ("Magazine Luiza", "SONDA", "Cupom de até R$ 300 OFF em compras acima de R$ 2.000", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre: desconto de 10% limitado até R$ 100", ""),
+    ("Amazon", "SONDA", "Ganhe 15% de desconto (até R$ 200) na Amazon", ""),
+    ("KaBuM!", "SONDA", "Cupom KaBuM! 15% OFF - máximo de R$ 100", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 30 OFF em compras até R$ 300", ""),
+    ("Casas Bahia", "SONDA", "Cupom Casas Bahia 20% OFF, desconto até R$ 50", ""),
+    ("Amazon", "SONDA", "Cupom Amazon: 10% de volta em até R$ 100", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre com cashback de até R$ 50", ""),
+    ("Casas Bahia", "SONDA", "Frete grátis para compras até R$ 99", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF", "Válido para produtos a partir de R$ 100 até R$ 5.000"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF", "Valor máximo do desconto: R$ 300"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF", "Desconto máximo: R$ 300"),
+    ("Magazine Luiza", "SONDA", "Até R$ 1.500 OFF em TVs com cupom Magalu", ""),
+    ("Amazon", "SONDA", "Cupom Amazon 10% OFF em produtos até R$ 3.000", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre 10% OFF em compras de até R$ 2.000", "Desconto máximo de R$ 200"),
+    ("Amazon", "SONDA", 'Cupom Amazon R$ 300 OFF em Smart TV 4K 55"', ""),
+    ("Amazon", "SONDA", 'Cupom Amazon R$ 300 OFF em Smart TVs 32" até 55"', ""),
+    ("Amazon", "SONDA", "Cupom Amazon R$ 300 OFF na Smart TV 50 4K UHD", ""),
+    ("Amazon", "SONDA", "Cupom Amazon R$ 300 OFF na Smart TV 55 4K", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em TVs 4K de 50 a 85 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TVs 43 polegadas e 55 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TV até 55", ""),
+    ("Magazine Luiza", "SONDA", 'Cupom Magalu R$ 300 OFF na Smart TV 58"', ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF na Smart TV 2024 50 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom 10% OFF em Smart TVs de 32 a 50 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TVs de 50 polegadas, 55 polegadas e 65 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TV 55 ou 65 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TV 50”", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF Smart TVs 12x sem juros", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu Smart TV com 20% OFF", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em Smart TVs 50+ polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em TVs de 55 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em TVs de 65 e 75 polegadas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em TVs", "Válido para TVs de 50 polegadas ou mais"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF em TVs", "Não válido para TVs de 32 e 43 polegadas"),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre 10% OFF em produtos anunciados", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF em compras parceladas", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF em compras pagas com Pix", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre 10% OFF em itens com frete grátis", ""),
+    ("Amazon", "SONDA", "Cupom Amazon 10% OFF em produtos Seminovos", ""),
+    ("KaBuM!", "SONDA", "10% de Desconto em produtos Open Box", "produtos KaBuM! 10% OFF em produtos Open Box"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu 10% OFF em produtos de Vitrine", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre R$ 20 OFF para quem nunca comprou no Mercado Livre", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre R$ 50 OFF", "Válido para novos e antigos clientes"),
+    ("Magazine Luiza", "SONDA", "Cupom de boas-vindas Magalu R$ 20 OFF", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 20 OFF exclusivo para novos clientes do app", ""),
+    ("Amazon", "SONDA", "Cupom Amazon R$ 20 OFF na primeira compra no app", ""),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre 15% OFF", "Válido para clientes novos ou que não compram há 6 meses"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares, Games e Informática"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 200 OFF em todo o site", "Exceto TVs, em compras acima de R$ 1.000"),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre 10% OFF em todo o site",
+     "Não válido para Supermercado, com desconto máximo de R$ 100"),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 200 OFF em todo o site", "Exceto Celulares, válido em compras acima de R$ 5.000"),
+    ("Mercado Livre", "SONDA", "Cupom Mercado Livre R$ 100 OFF em produtos Full", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF para membros novos do Clube", ""),
+    ("Magazine Luiza", "SONDA", "Cupom Magalu R$ 300 OFF", "Para compras pela primeira vez no app"),
+    ("Amazon", "SONDA", "Cupom Amazon R$ 50 OFF em produtos vendidos por terceiros", ""),
+    ("Amazon", "SONDA", "Cupom Amazon R$ 50 OFF", "Válido para produtos vendidos e entregues pela Amazon"),
+]
+
+SONDAS_PROPRIAS += [  # 2ª leva (scratchpad/r4ea/sonda_r4b.py)
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF para compras de até R$ 1.999', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF', 'Desconto máximo de R$ 1.999'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 5% OFF (desconto limitado a R$ 200)', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 5% OFF', 'O desconto é de até R$ 200 por CPF'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 5% OFF', 'Válido para pedidos com valor total de até R$ 5.000'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 5% OFF', 'Válido para pedidos com valor total de até R$ 1.000'),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 20% OFF até R$ 100', ''),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre R$ 20 OFF até R$ 100', ''),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 20% OFF', 'Desconto de 20% com teto de até R$ 100'),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 20% de desconto', 'Limite de desconto de até R$ 100'),
+    ('Amazon', 'SONDA', 'Cupom Amazon: economize 10%', 'Válido em itens de até R$ 3.500'),
+    ('Amazon', 'SONDA', 'Cupom Amazon: economize 10%', 'Aplicável em compras de R$ 100 a R$ 3.000'),
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 50 OFF', 'Cupom válido até 30/09 ou até R$ 10.000 em descontos'),
+    ('KaBuM!', 'SONDA', 'Cupom KaBuM! 5% OFF', 'Válido em produtos até R$ 1.000 e acima de R$ 2.000'),
+    ('KaBuM!', 'SONDA', 'Cupom KaBuM! 5% OFF no Pix até R$ 500', ''),
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia 10% OFF', 'Válido para compras no valor máximo de R$ 800'),
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 100 de cashback em compras até R$ 1.000', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu: R$ 300 de volta até R$ 3.000 em compras', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TV de 55 a 98 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs até 43 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs de 32 até 50 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TVs de 65 a 85 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TV QLED 4K 50”', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TV QLED 55” 4K', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TV TCL 43S5K e 55C6K', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em Smart TV TCL 43S5K', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TV TCL 65C6K', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TVs a partir de 43 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TVs acima de 60 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TVs grandes (55" ou mais)', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF em TVs grandes (65" ou mais)', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF na TV 55 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF na TV 32 polegadas', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 150 OFF em TVs', 'Válido para Smart TVs 43" e 50"'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 150 OFF em TVs 50" ou menos', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 150 OFF em TVs 60" ou menos', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 150 OFF em Smart TV 55 polegadas 120Hz', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 150 OFF em Smart TV 40 anos Magalu', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu Smart TV: 10 dias de ofertas', ''),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF em produtos selecionados vendidos pelo Mercado Livre', ''),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF em produtos disponíveis', ''),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF em produtos Full enviados pelo Mercado Livre', ''),
+    ('Amazon', 'SONDA', 'Cupom Amazon 10% OFF em produtos internacionais', ''),
+    ('Amazon', 'SONDA', 'Cupom Amazon 10% OFF em itens elegíveis', ''),
+    ('Amazon', 'SONDA', 'Cupom Amazon 10% OFF em produtos Amazon Renew', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em produtos de mostruário', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF', 'Válido para produtos novos e usados'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em pedidos realizados no app', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em compras feitas pelo site', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em produtos vendidos e entregues por Magalu', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu 10% OFF em produtos vendidos pelo Magalu e parceiros', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF', 'Válido para clientes novos e antigos'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF', 'Válido para todos os clientes, novos ou não'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF', 'Não é exclusivo para novos clientes'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 300 OFF', 'Válido para a primeira compra com o cartão Magalu'),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre R$ 30 OFF na sua primeira compra no Mercado Pago', ''),
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 20 OFF para quem ainda não assinou o Prime', ''),
+    ('Amazon', 'SONDA', 'Cupom Amazon R$ 20 OFF para quem nunca usou o app', ''),
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 50 OFF para novas contas do app', ''),
+    ('Casas Bahia', 'SONDA', 'Cupom Casas Bahia R$ 50 OFF para novo usuário', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 50 OFF: primeira vez no app?', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 50 OFF na nova loja do app', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 50 OFF em novos produtos', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 50 OFF com o novo app', ''),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, com desconto máximo de R$ 200'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, TVs e Games'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, e TVs acima de R$ 5.000'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, 1 uso por CPF'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, para compras acima de R$ 5.000'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, compra mínima de R$ 5.000'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, Notebooks, com exceção de iPhone'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Exceto Celulares, cupons, vale-presente'),
+    ('Magazine Luiza', 'SONDA', 'Cupom Magalu R$ 200 OFF em todo o site', 'Não válido para Apple, em compras até R$ 1.000'),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF', 'Válido em todo o site, exceto Supermercado, desconto de até R$ 100'),
+    ('Mercado Livre', 'SONDA', 'Cupom Mercado Livre 10% OFF', 'Exceto itens de Supermercado, em compras acima de R$ 99 na categoria Casa'),
+]
+
+def sinteticos_das_sondas() -> list[dict]:
+    out = [_s(l, c, t, r, origem="sonda-verificador-r4") for l, c, t, r in SONDAS_DO_VERIFICADOR]
+    out += [_s(l, c, t, r, origem="sonda-propria-r4b") for l, c, t, r in SONDAS_PROPRIAS]
+    return out
+
+
 # ============================================================ C1: cupom_compativel
 
 def _cupom(mods, d: dict, cid: str = "x"):
@@ -211,54 +507,249 @@ def _cupom(mods, d: dict, cid: str = "x"):
                                 regra=d["regra"], especifico=d["especifico"])
 
 
+# ---- explicação de uma diferença de cupom_compativel ----
+# Cada classe só vale com PROVA no próprio texto do cupom, lida aqui de um jeito independente do código do branch
+# (regex próprias, mais simples). O motivo da main sozinho não explica nada: foi assim que as regressões da rodada 4
+# (teto do item lido como teto do desconto, "Renovados", cliente novo no app, lista de tamanhos com ") passaram como
+# "explicadas". Diferença sem prova = SEM EXPLICAÇÃO = bug.
+
+def _desfaz_mojibake(s: str) -> str:
+    """'vÃ¡lido' -> 'válido' (texto UTF-8 que uma coleta antiga leu como cp1252)."""
+    def um(m: re.Match) -> str:
+        for cod in ("cp1252", "latin-1"):
+            try:
+                return m.group(0).encode(cod).decode("utf-8")
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                continue
+        return m.group(0)
+
+    return re.sub("[ÂÃ][-¿Œ-™]", um, s or "")
+
+
+def _n(s: str) -> str:
+    import unicodedata
+
+    t = unicodedata.normalize("NFKD", _desfaz_mojibake(s))
+    t = "".join(ch for ch in t if not unicodedata.combining(ch)).lower()
+    t = t.replace("ª", "a").replace("º", "o")
+    return re.sub(r"\s+", " ", t)
+
+
+# exclusão até o fim da frase ("." de número não fecha a frase)
+_X_EXCL = re.compile(r"(?:\b(?:exceto|excluindo|exclui|excluid[oa]s?|nao\s+(?:e\s+|sao\s+)?valid[oa]s?|nao\s+vale|"
+                     r"nao\s+se\s+aplica|nao\s+inclui|nao\s+contempla|com\s+excecao\s+de)|(?:,\s*|\b(?:tudo|site|loja)\s+)(?:menos|fora))\b"
+                     r"(?:(?!,\s*(?:em|na|no|para|com|acima|a partir|valid|limit|pedido|compra|minim|maxim|ate|cupom|"
+                     r"desconto|r\$|\d))[^.;|!?()]|\.(?=\d))*")
+_X_TV = re.compile(r"\btvs?\b|televis|eletronic|\beletro\b|tecnolog|audio\s*(?:e|&|,)\s*video|todo o site|site todo|"
+                   r"todo site|loja toda|toda a loja|todas as categorias|\bem geral\b|\bem tudo\b|todos os produtos")
+_X_NAO_TV = re.compile(r"\b(?:fire|google|android|apple|roku)\s+tv\b|\btv\s+(?:box|stick)\b|"
+                       r"\b(?:acessorios?|suportes?|controles?(?:\s+remotos?)?|cabos?|antenas?)\s+(?:para|pra|de)\s+"
+                       r"(?:sua\s+)?(?:smart\s*)?tvs?\b")
+_X_NOVO = re.compile(r"\bnov[oa]s?\s+(?:client|usuari|conta|cadastr|comprador)|\b(?:client|usuari|conta|cadastr)\w*\s+"
+                     r"nov[oa]|\bnunca\s+(?:comprou|compraram)|\bnao\s+comprou|\b(?:1a|1o|primeir[oa]s?)\s+(?:compra|"
+                     r"pedido)|primeira\s+vez")
+_X_NOVO_TAMBEM = re.compile(r"\binclusive\b|\btambem\b|\bantig|todos os clientes|qualquer cliente|"
+                            r"\bnao\s+(?:e\s+)?(?:necessario|precis|exclusiv|somente|apenas)")
+_X_TETO = re.compile(r"\b(?:ate|(?:no\s+)?maxim[oa](?:\s+d[eoa])?)\s*(?:de\s+)?r\$\s?(\d[\d.]*)")
+_X_PALAVRA_DE_DESCONTO = re.compile(r"economi|ganh|descont|cupo|voucher|cashback|limit|frete|entrega|gratis|volta|"
+                                    r"bonus|credito|abatiment|reembols|%")
+_X_ENCHIMENTO = {"de", "do", "da", "no", "na", "o", "a", "um", "uma", "valor", "total", "maximo", "maxima", "limite",
+                 "e", ",", "(", ":", "-", "off"}
+# palavras que não são categoria num alvo "OFF em X" do título (lista própria do diferencial)
+_X_NEUTRAS = set("""o a os as de da do das dos e em no na nos nas um uma sua suas seu seus todo toda todos todas cada
+qualquer mais compra compras pedido pedidos produto produtos item itens carrinho site loja lojas app aplicativo pix boleto
+cartao cartoes credito debito pagamento promocao promocoes oferta ofertas frete gratis geral acima partir minimo minima
+valor vendido vendidos vendida vendidas entregue entregues realizada realizadas realizado realizados feito feitos feita
+feitas elegivel elegiveis disponivel disponiveis pelo pela por com ate r mercado livre magalu magazine luiza amazon kabum
+aliexpress shopee fast shop casas bahia seus seu gerais cupom cupons desconto descontos off anunciado
+anunciados anunciada anunciadas parcelada parceladas parcelado parcelados paga pagas pago pagos""".split())
+
+
+def _fora_das_exclusoes(t: str) -> str:
+    return _X_EXCL.sub(" ", t)
+
+
+def _tem_tv(t: str) -> bool:
+    return bool(_X_TV.search(_X_NAO_TV.sub(" ", _fora_das_exclusoes(t))))
+
+
+def _so_nas_exclusoes(t: str, palavra: str) -> bool:
+    """A palavra aparece no texto, e só dentro de exclusões."""
+    rx = re.compile(r"\b" + re.escape(palavra.strip()))
+    return bool(rx.search(t)) and not rx.search(_fora_das_exclusoes(t))
+
+
+def _teto_e_do_desconto(t: str, m: re.Match) -> bool:
+    """Prova independente de que 'até/máximo R$ X' é o teto do DESCONTO: a palavra antes (pulando enchimento) é de
+    desconto, ou o valor vem seguido de OFF / de desconto / de volta."""
+    if re.match(r"\s*(?:off\b|(?:de|em)\s+(?:descont|volta|cashback))", t[m.end():]):
+        return True
+    antes = re.split(r"[;|!?]|\.(?!\d)", t[max(0, m.start() - 80):m.start()])[-1]
+    toks = re.findall(r"%|[a-z$]+|[\d.,]+|[,(:-]", antes)
+    while toks and toks[-1] in _X_ENCHIMENTO:
+        if toks[-1] == "off":
+            # "% OFF até" é teto do desconto; "R$ 20 OFF até" (desconto fixo) não
+            return len(toks) >= 2 and toks[-2] == "%"
+        toks.pop()
+    return bool(toks) and bool(_X_PALAVRA_DE_DESCONTO.search(toks[-1]))
+
+
+def _tetos_independentes(t: str) -> list[tuple[float, bool]]:
+    """[(valor, é teto do desconto)] de cada 'até/máximo R$ X' fora das exclusões."""
+    t = _fora_das_exclusoes(t)
+    out = []
+    for m in _X_TETO.finditer(t):
+        try:
+            v = float(m.group(1).rstrip(".,").replace(".", ""))
+        except ValueError:
+            continue
+        out.append((v, _teto_e_do_desconto(t, m)))
+    return out
+
+
+def _tamanhos_incluem_55(t: str) -> bool:
+    """Prova independente de que o texto cobre a 55": o número 55 (ou um modelo 55xxx), uma faixa que passa por 55
+    ou 'a partir de/acima de/ou mais' com um número <= 55."""
+    t = _fora_das_exclusoes(t)
+    if re.search(r"(?<![\d.,])55(?!\d)", t):
+        return True
+    limpo = re.sub(r"\"|''|'|”|″|\bpol(?:egadas?)?\.?", " ", t)
+    for a, b in re.findall(r"(?<![\d.,])(\d{2})\s*(?:\ba\b|\bate\b|-|–)\s*(\d{2})(?!\d)", limpo):
+        if int(a) <= 55 <= int(b):
+            return True
+    for n in re.findall(r"(?:acima\s+de|a\s+partir\s+de|partir\s+de|maiores?\s+que)\s+(\d{2})(?!\d)", limpo):
+        if int(n) <= 55:
+            return True
+    for n in re.findall(r"(?<![\d.,])(\d{2})(?!\d)\s*(?:\+|ou\s+mais|ou\s+maior|ou\s+superior|ou\s+acima)", limpo):
+        if int(n) <= 55:
+            return True
+    return False
+
+
 def explica_compat(a: tuple, b: tuple, d: dict) -> tuple[str, str]:
     """(classe, por quê) de uma diferença de cupom_compativel: a = main, b = branch. Classe '' = sem explicação."""
     ma, mb = a[1], b[1]
+    t = _n(f"{d['titulo']} | {d['regra']}")
+    tit = _n(d["titulo"])
     if b[0]:  # o branch aceita o que a main recusava
-        if ma.startswith(("só até R$", "só acima de R$")) and re.search(
-                r"\b(?:exceto|excluindo|n[ãa]o\s+(?:é\s+)?v[áa]lid|n[ãa]o\s+vale|n[ãa]o\s+se\s+aplica)[^.;]*R\$",
-                f"{d['titulo']} {d['regra']}", re.I):
-            return "R4a-valor-na-exclusao", "o valor estava numa exclusão ('exceto TVs acima de R$ 5.000'): não é o " \
-                                            "mínimo/teto da compra (R4 a)"
+        if _X_NOVO.search(_fora_das_exclusoes(t)) and not _X_NOVO_TAMBEM.search(t):
+            return "", ""  # texto de cliente novo: aceitar é alerta falso
         if ma.startswith("só até R$"):
-            return "F3-teto-do-desconto", "'até R$'/'máximo R$' é teto do DESCONTO, não da compra (F3)"
-        if ma == "categoria: mercado":
-            return "F3-nome-da-loja", "o 'mercado' era o nome da loja Mercado Livre (F3) ou Mercado Pago"
-        if ma.startswith("categoria: ") and re.search(r"\b(?:compras|pedidos)\b.*\b(?:acima|partir)", ma):
-            return "F3-valor-minimo", "'OFF em compras acima de R$ X' é valor mínimo, não categoria (F3)"
-        if ma.startswith("categoria: ") and re.search(r"\b(?:frete|app|aplicativo|entrega)\b", ma):
-            return "R4d-frete-app", "frete, entrega e app não são categorias (R4 d)"
-        if ma.startswith(("categoria: ", "marca/produto: ")):
-            return "R4ab-escopo", "a palavra que a main lia como categoria/marca é exclusão, loja, pagamento ou alvo neutro; " \
-                                  "o alvo declarado é TV/site todo/compras (R4 a/b)"
+            v = float(ma.split("R$")[1])
+            tetos = [x for x in _tetos_independentes(t) if abs(x[0] - v) < 1]
+            if tetos and all(desc for _v, desc in tetos):
+                return "F3-teto-do-desconto", "'até/máximo R$' logo depois de desconto/% ou seguido de OFF: teto do DESCONTO (F3)"
+            valor = re.compile(r"r\$\s?" + re.escape(f"{v:,.0f}".replace(",", ".")) + r"(?!\d)|r\$\s?"
+                               + re.escape(f"{v:.0f}") + r"(?!\d)")
+            if not tetos and any(re.search(r"\b(?:ate|maxim)", x.group(0)) and valor.search(x.group(0))
+                                 for x in _X_EXCL.finditer(t)):
+                return "R4a-valor-na-exclusao", "o 'até R$' estava numa exclusão (R4 a)"
+            return "", ""
+        if ma.startswith("só acima de R$"):
+            v = float(ma.split("R$")[1])
+            num = r"(?:" + re.escape(f"{v:,.0f}".replace(",", ".")) + "|" + re.escape(f"{v:.0f}") + r")(?![\d])"
+            minimo = r"(?:acima de|a partir de|minim[oa](?: de)?|compras?\s+(?:de|a partir de))\s*r\$\s?" + num
+            if not re.search(minimo, _fora_das_exclusoes(t)) and any(re.search(minimo, x.group(0))
+                                                                      for x in _X_EXCL.finditer(t)):
+                return "R4a-valor-na-exclusao", "o 'acima de R$' estava numa exclusão ('exceto TVs acima de R$ 5.000'), " \
+                                                "não é compra mínima (R4 a)"
+            return "", ""
+        if ma.startswith("marca/produto: "):
+            w = ma.split(": ", 1)[1]
+            if _so_nas_exclusoes(t, w):
+                return "R4a-exclusao", f"'{w}' só aparece numa exclusão (R4 a)"
+            if w == "audio" and re.search(r"audio\s*(?:e|&|,)\s*video", t) and not re.search(
+                    r"\baudio\b(?!\s*(?:e|&|,)\s*video)", t):
+                return "R4b-audio-e-video", "'Áudio e Vídeo' é a categoria das TVs (R4 b)"
+            return "", ""
+        if ma.startswith("categoria: "):
+            alvo = ma.split(": ", 1)[1].strip()
+            if alvo == "mercado":
+                sem_loja = re.sub(r"mercado\s*(?:livre|pago)", " ", t)
+                if "mercado " not in sem_loja + " ":
+                    return "F3-nome-da-loja", "o 'mercado' era o nome da loja Mercado Livre (ou Mercado Pago) (F3)"
+                if _so_nas_exclusoes(t, "mercado"):
+                    return "R4a-exclusao", "'mercado' só aparece numa exclusão (R4 a)"
+                if _tem_tv(t):
+                    return "R4b-alvo-tv", "um alvo é TV/eletrônicos/tecnologia/site todo (R4 b)"
+                return "", ""
+            if alvo in ("novos clientes", "primeira compra") and _X_NOVO_TAMBEM.search(t):
+                return "R4-cliente-novo-tambem", "vale também para quem já é cliente ('inclusive', 'antigos e novos')"
+            if alvo in ("app", "aplicativo", "frete", "entrega"):
+                if _tem_tv(t) or not _X_NOVO.search(t):
+                    return "R4d-frete-app", "frete, entrega e app não são categorias, e o texto não é de cliente novo (R4 d)"
+                return "", ""
+            if _so_nas_exclusoes(t, alvo.split()[0]):
+                return "R4a-exclusao", f"'{alvo}' só aparece numa exclusão (R4 a)"
+            if _tem_tv(t):
+                return "R4b-alvo-tv", "um alvo (em qualquer lugar do texto) é TV/eletrônicos/tecnologia/site todo (R4 b)"
+            if re.match(r"(?:compras?|pedidos?)\b.*\b(?:acima|partir|minim|r\$)", alvo):
+                return "F3-valor-minimo", "'OFF em compras acima de R$ X' é valor mínimo, não categoria (F3)"
+            # o alvo inteiro do título (a main corta o motivo em 30 caracteres), sem valores
+            m_alvo = re.search(r"\boff\s+em\s+(.{3,60})$", tit.strip())
+            alvo = m_alvo.group(1) if m_alvo and m_alvo.group(1).startswith(alvo[:20]) else alvo
+            sem_valor = re.sub(r"r\$\s?[\d.,]+\+?|\d+", " ", alvo)
+            palavras = [w for w in re.findall(r"[a-z]+", sem_valor) if w not in _X_NEUTRAS]
+            if not palavras:
+                return "R4b-alvo-neutro", f"o alvo '{alvo}' só tem palavras neutras (compras, app, Pix, vendidos pela " \
+                                          "loja...) (R4 b)"
+            return "", ""
         return "", ""
     # o branch recusa o que a main aceitava
     if mb.startswith("exclui: "):
-        return "R4a-exclui-a-tv", "a exclusão tira a própria TV ('exceto TVs/eletrônicos/TCL')"
+        if any(_X_TV.search(_X_NAO_TV.sub(" ", x.group(0))) for x in _X_EXCL.finditer(t)):
+            return "R4a-exclui-a-tv", "a exclusão tira a própria TV ('exceto TVs/eletrônicos/TCL')"
+        return "", ""
+    if mb.startswith("outro produto: kit"):
+        if "kit" in tit and not _tem_tv(t):
+            return "R3-kit", "anúncio de um kit sem TV"
+        return "", ""
     if mb.startswith("outro produto: "):
-        return "R3-outro-produto", "cupom de outra TV (outro tamanho) ou de um kit"
+        if not _tamanhos_incluem_55(t) and not re.search(r"\binclusive\b|\btodas?\s+as\s+(?:smart\s*)?tvs\b", t):
+            return "R3-outro-tamanho", "TV de outro tamanho/modelo e nada no texto cobre a 55\""
+        return "", ""
     if mb.startswith("só para novos clientes"):
-        return "R3-cliente-novo", "cupom só para cliente novo / 1ª compra"
+        if _X_NOVO.search(_fora_das_exclusoes(t)):
+            return "R3-cliente-novo", "cupom só para cliente novo / 1ª compra"
+        return "", ""
     if mb == "só frete":
-        return "R4d-so-frete", "cupom só de frete: não é desconto no preço da TV"
-    if mb.startswith("categoria: "):
-        return "R3-categoria-declarada", "o alvo declarado do desconto é uma categoria que não é TV"
-    if mb.startswith("restrito: anúncio cortado"):
-        return "R3-anuncio-cortado", "título cortado em 'em': a categoria sumiu"
-    if mb.startswith("restrito: "):
-        return "R3-selecao", "vale só para uma seleção de itens sem dizer que é TV/tecnologia"
-    if mb.startswith("só até R$") and re.search(r"compra\s+m[áa]xima", f"{d['titulo']} {d['regra']}", re.I):
-        return "F3-teto-da-compra", "'compra máxima de R$ X' é teto da COMPRA (a main só lia 'máximo', no masculino)"
-    if mb.startswith("só acima de R$") and re.search(r"\b(?:off|desconto)\s+em\s+r\$", f"{d['titulo']} {d['regra']}",
-                                                     re.I):
-        return "R4-minimo-em-R$", "'R$ 350 OFF em R$ 3500': o valor depois de 'OFF em' é a compra mínima"
+        resto = re.sub(r"r\$\s?[\d.,]+\s*(?:off\s+)?(?:n[oa]|d[oa]|em)\s+fretes?|fretes?\s+gratis|"
+                       r"(?:acima de|a partir de|minim[oa](?: de)?|compras?\s+(?:de|acima de))\s*r\$\s?[\d.,]+", " ", t)
+        if "frete" in t and not re.search(r"r\$\s?\d|\d\s*%", resto):
+            return "R4d-so-frete", "cupom só de frete: não é desconto no preço da TV"
+        return "", ""
+    if mb.startswith(("categoria: ", "restrito: ")):
+        if _tem_tv(t):
+            return "", ""  # o texto diz TV/site todo fora das exclusões: recusar por categoria é cupom perdido
+        if mb.startswith("restrito: anúncio cortado"):
+            return "R3-anuncio-cortado", "título cortado em 'em': a categoria sumiu"
+        if mb.startswith("restrito: "):
+            return "R3-selecao", "vale só para uma seleção de itens sem dizer que é TV/tecnologia"
+        return "R3-categoria-declarada", "o alvo declarado do desconto é uma categoria que não é TV (e nada diz TV)"
+    if mb.startswith("só até R$"):
+        v = float(mb.split("R$")[1])
+        tetos = [x for x in _tetos_independentes(t) if abs(x[0] - v) < 1]
+        if tetos and not any(desc for _v, desc in tetos):
+            return "F3-teto-da-compra", "teto da COMPRA/do item menor que o preço da TV (a main só recusava abaixo de " \
+                                        "metade do preço, ou não lia 'compra máxima')"
+        return "", ""
+    if mb.startswith("só acima de R$"):
+        v = float(mb.split("R$")[1])
+        num = r"(?:" + re.escape(f"{v:,.0f}".replace(",", ".")) + "|" + re.escape(f"{v:.0f}") + r")(?![\d])"
+        fora = _fora_das_exclusoes(t)
+        if re.search(r"\b(?:off|desconto)\s+em\s+r\$\s?" + num, fora):
+            return "R4-minimo-em-R$", "'R$ 350 OFF em R$ 3500': o valor depois de 'OFF em' é a compra mínima"
+        if re.search(r"(?:acima de|a partir de|minim[oa](?: de)?|compras?\s+(?:de|a partir de))\s*r\$\s?" + num, fora):
+            return "R4-compra-minima", "compra mínima acima do preço da TV que a main não lia ('compra mínima de R$ X', " \
+                                       "ou um segundo mínimo no texto)"
+        return "", ""
     if mb.startswith("marca/produto: ") and _conserta_so_mojibake(d):
         return "mojibake", "o texto antigo tinha mojibake (UTF-8 lido como cp1252); consertado ele diz outra marca/produto"
     return "", ""
 
 
 def _conserta_so_mojibake(d: dict) -> bool:
-    return bool(re.search("[ÂÃ][\u0080-\u00bf\u0152-\u2122]", f"{d['titulo']} {d['regra']}"))
+    return bool(re.search("[ÂÃ][-¿Œ-™]", f"{d['titulo']} {d['regra']}"))
 
 
 def compara_compat(mm, mb, corpus: list[dict]) -> list[dict]:
@@ -776,7 +1267,7 @@ def main() -> int:
         resumo = []
         if "C1" in partes:
             reais = cupons_reais(versoes)
-            sint = SINTETICOS_CORRECOES + sinteticos_dos_testes()
+            sint = SINTETICOS_CORRECOES + sinteticos_dos_testes() + sinteticos_das_sondas()
             corpus = reais + sint
             difs = compara_compat(mm, mb, corpus)
             sem = [x for x in difs if not x["classe"]]

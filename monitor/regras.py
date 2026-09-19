@@ -12,12 +12,26 @@ from .estado import Estado, conta_como_preco, e_agregador, lojas_diretas, marca_
 from .models import Cupom, Oferta
 from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
 
-# "até R$ X" só limita o valor da COMPRA quando vem ligado a ela: "compras até R$ 600", "válido para compras até
-# R$300", "pedidos de até R$ 1000", "compra máxima de R$ 500". Já "Economize até R$ 300", "25% OFF até R$ 800" e
-# "desconto máximo de R$ 500" são tetos do DESCONTO, que não impedem o cupom de servir para a TV.
-_RE_ATE = re.compile(
-    r"(?:compras?|pedidos?)\s+(?:de\s+)?at[ée]\s*R\$\s?([\d.]+)|compra\s+m[áa]xima(?:\s+de)?\s*R\$\s?([\d.]+)", re.I)
+# Teto (F3): "até R$ X", "máximo (de) R$ X", "no máximo R$ X", "compra máxima de R$ X". Como na main, o teto limita a
+# COMPRA ou o ITEM ("compras até R$ 600", "itens de até R$ 99", "VÁLIDO PARA PRODUTOS ATÉ R$ 500", "pedidos de no máximo
+# R$ 300", "carrinhos de até R$ 300", "compras de R$ 200 até R$ 499", "TVs até R$ 2.000"): se ele é menor que o preço
+# da TV, o cupom não serve para ela. A exceção é o teto do DESCONTO, quando o valor é o próprio desconto: logo depois
+# de uma palavra de desconto ("Economize até R$ 300", "desconto (máximo) de (até) R$ 500", "ganhe até", "cupom de até",
+# "cashback de até", "limitado até", "frete grátis até"), de um desconto em % ("25% OFF até R$ 800", "20% OFF, máximo
+# R$ 60", "10% (máximo R$ 50)") ou seguido de "OFF"/"de desconto"/"de volta" ("até R$ 300 OFF"). "R$ 20 OFF até R$ 99"
+# (desconto fixo) continua sendo teto da compra.
+_RE_TETO = re.compile(r"\b(?:ate|(?:no\s+)?maxim[oa](?:\s+d[eoa])?)\s*(?:de\s+)?r\$\s?(\d[\d.]*(?:,\d{1,2})?)")
+_RE_TETO_DO_DESCONTO_ANTES = re.compile(
+    r"(?:\beconomi\w*|\bganh\w*|\bdescontos?|\bcupo(?:m|ns)|\bvouchers?|\bcashback|\babatimentos?|\breembolsos?|"
+    r"\bbonus|\bcreditos?|\bfretes?|\bentregas?|\bgratis|\blimit\w*|\btetos?|\bvolta|%(?:\s*off\b)?)"
+    r"(?:\s*[,(:\-–]\s*|\s+(?:de|do|da|no|na|o|a|um|uma|valor|total|maxim[oa]|limite|e)\b)*\s*$")
+_RE_TETO_DO_DESCONTO_DEPOIS = re.compile(
+    r"^\s*(?:off\b|(?:de|em)\s+(?:descontos?|volta|cashback|economia|abatimento|creditos?|bonus)\b)")
+_RE_FIM_DE_FRASE_ANTES = re.compile(r"[;|!?]|\.(?!\d)")
 _RE_ACIMA = re.compile(r"(?:acima de|a partir de|m[íi]nimo(?: de)?|compras?\s+(?:de|a partir de))\s*R\$\s?([\d.]+)", re.I)
+# compra mínima (no texto já normalizado): o _RE_ACIMA da main e "compra mínima (de) R$ X", que ele não lia
+_RE_MINIMO_DA_COMPRA = re.compile(
+    r"(?:acima de|a partir de|minim[oa](?: de)?|compras?\s+(?:de|a partir de))\s*r\$\s?([\d.]+)")
 # "R$ 350 OFF em R$ 3500": o valor depois de "OFF em" é a compra mínima
 _RE_MINIMO_EM = re.compile(r"\b(?:off|desconto)\s+em\s+r\$\s?([\d.]+)", re.I)
 _CATEGORIAS_FORA = [
@@ -49,7 +63,8 @@ _RE_EM_X = re.compile(r"\boff\s+em\s+(.{3,60})$")
 _RE_EM_TUDO = re.compile(r"\bem tudo\b(?!\s+(?:pra|para)\b)")
 # ---- cupom: o texto diz que serve para a TV? (rodada 4: regras gerais, não um padrão por exemplo) ----
 # (a) Exclusão não é o escopo do cupom. "exceto (na categoria) X", "não (é) válido para X", "não vale para X", "não se
-#     aplica a X", "exclui X", ", menos X", ", fora X" saem do texto (até o fim da frase) antes de qualquer análise de
+#     aplica a X", "exclui X", "com exceção de X", ", menos X", ", fora X" saem do texto (até o fim da frase, ou até
+#     a vírgula que abre outra condição: "Exceto Celulares, em compras acima de R$ 5.000") antes de qualquer análise de
 #     categoria, marca, tamanho ou cliente novo: "Válido em todo o site, exceto na categoria Supermercado" é o site todo.
 #     Só quando a exclusão tira a própria TV ("exceto TVs", "exceto eletrônicos", "exceto TCL") o cupom não serve; uma
 #     exclusão de TVs de outra marca ou de outro tamanho ("exceto TVs Samsung", "exceto TVs de 32 polegadas") não tira a
@@ -64,16 +79,21 @@ _RE_EM_TUDO = re.compile(r"\bem tudo\b(?!\s+(?:pra|para)\b)")
 #     são categoria. Categoria que não é TV só recusa quando é declarada e nenhum alvo é de TV/site todo:
 #       - nome de categoria conhecido (_NOMES_DE_CATEGORIA: casa, moda, periféricos, acessórios, beleza...);
 #       - qualquer nome em "na categoria X" (declaração explícita) e em "OFF em X" do título (a mesma posição que o
-#         código anterior já tratava como categoria), sem as palavras neutras e os qualificadores ("vendidos",
-#         "realizadas", "disponíveis");
+#         código anterior já tratava como categoria), sem as palavras neutras e os qualificadores de venda/entrega/
+#         pagamento (lista fechada: "vendidos", "realizadas", "disponíveis", "parceladas"). Particípio que diz o que é
+#         o produto ("Renovados", "Usados", "Importados", "Congelados") é categoria; vendedor que não é a própria loja
+#         ("vendidos pela loja parceira X", "por terceiros") também;
 #       - seleção com nome ("em Selecionados Cacife", "produtos participantes da promoção Imprime Junto").
 #     Um alvo com nome desconhecido fora dessas posições ("Válido em uma única compra") não recusa.
-# (c) Lista ou faixa de tamanhos ("50, 55 e 65 polegadas", "55 a 85", "a partir de 50", "50 ou mais") serve quando o 55
-#     está nela. Uma TV de outro tamanho (ou modelo TCL com outro tamanho no nome, "65C6K") só recusa quando o cupom
+# (c) Lista ou faixa de tamanhos ("50, 55 e 65 polegadas", "50", 55" e 65"", "50 pol. a 65 pol.", "55 a 85", "a partir
+#     de 50", "50 ou mais") serve quando o 55 está nela. Uma TV de outro tamanho (ou modelo TCL com outro tamanho no nome, "65C6K") só recusa quando o cupom
 #     não fala também de TVs em geral. Kit só recusa quando é o produto do anúncio (no título, sem TV nem "compras").
 # (d) Frete e app não são categorias. Cupom só de frete (sem R$ ou % de desconto no preço) não é desconto na TV.
-# Cliente novo continua recusando, menos quando o texto diz que vale também/inclusive para ele.
-# Os valores (teto e mínimo da compra) também são lidos sem as exclusões.
+# Cliente novo continua recusando, escrito de qualquer jeito ("clientes novos", "novos cadastros", "quem nunca
+# comprou"), menos quando o texto diz que vale também/inclusive para ele ou que não é exclusivo dele.
+# Os valores também são lidos sem as exclusões. Teto: "até/máximo R$ X" limita a compra ou o item (como na main),
+# salvo quando o valor é o próprio desconto ("Economize até R$ 300", "25% OFF até R$ 800"); se o teto é menor que o
+# preço da TV, o cupom não serve. Mínimo: "acima de", "a partir de", "compra/pedido mínimo(a)", "OFF em R$ X".
 
 # texto UTF-8 que uma coleta antiga leu como cp1252: "vÃ¡lido" -> "válido", "1Âª Compra" -> "1ª Compra"
 _RE_MOJIBAKE = re.compile("[ÂÃ][-¿ŒœŠšŸŽžƒˆ˜"
@@ -99,6 +119,9 @@ def _norm(s: str) -> str:
     t = re.sub(r"\baudio\s*(?:e|&|,|/)\s*video\b", "tv e video", t)
     # Mercado Pago é meio de pagamento (como Pix), não loja nem a categoria "mercado"
     t = re.sub(r"\bmercado\s*pago\b", "pagamento", t)
+    # "novos e usados" é qualquer produto: a condição (usado, seminovo...) só restringe quando vem sozinha
+    t = re.sub(r"\bnov[oa]s?\s*(?:e|ou|/|,)\s*(?:usad|seminov|recondicionad|renovad|reembalad)\w*"
+               r"|\b(?:usad|seminov|recondicionad|renovad|reembalad)\w*\s*(?:e|ou|/|,)\s*nov[oa]s?\b", " ", t)
     t = re.sub(r"\s*\n\s*", " | ", t)
     return re.sub(r"[ \t\r\f\v]+", " ", t).strip()
 
@@ -107,11 +130,15 @@ def _norm(s: str) -> str:
 _RE_LOJA_NO_TEXTO = re.compile(
     r"\b(?:(?:em|na|no|da|do|pela|pelo)\s+)?(?:mercado\s*livre|magazine\s+luiza|magalu|amazon|aliexpress|kabum|"
     r"shopee|fast\s*shop|casas\s+bahia)\b!?")
-# (a) exclusões, até o fim da frase ("." de número não fecha a frase: "R$ 1.999")
-_FIM_DA_FRASE = r"(?:[^.;!?|()]|\.(?=\d))*"
+# (a) exclusões, até o fim da frase ("." de número não fecha a frase: "R$ 1.999") ou até a vírgula que abre outra
+#     condição: "Exceto Celulares, em compras acima de R$ 5.000" e "excluído o valor do frete, com desconto máximo de
+#     R$500" (a compra mínima e o teto continuam valendo); "exceto Supermercado, Farmácia e Pet" é uma lista só
+_NOVA_CONDICAO = (r",\s*(?:em|na|no|nas|nos|para|pra|com|acima|a\s+partir|partir|valid|vale|limit|pedido|compra|minim|"
+                  r"maxim|ate|cupom|desconto|uso|use|aplique|r\$|\d)")
+_FIM_DA_FRASE = r"(?:(?!" + _NOVA_CONDICAO + r")[^.;!?|()]|\.(?=\d))*"
 _RE_EXCLUSAO = re.compile(
     r"\b(?:exceto|excepto|excluindo|exclui|excluid[oa]s?|sem\s+contar|nao\s+(?:e\s+|sao\s+)?valid[oa]s?|nao\s+vale|"
-    r"nao\s+se\s+aplica|nao\s+contempla|nao\s+inclui)\b" + _FIM_DA_FRASE
+    r"nao\s+se\s+aplica|nao\s+contempla|nao\s+inclui|(?:com|a)\s+excecao\s+d[eoa]s?)\b" + _FIM_DA_FRASE
     + r"|(?:,|\b(?:tudo|site|loja|produtos|categorias))\s*\b(?:menos|fora)\b" + _FIM_DA_FRASE)
 # o que conta como TV num alvo (b) e numa exclusão (a)
 _RE_TV = re.compile(r"\btvs?\b|televis|smart\s*tvs?\b|eletronic|\beletro\b|tecnolog")
@@ -128,27 +155,51 @@ _RE_ACESSORIO_DE_TV = re.compile(
 _RE_SITE_TODO = re.compile(r"site todo|todo o site|todo site|loja toda|toda a loja|toda loja|todas as categorias|"
                            r"todos os produtos|\bem tudo\b(?!\s+(?:pra|para)\b)")
 # (c) tamanhos: "Smart TV TCL 50 QLED" é outra TV; "Smart TV TCL 50, 55 e 65 polegadas", "55 a 85", "a partir de 50"
-#     e "50 ou mais" incluem a 55"
-_SEP_TAMANHOS = r"\s*(?:,|\be\b|\bou\b|/|\ba\b|\bate\b|-)\s*"
+#     e "50 ou mais" incluem a 55". Uma lista de tamanhos é uma sequência de números de 2 dígitos, cada um com ou sem
+#     a marca de polegada (50" / 50'' / 50 pol. / 50 polegadas), separados por vírgula, "e", "ou", "/", "-", "a", "até"
+#     ou só espaço: "50", 55" e 65"", "50 55 e 65 polegadas", "50 pol. a 65 pol.". Número seguido de %, x, k, Hz,
+#     R$... não é tamanho.
+_POLEGADA = r"(?:\s*(?:\"|''|'|”|″)|\s*pol(?:egadas?|\.|\b))"
+_NUM_TAMANHO = (r"(?<![\d.,])\d{2}(?:(?=pol)|(?![a-z\d]))(?![.,]\d)(?!\s*(?:%|x\b|k\b|hz\b|mil\b|reais\b|anos?\b|"
+                r"meses\b|dias\b|"
+                r"horas?\b|gb\b|tb\b|w\b|watts?\b|cm\b|mm\b|kg\b|litros?\b|unidades?\b|pecas?\b))")
+_LISTA_TAMANHOS = (_NUM_TAMANHO + _POLEGADA + r"?(?:(?:\s*(?:,|/|-|–|\be\b|\bou\b|\ba\b|\bate\b)\s*|\s+)"
+                   + _NUM_TAMANHO + _POLEGADA + r"?)*")
+_POS_TAMANHOS = (r"(?P<pos>\s*(?:\+|ou\s+mais|ou\s+maior\w*|ou\s+superior\w*|ou\s+acima|ou\s+menos|ou\s+menor\w*|"
+                 r"ou\s+inferior\w*|para\s+cima)?)")
+# a TV e até 3 palavras antes dos números ("Smart TV TCL", "Smart TVs de", "TVs a partir de", "TVs acima de").
+# "Smart TV" + número já é o tamanho ("Smart TV TCL 50 QLED"); "TV"/"televisor" + número só com a polegada ("TVs de
+# 43 polegadas"), porque "TV 4K", "TVs 10% OFF" não são tamanhos
 _RE_SMART_TV_TAMANHOS = re.compile(
-    r"\bsmart\s*tvs?\s+(?P<pre>(?:[a-z]+\s+){0,3}?)(?P<nums>\d{2}(?:" + _SEP_TAMANHOS + r"\d{2})*)(?![\w.,])"
-    r"(?P<pos>\s*(?:\"|''|pol(?:egadas)?\b|p\b)?\s*(?:\+|ou\s+mais|ou\s+maior\w*|ou\s+superior\w*|ou\s+acima|"
-    r"ou\s+menos|ou\s+menor\w*)?)")
-_RE_TAMANHO_SOLTO = re.compile(r"(?P<pre>\b(?:[a-z]+\s+){0,2}?)(?P<nums>\d{2}(?:" + _SEP_TAMANHOS + r"\d{2})*)"
-                               r"(?P<pos>\s*(?:\"|''|pol(?:egadas)?\b)\s*(?:\+|ou\s+mais|ou\s+maior\w*|ou\s+menos|"
-                               r"ou\s+menor\w*)?)")
+    r"\b(?P<smart>smart\s*)?(?:tvs?|televisor(?:es)?|televis(?:ao|oes))\s+"
+    r"(?P<pre>(?:(?:[a-z][a-z0-9]*|\dk)\s+){0,3}?)(?P<nums>" + _LISTA_TAMANHOS + r")" + _POS_TAMANHOS)
+# tamanho sem a palavra TV (numa exclusão: "exceto 32" e 43""): só com a polegada
+_RE_TAMANHO_SOLTO = re.compile(r"(?P<pre>\b(?:[a-z]+\s+){0,2}?)(?P<nums>" + _LISTA_TAMANHOS + r")" + _POS_TAMANHOS)
+_RE_TEM_POLEGADA = re.compile(_POLEGADA)
 # modelo TCL com o tamanho no nome ("Smart TV TCL 65C6K", "50P7K", "43S5K"): 55C6K é a TV monitorada
 _RE_MODELO_TCL = re.compile(r"(?:\b(?:smart\s*)?tvs?\s+(?:[a-z0-9]+\s+){0,3}?)?\b(\d{2})[cpqs]\d{1,3}[a-z]{0,2}\b")
 _RE_KIT = re.compile(r"\bkit\b")
-# só para quem nunca comprou: "(1ª Compra / APP)", "nas 4 primeiras compras", "novos clientes", "contas novas"
-_RE_SO_NOVOS = re.compile(r"\b(?:1a|1o|primeir[oa]s?)\s+(?:compras?|pedidos?)\b"
-                          r"|\bnov[oa]s\s+(?:clientes|usuarios|contas)\b|\bcontas?\s+novas?\b")
+# só para quem nunca comprou: "(1ª Compra / APP)", "nas 4 primeiras compras", "no primeiro pedido pelo app", "novos
+# clientes", "clientes novos", "novo cadastro", "contas novas", "para quem (ainda) não/nunca comprou", "compra pela
+# primeira vez". Frete e app não são categoria (d), então o cliente novo tem de ser reconhecido por si, escrito de
+# qualquer um desses jeitos
+_PESSOA_NOVA = r"(?:clientes?|usuarios?|contas?|cadastros?|compradores?|consumidores?)"
+_RE_SO_NOVOS = re.compile(
+    r"\b(?:1a|1o|primeir[oa]s?)\s+(?:compras?|pedidos?)\b"
+    r"|\bnov[oa]s?\s+" + _PESSOA_NOVA + r"\b|\b" + _PESSOA_NOVA + r"\s+nov[oa]s?\b"
+    r"|\bquem\s+(?:ainda\s+)?(?:nunca|nao)\s+(?:\w+\s+){0,2}?(?:comprou|compraram|pediu|pediram|fez|fizeram|usou|"
+    r"usaram|tem\s+conta|tinha\s+conta)\b"
+    r"|\b(?:nunca|ainda\s+nao)\s+(?:comprou|compraram|fez\s+(?:uma\s+|nenhuma\s+)?compra)\b"
+    r"|\bpela\s+primeira\s+vez\b|\bsem\s+compras?\s+anteriores\b")
+# "novos clientes e antigos", "clientes novos ou antigos": vale para todo mundo
+_RE_NOVOS_E_ANTIGOS = re.compile(r"^\s*(?:e|ou|&|/)\s+(?:\w+\s+)?(?:antig|atuais|recorrentes|ja\s+cadastrad|veteran)")
 # seleção sem dizer qual: "itens selecionados", "em Selecionados", "lista selecionada", "produtos participantes",
 # "produtos do link", "lista de itens". É a seleção de PRODUTOS: "Cupom selecionado para você" não é
 _RE_SELECAO = re.compile(
     r"\bselecionad[oa]s\b|\bselecionas\b"
     r"|\b(?:produtos?|itens?|ofertas?|categorias?|modelos?|marcas?|lista|anuncios?)\s+(?:[a-z]+\s+){0,2}?selecionad[oa]s?\b"
-    r"|\b(?:produtos|itens)\b[^.;|]{0,40}?\bparticipantes?\b|\b(?:produtos|itens) do link\b|\blista de itens\b")
+    r"|\b(?:produtos|itens)\b[^.;|]{0,40}?\bparticipantes?\b|\b(?:produtos|itens) do link\b|\blista de itens\b"
+    r"|\bmais\s+vendid[oa]s\b|\b(?:itens|produtos)\s+(?:marcad|sinalizad|identificad)[oa]s\b")
 _PALAVRAS_DE_SELECAO = {"selecionado", "selecionados", "selecionada", "selecionadas", "selecionas", "participante",
                         "participantes", "link", "lista", "campanha"}
 # (b) palavras de um alvo que não são categoria: condição de pagamento/compra, promoção, frete, app, loja, quantidade...
@@ -172,9 +223,21 @@ _NOMES_DE_CATEGORIA = re.compile(
     r"eletrodomesticos|geladeiras?|refrigeradores?|fogao|fogoes|lavadoras?|micro-?ondas|ar[- ]condicionado|"
     r"climatizacao|ventiladores?|limpeza|jardim|jardinagem|ferramentas?|construcao|iluminacao|automotivo|pneus?|"
     r"esportes?|fitness|treino|suplementos?|bikes?|bicicletas?|camping|farmacia|drogaria|saude|entregas?|"
-    r"instrumentos\s+musicais|musica)\b")
-# particípio/qualificador num alvo aberto não é categoria: "compras realizadas", "itens vendidos", "disponíveis"
-_RE_QUALIFICADOR = re.compile(r"(?:ad|id)[oa]s?$|ve(?:l|is)$|^entregues?$")
+    r"instrumentos\s+musicais|musica|"
+    # condição do produto: a 55C6K monitorada é nova
+    r"usad[oa]s|seminov[oa]s?|recondicionad[oa]s?|renovad[oa]s|reembalad[oa]s?|open\s*box|outlet|vitrine|"
+    r"mostruario)\b")
+# qualificador de VENDA/ENTREGA/PAGAMENTO num alvo aberto não é categoria: "compras realizadas (no app)", "itens
+# vendidos e entregues (pela Amazon)", "produtos disponíveis", "pedidos feitos até 30/09". É uma lista fechada: um
+# particípio que diz O QUE é o produto ("Renovados", "Recondicionados", "Usados", "Importados", "Congelados",
+# "Personalizados") é categoria, como a main já lia
+_QUALIFICADORES = set("""
+vendido vendidos vendida vendidas entregue entregues realizado realizados realizada realizadas feito feitos feita feitas
+efetuado efetuados efetuada efetuadas pago pagos paga pagas finalizado finalizados finalizada finalizadas disponivel
+disponiveis elegivel elegiveis anunciado anunciados anunciada anunciadas comprado comprados comprada compradas enviado
+enviados enviada enviadas faturado faturados faturada faturadas oferecido oferecidos oferecida oferecidas parcelado
+parcelados parcelada parceladas aplicavel aplicaveis valido validos valida validas
+""".split())
 # palavras que abrem e fecham um alvo ("em TVs em promoção", "em compras acima de R$ 3.000", "em Casa com cupom").
 # "para" não fecha: "produtos para sua casa tech" e "Tudo Pra Casa" são o alvo inteiro
 _RE_INTRODUTOR = re.compile(r"\b(?:em|na|no|nas|nos|para|pra|categorias?)\b")
@@ -188,7 +251,9 @@ _RE_PARA_QUEM = re.compile(
     r"renovar|garantir|presentear|decorar|equipar|montar|curtir|assistir|ganhar|pagar|resgatar|ativar|aplicar|"
     r"finalizar|receber|levar|investir)\b")
 # cliente novo "inclusive" / "também" não é cupom só de cliente novo
-_RE_NOVOS_TAMBEM = re.compile(r"\b(?:inclusive|tambem|mesmo|antig\w+|todos|todas)\b[^.;|]{0,20}$")
+_RE_NOVOS_TAMBEM = re.compile(r"(?:\b(?:inclusive|tambem|mesmo|antig\w+|todos|todas)\b[^.;|]{0,20}"
+                              r"|\bnao\s+(?:e\s+|eh\s+)?(?:necessario|preciso|precisa|exclusiv\w*|so|somente|apenas|"
+                              r"restrit\w*)\b[^.;|]{0,25})$")
 # (b) o alvo é do desconto/cupom: "20% OFF em", "R$ 79 em", "de desconto em", "Economize 10% em", "válido em/para"
 _RE_GOVERNO = re.compile(
     r"(?:\boff|\bdescontos?|%|r\$\s?\d+|\d+\s*reais|\bcupo(?:m|ns)|\bvouchers?|\bvalid[oa]s?|\bvale|\bvalendo|"
@@ -218,6 +283,30 @@ def _num(s: str) -> Optional[float]:
         return None
 
 
+def _reais(s: str) -> Optional[float]:
+    """'3.000' -> 3000.0; '99,90' -> 99.9."""
+    try:
+        return float(s.replace(".", "").replace(",", "."))
+    except ValueError:
+        return None
+
+
+def _tetos_da_compra(t: str) -> list[float]:
+    """Os tetos da compra/do item no texto (já normalizado e sem exclusões); os tetos do desconto ficam de fora."""
+    out: list[float] = []
+    for m in _RE_TETO.finditer(t):
+        antes = t[max(0, m.start() - 80):m.start()]
+        fins = list(_RE_FIM_DE_FRASE_ANTES.finditer(antes))
+        if fins:
+            antes = antes[fins[-1].end():]
+        if _RE_TETO_DO_DESCONTO_ANTES.search(antes) or _RE_TETO_DO_DESCONTO_DEPOIS.match(t[m.end():]):
+            continue
+        v = _reais(m.group(1))
+        if v:
+            out.append(v)
+    return out
+
+
 def _motivo_marca(texto: str, codigo: str) -> str:
     """'marca/produto: x' quando o cupom é de outra marca ou produto; '' quando não."""
     for w in _MARCAS_OUTRAS:
@@ -236,24 +325,32 @@ def _sem_exclusoes(t: str) -> tuple[str, list[str]]:
 
 
 def _tamanhos_incluem_55(pre: str, nums: str, pos: str) -> bool:
-    """(c) "50, 55 e 65", "55 a 85", "a partir de 50", "50 ou mais", "até 65" incluem a 55"."""
-    ns = [int(n) for n in re.findall(r"\d{2}", nums)]
+    """(c) "50, 55 e 65", "55 a 85", "50" a 65"", "a partir de 50", "50 ou mais", "até 65" incluem a 55"."""
+    limpo = _RE_TEM_POLEGADA.sub(" ", nums)
+    ns = [int(n) for n in re.findall(r"\d{2}", limpo)]
     if 55 in ns:
         return True
-    faixa = re.search(r"(\d{2})\s*(?:\ba\b|\bate\b|-)\s*(\d{2})", nums)
-    if faixa and int(faixa.group(1)) <= 55 <= int(faixa.group(2)):
-        return True
+    for faixa in re.finditer(r"(\d{2})\s*(?:\ba\b|\bate\b|-|–)\s*(\d{2})", limpo):
+        if int(faixa.group(1)) <= 55 <= int(faixa.group(2)):
+            return True
     qual = f"{pre} {pos}"
-    if (re.search(r"\b(?:acima|partir|maior\w*|mais|superior\w*)\b", qual) or "+" in pos) and min(ns) <= 55:
+    if (re.search(r"\b(?:acima|partir|maior\w*|mais|superior\w*|cima)\b", qual) or "+" in pos) and min(ns) <= 55:
         return True
-    return bool(re.search(r"\b(?:ate|abaixo|menor\w*|menos)\b", qual)) and max(ns) >= 55
+    return bool(re.search(r"\b(?:ate|abaixo|menor\w*|menos|inferior\w*)\b", qual)) and max(ns) >= 55
+
+
+def _tamanhos_de_tv(t: str) -> list[re.Match]:
+    """(c) As listas de tamanho ligadas a uma TV: depois de "Smart TV" qualquer número de 2 dígitos; depois de "TV" ou
+    "televisor", só com a marca de polegada."""
+    return [m for m in _RE_SMART_TV_TAMANHOS.finditer(t)
+            if m.group("smart") or _RE_TEM_POLEGADA.search(m.group("nums"))]
 
 
 def _outro_tamanho(t: str) -> Optional[str]:
     """(c) 'smart tv tcl 50' quando o cupom é só de uma TV de outro tamanho (ou de outro modelo TCL com o tamanho no
     nome: '65C6K', '50P7K'). None quando a lista/faixa inclui o 55 ou quando o texto também fala de TVs em geral
     ("R$ 300 OFF em TVs, inclusive a Smart TV TCL 50")."""
-    tamanhos = list(_RE_SMART_TV_TAMANHOS.finditer(t))
+    tamanhos = _tamanhos_de_tv(t)
     modelos = list(_RE_MODELO_TCL.finditer(t))
     if any(_tamanhos_incluem_55(m.group("pre"), m.group("nums"), m.group("pos")) for m in tamanhos) \
             or any(m.group(1) == "55" for m in modelos):
@@ -261,7 +358,10 @@ def _outro_tamanho(t: str) -> Optional[str]:
     outros = [m.group(0).strip() for m in tamanhos] + [m.group(0) for m in modelos]
     if not outros:
         return None
-    resto = _RE_NAO_E_TV.sub(" ", _RE_MODELO_TCL.sub(" ", _RE_SMART_TV_TAMANHOS.sub(" ", t)))
+    fora: set[int] = set()
+    for m in tamanhos + modelos:
+        fora.update(range(m.start(), m.end()))
+    resto = _RE_NAO_E_TV.sub(" ", "".join(" " if i in fora else ch for i, ch in enumerate(t)))
     return None if _RE_TV.search(resto) else outros[0]
 
 
@@ -277,7 +377,8 @@ def _tv_excluida(exclusoes: list[str]) -> str:
                 continue  # "exceto TVs Samsung": a TCL continua valendo
             if re.search(r"r\$|\bvendid|\bterceiros\b|\bmarketplace\b|\bparceir|\binternaciona|\bimportad", ex):
                 continue  # "exceto eletrônicos vendidos por terceiros", "exceto TVs acima de R$ 5.000"
-            tams = list(_RE_TAMANHO_SOLTO.finditer(ex)) + list(_RE_SMART_TV_TAMANHOS.finditer(ex))
+            tams = [m for m in _RE_TAMANHO_SOLTO.finditer(ex) if _RE_TEM_POLEGADA.search(m.group("nums"))]
+            tams += _tamanhos_de_tv(ex)
             if tams and not any(_tamanhos_incluem_55(t.group("pre"), t.group("nums"), t.group("pos")) for t in tams):
                 continue  # "exceto TVs de 32 polegadas"
         return m.group(0)
@@ -287,11 +388,14 @@ def _tv_excluida(exclusoes: list[str]) -> str:
 class _Alvo:
     """Um alvo do anúncio: o que vem depois de "em", "na/no", "para" ou "categoria"."""
 
-    __slots__ = ("frase", "intro", "governado", "forte", "e_titulo", "off_em")
+    __slots__ = ("frase", "intro", "governado", "forte", "e_titulo", "off_em", "agente")
 
-    def __init__(self, frase: str, intro: str, governado: bool, forte: bool, e_titulo: bool, off_em: bool):
+    def __init__(self, frase: str, intro: str, governado: bool, forte: bool, e_titulo: bool, off_em: bool,
+                 agente: str = ""):
         self.frase, self.intro, self.governado = frase, intro, governado
         self.forte, self.e_titulo, self.off_em = forte, e_titulo, off_em
+        # "... vendidos pela loja parceira X": quem vende, quando não é a própria loja (o nome dela já saiu do texto)
+        self.agente = agente
 
 
 def _alvos(texto: str, e_titulo: bool) -> list[_Alvo]:
@@ -313,6 +417,11 @@ def _alvos(texto: str, e_titulo: bool) -> list[_Alvo]:
             resto = clausula[m.end():]
             fim = _RE_FIM_DO_ALVO.search(resto)
             frase = (resto[:fim.start()] if fim else resto).strip(" ,-'\"")
+            agente = ""
+            if fim and re.fullmatch(r"pel[oa]s?|por", fim.group(0)):
+                depois = resto[fim.end():]
+                fim2 = _RE_FIM_DO_ALVO.search(depois)
+                agente = (depois[:fim2.start()] if fim2 else depois).strip(" ,-'\"")
             if intro.startswith("categoria"):
                 governado = forte = True
             elif intro in ("para", "pra"):
@@ -324,7 +433,7 @@ def _alvos(texto: str, e_titulo: bool) -> list[_Alvo]:
                 governado = bool(_RE_GOVERNO.search(antes)) or (inicio_do_campo and not antes.strip())
                 forte = governado and intro == "em"
             off_em = e_titulo and intro == "em" and bool(re.search(r"\boff\s*$", antes))
-            out.append(_Alvo(frase, intro, governado, forte, e_titulo, off_em))
+            out.append(_Alvo(frase, intro, governado, forte, e_titulo, off_em, agente))
     return out
 
 
@@ -335,8 +444,7 @@ def _palavras(f: str) -> list[str]:
 
 def _abertas(palavras: list[str]) -> list[str]:
     """Palavras de um alvo sem lista de categorias: sem seleção, números soltos e qualificadores."""
-    return [w for w in palavras if w not in _PALAVRAS_DE_SELECAO and not w.isdigit()
-            and not (_RE_QUALIFICADOR.search(w) and not _NOMES_DE_CATEGORIA.fullmatch(w))]
+    return [w for w in palavras if w not in _PALAVRAS_DE_SELECAO and not w.isdigit() and w not in _QUALIFICADORES]
 
 
 def _classe_do_alvo(a: _Alvo) -> tuple[str, str]:
@@ -365,8 +473,11 @@ def _classe_do_alvo(a: _Alvo) -> tuple[str, str]:
     if nome:
         return "categoria", " ".join(palavras) or nome.group(0)
     if explicita or a.off_em:
-        # nome aberto é um nome só: a lista depois da vírgula ("qualquer compra, inclusive...") não entra
+        # nome aberto é um nome só: a lista depois da vírgula ("qualquer compra, inclusive...") não entra. Quem vende
+        # entra quando não é a própria loja: "OFF em produtos vendidos pela loja parceira Lojas Colombo" é só dela
         abertas = _abertas(_palavras(f.split(",")[0]))
+        if a.agente and set(_palavras(f)) & _QUALIFICADORES:
+            abertas += _abertas(_palavras(a.agente.split(",")[0]))
         if abertas:
             return "categoria", " ".join(abertas)
     return "neutro", f
@@ -384,6 +495,7 @@ class _Escopo:
         # sem as exclusões: para marca, tamanho, cliente novo, frete e as regras de valor ("exceto TVs acima de
         # R$ 5.000" não é compra mínima)
         self.escopo = f"{tit} {reg}"
+        self.campos = (tit, reg)  # título e regra sem exclusões, separados (o teto é lido em cada um)
         # sem a loja; "Acessórios para TV" / "Suporte de TV" viram "acessorios" (é acessório, não TV)
         self.tit_cat = _RE_ACESSORIO_DE_TV.sub(" acessorios ", _RE_LOJA_NO_TEXTO.sub(" ", tit))
         self.reg_cat = _RE_ACESSORIO_DE_TV.sub(" acessorios ", _RE_LOJA_NO_TEXTO.sub(" ", reg))
@@ -440,7 +552,7 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     if outro:
         return False, f"outro produto: {outro}"
     for m in _RE_SO_NOVOS.finditer(e.escopo):
-        if not _RE_NOVOS_TAMBEM.search(e.escopo[:m.start()]):
+        if not _RE_NOVOS_TAMBEM.search(e.escopo[:m.start()]) and not _RE_NOVOS_E_ANTIGOS.match(e.escopo[m.end():]):
             return False, f"só para novos clientes: {m.group(0)}"
     if _so_frete(e):
         return False, "só frete"
@@ -463,16 +575,15 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     if selecao and not (e.tem_tv or e.site_todo or _RE_TV.search(_RE_NAO_E_TV.sub(" ", e.cat))):
         return False, f"restrito: {selecao}"
     p = preco_loja or config.ALVO_PARCELADO
-    m = _RE_ATE.search(e.escopo)
-    if m:
-        lim = _num(m.group(1) or m.group(2))
-        if lim and lim < p * 0.5:  # "compras até R$ 300" não serve para uma TV de R$ 3 mil
-            return False, f"só até R$ {lim:.0f}"
-    for rx in (_RE_ACIMA, _RE_MINIMO_EM):
-        m = rx.search(e.escopo)
-        lim = _num(m.group(1)) if m else None
-        if lim and lim > p:
-            return False, f"só acima de R$ {lim:.0f}"
+    for campo in e.campos:
+        for lim in _tetos_da_compra(campo):
+            if lim < p:  # "compras até R$ 300", "itens até R$ 99", "TVs até R$ 2.000": a TV custa mais que o teto
+                return False, f"só até R$ {lim:.0f}"
+    for rx in (_RE_MINIMO_DA_COMPRA, _RE_MINIMO_EM):
+        for m in rx.finditer(e.escopo):
+            lim = _num(m.group(1))
+            if lim and lim > p:
+                return False, f"só acima de R$ {lim:.0f}"
     return True, ""
 
 

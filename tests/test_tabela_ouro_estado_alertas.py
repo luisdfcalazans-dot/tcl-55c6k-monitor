@@ -3,6 +3,9 @@
 Um caso por exemplo concreto: a evidência dos achados F2, F3, F4, F5 e F9, todas as regressões das rodadas 1, 2 e 3
 (REG-1, REG-2, DESCONTOEMCASA; TVMAGALU300, MELI15TUDO, TVKABUM10, SMARTTV250, PIX300, TCLTV250, CBFRETE200,
 APPMAGALU350, DESCONTOJA no pc), o item ZOOM e os casos que os verificadores disseram que têm de continuar funcionando.
+Linhas "R4b-*" (2ª passada da rodada 4): as entradas exatas com que o verificador mostrou o branch pior que a main
+(lista de tamanhos com polegada, teto do item/da compra, "Renovados"/"Recondicionados", cliente novo no app) e as
+rodadas E1-E8 dele com os arquivos reais.
 Cada linha é entrada -> saída esperada (aceita/recusa, preço, parcelado, alerta sai ou não). Quando uma expectativa
 antiga e uma nova conflitam, vale a do verificador mais recente; o comentário da linha diz por quê.
 
@@ -239,6 +242,102 @@ COMPAT = [
     ("R4-DESCONTOJA-pelando-generico-sozinho-serve", ML, "DESCONTOJA",
      "Cupom Mercado Livre 15% OFF acima de R$ 50 (limi R$ 200 OFF)",
      "Cupom Mercado Livre 15% OFF acima de R$ 50 (limi R$ 200 OFF)", P_ML, True),
+    # ---- rodada 4, 2ª passada: o verificador achou entradas em que a 1ª passada ficava PIOR que a main ----
+    # R3-3 não resolvido / regressão 1: a mesma lista de tamanhos escrita com polegada (", '', pol.) ou sem vírgula.
+    # A main aceita e alerta todas; a 55" está na lista ou na faixa
+    ("R4b-TCLTV250-50-55-65-com-aspas-regra-vazia", AMAZON, "TCLTV250",
+     'Cupom Amazon R$ 250 OFF em Smart TV TCL 50", 55" e 65"', "", P_AMAZON, True),
+    ("R4b-TCLTV250-50-55-65-com-aspas-e-regra", AMAZON, "TCLTV250",
+     'Cupom Amazon R$ 250 OFF em Smart TV TCL 50", 55" e 65"', "Válido para TVs vendidas pela Amazon.", P_AMAZON, True),
+    ("R4b-TVGRANDE300-Smart-TVs-de-50-a-65-com-aspas", MAGALU, "TVGRANDE300",
+     'Cupom Magalu R$ 300 OFF em Smart TVs de 50" a 65"', "", P_MAGALU, True),
+    ("R4b-Smart-TVs-43-a-55-com-aspas", KABUM, "X", 'Cupom 10% OFF em Smart TVs 43" a 55"', "", P_KABUM, True),
+    ("R4b-Smart-TVs-50-ou-55-com-aspas", "Casas Bahia", "X", 'Cupom Casas Bahia R$ 200 OFF em Smart TVs 50" ou 55"', "",
+     3599.09, True),
+    ("R4b-Smart-TVs-50-a-65-com-aspas-simples-dobradas", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs 50'' a 65''",
+     "", P_MAGALU, True),
+    ("R4b-Smart-TV-TCL-50-55-65-com-barras", AMAZON, "X", 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50" / 55" / 65"', "",
+     P_AMAZON, True),
+    ("R4b-Smart-TVs-50-pol-a-65-pol", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs 50 pol. a 65 pol.", "", P_MAGALU,
+     True),
+    ("R4b-Smart-TV-TCL-50-55-e-65-sem-virgula", AMAZON, "X",
+     "Cupom Amazon R$ 250 OFF em Smart TV TCL 50 55 e 65 polegadas", "", P_AMAZON, True),
+    ("R4b-Smart-TV-TCL-50-e-55-C6K", AMAZON, "X", 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50" e 55" C6K', "", P_AMAZON,
+     True),
+    # os mesmos formatos sem o 55 continuam fora (outra TV); "TVs de 43 polegadas" era aceito pela main (pré-existente)
+    ("R4b-Smart-TVs-de-32-e-43-com-aspas-fora", KABUM, "X", 'Cupom KaBuM! R$ 100 OFF em Smart TVs de 32" e 43"', "",
+     P_KABUM, False),
+    ("R4b-Smart-TVs-65-ou-maiores-fora", AMAZON, "X", 'Cupom Amazon R$ 400 OFF em Smart TVs 65" ou maiores', "", P_AMAZON,
+     False),
+    ("R4b-TVs-de-43-polegadas-fora", MAGALU, "X", "Cupom Magalu R$ 100 OFF em TVs de 43 polegadas", "", P_MAGALU, False),
+    ("R4b-Smart-TVs-10pct-OFF-nao-e-tamanho", MAGALU, "X", "Cupom Magalu Smart TVs 10% OFF", "", P_MAGALU, True),
+    # regressão 2: teto do ITEM/da compra (a main recusa 'só até R$ X'; a 1ª passada aceitava = alerta falso)
+    ("R4b-ATE500-produtos-ate-R$500-KaBuM", KABUM, "ATE500", "Use o cupom KaBum! e economize 10% em suas compras",
+     "produtos KaBuM! VÁLIDO PARA PRODUTOS ATÉ R$ 500", P_KABUM, False),
+    ("R4b-TUDO99-itens-ate-R$99-AliExpress", ALI, "TUDO99", "Cupom AliExpress R$ 10 OFF em itens até R$ 99",
+     "Válido para itens da seção Tudo até R$ 99", P_ALI, False),
+    ("R4b-FAIXA30-compras-de-R$200-ate-R$499", MAGALU, "FAIXA30",
+     "Cupom Magalu - R$ 30 OFF em compras de R$ 200 até R$ 499", "Válido para produtos vendidos e entregues pelo Magalu",
+     P_MAGALU, False),
+    ("R4b-itens-de-ate-R$99-na-regra", ALI, "TUDO99", "Os melhores itens do site com R$ 10 OFF aplicando cupom AliExpress",
+     "produtos Aliexpress Válido para itens de até R$ 99.", P_ALI, False),
+    ("R4b-produtos-de-ate-R$150-vendidos-pela-Magalu", MAGALU, "PRECINHO",
+     "Cupom de desconto Magalu oferece 15% OFF em suas compras",
+     "produtos Magazine Luiza Válido para produtos de até R$ 150 vendidos pela Magalu.", P_MAGALU, False),
+    ("R4b-pedidos-de-no-maximo-R$300", MAGALU, "MAX300", "Cupom Magalu 10% OFF (limite R$ 30)",
+     "Válido para pedidos de no máximo R$ 300.", P_MAGALU, False),
+    ("R4b-itens-com-preco-de-ate-R$100", AMAZON, "PEQ20", "Desconto Amazon: economize 20% em suas compras",
+     "produtos Amazon Válido somente para itens com preço de até R$ 100.", P_AMAZON, False),
+    ("R4b-carrinhos-de-ate-R$300", "Casas Bahia", "CB20", "Cupom Casas Bahia R$ 20 OFF",
+     "Válido para carrinhos de até R$ 300.", 3599.09, False),
+    ("R4b-produtos-com-valor-ate-R$200", AMAZON, "VALE", "Cupom Amazon 15% OFF em produtos com valor até R$ 200", "",
+     P_AMAZON, False),
+    # pré-existente (main e 1ª passada aceitavam): o teto é o preço da própria TV
+    ("R4b-TVs-ate-R$2.000-fora", MAGALU, "X", "Cupom Magalu R$ 100 OFF em TVs até R$ 2.000", "", P_MAGALU, False),
+    ("R4b-TVs-de-ate-R$5.000-serve", KABUM, "X", "Cupom KaBuM! R$ 200 OFF em TVs de até R$ 5.000", "", P_KABUM, True),
+    # o teto do DESCONTO continua não barrando (F3)
+    ("R4b-desconto-de-ate-12pct-com-desconto-maximo-de-R$400", ML, "X",
+     "TELA GRANDE: 12% OFF em TVs no Mercado Livre (acima de R$ 1.500) com cupom",
+     "produtos Mercado Livre Desconto de até 12% em compra a partir de R$1.500, com desconto máximo de R$400 válido "
+     "para itens elegíveis.", P_ML, True),
+    ("R4b-10pct-OFF-parenteses-maximo-R$50", MAGALU, "X", "Cupom Magalu 10% OFF (máximo R$ 50) em todo o site", "",
+     P_MAGALU, True),
+    ("R4b-ate-R$300-de-desconto-em-compras-acima-de-R$3.000", MAGALU, "X",
+     "Cupom Magalu: até R$ 300 de desconto em compras acima de R$ 3.000", "", P_MAGALU, True),
+    # a exclusão acaba na vírgula que abre outra condição: a compra mínima depois dela vale
+    ("R4b-exceto-Celulares-virgula-compras-acima-de-R$5.000-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF em todo o site",
+     "Exceto Celulares, em compras acima de R$ 5.000", P_MAGALU, False),
+    ("R4b-exceto-Supermercado-Farmacia-e-Pet-lista-continua", ML, "X", "Cupom Mercado Livre 15% OFF em todo o site",
+     "Exceto Supermercado, Farmácia e Pet. Compra mínima R$ 199.", P_ML, True),
+    # regressão 3: particípio que diz O QUE é o produto é categoria (a main recusa); venda/entrega não é
+    ("R4b-RENOVA20-produtos-Renovados", AMAZON, "RENOVA20", "Cupom Amazon 20% OFF em produtos Renovados",
+     "Válido para produtos Amazon Renovados vendidos pela Amazon", P_AMAZON, False),
+    ("R4b-RENOVEJA-Recondicionados", ML, "RENOVEJA",
+     "RENOVE JÁ: 15% OFF em Recondicionados no Mercado Livre (acima de R$ 99) com cupom", "produtos Mercado Livre", P_ML,
+     False),
+    ("R4b-Produtos-Usados", AMAZON, "USADOS15", "Cupom Amazon 15% OFF em Produtos Usados",
+     "Válido para produtos vendidos pela Amazon", P_AMAZON, False),
+    ("R4b-Congelados-e-Resfriados", ML, "CONGEL10", "Cupom Mercado Livre 10% OFF em Congelados e Resfriados", "", P_ML,
+     False),
+    ("R4b-Itens-Importados", AMAZON, "IMPORT", "Cupom Amazon 10% OFF em Itens Importados", "", P_AMAZON, False),
+    ("R4b-Mais-Vendidos-e-selecao", ML, "MAISVEND",
+     "OFERTA TOP: 15% OFF em Mais Vendidos no Mercado Livre (acima de R$ 99) com cupom", "produtos Mercado Livre", P_ML,
+     False),
+    ("R4b-vendidos-pela-loja-parceira-Lojas-Colombo", MAGALU, "LOJA10",
+     "Cupom Magalu 10% OFF em produtos vendidos pela loja parceira Lojas Colombo", "", P_MAGALU, False),
+    ("R4b-vendidos-e-entregues-pela-propria-loja-serve", AMAZON, "VENDAMZ",
+     "Cupom Amazon R$ 100 OFF em produtos vendidos e entregues pela Amazon", "Compra mínima R$ 1.000", P_AMAZON, True),
+    # regressão 4: cliente novo escrito de outros jeitos (a main recusava pelo 'app'; app não é categoria)
+    ("R4b-BEMVINDO20-clientes-novos-no-app", MAGALU, "BEMVINDO20", "Cupom Magalu R$ 20 OFF para clientes novos no app",
+     "Válido para compras acima de R$ 100", P_MAGALU, False),
+    ("R4b-quem-ainda-nao-comprou-no-app", AMAZON, "NOVOAPP", "Cupom Amazon R$ 20 OFF para quem ainda não comprou no app",
+     "", P_AMAZON, False),
+    ("R4b-novos-cadastros-no-app", "Casas Bahia", "APPNOVO", "Cupom Casas Bahia 10% OFF no app para novos cadastros", "",
+     3599.09, False),
+    ("R4b-quem-nunca-comprou", ML, "NUNCA30", "Cupom Mercado Livre R$ 30 OFF para quem nunca comprou",
+     "Compra mínima R$ 60", P_ML, False),
+    ("R4b-clientes-novos-e-antigos-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF para clientes novos e antigos",
+     "Válido em compras acima de R$ 3.000", P_MAGALU, True),
 ]
 
 
@@ -979,6 +1078,73 @@ def c_zoom_linhas_reais_sao_agregador(d, mp):
     return sorted({(o["loja"], e_agregador(o)) for o in reais["latest_cloud"]["ofertas_loja"] if o["fonte"] == "zoom"})
 
 
+# ---- rodada 4, 2ª passada: as rodadas do verificador (E1-E8), com os arquivos reais da main ----
+
+def _rodada_real_com_cupom(d, mp, modo, cupom):
+    """Uma rodada de `modo` com as ofertas reais do latest dele e um cupom novo: (linhas 🎟️ do cupom, painel)."""
+    reais = _dados_reais(d, mp)
+    ofs = _ofertas_do_latest(reais, modo)
+    est = Estado(modo)
+    ofs, _av = sanear(ofs)
+    msgs, _ = gerar_alertas(est, ofs, [cupom])
+    linhas = [ln for m in msgs if m.startswith("🎟️") for ln in m.split("\n") if cupom.codigo in ln]
+    return linhas, [c.codigo for c in cupons_aplicaveis(ofs, [cupom], est)]
+
+
+def _cp(fonte, loja, codigo, titulo, regra, cid):
+    return Cupom(fonte=fonte, loja=loja, codigo=codigo, titulo=titulo, url="u", id=cid, regra=regra)
+
+
+def c_r4b_e1_ate500_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", KABUM, "ATE500", "Use o cupom KaBum! e economize 10% em suas compras",
+        "produtos KaBuM! VÁLIDO PARA PRODUTOS ATÉ R$ 500", "70123"))
+
+
+def c_r4b_e2_tudo99_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", ALI, "TUDO99", "Cupom AliExpress R$ 10 OFF em itens até R$ 99",
+        "Válido para itens da seção Tudo até R$ 99", "pel-tudo99"))
+
+
+def c_r4b_e3_renova20_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", AMAZON, "RENOVA20", "Cupom Amazon 20% OFF em produtos Renovados",
+        "Válido para produtos Amazon Renovados vendidos pela Amazon", "pel-renova"))
+
+
+def c_r4b_e4_renoveja_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", ML, "RENOVEJA", "RENOVE JÁ: 15% OFF em Recondicionados no Mercado Livre (acima de R$ 99) com cupom",
+        "produtos Mercado Livre", "70124"))
+
+
+def c_r4b_e5_faixa30_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", MAGALU, "FAIXA30", "Cupom Magalu - R$ 30 OFF em compras de R$ 200 até R$ 499",
+        "Válido para produtos vendidos e entregues pelo Magalu", "pel-faixa30"))
+
+
+def c_r4b_e6_tcltv250_pc(d, mp):
+    """A main manda '🎟️ Novo cupom aplicável à TV • Amazon TCLTV250 — ... · TV lá: R$ 3.749,00' e põe no painel."""
+    linhas, painel = _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", AMAZON, "TCLTV250", 'Cupom Amazon R$ 250 OFF em Smart TV TCL 50", 55" e 65"', "", "pel-tcltv250"))
+    return len(linhas), linhas[0].endswith("TV lá: R$ 3.749,00") if linhas else None, painel
+
+
+def c_r4b_e7_tvgrande300_cloud(d, mp):
+    """A main alerta com 'TV lá: R$ 3.561,55' e põe no painel."""
+    linhas, painel = _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", MAGALU, "TVGRANDE300", 'Cupom Magalu R$ 300 OFF em Smart TVs de 50" a 65"', "", "70300"))
+    return len(linhas), linhas[0].endswith("TV lá: R$ 3.561,55") if linhas else None, painel
+
+
+def c_r4b_e8_bemvindo20_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", MAGALU, "BEMVINDO20", "Cupom Magalu R$ 20 OFF para clientes novos no app",
+        "Válido para compras acima de R$ 100", "70301"))
+
+
 CENARIOS = [
     # F2: o sanear descarta a CB 2.189,30; o mínimo continua 3.199 e a CB não grava último/menor preço
     ("F2-descarte-do-sanear-nao-vira-minimo", c_f2_descarte_nao_vira_minimo, (3199.0, False, None, None)),
@@ -1059,6 +1225,17 @@ CENARIOS = [
     ("ZOOM-minimo-antigo-vindo-do-Zoom-nao-vale", c_zoom_minimo_antigo_do_agregador, (2991.6, MAGALU)),
     ("ZOOM-linhas-reais-do-Zoom-sao-agregador", c_zoom_linhas_reais_sao_agregador,
      [(AMAZON, True), (KABUM, True), (MAGALU, True)]),
+    # ---- rodada 4, 2ª passada: rodadas do verificador com os arquivos reais (a main é a referência) ----
+    # sem alerta e fora do painel, como na main (teto do item/compra, produto renovado, cliente novo)
+    ("R4b-E1-ATE500-cloud-produtos-ate-R$500-sem-alerta", c_r4b_e1_ate500_cloud, ([], [])),
+    ("R4b-E2-TUDO99-pc-itens-ate-R$99-sem-alerta", c_r4b_e2_tudo99_pc, ([], [])),
+    ("R4b-E3-RENOVA20-pc-Renovados-sem-alerta", c_r4b_e3_renova20_pc, ([], [])),
+    ("R4b-E4-RENOVEJA-cloud-Recondicionados-sem-alerta", c_r4b_e4_renoveja_cloud, ([], [])),
+    ("R4b-E5-FAIXA30-pc-compras-de-200-ate-499-sem-alerta", c_r4b_e5_faixa30_pc, ([], [])),
+    ("R4b-E8-BEMVINDO20-cloud-clientes-novos-no-app-sem-alerta", c_r4b_e8_bemvindo20_cloud, ([], [])),
+    # alerta com o preço da TV e no painel, como na main (a lista de tamanhos inclui a 55")
+    ("R4b-E6-TCLTV250-pc-50-55-65-com-aspas-alerta", c_r4b_e6_tcltv250_pc, (1, True, ["TCLTV250"])),
+    ("R4b-E7-TVGRANDE300-cloud-50-a-65-com-aspas-alerta", c_r4b_e7_tvgrande300_cloud, (1, True, ["TVGRANDE300"])),
 ]
 
 
