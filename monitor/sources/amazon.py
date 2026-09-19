@@ -293,12 +293,17 @@ class Amazon(Fonte):
     def _junta_destaque(dest: Oferta, por_id: dict[str, Oferta], asin: str) -> None:
         """A página do produto tem os dados completos (cartão, Pix, parcelado) do vendedor em destaque:
         ela substitui o bloco desse vendedor no painel, com o id do vendedor do painel se a página não
-        trouxe o dela (evita duas linhas para o mesmo vendedor)."""
+        trouxe o dela (evita duas linhas para o mesmo vendedor).
+
+        Página SEM preço (HTTP e Chrome vieram sem o bloco de preço): ela não diz nada do preço do vendedor. Se o
+        painel tem esse vendedor com preço, fica o do painel (senão o vendedor mais barato sumiria do latest)."""
         vid = dest.extra.get("vendedor_id")
         iguais = [o for o in por_id.values()
                   if (vid and o.extra.get("vendedor_id") == vid) or _mesmo_vendedor(o.vendedor, dest.vendedor)]
         if not iguais and not vid and not dest.vendedor:
             iguais = [o for o in por_id.values() if o.extra.get("destaque")]
+        if not (dest.preco or dest.preco_pix) and any(o.preco or o.preco_pix for o in iguais):
+            return
         if not vid:
             vid = next((o.extra["vendedor_id"] for o in iguais if o.extra.get("vendedor_id")), None)
             if vid:

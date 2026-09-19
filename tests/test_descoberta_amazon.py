@@ -113,3 +113,20 @@ def test_sem_preco_em_lugar_nenhum_fica_inativo_e_nao_inventa_preco(monkeypatch)
     assert len(c.cargas) == 3
     (o,) = ofertas
     assert o.ativo is False and o.melhor_preco is None
+
+
+# revisão de 19/09: página do produto sem preço (HTTP e Chrome) não apaga o vendedor do painel, que tem preço
+@pytest.mark.parametrize("dp", [
+    "<html><span id=productTitle>TCL Smart TV 55 Polegadas QLED Mini LED 4K C6K Google TV 55C6K</span></html>",
+    DP.replace("corePriceDisplay_desktop_feature_div", "x").replace("displayPrice", "y")
+      .replace("a-offscreen", "z").replace("a-price-whole", "w"),
+], ids=["so_titulo", "pagina_real_sem_preco"])
+def test_pagina_sem_preco_nao_apaga_o_destaque_do_painel(monkeypatch, dp):
+    assert amazon.parse_produto(dp, ASIN).ativo is False  # a página sozinha não diz preço
+    _stub(monkeypatch, {"/dp/": dp}, {"aodAjaxMain": AOD, "/dp/": dp})
+    ofertas, _ = amazon.Amazon().coletar()
+    por_id = {o.id: o for o in ofertas}
+    assert set(por_id) == {"B0F7JZMVKF-ACUNARZFR75ET", "B0F7JZMVKF-A30OZFNW1RCCSM"}
+    m = por_id["B0F7JZMVKF-ACUNARZFR75ET"]
+    assert (m.preco_pix, m.ativo) == (3374.10, True), "o Magalu. do painel (Pix R$ 3.374,10) continua"
+    assert m.vendedor.startswith("Magalu")
