@@ -227,7 +227,7 @@
     "quantidade": 1
    },
    "DIADOCLIENTE16H@d-android-tv-55c6k/p/kc7h6f4k4b/et/elit/": {
-    "testado_em": "2026-09-18T22:19:08-03:00",
+    "testado_em": "2026-09-19T12:05:47-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom DIADOCLIENTE16H não se aplica para este pedido.",
@@ -317,7 +317,7 @@
     "quantidade": 1
    },
    "DIADOCLIENTE18H@d-android-tv-55c6k/p/kc7h6f4k4b/et/elit/": {
-    "testado_em": "2026-09-18T22:19:14-03:00",
+    "testado_em": "2026-09-19T12:05:53-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom não foi aplicado. Pode ter algum erro de digitação ou não estar mais ativo.",
@@ -332,7 +332,7 @@
     "quantidade": 1
    },
    "DIADOCLIENTE14H@d-android-tv-55c6k/p/kc7h6f4k4b/et/elit/": {
-    "testado_em": "2026-09-18T22:19:20-03:00",
+    "testado_em": "2026-09-19T12:05:59-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom DIADOCLIENTE14H não se aplica para este pedido.",
@@ -437,7 +437,8 @@
     "quantidade": 1
    },
    "DIADOCLIENTE16H@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
-    "testado_em": "2026-09-18T14:39:09-03:00",
+    "testado_em": "2026-09-19T12:01:44-03:00",
+    "status": "aceito",
     "aceito": true,
     "mensagem": "",
     "vendedor": "Magalu",
@@ -447,7 +448,8 @@
     "total_cartao": 3608.9,
     "frete": 9.9,
     "desconto": 150.0,
-    "parcelado": "10x R$ 375,89 sem juros"
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
    },
    "TOMA100@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
     "testado_em": "2026-09-18T15:39:47-03:00",
@@ -525,7 +527,7 @@
     "quantidade": 1
    },
    "DIADOCLIENTE18H@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
-    "testado_em": "2026-09-18T22:17:05-03:00",
+    "testado_em": "2026-09-19T12:02:14-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom não foi aplicado. Pode ter algum erro de digitação ou não estar mais ativo.",
@@ -540,7 +542,8 @@
     "quantidade": 1
    },
    "DIADOCLIENTE14H@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
-    "testado_em": "2026-09-18T14:39:45-03:00",
+    "testado_em": "2026-09-19T12:02:25-03:00",
+    "status": "aceito",
     "aceito": true,
     "mensagem": "",
     "vendedor": "Magalu",
@@ -550,7 +553,8 @@
     "total_cartao": 3508.9,
     "frete": 9.9,
     "desconto": 250.0,
-    "parcelado": "10x R$ 375,89 sem juros"
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
    },
    "LUNIVER50@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
     "testado_em": "2026-09-18T15:40:37-03:00",
@@ -838,22 +842,82 @@
     "desconto": null,
     "parcelado": "10x R$ 374,90 sem juros",
     "quantidade": 1
+   },
+   "TOMA30@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
+    "testado_em": "2026-09-19T12:03:01-03:00",
+    "status": "aceito",
+    "aceito": true,
+    "mensagem": "",
+    "vendedor": "Magalu",
+    "tv_pix": 3531.55,
+    "tv_cartao": 3719.0,
+    "total_pix": 3541.45,
+    "total_cartao": 3728.9,
+    "frete": 9.9,
+    "desconto": 30.0,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
+   },
+   "DESCONTA100@stente-4-hdmi-2-usb/p/240162700/et/elit/": {
+    "testado_em": "2026-09-19T12:03:36-03:00",
+    "status": "aceito",
+    "aceito": true,
+    "mensagem": "",
+    "vendedor": "Magalu",
+    "tv_pix": 3461.55,
+    "tv_cartao": 3649.0,
+    "total_pix": 3471.45,
+    "total_cartao": 3658.9,
+    "frete": 9.9,
+    "desconto": 100.0,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
+   },
+   "TOMA30@d-android-tv-55c6k/p/kc7h6f4k4b/et/elit/": {
+    "testado_em": "2026-09-19T12:06:10-03:00",
+    "status": "aceito",
+    "aceito": true,
+    "mensagem": "",
+    "vendedor": "Lojas Colombo Oficial",
+    "tv_pix": 3907.15,
+    "tv_cartao": 4071.2,
+    "total_pix": 4072.83,
+    "total_cartao": 4236.88,
+    "frete": 165.68,
+    "desconto": 30.0,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
+   },
+   "DESCONTA100@d-android-tv-55c6k/p/kc7h6f4k4b/et/elit/": {
+    "testado_em": "2026-09-19T12:06:46-03:00",
+    "status": "aceito",
+    "aceito": true,
+    "mensagem": "",
+    "vendedor": "Lojas Colombo Oficial",
+    "tv_pix": 3837.15,
+    "tv_cartao": 4001.2,
+    "total_pix": 4002.3,
+    "total_cartao": 4166.35,
+    "frete": 165.15,
+    "desconto": 100.0,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "quantidade": 1
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-09-18T22:19:20-03:00",
+  "ultima_execucao": "2026-09-19T12:07:13-03:00",
   "precos": {
    "Magalu": {
-    "tv_pix": 3561.55,
-    "tv_cartao": 3749.0,
-    "parcelado": null,
-    "cupom": "(sem cupom)"
+    "tv_pix": 3311.55,
+    "tv_cartao": 3499.0,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "cupom": "DIADOCLIENTE14H"
    },
    "Lojas Colombo Oficial": {
-    "tv_pix": 3937.15,
-    "tv_cartao": 4101.2,
-    "parcelado": null,
-    "cupom": "(sem cupom)"
+    "tv_pix": 3837.15,
+    "tv_cartao": 4001.2,
+    "parcelado": "10x R$ 374,90 sem juros",
+    "cupom": "DESCONTA100"
    }
   },
   "pausa_ate": "2026-09-18T18:41:28-03:00",
@@ -1060,10 +1124,40 @@
     "desconto": null,
     "parcelado": null,
     "quantidade": 1
+   },
+   "PROMOHOJE@v-4-hdmi-144hz-hdr10-55c6k/p/MLB48808732#MLB7574364080": {
+    "testado_em": "2026-09-19T12:09:40-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "sem mudança no total",
+    "vendedor": "Magalu",
+    "tv_pix": 3749.0,
+    "tv_cartao": 3749.0,
+    "total_pix": 3749.0,
+    "total_cartao": 3749.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1
+   },
+   "TECH1909@v-4-hdmi-144hz-hdr10-55c6k/p/MLB48808732#MLB7574364080": {
+    "testado_em": "2026-09-19T12:09:55-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "O cupom não está mais disponível.",
+    "vendedor": "Magalu",
+    "tv_pix": 3749.0,
+    "tv_cartao": 3749.0,
+    "total_pix": 3749.0,
+    "total_cartao": 3749.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-09-18T22:19:44-03:00",
+  "ultima_execucao": "2026-09-19T12:09:55-03:00",
   "precos": {
    "Magalu": {
     "tv_pix": 3749.0,
@@ -1076,7 +1170,7 @@
  "amazon": {
   "cupons": {},
   "aviso_login": null,
-  "ultima_execucao": "2026-09-18T22:14:17-03:00",
+  "ultima_execucao": "2026-09-19T11:58:50-03:00",
   "precos": {
    "Magalu.": {
     "tv_pix": 3374.1,
