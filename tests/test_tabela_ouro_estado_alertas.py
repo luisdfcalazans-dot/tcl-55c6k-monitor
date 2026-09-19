@@ -6,6 +6,9 @@ APPMAGALU350, DESCONTOJA no pc), o item ZOOM e os casos que os verificadores dis
 Linhas "R4b-*" (2ª passada da rodada 4): as entradas exatas com que o verificador mostrou o branch pior que a main
 (lista de tamanhos com polegada, teto do item/da compra, "Renovados"/"Recondicionados", cliente novo no app) e as
 rodadas E1-E8 dele com os arquivos reais.
+Linhas "R5-*" (passada final, lista fechada E1-E5 do veredito final da rodada 4): número que não é tamanho depois de
+"Smart TV(s)", cupom progressivo (menor mínimo), cliente novo só com as palavras explícitas, exclusão de OUTRAS TVs, e
+cupom de loja oficial/marca/outra loja; com as entradas exatas do veredito e as rodadas com os arquivos reais.
 Cada linha é entrada -> saída esperada (aceita/recusa, preço, parcelado, alerta sai ou não). Quando uma expectativa
 antiga e uma nova conflitam, vale a do verificador mais recente; o comentário da linha diz por quê.
 
@@ -338,6 +341,141 @@ COMPAT = [
      "Compra mínima R$ 60", P_ML, False),
     ("R4b-clientes-novos-e-antigos-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF para clientes novos e antigos",
      "Válido em compras acima de R$ 3.000", P_MAGALU, True),
+    # ---- rodada 5 (passada final): a lista fechada E1-E5, com as entradas exatas do veredito final ----
+    # E1: número depois de "Smart TV(s)" que não é tamanho (data, hora, limite de uso, quantidade de cupons) não é
+    # "outro tamanho"; tamanho precisa de polegada, código de modelo, especificação de TV logo depois (4K, QLED) ou
+    # lista explícita. Título e regra são lidos separados (a data da regra não vira tamanho da TV do título). A main
+    # aceita todas
+    ("R5-E1-TVML400-valido-ate-30-09-e-500-cupons-na-regra", ML, "TVML400",
+     "Cupom Mercado Livre - 10% OFF Acima de R$ 1.999 limitado à R$ 400 em Smart TVs",
+     "Válido até 30/09 ou enquanto durarem os 500 cupons", P_ML, True),
+    ("R5-E1-limitado-a-10-usos-por-CPF", ML, "X",
+     "Cupom Mercado Livre - 10% OFF Acima de R$1.999 limitado à R$300 em Smart TVs", "Limitado a 10 usos por CPF", P_ML,
+     True),
+    ("R5-E1-acaba-em-30-minutos", ML, "X", "Cupom Mercado Livre - 10% OFF Acima de R$1.999 limitado à R$300 em Smart TVs",
+     "Acaba em 30 minutos", P_ML, True),
+    ("R5-E1-valido-ate-23-09", ML, "X", "Cupom Mercado Livre - 10% OFF Acima de R$1.999 limitado à R$300 em Smart TVs",
+     "Válido até 23/09", P_ML, True),
+    ("R5-E1-so-50-cupons", ML, "X", "Cupom Mercado Livre - 10% OFF Acima de R$1.999 limitado à R$300 em Smart TVs",
+     "Só 50 cupons", P_ML, True),
+    ("R5-E1-Smart-TVs-ate-30-09-no-titulo", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs até 30/09", "", P_MAGALU,
+     True),
+    ("R5-E1-Smart-TVs-hoje-ate-as-23-59", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs hoje até às 23:59", "",
+     P_MAGALU, True),
+    ("R5-E1-Smart-TVs-valido-ate-dia-25", KABUM, "X", "Cupom KaBuM! 10% OFF em Smart TVs válido até dia 25", "", P_KABUM,
+     True),
+    ("R5-E1-Smart-TVs-em-ate-10-vezes", "Casas Bahia", "X",
+     "Cupom Casas Bahia R$ 200 OFF em Smart TVs em até 10 vezes sem juros", "", 3599.09, True),
+    ("R5-E1-Smart-TVs-para-os-primeiros-50-clientes", MAGALU, "X",
+     "Cupom Magalu R$ 300 OFF em Smart TVs para os primeiros 50 clientes", "", P_MAGALU, True),
+    ("R5-E1-dias-19-e-20-de-setembro-na-regra", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs",
+     "Válido nos dias 19 e 20 de setembro", P_MAGALU, True),
+    # continuam tamanho: lista explícita sem polegada, e o número seguido de especificação de TV
+    ("R5-E1-Smart-TVs-32-e-43-lista-sem-polegada-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs 32 e 43", "",
+     P_MAGALU, False),
+    ("R5-E1-Smart-TVs-de-50-a-65-faixa-sem-polegada-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs de 50 a 65",
+     "", P_MAGALU, True),
+    ("R5-E1-Smart-TV-65-QLED-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF na Smart TV 65 QLED", "", P_MAGALU, False),
+    # E2: cupom progressivo (em faixas) serve se o preço da TV alcança QUALQUER faixa: vale o menor mínimo; o mínimo
+    # de uma faixa de cima nunca recusa. A main aceita todos
+    ("R5-E2-ESCADA500-progressivo-Magalu", MAGALU, "ESCADA500",
+     "Cupom Magalu progressivo: R$ 100 OFF acima de R$ 1.000, R$ 300 OFF acima de R$ 3.000 e R$ 500 OFF acima de "
+     "R$ 5.000", "", P_MAGALU, True),
+    ("R5-E2-Casas-Bahia-150-300-600", "Casas Bahia", "X",
+     "Cupom Casas Bahia: R$ 150 OFF acima de R$ 1.500 | R$ 300 OFF acima de R$ 3.000 | R$ 600 OFF acima de R$ 6.000",
+     "Válido para TVs e Eletrônicos", 3599.09, True),
+    ("R5-E2-progressivos-Magalu-150-e-400", MAGALU, "X",
+     "Cupons progressivos Magalu - R$ 150 OFF acima de R$ 1.500 / R$ 400 OFF acima de R$ 4.000", "", P_MAGALU, True),
+    ("R5-E2-ML-10pct-TVs-acima-2000-e-15pct-acima-5000", ML, "X",
+     "Cupom Mercado Livre - 10% OFF em TVs (acima de R$ 2.000); 15% OFF acima de R$ 5.000", "", P_ML, True),
+    ("R5-E2-descricao-do-Pelando-cita-o-MAGALU500", MAGALU, "TVMAGALU300", "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000",
+     "Pra quem vai gastar mais, o MAGALU500 dá R$ 500 OFF acima de R$ 5.000", P_MAGALU, True),
+    # o CLIENTE real da Fast Shop (promobit:69092 e 69083, em faixas de R$ 800, R$ 2.000 e R$ 4.000): como na main,
+    # serve com a TV a R$ 3.296,81 e também a R$ 1.500 (a faixa de R$ 800)
+    ("R5-E2-CLIENTE-69092-Fast-Shop-3296.81", "Fast Shop", "CLIENTE",
+     "O momento chegou: Aplique cupom Fastshop e ganhe 12% OFF",
+     "produtos Fast Shop Compras de R$800 a R$1999 | 8% OFF | Limitado a R$160\nCompras de R$ 2000 a R$3999 | 10% OFF | "
+     "Limitado a R$220\nCompras acima R$4000 | 12% OFF | Limitado a R$500", 3296.81, True),
+    ("R5-E2-CLIENTE-69092-Fast-Shop-1500", "Fast Shop", "CLIENTE",
+     "O momento chegou: Aplique cupom Fastshop e ganhe 12% OFF",
+     "produtos Fast Shop Compras de R$800 a R$1999 | 8% OFF | Limitado a R$160\nCompras de R$ 2000 a R$3999 | 10% OFF | "
+     "Limitado a R$220\nCompras acima R$4000 | 12% OFF | Limitado a R$500", 1500.0, True),
+    ("R5-E2-CLIENTE-69083-Fast-Shop-1500", "Fast Shop", "CLIENTE",
+     "Compras de R$800 a R$1999 | 8% de Desconto | Limitado a R$160\nCompras de R$ 2000 a R$3999 | 10% de Desconto | "
+     "Limitado a R$220\nCompras acima R$4000 | 12% de Desconto | Limitado a R$500",
+     "produtos Fast Shop Compras de R$800 a R$1999 | 8% OFF | Limitado a R$160\nCompras de R$ 2000 a R$3999 | 10% OFF | "
+     "Limitado a R$220\nCompras acima R$4000 | 12% OFF | Limitado a R$500", 1500.0, True),
+    # a faixa de baixo com teto ("de R$ 800 até R$ 1.999") não recusa quando há faixa de cima
+    ("R5-E2-faixas-com-ate-a-TV-cabe-na-faixa-de-cima", "Fast Shop", "X", "Cupom Fast Shop progressivo",
+     "Compras de R$ 800 até R$ 1.999: 8% OFF | Compras de R$ 2.000 até R$ 3.999: 10% OFF | Acima de R$ 4.000: 12% OFF",
+     3296.81, True),
+    # uma faixa só continua recusando: mínimo acima do preço, teto abaixo; e o preço no vão entre duas faixas também
+    ("R5-E2-uma-faixa-so-acima-de-R$5.000-fora", MAGALU, "X", "Cupom Magalu R$ 500 OFF acima de R$ 5.000", "", P_MAGALU,
+     False),
+    ("R5-E2-TV-no-vao-entre-as-faixas-fora", "Fast Shop", "X", "Cupom Fast Shop progressivo",
+     "Compras de R$ 800 até R$ 1.999: 8% OFF | Acima de R$ 5.000: 12% OFF", 3296.81, False),
+    # E3: cliente novo só com as palavras explícitas da restrição (a main aceita todas estas; a regra do Pelando é
+    # texto livre de quem postou)
+    ("R5-E3-quem-ainda-nao-usou-corre", MAGALU, "TVMAGALU300", "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000",
+     "Quem ainda não usou, corre que acaba hoje!", P_MAGALU, True),
+    ("R5-E3-liberado-pela-primeira-vez", MAGALU, "TVMAGALU300", "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000",
+     "Cupom liberado pela primeira vez para TVs, aproveitem", P_MAGALU, True),
+    ("R5-E3-quem-nunca-usou-cupom-no-ML", ML, "X",
+     "Cupom Mercado Livre - 10% OFF Acima de R$ 1.999 limitado à R$ 400 em TVs",
+     "Quem nunca usou cupom no ML, vale a pena testar no carrinho", P_ML, True),
+    ("R5-E3-novos-compradores-e-quem-ja-comprou", AMAZON, "X", "Cupom Amazon R$ 200 OFF em Smart TVs",
+     "Válido para novos compradores e quem já comprou na Amazon", P_AMAZON, True),
+    # as palavras explícitas continuam recusando
+    ("R5-E3-novos-usuarios-fora", AMAZON, "X", "Cupom Amazon R$ 200 OFF em Smart TVs", "Válido para novos usuários",
+     P_AMAZON, False),
+    ("R5-E3-primeiro-pedido-fora", ML, "X", "Cupom Mercado Livre R$ 300 OFF em TVs", "Válido no primeiro pedido", P_ML,
+     False),
+    ("R5-E3-quem-ainda-nao-comprou-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF em TVs",
+     "Só para quem ainda não comprou no site", P_MAGALU, False),
+    ("R5-E3-1a-compra-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF em TVs (1ª compra)", "", P_MAGALU, False),
+    # E4: exclusão de OUTRAS TVs (outro tamanho/modelo, mesmo da TCL) não tira a 55C6K. A main aceita todas
+    ("R5-E4-TCLAMZ200-exceto-a-TCL-32S5400A", AMAZON, "TCLAMZ200", "Cupom Amazon R$ 200 OFF em Smart TVs TCL",
+     "Válido para Smart TVs TCL vendidas pela Amazon, exceto a TCL 32S5400A", P_AMAZON, True),
+    ("R5-E4-exceto-modelos-TCL-de-32-e-43-polegadas", KABUM, "X", "Cupom KaBuM! 8% OFF em TVs TCL",
+     "produtos KaBuM! 8% OFF em TVs TCL (exceto modelos TCL de 32 e 43 polegadas)", P_KABUM, True),
+    ("R5-E4-nao-valido-para-TVs-TCL-32-e-43-aspas", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs",
+     'Não válido para TVs TCL 32" e 43"', P_MAGALU, True),
+    ("R5-E4-TVS300-exceto-TVs-32-43-e-50-polegadas", MAGALU, "TVS300", "Cupom Magalu R$ 300 OFF em TVs",
+     "Exceto TVs 32, 43 e 50 polegadas", P_MAGALU, True),
+    # a exclusão que cobre a 55" / 55C6K / C6K / a TCL ou as TVs sem qualificador continua tirando a TV
+    ("R5-E4-exceto-a-TCL-55C6K-fora", AMAZON, "X", "Cupom Amazon R$ 200 OFF em Smart TVs",
+     "Exceto a TCL 55C6K", P_AMAZON, False),
+    ("R5-E4-exceto-a-linha-C6K-fora", AMAZON, "X", "Cupom Amazon R$ 200 OFF em Smart TVs TCL", "Exceto a linha C6K",
+     P_AMAZON, False),
+    ("R5-E4-exceto-produtos-TCL-fora", MAGALU, "X", "Cupom Magalu R$ 200 OFF em todo o site", "Exceto produtos TCL",
+     P_MAGALU, False),
+    ("R5-E4-exceto-TVs-TCL-de-50-a-65-fora", MAGALU, "X", "Cupom Magalu R$ 200 OFF em todo o site",
+     "Exceto TVs TCL de 50 a 65 polegadas", P_MAGALU, False),
+    ("R5-E4-exceto-TVs-32-43-55-fora", MAGALU, "X", "Cupom Magalu R$ 300 OFF em TVs", "Exceto TVs 32, 43 e 55 polegadas",
+     P_MAGALU, False),
+    # E5: cupom de marca / loja oficial / outra loja não serve, salvo se a marca é TCL
+    ("R5-E5-LGOFICIAL15-Loja-Oficial-LG", ML, "LGOFICIAL15",
+     "Cupom Mercado Livre 15% OFF em compras acima de R$ 200 na Loja Oficial LG",
+     "Válido apenas para produtos da loja oficial", P_ML, False),
+    ("R5-E5-PHILCO12-em-Loja-Oficial-Philco", ML, "PHILCO12",
+     "Cupom Mercado Livre - 12% OFF Acima de R$ 99 limitado à R$ 60 em Loja Oficial Philco", "", P_ML, False),
+    ("R5-E5-ELECTROLUX15-CASA-NOVA-Promobit", ML, "ELECTROLUX15",
+     "CASA NOVA: 15% OFF na Loja Oficial Electrolux no Mercado Livre (acima de R$ 299) com cupom",
+     "produtos Mercado Livre", P_ML, False),
+    ("R5-E5-Loja-Oficial-Brastemp", ML, "X",
+     "Cupom Mercado Livre 10% OFF em compras acima de R$ 99 na Loja Oficial Brastemp", "", P_ML, False),
+    ("R5-E5-Magalu-na-Netshoes", MAGALU, "X", "Cupom Magalu 10% OFF em compras acima de R$ 199 na Netshoes", "",
+     P_MAGALU, False),
+    ("R5-E5-Magalu-na-Loja-Oficial-Electrolux", MAGALU, "X", "Cupom Magalu 10% OFF na Loja Oficial Electrolux", "",
+     P_MAGALU, False),
+    ("R5-E5-Amazon-na-loja-Samsung", AMAZON, "X", "Cupom Amazon 15% OFF na loja Samsung", "", P_AMAZON, False),
+    ("R5-E5-Fast-Shop-Smart-TVs-Samsung", "Fast Shop", "X", "Cupom Fast Shop 10% OFF em Smart TVs Samsung", "", 3296.81,
+     False),
+    ("R5-E5-ML-10pct-OFF-em-TCL-serve", ML, "X", "Cupom Mercado Livre 10% OFF em TCL", "", P_ML, True),
+    ("R5-E5-Loja-Oficial-TCL-serve", ML, "X", "Cupom Mercado Livre 10% OFF na Loja Oficial TCL", "", P_ML, True),
+    ("R5-E5-TVs-TCL-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF em TVs TCL", "", P_MAGALU, True),
+    ("R5-E5-TVs-Samsung-LG-e-TCL-serve", MAGALU, "X", "Cupom Magalu R$ 300 OFF em Smart TVs Samsung, LG e TCL", "",
+     P_MAGALU, True),
 ]
 
 
@@ -1145,6 +1283,99 @@ def c_r4b_e8_bemvindo20_cloud(d, mp):
         "Válido para compras acima de R$ 100", "70301"))
 
 
+# ---- rodada 5 (passada final): rodadas com os arquivos reais da main, lista fechada E1-E5 ----
+# O esperado é a saída da main 8e21e6d nestas mesmas rodadas (linha 🎟️ exata e painel), ou nada quando a main e o
+# certo são não alertar (E5)
+R5_TVML400 = _cp("pelando", ML, "TVML400", "Cupom Mercado Livre - 10% OFF Acima de R$ 1.999 limitado à R$ 400 em Smart TVs",
+                 "Válido até 30/09 ou enquanto durarem os 500 cupons", "pel-tvml400")
+R5_ESCADA500 = _cp("promobit", MAGALU, "ESCADA500", "Cupom Magalu progressivo: R$ 100 OFF acima de R$ 1.000, R$ 300 OFF "
+                   "acima de R$ 3.000 e R$ 500 OFF acima de R$ 5.000", "", "70500")
+R5_TCLAMZ200 = _cp("pelando", AMAZON, "TCLAMZ200", "Cupom Amazon R$ 200 OFF em Smart TVs TCL",
+                   "Válido para Smart TVs TCL vendidas pela Amazon, exceto a TCL 32S5400A", "pel-tclamz200")
+R5_TVS300 = _cp("promobit", MAGALU, "TVS300", "Cupom Magalu R$ 300 OFF em TVs", "Exceto TVs 32, 43 e 50 polegadas", "70501")
+R5_LGOFICIAL15 = _cp("pelando", ML, "LGOFICIAL15",
+                     "Cupom Mercado Livre 15% OFF em compras acima de R$ 200 na Loja Oficial LG",
+                     "Válido apenas para produtos da loja oficial", "pel-lgoficial15")
+
+
+def c_r5_e1_tvml400_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", R5_TVML400)
+
+
+def c_r5_e1_smart_tvs_ate_30_09_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", MAGALU, "SMART300", "Cupom Magalu R$ 300 OFF em Smart TVs até 30/09", "", "70502"))
+
+
+def c_r5_e1_smart_tvs_ate_23_59_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", MAGALU, "SMART300", "Cupom Magalu R$ 300 OFF em Smart TVs hoje até às 23:59", "", "pel-smart300"))
+
+
+def c_r5_e2_escada500_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", R5_ESCADA500)
+
+
+def c_r5_e2_cb_faixas_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", "Casas Bahia", "CBFAIXAS",
+        "Cupom Casas Bahia: R$ 150 OFF acima de R$ 1.500 | R$ 300 OFF acima de R$ 3.000 | R$ 600 OFF acima de R$ 6.000",
+        "Válido para TVs e Eletrônicos", "pel-cbfaixas"))
+
+
+def c_r5_e3_quem_ainda_nao_usou_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", MAGALU, "TVMAGALU300", "Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000",
+        "Quem ainda não usou, corre que acaba hoje!", "pel-tvmagalu300-usou"))
+
+
+def c_r5_e4_tclamz200_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", R5_TCLAMZ200)
+
+
+def c_r5_e4_tvs300_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", R5_TVS300)
+
+
+def c_r5_e4_exclusao_de_outras_tvs_nao_barra_o_codigo(d, mp):
+    """Via restricao_do_codigo, esses anúncios (no state, 30 dias, qualquer modo) não barram o código em outro post."""
+    _dados_reais(d, mp)
+    est = Estado("cloud")
+    genericos = [_cp("promobit", c.loja, c.codigo, f"Economize com o cupom {c.codigo} em suas compras", "", c.id + "-2")
+                 for c in (R5_TCLAMZ200, R5_TVS300)]
+    vistos = est.cupons_vistos() + [{"fonte": c.fonte, "id": c.id, "loja": c.loja, "codigo": c.codigo,
+                                     "titulo": c.titulo, "regra": c.regra} for c in (R5_TCLAMZ200, R5_TVS300)]
+    codigos = {"Amazon|TCLAMZ200", "Magazine Luiza|TVS300"}
+    return sorted(codigos & restricao_do_codigo([R5_TCLAMZ200, R5_TVS300] + genericos, vistos))
+
+
+def c_r5_e5_lgoficial15_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", R5_LGOFICIAL15)
+
+
+def c_r5_e5_philco12_pc(d, mp):
+    return _rodada_real_com_cupom(d, mp, "pc", _cp(
+        "pelando", ML, "PHILCO12", "Cupom Mercado Livre - 12% OFF Acima de R$ 99 limitado à R$ 60 em Loja Oficial Philco",
+        "", "pel-philco12"))
+
+
+def c_r5_e5_electrolux15_cloud(d, mp):
+    return _rodada_real_com_cupom(d, mp, "cloud", _cp(
+        "promobit", ML, "ELECTROLUX15",
+        "CASA NOVA: 15% OFF na Loja Oficial Electrolux no Mercado Livre (acima de R$ 299) com cupom",
+        "produtos Mercado Livre", "70503"))
+
+
+def c_r5_e5_loja_de_marca_barra_o_codigo(d, mp):
+    """O código de um anúncio de loja de marca é daquela loja: um post genérico do mesmo código (id novo) não alerta."""
+    _dados_reais(d, mp)
+    vistos = Estado("pc").cupons_vistos() + [{"fonte": "pelando", "id": R5_LGOFICIAL15.id, "loja": ML,
+                                              "codigo": "LGOFICIAL15", "titulo": R5_LGOFICIAL15.titulo,
+                                              "regra": R5_LGOFICIAL15.regra}]
+    generico = _cp("promobit", ML, "LGOFICIAL15", "Cupom Mercado Livre 15% OFF", "produtos Mercado Livre", "70504")
+    return sorted({"Mercado Livre|LGOFICIAL15"} & restricao_do_codigo([generico], vistos))
+
+
 CENARIOS = [
     # F2: o sanear descarta a CB 2.189,30; o mínimo continua 3.199 e a CB não grava último/menor preço
     ("F2-descarte-do-sanear-nao-vira-minimo", c_f2_descarte_nao_vira_minimo, (3199.0, False, None, None)),
@@ -1236,6 +1467,38 @@ CENARIOS = [
     # alerta com o preço da TV e no painel, como na main (a lista de tamanhos inclui a 55")
     ("R4b-E6-TCLTV250-pc-50-55-65-com-aspas-alerta", c_r4b_e6_tcltv250_pc, (1, True, ["TCLTV250"])),
     ("R4b-E7-TVGRANDE300-cloud-50-a-65-com-aspas-alerta", c_r4b_e7_tvgrande300_cloud, (1, True, ["TVGRANDE300"])),
+    # ---- rodada 5 (passada final): a mesma linha 🎟️ e o mesmo painel da main ----
+    ("R5-E1-TVML400-pc-alerta-como-a-main", c_r5_e1_tvml400_pc,
+     (["• <b>Mercado Livre</b> <code>TVML400</code> — Cupom Mercado Livre - 10% OFF Acima de R$ 1.999 limitado à "
+       "R$ 400 em Smart TVs · TV lá: R$ 3.491,03"], ["TVML400"])),
+    ("R5-E1-Smart-TVs-ate-30-09-cloud-alerta-como-a-main", c_r5_e1_smart_tvs_ate_30_09_cloud,
+     (["• <b>Magazine Luiza</b> <code>SMART300</code> — Cupom Magalu R$ 300 OFF em Smart TVs até 30/09 · TV lá: "
+       "R$ 3.561,55"], ["SMART300"])),
+    ("R5-E1-Smart-TVs-hoje-ate-as-23-59-pc-alerta-como-a-main", c_r5_e1_smart_tvs_ate_23_59_pc,
+     (["• <b>Magazine Luiza</b> <code>SMART300</code> — Cupom Magalu R$ 300 OFF em Smart TVs hoje até às 23:59"],
+      ["SMART300"])),
+    ("R5-E2-ESCADA500-cloud-alerta-como-a-main", c_r5_e2_escada500_cloud,
+     (["• <b>Magazine Luiza</b> <code>ESCADA500</code> — Cupom Magalu progressivo: R$ 100 OFF acima de R$ 1.000, "
+       "R$ 300 OFF acima de R$ 3.000 e R$  · TV lá: R$ 3.561,55"], ["ESCADA500"])),
+    ("R5-E2-Casas-Bahia-150-300-600-pc-alerta-como-a-main", c_r5_e2_cb_faixas_pc,
+     (["• <b>Casas Bahia</b> <code>CBFAIXAS</code> — Cupom Casas Bahia: R$ 150 OFF acima de R$ 1.500 | R$ 300 OFF "
+       "acima de R$ 3.000 | R$ 600 OF · TV lá: R$ 3.599,09"], ["CBFAIXAS"])),
+    ("R5-E3-TVMAGALU300-quem-ainda-nao-usou-pc-alerta-como-a-main", c_r5_e3_quem_ainda_nao_usou_pc,
+     (["• <b>Magazine Luiza</b> <code>TVMAGALU300</code> — Cupom Magalu R$ 300 OFF em TVs acima de R$ 3.000"],
+      ["TVMAGALU300"])),
+    ("R5-E4-TCLAMZ200-pc-alerta-como-a-main", c_r5_e4_tclamz200_pc,
+     (["• <b>Amazon</b> <code>TCLAMZ200</code> — Cupom Amazon R$ 200 OFF em Smart TVs TCL · TV lá: R$ 3.749,00"],
+      ["TCLAMZ200"])),
+    ("R5-E4-TVS300-cloud-alerta-como-a-main", c_r5_e4_tvs300_cloud,
+     (["• <b>Magazine Luiza</b> <code>TVS300</code> — Cupom Magalu R$ 300 OFF em TVs · TV lá: R$ 3.561,55"],
+      ["TVS300"])),
+    ("R5-E4-exclusao-de-outras-TVs-nao-barra-o-codigo", c_r5_e4_exclusao_de_outras_tvs_nao_barra_o_codigo, []),
+    # E5: sem alerta e fora do painel, como na main
+    ("R5-E5-LGOFICIAL15-pc-sem-alerta", c_r5_e5_lgoficial15_pc, ([], [])),
+    ("R5-E5-PHILCO12-pc-sem-alerta", c_r5_e5_philco12_pc, ([], [])),
+    ("R5-E5-ELECTROLUX15-cloud-sem-alerta", c_r5_e5_electrolux15_cloud, ([], [])),
+    ("R5-E5-loja-de-marca-barra-o-codigo-no-post-generico", c_r5_e5_loja_de_marca_barra_o_codigo,
+     ["Mercado Livre|LGOFICIAL15"]),
 ]
 
 
