@@ -69,6 +69,7 @@ PRAZO_RODADA_S = 12 * 60                 # o cão de guarda mata o processo em 1
 _RE_55 = re.compile(r"(?<!\d)55(?!\d)")
 
 _INICIO: Optional[float] = None          # time.monotonic() do começo da rodada (executar)
+AVISOS_CARRINHO: list[str] = []          # avisos da rodada que vão na mensagem mesmo sem cupom aceito
 
 
 def _tempo_esgotado() -> bool:
@@ -651,7 +652,9 @@ def destino_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
     anúncio sem cupom.
     """
     final = escolher_final(p, anuncios, testados, momento)
-    ordem = ordem_sem_cupom(p, anuncios)
+    # nenhum anúncio entrou no carrinho nesta rodada: a sacola pode ter ficado VAZIA (o robô esvazia antes
+    # de pôr o anúncio novo), então o destino volta a ser o mais barato de TODOS, nem que ele já tenha falhado
+    ordem = ordem_sem_cupom(p, anuncios) or list(anuncios)
     base = ordem[0] if ordem else None
     if final and (base is None or _preco(final[1]) < preco_sem_cupom(p, base)):
         return final
@@ -692,6 +695,32 @@ def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], v
 
 
 MAX_VOLTAS = 2  # no fim da rodada: tenta o mais barato e, se ele não entrar, o próximo (a sacola não fica vazia)
+MAX_VOLTAS_SACOLA_VAZIA = 3  # nenhum anúncio entrou na rodada: insiste mais, porque a sacola ficou vazia
+
+
+def ordem_de_recuperacao(p: Percurso, anuncios: list[Anuncio], pular: Iterable[str] = ()) -> list[Anuncio]:
+    """Anúncios que o passo final tenta pôr de volta no carrinho, do mais barato ao mais caro.
+
+    Normalmente os que entraram nesta rodada (ordem_sem_cupom). Quando NENHUM entrou — justo o caso em que a
+    sacola foi esvaziada e não recebeu nada — tenta de novo TODOS os conhecidos, inclusive os que falharam:
+    melhor insistir (com um limite de tentativas) do que deixar a sacola da pessoa vazia.
+    """
+    pular = set(pular)
+    ordem = [a for a in ordem_sem_cupom(p, anuncios) if a.chave not in pular]
+    if ordem:
+        return ordem[:MAX_VOLTAS]
+    return [a for a in anuncios if a.chave not in pular][:MAX_VOLTAS_SACOLA_VAZIA]
+
+
+def _avisar_sacola_vazia(loja: LojaCarrinho, tentados: list[Anuncio]) -> None:
+    """Nenhum anúncio entrou no carrinho no fim da rodada. Como o robô esvazia a sacola antes de pôr o
+    anúncio novo, a sacola da pessoa provavelmente ficou VAZIA: isso vai para o log e para o Telegram."""
+    quais = ", ".join(a.rotulo for a in tentados[:3]) or "nenhum anúncio conhecido"
+    print(f"[{loja.nome}] ⚠ não consegui deixar a TV no carrinho ({quais}); a sacola pode ter ficado VAZIA")
+    AVISOS_CARRINHO.append(
+        f"⚠️ <b>{loja.loja_canonica}</b>: não consegui deixar a TV no carrinho nesta rodada "
+        f"(tentei {len(tentados)} anúncio(s)); a sua sacola pode ter ficado <b>vazia</b>. "
+        f"Confira em {loja.url_carrinho}")
 
 
 def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], reg: dict,
@@ -730,9 +759,18 @@ def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], r
         if situacao == "sem_tv":
             pular.add(a.chave)
         print(f"[{loja.nome}] sem o cupom, o carrinho volta para o anúncio mais barato")
-    for x in [x for x in ordem_sem_cupom(p, anuncios) if x.chave not in pular][:MAX_VOLTAS]:
-        if voltar_ao_anuncio(loja, x, anuncios, visivel, reg) is not False:
+    tentados = ordem_de_recuperacao(p, anuncios, pular)
+    entrou = parou = False
+    for x in tentados:
+        r = voltar_ao_anuncio(loja, x, anuncios, visivel, reg)
+        if r is None:          # carrinho com outro produto, loja fora do ar ou sessão expirada: não insiste
+            parou = True
             break
+        if r:
+            entrou = True
+            break
+    if tentados and not entrou and not parou:
+        _avisar_sacola_vazia(loja, tentados)
     return destino if melhor is not None else None
 
 
@@ -886,6 +924,7 @@ def deixar_cupom_no_carrinho(loja: LojaCarrinho, page, url: str, melhor: Resulta
 def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
     global _INICIO
     _INICIO = time.monotonic()
+    AVISOS_CARRINHO.clear()
     estado = carrega_estado()
     resultados: list[tuple[str, ResultadoCupom]] = []
     for loja_id in lojas:
@@ -900,6 +939,8 @@ def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel:
             print(f"[{loja_id}] falhou: {type(e).__name__}: {str(e)[:160]}")
         salva_estado(estado)
     msg = msg_melhor(resultados)
+    if AVISOS_CARRINHO:  # sacola que pode ter ficado vazia: a pessoa precisa saber, com ou sem cupom aceito
+        msg = (msg + "\n\n" if msg else "") + "\n".join(AVISOS_CARRINHO)
     if msg:
         if notify:
             notificar.enviar(msg)

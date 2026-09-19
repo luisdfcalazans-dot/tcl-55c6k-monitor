@@ -132,6 +132,7 @@ def amb(tmp_path, monkeypatch):
     monkeypatch.setattr(tc, "agora", lambda: FIXO)
     monkeypatch.setattr(tc, "agora_iso", lambda: _iso(FIXO))
     monkeypatch.delenv("CUPONS_EXTRA", raising=False)
+    monkeypatch.setattr(tc, "AVISOS_CARRINHO", [])
 
     @contextmanager
     def sessao(loja, visivel):
@@ -584,6 +585,102 @@ def test_loja_fora_do_ar_no_passo_final_pausa(amb):
     loja = ForaNoFim(amb.pasta)
     _, estado = amb.rodar(loja, estado)
     assert _garantidos(loja) == [KB, KA] and "pausa_ate" in estado["magalu"]
+
+
+# ------------------------------------------------------------------------------------------------
+# 4c. a sacola da pessoa nunca termina vazia sem aviso (revisão de 19/09, item M1)
+# ------------------------------------------------------------------------------------------------
+
+class CarrinhoQueEsvazia(CarrinhoFalsoMagalu):
+    """garantir_item esvazia a sacola ANTES de tentar pôr o anúncio (é o que o Magalu e o ML fazem:
+    esvaziar/_tirar_outras_tvs e só depois adicionar) e a adição falha em `nao_entra`."""
+
+    def garantir_item(self, page, url, alvo=None):
+        chave = (alvo or {}).get("chave")
+        self.alvos.append(alvo)
+        self.eventos.append(("garantir", chave))
+        if chave in self.nao_entra:
+            self.no_carrinho = None      # esvaziou a sacola e não conseguiu pôr o anúncio pedido
+            return False
+        self.no_carrinho = chave
+        return True
+
+
+def test_todos_os_anuncios_falham_no_percurso_o_fim_ainda_tenta_recolocar_a_tv(amb):
+    # caso do revisor: a pessoa tinha o 1P na sacola; nenhum anúncio entra e a sacola fica vazia
+    amb.latest("cloud", [A, B, C])
+    loja = CarrinhoQueEsvazia(amb.pasta, nao_entra={KA, KB, KC})
+    loja.no_carrinho = KA
+    amb.rodar(loja, codigos=["CUPOM1"])
+    tentativas = _garantidos(loja)
+    assert tentativas[:3] == [KA, KB, KC], "o percurso tentou os três"
+    assert len(tentativas) > 3, "o passo final ainda tem de tentar recolocar a TV"
+    assert tentativas[3] == KA, "recomeça pelo mais barato, mesmo tendo falhado antes"
+
+
+def test_todos_falham_e_a_sacola_fica_vazia_avisa_no_telegram(amb):
+    amb.latest("cloud", [A, B, C])
+    loja = CarrinhoQueEsvazia(amb.pasta, nao_entra={KA, KB, KC})
+    loja.no_carrinho = KA
+    amb.rodar(loja, codigos=["CUPOM1"])
+    assert loja.no_carrinho is None, "o teste falso nunca deixa a TV entrar"
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "Magazine Luiza" in aviso and "vazia" in aviso.lower()
+
+
+def test_recolocacao_no_fim_funciona_no_segundo_anuncio(amb):
+    # o 1P não entra mais (vendedor sumiu), mas o Colombo entra: a sacola não fica vazia nem há aviso
+    amb.latest("cloud", [A, B, C])
+    loja = CarrinhoQueEsvazia(amb.pasta, nao_entra={KA})
+    loja.no_carrinho = KA
+    amb.rodar(loja, codigos=["CUPOM1"])
+    assert loja.no_carrinho == KB and tc.AVISOS_CARRINHO == []
+
+
+def test_recolocacao_insiste_ate_o_terceiro_quando_todos_falharam_no_percurso(amb):
+    # KA e KB falham sempre; KC só falha no percurso (a loja engasgou) e volta a aceitar no fim
+    amb.latest("cloud", [A, B, C])
+
+    class KCVoltaNoFim(CarrinhoQueEsvazia):
+        def garantir_item(self, page, url, alvo=None):
+            if (alvo or {}).get("chave") == KC and len(self.eventos) >= 3:
+                self.nao_entra.discard(KC)
+            return super().garantir_item(page, url, alvo)
+
+    loja = KCVoltaNoFim(amb.pasta, nao_entra={KA, KB, KC})
+    loja.no_carrinho = KA
+    amb.rodar(loja, codigos=["CUPOM1"])
+    assert loja.no_carrinho == KC, "insiste até o 3º anúncio para a sacola não ficar vazia"
+    assert tc.AVISOS_CARRINHO == []
+
+
+def test_sacola_ocupada_no_fim_nao_vira_aviso_de_sacola_vazia(amb):
+    # CarrinhoOcupado = a sacola tem OUTRO produto da pessoa, logo não está vazia: nada a avisar
+    amb.latest("cloud", [A, B], codigos=["CUPOMX"])
+    estado = {"magalu": {"cupons": {f"CUPOMX@{KA}": _rec("recusado", FIXO - timedelta(hours=1))}}}
+
+    class OcupaNoFim(CarrinhoFalsoMagalu):
+        def garantir_item(self, page, url, alvo=None):
+            if (alvo or {}).get("chave") == KA:
+                self.eventos.append(("garantir", KA))
+                raise CarrinhoOcupado("a pessoa pôs outro produto na sacola")
+            return super().garantir_item(page, url, alvo)
+
+    amb.rodar(OcupaNoFim(amb.pasta), estado)
+    assert tc.AVISOS_CARRINHO == []
+
+
+def test_aviso_de_sacola_vazia_vai_na_mensagem_mesmo_sem_cupom_aceito(amb, monkeypatch):
+    amb.latest("cloud", [A], codigos=["CUPOM1"])
+    loja = CarrinhoQueEsvazia(amb.pasta, nao_entra={KA})
+    loja.no_carrinho = KA
+    monkeypatch.setattr(tc, "LOJAS", {"magalu": loja})
+    monkeypatch.setattr(tc, "carrega_estado", lambda: {})
+    monkeypatch.setattr(tc, "salva_estado", lambda d: None)
+    enviadas: list[str] = []
+    monkeypatch.setattr(tc.notificar, "enviar", lambda m, **k: enviadas.append(m) or True)
+    tc.executar(["magalu"], ["CUPOM1"], False, False, True)
+    assert len(enviadas) == 1 and "vazia" in enviadas[0].lower()
 
 
 # ------------------------------------------------------------------------------------------------
