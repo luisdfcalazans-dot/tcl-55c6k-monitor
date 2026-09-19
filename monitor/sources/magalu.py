@@ -7,7 +7,10 @@ Descoberta (19/09/2026, pedido do usuário: "não precisa se ater a somente um a
 - a página de cada anúncio: uma Oferta por vendedor em product.offers (não só o do buy box);
 - para vendedor que não é o do buy box, a página com ?seller_id=<id> (o seletor que o site usa)
   completa cartão, parcelado e cupons, se sobrar requisição.
-Tudo com limite de requisições por rodada (config.MAGALU_MAX_REQUISICOES) e pausa entre elas.
+Ordem: buscas, anúncio fixo, os da busca, os do EXTRA, páginas de vendedor, e só então os do estado (muitos já
+saíram do ar). Tudo com limite de requisições por rodada (config.MAGALU_MAX_REQUISICOES) e pausa entre elas;
+403/429 encerra a rodada na hora. Duas variações de 55" do mesmo grupo e vendedor têm o mesmo id: fica a mais
+barata.
 Cupons do anúncio: seller.tags type=coupon (ex.: LU250), como antes.
 """
 
@@ -247,19 +250,40 @@ def anuncios_do_estado(dias: float = 14.0, arquivo=None) -> list[str]:
     return [u for _, u in regs]
 
 
+def _seller_da_url(url: str) -> str:
+    m = re.search(r"[?&]seller_id=([^&#]+)", url or "")
+    return m.group(1) if m else ""
+
+
+def _guarda(por_id: dict[str, Oferta], o: Oferta) -> None:
+    """Grava a oferta pelo id, sem perder a mais barata quando dois anúncios diferentes dão o mesmo id.
+
+    O id é '<product.id>-<vendedor>' e product.id é o do GRUPO de variações (240162800 para a página
+    /p/240162700/): duas variações de 55" do mesmo grupo e do mesmo vendedor dariam o mesmo id. Aí fica a mais
+    barata. Do MESMO anúncio (/p/), a leitura mais nova substitui (a página completa o que veio da busca)."""
+    atual = por_id.get(o.id)
+    if atual is None or atual.extra.get("anuncio") == o.extra.get("anuncio") or \
+            (o.melhor_preco or 9e9) < (atual.melhor_preco or 9e9):
+        por_id[o.id] = o
+
+
 class _Orcamento:
     """Conta as requisições da rodada e faz a pausa entre elas (educação com o site)."""
 
     def __init__(self, maximo: int, pausa_s: float):
         self.maximo, self.pausa_s, self.usadas = maximo, pausa_s, 0
+        self.bloqueado = False
 
     @property
     def sobra(self) -> int:
-        return self.maximo - self.usadas
+        return 0 if self.bloqueado else self.maximo - self.usadas
 
     def get(self, url: str) -> str | None:
-        """HTML da URL; None quando acabou o orçamento ou o anúncio não existe mais (404/410)."""
-        if self.usadas >= self.maximo:
+        """HTML da URL; None quando acabou o orçamento ou o anúncio não existe mais (404/410).
+
+        403/429 (bloqueio ou excesso de requisições): o orçamento da rodada acaba na hora e o erro sobe.
+        Insistir só piora o bloqueio."""
+        if self.sobra <= 0:
             return None
         if self.usadas:
             time.sleep(self.pausa_s)
@@ -267,8 +291,11 @@ class _Orcamento:
         try:
             return get_html(url, tentativas=1)
         except requests.HTTPError as e:
-            if e.response is not None and e.response.status_code in (404, 410):
+            status = e.response.status_code if e.response is not None else None
+            if status in (404, 410):
                 return None
+            if status in (403, 429):
+                self.bloqueado = True
             raise
 
 
@@ -312,56 +339,76 @@ class Magalu(Fonte):
                     if not o or not id_anuncio(path):
                         continue
                     achou = True
-                    por_id.setdefault(o.id, o)
+                    _guarda(por_id, o)
                     da_busca.append((o.melhor_preco or 1e9, id_anuncio(path), _url_mv(path)))
                 if not (achou and pag < paginas):
                     break
                 pagina += 1
         for _, aid, u in sorted(da_busca):
             candidatos.setdefault(aid, u)
-        for u in list(config.MAGALU_ANUNCIOS_EXTRA) + anuncios_do_estado():
+        for u in config.MAGALU_ANUNCIOS_EXTRA:
             if id_anuncio(u):
                 candidatos.setdefault(id_anuncio(u), _url_mv(u))
+        # anúncios que só a memória (estado) conhece: por último, depois das páginas de vendedor (passo 3),
+        # porque muitos já saíram do ar e gastariam o orçamento da rodada
+        do_estado = [(id_anuncio(u), _url_mv(u)) for u in anuncios_do_estado()
+                     if id_anuncio(u) and id_anuncio(u) not in candidatos]
+
+        visitados: set[str] = set()
+        pendentes_vendedor: list[tuple[float, Oferta]] = []
+        vendedores_feitos: set[str] = set()
 
         # 2) página de cada anúncio: todos os vendedores (e variações de 55" ainda não vistas)
-        visitados: set[str] = set()
-        fila = list(candidatos.items())
-        pendentes_vendedor: list[tuple[float, Oferta]] = []
-        while fila and orc.sobra > 0:
-            aid, url = fila.pop(0)
-            if aid in visitados:
-                continue
-            visitados.add(aid)
-            html = tenta(url)
-            if not html:
-                continue
-            ofs, cps, variacoes = parse_produto_todas(html)
-            for c in cps:
-                cupons.setdefault(c.chave, c)
-            for o in ofs:
-                por_id[o.id] = o
-                if o.extra.get("so_lista_de_vendedores"):
-                    pendentes_vendedor.append((o.melhor_preco or 1e9, o))
-            for path in variacoes:
-                if id_anuncio(path) not in visitados:
-                    fila.append((id_anuncio(path), _url_mv(path)))
+        def visitar(fila: list[tuple[str, str]]) -> None:
+            while fila and orc.sobra > 0:
+                aid, url = fila.pop(0)
+                if aid in visitados:
+                    continue
+                visitados.add(aid)
+                html = tenta(url)
+                if not html:
+                    continue
+                ofs, cps, variacoes = parse_produto_todas(html)
+                pedido = _seller_da_url(url)
+                for c in cps:
+                    cupons.setdefault(c.chave, c)
+                for o in ofs:
+                    if pedido and o.extra.get("vendedor_id") == pedido and not _seller_da_url(o.url):
+                        # página aberta com ?seller_id (anúncio do estado ou do EXTRA): o link guarda o vendedor,
+                        # senão ele abre com o vendedor padrão e o testador não consegue escolher este
+                        o.url = com_vendedor(o.url, pedido)
+                    _guarda(por_id, o)
+                    if o.extra.get("so_lista_de_vendedores"):
+                        pendentes_vendedor.append((o.melhor_preco or 1e9, o))
+                for path in variacoes:
+                    if id_anuncio(path) not in visitados:
+                        fila.append((id_anuncio(path), _url_mv(path)))
 
         # 3) vendedores fora do buy box, do mais barato ao mais caro: a página com ?seller_id completa
         #    cartão, parcelado e cupons deste vendedor
-        for _, o in sorted(pendentes_vendedor, key=lambda t: t[0]):
-            if orc.sobra <= 0:
-                break
-            sid = o.extra.get("vendedor_id") or ""
-            html = tenta(com_vendedor(_url_mv(o.url), sid))
-            if not html:
-                continue
-            det, cps = parse_produto(html)
-            if det and det.extra.get("vendedor_id") == sid:
-                det.url = com_vendedor(det.url, sid)
-                det.id = o.id
-                por_id[o.id] = det
-                for c in cps:
-                    cupons.setdefault(c.chave, c)
+        def completar_vendedores() -> None:
+            for _, o in sorted(pendentes_vendedor, key=lambda t: t[0]):
+                if orc.sobra <= 0:
+                    break
+                if o.url in vendedores_feitos or por_id.get(o.id) is not o:
+                    continue  # já completado, ou a mesma chave ficou com uma variação mais barata
+                vendedores_feitos.add(o.url)
+                sid = o.extra.get("vendedor_id") or ""
+                html = tenta(com_vendedor(_url_mv(o.url), sid))
+                if not html:
+                    continue
+                det, cps = parse_produto(html)
+                if det and det.extra.get("vendedor_id") == sid:
+                    det.url = com_vendedor(det.url, sid)
+                    det.id = o.id
+                    _guarda(por_id, det)
+                    for c in cps:
+                        cupons.setdefault(c.chave, c)
+
+        visitar(list(candidatos.items()))
+        completar_vendedores()
+        visitar(do_estado)
+        completar_vendedores()
 
         ofertas = list(por_id.values())
         print(f"[magalu] {orc.usadas} requisições, {len(visitados)} anúncios abertos, {len(ofertas)} ofertas"

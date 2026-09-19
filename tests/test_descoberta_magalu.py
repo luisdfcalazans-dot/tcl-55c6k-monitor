@@ -191,3 +191,145 @@ def test_proxima_pagina_da_busca_quando_a_primeira_trouxe_a_tv(monkeypatch, sem_
     magalu.Magalu().coletar()
     assert any(u.endswith("/busca/tcl+55c6k/?page=2") for u in site.pedidas)
     assert not any("?page=3" in u for u in site.pedidas)  # a página 2 diz 'pages: 1'
+
+
+# ------------------------------------------------------------------------------------------------
+# revisão de 19/09: variações do mesmo grupo, vendedor pedido na URL, orçamento e antirrobô
+# ------------------------------------------------------------------------------------------------
+
+_P55 = '55"'
+
+
+def _com_variacao(pid: str) -> dict:
+    p = _produto(P1P)
+    p["variations"].append({"id": pid, "label": "Polegadas", "type": "inch", "value": _P55, "available": True,
+                            "path": f"smart-tv-55-tcl-4k-uhd-miniled-55c6k-full/p/{pid}/et/elit/"})
+    return p
+
+
+def _variacao_55(pid: str, pix: str, cartao: str) -> dict:
+    """Outra variação de 55 polegadas do MESMO grupo do 1P (product.id 240162800), do mesmo vendedor."""
+    p = _com_variacao(pid)
+    p["variationId"] = pid
+    p["path"] = p["path"].replace("/p/240162700/", f"/p/{pid}/")
+    p["price"] = dict(p["price"], bestPrice=pix, fullPrice=cartao)
+    return p
+
+
+def test_variacao_mais_cara_do_mesmo_grupo_nao_apaga_a_mais_barata(monkeypatch, sem_pausa):
+    # product.id é o do GRUPO: as duas variações de 55" do Magalu viram o mesmo id '240162800-magazineluiza'
+    site = _SiteFalso({"/p/240162701/": _html_produto(_variacao_55("240162701", "3999.00", "4199.00")),
+                       "/p/240162700/": _html_produto(_com_variacao("240162701"))})
+    monkeypatch.setattr(magalu, "get_html", site)
+    monkeypatch.setattr(config, "MAGALU_TERMOS", [])
+    ofertas, _ = magalu.Magalu().coletar()
+    assert any("/p/240162701/" in u for u in site.pedidas), "a variação foi visitada"
+    assert [(o.id, o.extra["anuncio"], o.preco_pix) for o in ofertas] == \
+        [("240162800-magazineluiza", "240162700", 3561.55)], "fica a mais barata (a visitada por último era mais cara)"
+
+
+def test_variacao_mais_barata_do_mesmo_grupo_substitui(monkeypatch, sem_pausa):
+    site = _SiteFalso({"/p/240162701/": _html_produto(_variacao_55("240162701", "3300.00", "3499.00")),
+                       "/p/240162700/": _html_produto(_com_variacao("240162701"))})
+    monkeypatch.setattr(magalu, "get_html", site)
+    monkeypatch.setattr(config, "MAGALU_TERMOS", [])
+    ofertas, _ = magalu.Magalu().coletar()
+    assert [(o.extra["anuncio"], o.preco_pix) for o in ofertas] == [("240162701", 3300.0)]
+    assert "/p/240162701/" in ofertas[0].url
+
+
+def test_pagina_do_produto_substitui_a_leitura_da_busca_do_mesmo_anuncio(monkeypatch, sem_pausa):
+    # a busca e a página são o MESMO anúncio: vale a página (tem os cupons), mesmo se o preço dela for maior
+    p = _produto(P1P)
+    p["price"] = dict(p["price"], bestPrice="3600.00")
+    site = _SiteFalso({"/busca/": BUSCA, "/p/240162700/": _html_produto(p), "/p/kc7h6f4k4b/": PCOLOMBO})
+    monkeypatch.setattr(magalu, "get_html", site)
+    monkeypatch.setattr(config, "MAGALU_TERMOS", ["tcl 55c6k"])
+    ofertas, _ = magalu.Magalu().coletar()
+    assert {o.id: o.preco_pix for o in ofertas}["240162800-magazineluiza"] == 3600.0
+
+
+def test_anuncio_extra_com_vendedor_na_url_guarda_o_vendedor_no_link(monkeypatch, sem_pausa):
+    # anúncio que só existe no MAGALU_ANUNCIOS_EXTRA (ou no estado), aberto com ?seller_id=<vendedor fora do buy box>
+    pv = _produto(PCOLOMBO)
+    pv["id"] = pv["variationId"] = "zz11223344"
+    pv["path"] = pv["path"].replace("/p/kc7h6f4k4b/", "/p/zz11223344/")
+    pv["variations"] = []
+    pv["seller"] = {"id": "lojaxyz", "description": "Loja XYZ", "category": "3p", "tags": []}
+    pv["offers"] = [{"sku": "1", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "3300.00",
+                                           "fullPrice": "3499.00", "price": "4199.00"},
+                     "seller": {"id": "lojaxyz", "description": "Loja XYZ", "category": "3p"}}]
+    extra = "https://www.magazineluiza.com.br/smart-tv-55c6k/p/zz11223344/et/elit/?seller_id=lojaxyz"
+    monkeypatch.setattr(config, "MAGALU_ANUNCIOS_EXTRA", [extra])
+    monkeypatch.setattr(config, "MAGALU_TERMOS", [])
+    site = _SiteFalso({"/p/zz11223344/": _html_produto(pv), "/p/240162700/": P1P})
+    monkeypatch.setattr(magalu, "get_html", site)
+    ofertas, _ = magalu.Magalu().coletar()
+    x = next(o for o in ofertas if o.extra["anuncio"] == "zz11223344")
+    assert x.url.endswith("/p/zz11223344/et/elit/?seller_id=lojaxyz"), "o link abre o vendedor desta oferta"
+    # e o testador consegue escolher esse vendedor pela URL
+    from monitor.carrinho import Magalu as CarrinhoMagalu
+    assert CarrinhoMagalu._seller_da_url(x.url) == "lojaxyz"
+    # o 1P (sem seletor na URL pedida) continua sem seller_id no link
+    p1 = next(o for o in ofertas if o.extra["anuncio"] == "240162700")
+    assert "seller_id" not in p1.url
+
+
+def _http_erro(status: int) -> requests.HTTPError:
+    resp = requests.Response()
+    resp.status_code = status
+    return requests.HTTPError(str(status), response=resp)
+
+
+@pytest.mark.parametrize("status", [403, 429])
+def test_bloqueio_403_ou_429_para_a_coleta_na_hora(monkeypatch, sem_pausa, status):
+    pedidas = []
+
+    def bloqueado(url, **kw):
+        pedidas.append(url)
+        raise _http_erro(status)
+
+    monkeypatch.setattr(magalu, "get_html", bloqueado)
+    with pytest.raises(RuntimeError, match="nenhuma oferta"):
+        magalu.Magalu().coletar()
+    assert len(pedidas) == 1, "não insiste depois do bloqueio"
+
+
+def test_bloqueio_no_meio_guarda_o_que_ja_veio(monkeypatch, sem_pausa):
+    pedidas = []
+
+    def site(url, **kw):
+        pedidas.append(url)
+        if "/busca/" in url:
+            return BUSCA
+        raise _http_erro(429)
+
+    monkeypatch.setattr(magalu, "get_html", site)
+    monkeypatch.setattr(config, "MAGALU_TERMOS", ["tcl 55c6k", "55c6k"])
+    ofertas, _ = magalu.Magalu().coletar()
+    assert {o.id for o in ofertas} == {"240162800-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
+    assert len(pedidas) == 3, "2 buscas e a 1ª página que deu 429; nada depois"
+
+
+def test_vendedor_de_fora_do_buybox_antes_dos_anuncios_do_estado(monkeypatch, sem_pausa):
+    # 20 anúncios antigos no estado (mortos): a página do vendedor de fora do buy box vem antes deles
+    estado = {"ofertas": {f"magalu:x{i}": {
+        "tipo": "loja", "url": f"https://www.magazineluiza.com.br/tv-55c6k/p/zz{i:08d}/et/elit/",
+        "ultima_vez": agora().isoformat(timespec="seconds")} for i in range(20)}}
+    (sem_pausa / "state_cloud.json").write_text(json.dumps(estado), encoding="utf-8")
+    pv = _produto(P1P)
+    pv["seller"] = {"id": "lojaxyz", "description": "Loja XYZ", "category": "3p", "tags": []}
+    pv["price"] = {"paymentMethodDescription": "no Pix", "price": "4199.00", "fullPrice": "3579.00",
+                   "bestPrice": "3400.00"}
+    pv["installment"] = {"quantity": 10, "amount": "357.90", "interest": "0.00"}
+    site = _SiteFalso({"seller_id=lojaxyz": _html_produto(pv), "/p/240162700/": _html_produto(_com_outro_vendedor()),
+                       "/p/kc7h6f4k4b/": PCOLOMBO, "/busca/": BUSCA})
+    monkeypatch.setattr(magalu, "get_html", site)
+    ofertas, _ = magalu.Magalu().coletar()
+    x = {o.id: o for o in ofertas}["240162800-lojaxyz"]
+    assert x.parcelado == "10x R$ 357,90 sem juros", "a página do vendedor foi aberta"
+    assert len(site.pedidas) == config.MAGALU_MAX_REQUISICOES, "o resto do orçamento vai para o estado"
+    assert any("/p/zz000000" in u for u in site.pedidas)
+    # a página do vendedor veio antes do 1º anúncio do estado
+    primeiro_estado = next(i for i, u in enumerate(site.pedidas) if "/p/zz000000" in u)
+    assert any("seller_id=lojaxyz" in u for u in site.pedidas[:primeiro_estado])
