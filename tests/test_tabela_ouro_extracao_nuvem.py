@@ -121,6 +121,26 @@ class _EstadoMemoria:
     def cupom_anterior(self, chave):
         return None
 
+    # métodos que o grupo estado-alertas acrescentou ao Estado (junção das rodadas): estado vazio, sem outro modo
+    def lojas_diretas_conhecidas(self, ofertas=()):
+        from monitor.regras import lojas_diretas
+        return lojas_diretas(list(ofertas))
+
+    def minimo_geral(self, diretas=None):
+        return None
+
+    def cupons_vistos(self, *a, **k):
+        return []
+
+    def ofertas_diretas_de_outros_modos(self, *a, **k):
+        return []
+
+    def migra_alertas_de_cupom(self, *a, **k):
+        return None
+
+    def registra_alerta_cupom(self, *a, **k):
+        return None
+
 
 def _canal(*linhas: str) -> str:
     return ('<div class="tgme_widget_message" data-post="canal/1"><div class="tgme_widget_message_text">'
