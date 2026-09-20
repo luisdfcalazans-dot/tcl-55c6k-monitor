@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-19T20:55:25-03:00",
+ "atualizado": "2026-09-19T22:07:35-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -111,7 +111,9 @@
    "vendedor": "Magalu",
    "extra": {
     "preco_de": 4199.0,
-    "1p": true
+    "1p": true,
+    "anuncio": "240162700",
+    "vendedor_id": "magazineluiza"
    },
    "chave": "magalu:240162800-magazineluiza",
    "melhor_preco": 3561.55
@@ -174,7 +176,9 @@
    "vendedor": "Lojas Colombo Oficial",
    "extra": {
     "preco_de": 4101.2,
-    "1p": false
+    "1p": false,
+    "anuncio": "kc7h6f4k4b",
+    "vendedor_id": "lojascolombooficial"
    },
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 3937.15
@@ -241,9 +245,95 @@
    },
    "chave": "kabum:911482",
    "melhor_preco": 4184.88
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetoot",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-polegadas-qled-mini-led-4k-c6k-wifi-bluetoot/p/fhkcb7aadc/et/elit/",
+   "id": "fhkcb7aadc-storecomercioeletronic",
+   "preco": 9824.88,
+   "preco_pix": null,
+   "parcelado": "7x R$ 1403,55 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": "storecomercioeletronic",
+   "extra": {
+    "preco_de": 9824.88,
+    "1p": false,
+    "anuncio": "fhkcb7aadc",
+    "vendedor_id": "storecomercioeletronic",
+    "descartado": "fora da faixa (mediana 3843.07)"
+   },
+   "chave": "magalu:fhkcb7aadc-storecomercioeletronic",
+   "melhor_preco": 9824.88
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-09-19T22:07:35-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "[tecnoarthardware] 🔥   #Aliexpress  / Magalu - Smart TV 55\" TCL 4K UHD MiniLED 55C6K",
+   "url": "https://t.me/tecnoarthardware/41199",
+   "id": "tecnoarthardware/41199",
+   "preco": 3158.96,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "IFPF2XZ6",
+   "publicado": "2026-09-19T21:55:05-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnoarthardware",
+    "links": [
+     "?q=%23Aliexpress",
+     "https://a.aliexpress.com/_c4TfHKg1",
+     "https://a.aliexpress.com/_c3Fr4ed3"
+    ],
+    "texto": "🔥   #Aliexpress  / Magalu - Smart TV 55\" TCL 4K UHD MiniLED 55C6K\n💵  R$ 3.158,96 em 12x sem juros\n🏷️  Use cupom:  IFPF2XZ6  ou  BRAE11  + Moedas no App\n🔗  Link APP:  https://a.aliexpress.com/_c4TfHKg1\n🔗  Link PC:  https://a.aliexpress.com/_c3Fr4ed3\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)"
+   },
+   "chave": "telegram:tecnoarthardware/41199",
+   "melhor_preco": 3158.96,
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
+   "ultimo_preco": 3158.96,
+   "menor_preco": 3158.96
+  },
+  {
+   "primeira_vez": "2026-09-19T22:07:35-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "[IskandarSouza] 🇧🇷   #Aliexpress  / Magalu - Smart TV 55\" TCL 4K UHD MiniLED 55C6K",
+   "url": "https://t.me/IskandarSouza/183959",
+   "id": "IskandarSouza/183959",
+   "preco": 3158.96,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "IFPF2XZ6",
+   "publicado": "2026-09-19T21:54:55-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "IskandarSouza",
+    "links": [
+     "?q=%23Aliexpress",
+     "https://a.aliexpress.com/_c3oP3BrN",
+     "https://a.aliexpress.com/_c3W4jcQX"
+    ],
+    "texto": "🇧🇷   #Aliexpress  / Magalu - Smart TV 55\" TCL 4K UHD MiniLED 55C6K\n⚠️ ➡️ Produto no Brasil\n⚠️ ➡️  Taxa de atualização de 144Hz. Suporte a  VRR e ALLM:  Taxa de atualização variável e modo de baixa latência automática. Porta Hdmi 2.1 (Uma)\n‼️   12 x  sem Juros  ‼️\n💰 🔥  Valor : R$ 3158,96  ( 584 moedas) No pix\n🏷  Cupom:   IFPF2XZ6  ou  BRAE11\n🥇   Link com moedas:\n🔗   https://a.aliexpress.com/_c3oP3BrN\n🖥   Link para PC:\n🔗   https://a.aliexpress.com/_c3W4jcQX"
+   },
+   "chave": "telegram:IskandarSouza/183959",
+   "melhor_preco": 3158.96,
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
+   "ultimo_preco": 3158.96,
+   "menor_preco": 3158.96
+  },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
    "preco_alertado": null,
@@ -493,7 +583,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-19T20:55:25-03:00",
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -519,7 +609,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-19T20:55:25-03:00",
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -545,7 +635,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-19T20:55:25-03:00",
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -571,7 +661,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-19T20:55:25-03:00",
+   "ultima_vez": "2026-09-19T22:07:35-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -1398,52 +1488,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:54:57-03:00",
+   "ultimo_ok": "2026-09-19T22:06:47-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:54:59-03:00",
+   "ultimo_ok": "2026-09-19T22:06:50-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:06-03:00",
+   "ultimo_ok": "2026-09-19T22:06:53-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:07-03:00",
+   "ultimo_ok": "2026-09-19T22:06:54-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:13-03:00",
+   "ultimo_ok": "2026-09-19T22:07:21-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:14-03:00",
+   "ultimo_ok": "2026-09-19T22:07:21-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:15-03:00",
+   "ultimo_ok": "2026-09-19T22:07:22-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:16-03:00",
+   "ultimo_ok": "2026-09-19T22:07:24-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:18-03:00",
+   "ultimo_ok": "2026-09-19T22:07:24-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T20:55:24-03:00",
+   "ultimo_ok": "2026-09-19T22:07:31-03:00",
    "ultimo_erro": null
   }
  }
