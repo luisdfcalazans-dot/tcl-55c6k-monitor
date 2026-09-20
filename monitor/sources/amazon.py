@@ -298,8 +298,17 @@ class Amazon(Fonte):
         Página SEM preço (HTTP e Chrome vieram sem o bloco de preço): ela não diz nada do preço do vendedor. Se o
         painel tem esse vendedor com preço, fica o do painel (senão o vendedor mais barato sumiria do latest)."""
         vid = dest.extra.get("vendedor_id")
-        iguais = [o for o in por_id.values()
-                  if (vid and o.extra.get("vendedor_id") == vid) or _mesmo_vendedor(o.vendedor, dest.vendedor)]
+
+        def _e_o_mesmo(o: Oferta) -> bool:
+            """A oferta do painel é DESTE vendedor? Com os dois ids conhecidos, quem decide é o id: casar por
+            nome (substring) apagaria do painel um vendedor diferente de nome parecido — 'Magalu.' comeria
+            'Magalu Shop' (19/09, item B4). Sem id na oferta do painel, o nome é o que há."""
+            oid = o.extra.get("vendedor_id")
+            if vid and oid:
+                return oid == vid
+            return _mesmo_vendedor(o.vendedor, dest.vendedor)
+
+        iguais = [o for o in por_id.values() if _e_o_mesmo(o)]
         if not iguais and not vid and not dest.vendedor:
             iguais = [o for o in por_id.values() if o.extra.get("destaque")]
         if not (dest.preco or dest.preco_pix) and any(o.preco or o.preco_pix for o in iguais):

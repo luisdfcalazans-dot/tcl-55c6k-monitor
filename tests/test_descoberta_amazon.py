@@ -11,6 +11,7 @@ import pytest
 import requests
 
 from monitor import config
+from monitor.models import Oferta
 from monitor.sources import amazon
 from monitor.sources import playwright_sources as ps
 
@@ -19,6 +20,7 @@ AOD = (FX / "amazon_aod_2026-09-19.html").read_text(encoding="utf-8")
 BUSCA = (FX / "amazon_busca_2026-09-19.html").read_text(encoding="utf-8")
 DP = (FX / "amazon_pix_2026-09-18.html").read_text(encoding="utf-8")
 ASIN = "B0F7JZMVKF"
+TITULO = "TCL Smart TV 55 Polegadas QLED Mini LED 4K C6K Google TV 55C6K"
 
 
 def test_painel_de_ofertas_um_vendedor_por_bloco():
@@ -130,3 +132,53 @@ def test_pagina_sem_preco_nao_apaga_o_destaque_do_painel(monkeypatch, dp):
     m = por_id["B0F7JZMVKF-ACUNARZFR75ET"]
     assert (m.preco_pix, m.ativo) == (3374.10, True), "o Magalu. do painel (Pix R$ 3.374,10) continua"
     assert m.vendedor.startswith("Magalu")
+
+
+# ------------------------------------------------------------------------------------------------
+# revisão de 19/09 (item B4): com o id do vendedor, casar por id — nome parecido não apaga o vizinho
+# ------------------------------------------------------------------------------------------------
+
+def _do_painel(vendedor_id: str, vendedor: str, pix: float, destaque: bool = False) -> Oferta:
+    """Bloco de um vendedor do painel aodAjaxMain, como parse_ofertas devolve."""
+    return Oferta(fonte="amazon", tipo="loja", loja="Amazon", titulo=TITULO,
+                  url=amazon.url_vendedor(ASIN, vendedor_id), id=f"{ASIN}-{vendedor_id}",
+                  preco=None, preco_pix=pix, vendedor=vendedor,
+                  extra={"anuncio": ASIN, "asin": ASIN, "vendedor_id": vendedor_id, "destaque": destaque})
+
+
+def test_vendedor_de_nome_parecido_nao_some_do_painel():
+    # "Magalu." é a página; "Magalu Shop" é OUTRO vendedor do painel, com outro id
+    dest = _do_painel("ACUNARZFR75ET", "Magalu.", 3374.10, destaque=True)
+    dest.preco = 3749.0
+    por_id = {o.id: o for o in (_do_painel("ACUNARZFR75ET", "Magalu.", 3374.10, destaque=True),
+                                _do_painel("A9MAGALUSHOP1", "Magalu Shop", 3999.0),
+                                _do_painel("A30OZFNW1RCCSM", "Lojas Colombo S/A", 4184.88))}
+    amazon.Amazon._junta_destaque(dest, por_id, ASIN)
+    assert set(por_id) == {f"{ASIN}-ACUNARZFR75ET", f"{ASIN}-A9MAGALUSHOP1", f"{ASIN}-A30OZFNW1RCCSM"}
+    assert por_id[f"{ASIN}-ACUNARZFR75ET"].preco == 3749.0, "o destaque substituiu só o bloco dele"
+    assert por_id[f"{ASIN}-A9MAGALUSHOP1"].preco_pix == 3999.0
+
+
+def test_bloco_do_mesmo_vendedor_sem_id_ainda_e_juntado():
+    # o painel nem sempre traz o id; aí o nome continua sendo o que há (não vira linha repetida)
+    dest = _do_painel("ACUNARZFR75ET", "Magalu.", 3374.10, destaque=True)
+    dest.preco = 3749.0
+    sem_id = _do_painel("ACUNARZFR75ET", "Vendido por Magalu.", 3374.10)
+    sem_id.id, sem_id.extra["vendedor_id"] = f"{ASIN}-destaque", None
+    por_id = {sem_id.id: sem_id, f"{ASIN}-A30OZFNW1RCCSM": _do_painel("A30OZFNW1RCCSM", "Lojas Colombo S/A", 4184.88)}
+    amazon.Amazon._junta_destaque(dest, por_id, ASIN)
+    assert set(por_id) == {f"{ASIN}-ACUNARZFR75ET", f"{ASIN}-A30OZFNW1RCCSM"}
+
+
+def test_vendedor_de_nome_parecido_na_coleta_inteira(monkeypatch):
+    # o mesmo caso com o painel real: um 3o bloco "Magalu Shop" (outro id) nao pode sumir do latest
+    bloco = ('<div id="aod-offer"><div id="aod-offer-heading"><h5>Novo</h5></div>'
+             '<div id="aod-offer-price"><span class="a-price"><span class="a-offscreen">R$ 3.999,00</span>'
+             '</span></div><div id="aod-offer-soldBy">'
+             '<a href="/sp?seller=A9MAGALUSHOP1">Magalu Shop</a></div></div>')
+    _stub(monkeypatch, {"/dp/": DP}, {"aodAjaxMain": AOD + bloco, "/s?k=": BUSCA})
+    ofertas, _ = amazon.Amazon().coletar()
+    por_id = {o.id: o for o in ofertas}
+    assert f"{ASIN}-A9MAGALUSHOP1" in por_id, "o vendedor de nome parecido continua no painel"
+    assert por_id[f"{ASIN}-A9MAGALUSHOP1"].preco == 3999.0
+    assert por_id[f"{ASIN}-ACUNARZFR75ET"].preco == 3749.0, "o destaque ficou com os dados da pagina"
