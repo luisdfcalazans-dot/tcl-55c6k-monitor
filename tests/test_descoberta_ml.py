@@ -217,3 +217,30 @@ def test_sessao_reaproveita_a_janela_e_nao_abre_chrome_sem_uso(monkeypatch):
     assert [u for _, u in abertas] == ["https://a", "https://b", "fechou"]
     assert len({s for s, _ in abertas}) == 1  # mesma janela
     assert "ml" not in ps._SESSOES
+
+
+def test_opcao_legitima_bem_mais_barata_entra(monkeypatch, tmp_path):
+    # a rede de segurança de preço não pode derrubar justamente a promoção que o monitor procura
+    capt = _capt({"components": {"bbw_alternatives": {"items": [
+        _item("MLB4444444444", 2499, vendedor="Loja Boa", titulo=TITULO)]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    por_id = {o.id: o for o in ps.MercadoLivre().coletar()[0]}
+    assert por_id["MLB4444444444"].melhor_preco == 2499.0
+
+
+def test_opcao_com_rotulo_do_buy_box_no_lugar_do_titulo_entra(monkeypatch, tmp_path):
+    # "Melhor preço" é rótulo do buy box, não nome de outro produto: não pode descartar a opção
+    capt = _capt({"components": {"bbw_alternatives": {"items": [
+        _item("MLB3333333333", 3690, vendedor="Loja Boa", titulo="Melhor preço")]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    assert "MLB3333333333" in {o.id for o in ps.MercadoLivre().coletar()[0]}
+
+
+def test_opcao_absurdamente_cara_e_descartada(monkeypatch, tmp_path, capsys):
+    capt = _capt({"components": {"bbw_alternatives": {"items": [_item("MLB2222222222", 12000)]}}})
+    _stub(monkeypatch, tmp_path, {"/p/MLB48808732": (CATALOGO, TEXTO_CAT),
+                                  "lista.mercadolivre": ("<html></html>", "")}, capt=capt)
+    assert {o.id for o in ps.MercadoLivre().coletar()[0]} == {"MLB7574364080"}
+    assert "MLB2222222222" in capsys.readouterr().out

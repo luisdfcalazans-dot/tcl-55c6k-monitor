@@ -739,17 +739,34 @@ def _ml_alternativas(html: str, capturados: list[Any], catalogo: str = "") -> li
     return list(out.values())
 
 
-FAIXA_PRECO_ML = (0.7, 1.6)   # rede de segurança: quanto o preço de uma opção pode fugir das outras
+TETO_PRECO_ML = 2.5      # rede de segurança só para cima: acima disso não é a mesma TV
+PISO_PRECO_ML = 900.0    # nenhuma 55" QD-Mini LED nova custa menos que isto (peça/acessório/erro de leitura)
+
+
+def _titulo_de_outro_produto(titulo: str | None) -> bool:
+    """O título lido da opção é de OUTRO produto?
+
+    Só derruba quando o texto parece mesmo nome de produto (tem cara de título e não passa no filtro da 55C6K).
+    Rótulo curto do buy box ("Melhor preço", "Parcelamento sem juros") ou texto vazio não derruba opção legítima."""
+    t = (titulo or "").strip()
+    if not t or eh_55c6k(t):
+        return False
+    parece_titulo = len(t.split()) >= 4 or re.search(r"\b(tv|televis|polegada|monitor|smart)\b", t, re.I)
+    return bool(parece_titulo)
 
 
 def _preco_plausivel(preco: float | None, referencias: list[float]) -> bool:
-    """O preço de uma "outra opção" cabe na faixa das outras ofertas desta rodada?
+    """O preço de uma "outra opção" do catálogo é possível para esta TV?
 
-    Sem referência (buy box ilegível), aceita: quem barra o resto é a prova de componente/catálogo."""
+    Só corta o absurdo: valor de acessório/peça (piso fixo) e preço muito acima das outras ofertas. NÃO corta por
+    ser barato demais em relação às outras — uma opção legítima bem mais barata é exatamente a promoção que o
+    monitor existe para achar. Quem barra produto de outro anúncio é a prova de componente/catálogo e o título."""
     validos = [p for p in referencias if p]
-    if not preco or not validos:
+    if not preco:
         return True
-    return min(validos) * FAIXA_PRECO_ML[0] <= preco <= max(validos) * FAIXA_PRECO_ML[1]
+    if preco < PISO_PRECO_ML:
+        return False
+    return not validos or preco <= max(validos) * TETO_PRECO_ML
 
 
 def _ml_total_de_opcoes(html: str) -> int | None:
@@ -923,13 +940,13 @@ class MercadoLivre(Fonte):
         for op in _ml_alternativas(html, capt, config.ML_CATALOGO_ID):
             if op["item_id"] in ja:
                 continue
-            if op.get("titulo") and not eh_55c6k(op["titulo"]):
+            if _titulo_de_outro_produto(op.get("titulo")):
                 print(f"[mercadolivre] opção {op['item_id']} com título de outro produto "
                       f"({op['titulo'][:60]!r}) — descartada")
                 continue
             if not _preco_plausivel(op["preco"], refs):
-                print(f"[mercadolivre] opção {op['item_id']} a {fmt_preco(op['preco'])} fora da faixa das "
-                      f"outras ofertas desta rodada — descartada")
+                print(f"[mercadolivre] opção {op['item_id']} a {fmt_preco(op['preco'])} com preço impossível "
+                      f"para esta TV — descartada")
                 continue
             x = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=o.titulo, url=o.url,
                        id=op["item_id"], preco=op["preco"], parcelado=op.get("parcelado"), vendedor=op.get("vendedor"))
