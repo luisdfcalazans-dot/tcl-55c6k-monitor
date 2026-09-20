@@ -935,3 +935,69 @@ def test_cupom_pior_que_o_cartao_mais_barato_continua_marcado(amb):
     r = aceitos[0]
     assert r.tv_cartao == 3699.00 and r.extra["pior_parcelado"] is True
     assert tc.msg_melhor([("Magazine Luiza", r) for r in aceitos]) == "", "não é o melhor em base nenhuma"
+
+
+# ------------------------------------------------------------------------------------------------
+# 4f. o passo final corre no mesmo relógio da rodada (revisão de 19/09, item B3)
+# ------------------------------------------------------------------------------------------------
+
+class CarrinhoLento(CarrinhoQueEsvazia):
+    """Cada operação no carrinho custa segundos do relógio da rodada (abrir a página, esperar a sacola...)."""
+
+    def __init__(self, pasta, marca, custo, **k):
+        super().__init__(pasta, **k)
+        self.marca, self.custo = marca, custo
+
+    def garantir_item(self, page, url, alvo=None):
+        self.marca["t"] += self.custo
+        return super().garantir_item(page, url, alvo)
+
+    def aplicar(self, page, codigo):
+        self.marca["t"] += self.custo
+        return super().aplicar(page, codigo)
+
+
+def _relogio(monkeypatch) -> dict:
+    """Relógio da rodada, como executar() o liga (o ambiente de teste chama testar_loja direto)."""
+    marca = {"t": 0.0}
+    monkeypatch.setattr(tc, "_INICIO", 0.0)
+    monkeypatch.setattr(tc.time, "monotonic", lambda: marca["t"])
+    return marca
+
+
+def test_passo_final_nao_abre_janela_nova_depois_do_prazo(amb, monkeypatch):
+    # rodada longa: quando o percurso acaba, o relógio já passou dos 15 min do passo final
+    amb.latest("cloud", [A, B, C], codigos=["CUPOM1"])
+    marca = _relogio(monkeypatch)
+    loja = CarrinhoLento(amb.pasta, marca, 320.0, nao_entra={KA, KB, KC})
+    loja.no_carrinho = KA
+    amb.rodar(loja)
+    assert marca["t"] > tc.PRAZO_PASSO_FINAL_S
+    assert _garantidos(loja) == [KA, KB, KC], "o passo final não abre mais nenhuma janela do Chrome"
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "tempo da rodada acabou" in aviso and "vazio" in aviso
+
+
+def test_passo_final_dentro_do_prazo_ainda_insiste_nos_tres(amb, monkeypatch):
+    # o mesmo caso com operações baratas: as três tentativas de recuperação continuam acontecendo
+    amb.latest("cloud", [A, B, C], codigos=["CUPOM1"])
+    marca = _relogio(monkeypatch)
+    loja = CarrinhoLento(amb.pasta, marca, 20.0, nao_entra={KA, KB, KC})
+    loja.no_carrinho = KA
+    amb.rodar(loja)
+    assert _garantidos(loja) == [KA, KB, KC, KA, KB, KC]
+    assert "vazia" in tc.AVISOS_CARRINHO[0].lower()
+
+
+def test_sem_tempo_o_cupom_nao_e_reaplicado_no_passo_final(amb, monkeypatch):
+    # o cupom foi aceito e tirado do carrinho para medir; o passo final o reaplicaria, mas o relógio estourou
+    amb.latest("cloud", [A], codigos=["DESCONTA100"])
+    marca = _relogio(monkeypatch)
+    loja = CarrinhoLento(amb.pasta, marca, 460.0, aceita={(KA, "DESCONTA100"): 100.0})
+    aceitos, _ = amb.rodar(loja)
+    assert marca["t"] > tc.PRAZO_PASSO_FINAL_S
+    assert _garantidos(loja) == [KA], "nenhuma janela nova depois do prazo"
+    assert aceitos[0].extra["no_carrinho"] is False
+    assert aceitos[0].extra["motivo_carrinho"] == tc.MOTIVO_SEM_TEMPO
+    assert "Não consegui deixar o cupom aplicado" in tc.msg_melhor([("Magazine Luiza", aceitos[0])])
+    assert tc.AVISOS_CARRINHO == [], "a TV está no carrinho: nada de aviso de sacola vazia"

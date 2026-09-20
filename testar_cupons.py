@@ -66,14 +66,19 @@ PAUSA_LOJA_INDISPONIVEL = timedelta(hours=3)  # carrinho não carregou: deixa a 
 MAX_APLICACOES_POR_RODADA = 15           # somando todos os anúncios da loja: rajada grande dispara o antirrobô
 PAUSA_ENTRE_ANUNCIOS_MS = 5000           # a loja não gosta de rajada
 PRAZO_RODADA_S = 12 * 60                 # o cão de guarda mata o processo em 17 min: não começa nada novo depois disto
+# o passo final (arrumar_carrinho) abre até 3 janelas novas do Chrome; os 3 min entre PRAZO_RODADA_S e este
+# prazo são a reserva dele. Depois daqui ele não abre mais nada: o cão de guarda mata em 17 min e o
+# run_pc.ps1 dá 1080 s para o testador inteiro — morrer no meio deixaria a sacola como estivesse.
+PRAZO_PASSO_FINAL_S = 15 * 60
 _RE_55 = re.compile(r"(?<!\d)55(?!\d)")
 
 _INICIO: Optional[float] = None          # time.monotonic() do começo da rodada (executar)
 AVISOS_CARRINHO: list[str] = []          # avisos da rodada que vão na mensagem mesmo sem cupom aceito
 
 
-def _tempo_esgotado() -> bool:
-    return _INICIO is not None and time.monotonic() - _INICIO > PRAZO_RODADA_S
+def _tempo_esgotado(prazo: float = PRAZO_RODADA_S) -> bool:
+    """Passou do prazo da rodada? (o mesmo relógio para percorrer() e para o passo final)"""
+    return _INICIO is not None and time.monotonic() - _INICIO > prazo
 
 
 def status_do_registro(reg: dict) -> str:
@@ -724,6 +729,18 @@ def _avisar_sacola_vazia(loja: LojaCarrinho, tentados: list[Anuncio]) -> None:
         f"Confira em {loja.url_carrinho}")
 
 
+def _avisar_sem_tempo(loja: LojaCarrinho, p: Percurso) -> None:
+    """O relógio da rodada acabou antes de o passo final arrumar o carrinho. Só vira aviso no Telegram quando
+    nem se sabe se a TV está lá (o robô esvazia a sacola antes de trocar de anúncio); com um anúncio
+    sabidamente no carrinho, o que falta é só o cupom, e disso a mensagem já fala."""
+    print(f"[{loja.nome}] ⚠ a rodada passou de {PRAZO_PASSO_FINAL_S // 60} min antes de eu arrumar o carrinho; "
+          "não abro outra janela")
+    if p.no_carrinho is None:
+        AVISOS_CARRINHO.append(
+            f"⚠️ <b>{loja.loja_canonica}</b>: o tempo da rodada acabou antes de eu conferir o carrinho; "
+            f"ele pode ter ficado <b>vazio</b>. Confira em {loja.url_carrinho}")
+
+
 def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], reg: dict,
                      visivel: bool) -> Optional[tuple[Anuncio, ResultadoCupom]]:
     """Passo final, só quando o robô mexeu no carrinho: o melhor cupom conhecido (desta rodada ou de antes, hoje)
@@ -732,12 +749,19 @@ def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], r
     Se o cupom não ficar (a loja recusou agora, o anúncio não entrou, falha do robô), o carrinho também volta para
     o anúncio mais barato sem cupom: nunca termina num anúncio mais caro só porque o cupom dele era o melhor. Se o
     mais barato não entrar, tenta o próximo (até MAX_VOLTAS), para a sacola da pessoa não terminar vazia.
+    Cada tentativa abre uma janela nova do Chrome, então tudo aqui corre no mesmo relógio de percorrer():
+    passado PRAZO_PASSO_FINAL_S não abre mais nenhuma, e a mensagem avisa que o carrinho ficou sem conferir.
     Devolve (anúncio, cupom) quando havia um cupom para deixar (a mensagem diz se ficou)."""
     destino = destino_final(p, anuncios, reg["cupons"])
     if destino is None:
         return None
     a, melhor = destino
     pular: set = set()
+    sem_tempo = False
+    if melhor is not None and _tempo_esgotado(PRAZO_PASSO_FINAL_S):
+        # sem tempo para reaplicar o cupom; o que não pode faltar é a TV voltar para o carrinho
+        _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_SEM_TEMPO)
+        melhor = None
     if melhor is not None:
         if melhor.extra.get("anterior"):
             print(f"[{loja.nome}] volto o carrinho para o melhor conhecido: {a.rotulo} com {melhor.codigo}")
@@ -762,7 +786,12 @@ def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], r
         print(f"[{loja.nome}] sem o cupom, o carrinho volta para o anúncio mais barato")
     tentados = ordem_de_recuperacao(p, anuncios, pular)
     entrou = parou = False
+    tentados_de_fato: list[Anuncio] = []
     for x in tentados:
+        if _tempo_esgotado(PRAZO_PASSO_FINAL_S):   # cada tentativa abre uma janela nova do Chrome
+            sem_tempo = True
+            break
+        tentados_de_fato.append(x)
         r = voltar_ao_anuncio(loja, x, anuncios, visivel, reg)
         if r is None:          # carrinho com outro produto, loja fora do ar ou sessão expirada: não insiste
             parou = True
@@ -770,9 +799,12 @@ def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], r
         if r:
             entrou = True
             break
-    if tentados and not entrou and not parou:
-        _avisar_sacola_vazia(loja, tentados)
-    return destino if melhor is not None else None
+    if not entrou and not parou:
+        if sem_tempo:
+            _avisar_sem_tempo(loja, p)
+        elif tentados_de_fato:
+            _avisar_sacola_vazia(loja, tentados_de_fato)
+    return destino if destino[1] is not None else None
 
 
 def _precos_por_anuncio(antigos: Optional[dict], p: Percurso, anuncios: list[Anuncio]) -> dict:
@@ -894,6 +926,7 @@ def marcar_se_compensa(resultados: list[ResultadoCupom], ref_vista: Optional[flo
 
 MOTIVO_SEM_TV = "o carrinho não ficou só com a TV"
 MOTIVO_OCUPADO = "o carrinho tem outros produtos além da TV"
+MOTIVO_SEM_TEMPO = "o tempo da rodada acabou antes do passo final"
 
 
 def _marca_sem_cupom_no_carrinho(loja: LojaCarrinho, melhor: ResultadoCupom, motivo: str) -> None:
