@@ -440,6 +440,10 @@ class Magalu(LojaCarrinho):
         """True só quando a sacola foi lida e TODO item dela é a 55C6K (garantia/seguro da TV não é a TV)."""
         return itens is not None and all(eh_linha_da_tv(i.get("titulo") or "") for i in itens)
 
+    # confirmação do "Excluir". Ancorada: solta, "sim" casa com "Produtos similares" e "excluir" com
+    # qualquer frase que cite a palavra — e a sacola tem um carrossel de recomendados embaixo do resumo.
+    _RE_CONFIRMA_EXCLUIR = re.compile(r"^(excluir|confirmar|sim)\b", re.I)
+
     def esvaziar(self, page) -> None:
         """Remove itens da sacola SOMENTE se todos forem a 55C6K.
 
@@ -461,7 +465,9 @@ class Magalu(LojaCarrinho):
             except Exception:
                 return
             page.wait_for_timeout(2500)
-            conf = page.get_by_role("button", name=re.compile(r"excluir|confirmar|sim", re.I)).first
+            # a confirmação é do diálogo que o "Excluir" abriu; fora dele sobra a página inteira
+            conf = (self._dialogo(page) or page).get_by_role(
+                "button", name=self._RE_CONFIRMA_EXCLUIR).first
             if conf.count() and conf.is_visible():
                 try:
                     conf.click(timeout=5000)
@@ -637,6 +643,31 @@ class Magalu(LojaCarrinho):
         d = page.locator("[data-testid=dialog-container]:visible, [role=dialog]:visible").first
         return d if d.count() else None
 
+    # botões que confirmam o cupom. "adicionar" SÓ vale dentro do diálogo do cupom: na sacola, o
+    # "Adicionar à sacola" dos produtos recomendados também casa com ele, e clicar nele poria na sacola
+    # da pessoa um produto que não é a TV.
+    _RE_BOTAO_CUPOM = re.compile(r"^aplicar|^inserir|^adicionar|^ok$|^confirmar", re.I)
+    _RE_BOTAO_CUPOM_FORA_DO_DIALOGO = re.compile(r"^aplicar|^inserir|^ok$|^confirmar", re.I)
+    # bloco em volta do campo de cupom: o form/[data-testid] mais próximo dele
+    _XPATH_AREA_DO_CUPOM = "xpath=ancestor::*[self::form or self::dialog or @data-testid][1]"
+
+    def _area_do_cupom(self, page, campo):
+        """(escopo, padrão) para achar o botão que confirma o cupom.
+
+        O escopo é o diálogo visível ou, sem ele, o bloco em volta do campo — NUNCA a página inteira, que
+        tem os produtos recomendados da sacola com "Adicionar à sacola". Sem recorte, devolve (None, …): aí
+        o cupom vai por Enter, sem clicar em botão nenhum."""
+        d = self._dialogo(page)
+        if d is not None:
+            return d, self._RE_BOTAO_CUPOM
+        try:
+            volta = campo.locator(self._XPATH_AREA_DO_CUPOM).first
+            if volta.count():
+                return volta, self._RE_BOTAO_CUPOM_FORA_DO_DIALOGO
+        except Exception:  # noqa: BLE001 - recorte é só uma otimização; sem ele, Enter
+            pass
+        return None, self._RE_BOTAO_CUPOM_FORA_DO_DIALOGO
+
     def _fechar_dialogo(self, page) -> None:
         d = self._dialogo(page)
         if d is None:
@@ -660,10 +691,10 @@ class Magalu(LojaCarrinho):
         campo.fill("")
         campo.fill(codigo)
         page.wait_for_timeout(500)
-        escopo = self._dialogo(page) or page
-        botao = escopo.get_by_role("button", name=re.compile(r"^aplicar|^inserir|^adicionar|^ok$|^confirmar", re.I)).first
+        escopo, padrao = self._area_do_cupom(page, campo)
+        botao = escopo.get_by_role("button", name=padrao).first if escopo is not None else None
         try:
-            if botao.count():
+            if botao is not None and botao.count():
                 botao.click(timeout=8000)
             else:
                 campo.press("Enter")

@@ -572,6 +572,9 @@ class PaginaMagalu:
         pid, prod = self._produto()
         self.itens.append({"id": pid, "quantity": 1, "name": prod["titulo"], "seller": self._vendedor_atual()})
 
+    def locator(self, sel):
+        return _Loc(0)   # a sacola falsa não tem diálogo nem campo de cupom
+
     def get_by_role(self, role, name=None, **k):
         if "sacola" in self.url:
             if self.itens and name.search("Excluir") and not self.excluir_quebrado:
@@ -700,6 +703,134 @@ def test_magalu_sinais_da_pagina_em_conflito_nao_adiciona():
         else "Sua sacola está vazia"
     assert Magalu().garantir_item(p, URL_MAGALU + "?seller_id=lojascolombooficial", alvo) is False
     assert p.cliques == []
+
+
+# ------------------------------------------------------------------------------------------------
+# S1 (19/09): o botão do cupom nunca pode ser o "Adicionar à sacola" dos recomendados
+# ------------------------------------------------------------------------------------------------
+
+# a sacola real traz, abaixo do resumo, um carrossel "Produtos recomendados" com botão "Adicionar à sacola"
+TEXTO_SACOLA = (
+    "Sua sacola\nProdutos (1):\nR$ 3.561,55\nFrete total\nGrátis\nTotal:\nR$ 3.561,55\n"
+    "R$ 3.383,47 no Pix\nProdutos recomendados\nSuporte de parede para TV\nAdicionar à sacola\n"
+    "Produtos similares\n")
+
+
+class _AreaDoCupom:
+    """Bloco em volta do campo de cupom (o [data-testid] mais próximo dele): só o botão do cupom."""
+
+    def __init__(self, pagina):
+        self.pagina, self.first = pagina, self
+
+    def count(self):
+        return 1
+
+    def get_by_role(self, role, name=None, **k):
+        return self.pagina._botao(name, ["Aplicar"])
+
+    def inner_text(self):
+        return self.pagina.evaluate("")
+
+
+class _CampoCupom:
+    def __init__(self, pagina, area):
+        self.pagina, self.area, self.first = pagina, area, self
+
+    def count(self):
+        return 1
+
+    def fill(self, v):
+        if v:
+            self.pagina.digitado.append(v)
+
+    def press(self, tecla):
+        self.pagina.cliques.append(f"tecla:{tecla}")
+
+    def locator(self, sel):   # ancestor::*[…] do recorte da área do cupom
+        return self.area if self.area is not None else _Loc(0)
+
+
+class SacolaCupomForaDoDialogo:
+    """Sacola do Magalu com o campo de cupom FORA de um diálogo (o diálogo não chegou a abrir).
+
+    Na página inteira, o carrossel de recomendados vem ANTES do bloco do cupom na ordem do DOM: um
+    get_by_role de página inteira com "^adicionar" no padrão pega o "Adicionar à sacola" dele e põe na
+    sacola do usuário um produto que não é a TV."""
+
+    # ordem do DOM: recomendados antes do bloco do cupom
+    BOTOES_DA_PAGINA = ["Adicionar à sacola", "Produtos similares", "Aplicar"]
+
+    def __init__(self, com_area=True):
+        self.url = "https://sacola.magazineluiza.com.br/"
+        self.cliques: list[str] = []
+        self.digitado: list[str] = []
+        self.area = _AreaDoCupom(self) if com_area else None
+        self.keyboard = type("_Teclado", (), {"press": lambda _s, t: None})()
+
+    def _botao(self, rx, nomes):
+        nome = next((n for n in nomes if rx.search(n)), None)
+        return _Loc(1, lambda: self.cliques.append(nome)) if nome else _Loc(0)
+
+    def locator(self, sel):
+        if "cupom-input" in sel:
+            return _CampoCupom(self, self.area)
+        return _Loc(0)     # sem diálogo visível, sem campo de login
+
+    def get_by_role(self, role, name=None, **k):
+        return self._botao(name, self.BOTOES_DA_PAGINA)
+
+    def get_by_text(self, rx):
+        return self._botao(rx, self.BOTOES_DA_PAGINA)
+
+    def evaluate(self, js):
+        return TEXTO_SACOLA
+
+    def content(self):
+        return "<html></html>"
+
+    def goto(self, url, **k):
+        self.url = url
+
+    def wait_for_load_state(self, *a, **k):
+        pass
+
+    def wait_for_timeout(self, ms):
+        pass
+
+
+def test_magalu_cupom_fora_do_dialogo_nao_clica_em_adicionar_a_sacola():
+    p = SacolaCupomForaDoDialogo()
+    r = Magalu().aplicar(p, "LU250")
+    assert p.digitado == ["LU250"], "o código foi digitado no campo"
+    assert "Adicionar à sacola" not in p.cliques, "nunca pôr um recomendado na sacola do usuário"
+    assert p.cliques == ["Aplicar"], "só o botão do bloco do cupom"
+    assert r.codigo == "LU250"
+
+
+def test_magalu_sem_area_do_cupom_manda_enter_em_vez_de_clicar_na_pagina():
+    # não deu para recortar o bloco do cupom: Enter no campo é melhor do que um clique na página inteira
+    p = SacolaCupomForaDoDialogo(com_area=False)
+    Magalu().aplicar(p, "LU250")
+    assert p.cliques == ["tecla:Enter"]
+    assert "Adicionar à sacola" not in p.cliques
+
+
+def test_magalu_dentro_do_dialogo_ainda_aceita_adicionar():
+    # no diálogo do cupom o botão às vezes se chama "Adicionar": ali ele é seguro
+    p = SacolaCupomForaDoDialogo()
+    dialogo = _AreaDoCupom(p)
+    dialogo.get_by_role = lambda role, name=None, **k: p._botao(name, ["Adicionar"])
+    p.locator = lambda sel: _CampoCupom(p, p.area) if "cupom-input" in sel else (
+        dialogo if "dialog" in sel else _Loc(0))
+    Magalu().aplicar(p, "LU250")
+    assert p.cliques == ["Adicionar"]
+
+
+def test_magalu_confirmacao_de_excluir_nao_casa_com_produtos_similares():
+    # o padrão da confirmação era solto: "sim" casava com o "Produtos similares" da sacola
+    conf = Magalu._RE_CONFIRMA_EXCLUIR
+    assert not conf.search("Produtos similares") and not conf.search("Adicionar à sacola")
+    assert conf.search("Sim, excluir") and conf.search("Excluir item")
 
 
 # ------------------------------------------------------------------------------------------------
