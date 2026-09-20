@@ -108,6 +108,11 @@ def main() -> int:
     for a in avisos_sanidade:
         print(f"[sanidade] {a}")
 
+    # chave de oferta que mudou de formato (a coleta passou a pôr o vendedor nela) leva o histórico junto:
+    # sem isto a rodada não manda 🔻 e pode repetir 🎯 no mesmo anúncio
+    for velha, nova in estado.migra_chaves_de_oferta(ofertas).items():  # type: ignore[arg-type]
+        print(f"[estado] histórico de {velha} passou para {nova}")
+
     msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
     aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
     # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço

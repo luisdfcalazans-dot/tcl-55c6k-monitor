@@ -47,6 +47,7 @@ def rodada(modo, ofertas, cupons=()):
     """Mesma sequência do run.py: sanear -> alertas -> registra/mínimo -> cupons -> histórico -> salva."""
     est = Estado(modo)
     ofertas, _av = sanear(ofertas)
+    est.migra_chaves_de_oferta(ofertas)
     msgs, alertados = gerar_alertas(est, ofertas, list(cupons))
     diretas = est.lojas_diretas_conhecidas(ofertas)
     for o in ofertas:
@@ -738,3 +739,91 @@ def test_agregador_coberto_por_oferta_direta_inativa_do_outro_modo_some_sem_subs
         encoding="utf-8")
     txt = resumo_diario(Estado("cloud"), [_zoom("Amazon", 3279.0, "1489104908")], [])
     assert "Amazon" not in txt and "nenhum preço de loja coletado" in txt
+
+
+# ---------------- B5 (19/09): a chave da oferta mudou de formato; o histórico vai junto ----------------
+
+URL_AMZ = "https://www.amazon.com.br/dp/B0F7JZMVKF"
+URL_ML = "https://www.mercadolivre.com.br/smart-tv-tcl-55c6k/p/MLB48808732"
+
+
+def _reg_b5(fonte, oid, loja, url, vendedor, ultimo, menor=None, alertado=None, ativo=True):
+    return {"fonte": fonte, "id": oid, "tipo": "loja", "loja": loja, "url": url, "vendedor": vendedor,
+            "ativo": ativo, "ultimo_preco": ultimo, "menor_preco": menor if menor is not None else ultimo,
+            "preco_alertado": alertado, "primeira_vez": "2026-09-13T15:22:00-03:00",
+            "ultima_vez": "2026-09-19T12:59:00-03:00"}
+
+
+def _estado_de_antes(pasta, modo="pc"):
+    """State como está no repositório em 19/09: a chave da Amazon ainda é só o ASIN."""
+    grava_state(pasta, modo, minimo=minimo(3199.0), ofertas={
+        "amazon:B0F7JZMVKF": _reg_b5("amazon", "B0F7JZMVKF", "Amazon", URL_AMZ, "Magalu.", 3374.10,
+                                  menor=3199.0, alertado=3374.10),
+        "casasbahia:55069456": _reg_b5("casasbahia", "55069456", "Casas Bahia", URL_CB, "Casas Bahia", 3599.09),
+    })
+
+
+def _amazon_nova(preco):
+    o = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", f"{URL_AMZ}?smid=ACUNARZFR75ET",
+               "B0F7JZMVKF-ACUNARZFR75ET", preco_pix=preco, vendedor="Magalu.")
+    o.extra.update({"anuncio": "B0F7JZMVKF", "asin": "B0F7JZMVKF", "vendedor_id": "ACUNARZFR75ET"})
+    return o
+
+
+def test_chave_nova_herda_o_historico_da_antiga(dados_tmp):
+    _estado_de_antes(dados_tmp)
+    est, _ = rodada("pc", [_amazon_nova(3374.10)])
+    novo = est.dados["ofertas"]["amazon:B0F7JZMVKF-ACUNARZFR75ET"]
+    assert (novo["menor_preco"], novo["preco_alertado"]) == (3199.0, 3374.10)
+    assert novo["primeira_vez"] == "2026-09-13T15:22:00-03:00"
+    velho = est.dados["ofertas"]["amazon:B0F7JZMVKF"]
+    assert velho["migrado_para"] == "amazon:B0F7JZMVKF-ACUNARZFR75ET" and velho["ativo"] is False
+
+
+def test_primeira_rodada_depois_da_juncao_ainda_manda_a_queda(dados_tmp):
+    # 3.374,10 -> 3.100,00 é queda de 8%: sem a migração a chave nova não teria com o que comparar
+    _estado_de_antes(dados_tmp)
+    _est, msgs = rodada("pc", [_amazon_nova(3100.0)])
+    assert any("🔻" in m for m in msgs), "a queda de preço continua sendo alertada"
+
+
+def test_alvo_nao_repete_no_mesmo_preco_depois_da_juncao(dados_tmp):
+    # preco_alertado 3.374,10 veio junto: o mesmo preço não gera 🎯 de novo
+    grava_state(dados_tmp, "pc", minimo=minimo(3199.0), ofertas={
+        "amazon:B0F7JZMVKF": _reg_b5("amazon", "B0F7JZMVKF", "Amazon", URL_AMZ, "Magalu.", 2800.0,
+                                  menor=2800.0, alertado=2800.0)})
+    _est, msgs = rodada("pc", [_amazon_nova(2800.0)])
+    assert not any("🎯" in m for m in msgs), "o alvo já foi avisado neste preço"
+    _est2, msgs2 = rodada("pc", [_amazon_nova(2700.0)])
+    assert any("🎯" in m for m in msgs2), "preço melhor ainda avisa"
+
+
+def test_migracao_roda_uma_vez_e_nao_rouba_de_quem_esta_em_uso(dados_tmp):
+    _estado_de_antes(dados_tmp)
+    est, _ = rodada("pc", [_amazon_nova(3374.10)])
+    # a chave antiga continua no estado, marcada; numa 2ª rodada nada mais é migrado
+    mapa = Estado("pc").migra_chaves_de_oferta([_amazon_nova(3374.10)])
+    assert mapa == {}
+    assert est.dados["ofertas"]["casasbahia:55069456"].get("migrado_para") is None
+
+
+def test_duas_ofertas_novas_do_mesmo_vendedor_e_url_nao_migram(dados_tmp):
+    # identidade disputada: migrar daria a UMA delas um "ultimo_preco" que não é dela (🔻 inventado)
+    grava_state(dados_tmp, "pc", ofertas={
+        "mercadolivre:MLB48808732": _reg_b5("mercadolivre", "MLB48808732", "Mercado Livre", URL_ML, "Magalu", 3491.03)})
+    a = Oferta("mercadolivre", "loja", "Mercado Livre", "TCL 55C6K", URL_ML, "MLB1111111111",
+               preco_pix=3491.03, vendedor="Magalu")
+    b = Oferta("mercadolivre", "loja", "Mercado Livre", "TCL 55C6K", URL_ML, "MLB2222222222",
+               preco_pix=3300.0, vendedor="Magalu")
+    est = Estado("pc")
+    assert est.migra_chaves_de_oferta([a, b]) == {}
+    assert est.dados["ofertas"]["mercadolivre:MLB48808732"].get("migrado_para") is None
+
+
+def test_vendedor_diferente_nao_herda_o_historico(dados_tmp):
+    _estado_de_antes(dados_tmp)
+    outro = _amazon_nova(3100.0)
+    outro.vendedor, outro.id = "Lojas Colombo S/A", "B0F7JZMVKF-A30OZFNW1RCCSM"
+    outro.url = f"{URL_AMZ}?smid=A30OZFNW1RCCSM"
+    est = Estado("pc")
+    assert est.migra_chaves_de_oferta([outro]) == {}

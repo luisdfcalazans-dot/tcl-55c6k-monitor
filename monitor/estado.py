@@ -14,7 +14,7 @@ from typing import Any, Callable
 
 from . import config
 from .models import Cupom, Oferta
-from .util import agora_iso, dias_desde, loja_canonica
+from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
 
 CAMPOS_HISTORICO = [
     "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url",
@@ -49,6 +49,31 @@ def e_agregador(o: Oferta | dict) -> bool:
     if str(_campo(o, "fonte") or "").strip().lower() in AGREGADORES:
         return True
     return bool(_RE_URL_AGREGADOR.match(str(_campo(o, "url") or "")))
+
+
+# o histórico por oferta que passa da chave antiga para a nova (ver Estado.migra_chaves_de_oferta)
+CAMPOS_MIGRADOS = ("primeira_vez", "menor_preco", "ultimo_preco", "preco_alertado", "ultima_vez")
+
+
+def _norm_vendedor(nome: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", sem_acentos(str(nome or "")).lower())
+
+
+def _caminho_url(url: Any) -> str:
+    """URL sem query nem fragmento: o caminho do anúncio não muda quando a chave ganha o vendedor
+    (a Amazon passa a pôr ?smid=..., o Magalu ?seller_id=...)."""
+    return str(url or "").strip().lower().split("#", 1)[0].split("?", 1)[0].rstrip("/")
+
+
+def _identidade_de_oferta(o: Any) -> tuple[str, str, str] | None:
+    """(loja canônica, vendedor, caminho da URL) de uma oferta de loja: o que identifica anúncio+vendedor
+    independentemente do formato da chave 'fonte:id'. None quando falta alguma das três."""
+    if str(_campo(o, "tipo") or "") != "loja":
+        return None
+    loja = loja_canonica(str(_campo(o, "loja") or ""))
+    vend = _norm_vendedor(_campo(o, "vendedor"))
+    url = _caminho_url(_campo(o, "url"))
+    return (loja, vend, url) if loja and loja != "?" and vend and url else None
 
 
 def _e_direta(r: Any) -> bool:
@@ -142,6 +167,48 @@ class Estado:
     # ---- ofertas ----
     def oferta_anterior(self, chave: str) -> dict | None:
         return self.dados["ofertas"].get(chave)
+
+    def migra_chaves_de_oferta(self, ofertas: list[Oferta]) -> dict[str, str]:
+        """Leva o histórico por oferta da chave antiga para a nova quando só o FORMATO da chave mudou.
+
+        Quando a coleta passa a identificar o vendedor na chave (Amazon 'B0F7JZMVKF' -> 'B0F7JZMVKF-<vendedor>',
+        Casas Bahia '55069456' -> '55069456-<lojista>', ML catálogo -> item do vendedor), a chave nova nasce sem
+        passado: a rodada não manda 🔻 (não há 'ultimo_preco' para comparar) e pode repetir 🎯 (não há
+        'preco_alertado'). Aqui a chave antiga é reconhecida pelo que não mudou — loja, vendedor e o caminho da
+        URL do anúncio — e leva junto CAMPOS_MIGRADOS. Devolve {chave antiga: chave nova}.
+
+        Conservador de propósito: só entra chave nova que ainda não tem registro, só sai registro que ninguém
+        mais usa nesta rodada, e identidade disputada por mais de uma oferta não migra (inventaria um 🔻).
+        Roda uma vez por registro: 'migrado_para' marca o que já passou.
+        """
+        regs = self.dados["ofertas"]
+        usadas = {o.chave for o in ofertas}
+        novas: dict[tuple, list[str]] = {}
+        for o in ofertas:
+            ident = _identidade_de_oferta(o) if o.chave not in regs else None
+            if ident:
+                novas.setdefault(ident, []).append(o.chave)
+        velhas: dict[tuple, list[str]] = {}
+        for chave, r in regs.items():
+            if chave in usadas or not isinstance(r, dict) or r.get("migrado_para"):
+                continue
+            ident = _identidade_de_oferta(r)
+            if ident:
+                velhas.setdefault(ident, []).append(chave)
+        mapa: dict[str, str] = {}
+        for ident, candidatas in novas.items():
+            iguais = velhas.get(ident) or []
+            if len(candidatas) != 1 or len(iguais) != 1:
+                continue   # ninguém ou ambíguo: melhor sem passado do que com o passado de outro anúncio
+            nova, velha = candidatas[0], iguais[0]
+            passado = {k: regs[velha][k] for k in CAMPOS_MIGRADOS if regs[velha].get(k) is not None}
+            if not passado:
+                continue
+            regs[nova] = passado
+            regs[velha]["migrado_para"] = nova
+            regs[velha]["ativo"] = False
+            mapa[velha] = nova
+        return mapa
 
     def registra_oferta(self, o: Oferta, alertado_preco: float | None = None) -> None:
         reg = self.dados["ofertas"].get(o.chave) or {"primeira_vez": agora_iso(), "preco_alertado": None}
