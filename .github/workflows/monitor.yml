@@ -33,6 +33,7 @@ jobs:
       TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
       ALVO_PIX: ${{ vars.ALVO_PIX }}
       ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
+      MAGALU_ANUNCIOS_EXTRA: ${{ vars.MAGALU_ANUNCIOS_EXTRA }}
       MINUTOS: ${{ github.event.inputs.minutos || vars.MINUTOS_LOOP || '50' }}
       RESUMO: ${{ github.event.inputs.resumo }}
     steps:
