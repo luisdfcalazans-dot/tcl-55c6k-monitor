@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-09-19T21:43:57-03:00",
+ "atualizado": "2026-09-19T22:14:20-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -16,8 +16,8 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF",
-   "id": "B0F7JZMVKF",
+   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET",
+   "id": "B0F7JZMVKF-ACUNARZFR75ET",
    "preco": 3749.0,
    "preco_pix": 3374.1,
    "parcelado": "12x R$ 312,49 sem juros",
@@ -26,9 +26,13 @@
    "ativo": true,
    "vendedor": "Magalu.",
    "extra": {
-    "disponibilidade": "em estoque"
+    "anuncio": "B0F7JZMVKF",
+    "asin": "B0F7JZMVKF",
+    "vendedor_id": "ACUNARZFR75ET",
+    "disponibilidade": "em estoque",
+    "destaque": true
    },
-   "chave": "amazon:B0F7JZMVKF",
+   "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
    "melhor_preco": 3374.1
   },
   {
@@ -55,7 +59,7 @@
    "loja": "Casas Bahia",
    "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
    "url": "https://www.casasbahia.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv/p/55069456",
-   "id": "55069456",
+   "id": "55069456-10037",
    "preco": 3998.99,
    "preco_pix": 3599.09,
    "parcelado": "10x R$ 399,90 sem juros (cartão Casas Bahia)",
@@ -63,8 +67,12 @@
    "publicado": null,
    "ativo": true,
    "vendedor": "Casas Bahia",
-   "extra": {},
-   "chave": "casasbahia:55069456",
+   "extra": {
+    "anuncio": "55069456",
+    "sku": "55069456",
+    "vendedor_id": "10037"
+   },
+   "chave": "casasbahia:55069456-10037",
    "melhor_preco": 3599.09
   },
   {
@@ -72,8 +80,8 @@
    "tipo": "loja",
    "loja": "Mercado Livre",
    "titulo": "Smart Tv Tcl 55 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 55c6k",
-   "url": "https://www.mercadolivre.com.br/smart-tv-tcl-55-polegadas-qd-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-55c6k/p/MLB48808732",
-   "id": "MLB48808732",
+   "url": "https://www.mercadolivre.com.br/p/MLB48808732?pdp_filters=item_id%3AMLB7574364080",
+   "id": "MLB7574364080",
    "preco": 3749.0,
    "preco_pix": null,
    "parcelado": "10x R$ 374,90 sem juros",
@@ -81,9 +89,60 @@
    "publicado": null,
    "ativo": true,
    "vendedor": "Magalu",
-   "extra": {},
-   "chave": "mercadolivre:MLB48808732",
+   "extra": {
+    "anuncio": "MLB7574364080",
+    "item_id": "MLB7574364080",
+    "catalogo": "MLB48808732",
+    "opcoes_no_catalogo": 2,
+    "vendedor_id": "3592255542"
+   },
+   "chave": "mercadolivre:MLB7574364080",
    "melhor_preco": 3749.0
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A30OZFNW1RCCSM",
+   "id": "B0F7JZMVKF-A30OZFNW1RCCSM",
+   "preco": 4184.88,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo S/A",
+   "extra": {
+    "anuncio": "B0F7JZMVKF",
+    "asin": "B0F7JZMVKF",
+    "vendedor_id": "A30OZFNW1RCCSM",
+    "destaque": false
+   },
+   "chave": "amazon:B0F7JZMVKF-A30OZFNW1RCCSM",
+   "melhor_preco": 4184.88
+  },
+  {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K - Voltagem: Bivolt",
+   "url": "https://www.casasbahia.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/1582483296",
+   "id": "1582483296-115221",
+   "preco": 5283.38,
+   "preco_pix": null,
+   "parcelado": "10x R$ 528,34 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "LOJAS COLOMBO",
+   "extra": {
+    "anuncio": "1582483296",
+    "sku": "1582483296",
+    "vendedor_id": "115221"
+   },
+   "chave": "casasbahia:1582483296-115221",
+   "melhor_preco": 5283.38
   }
  ],
  "posts": [
@@ -108,7 +167,7 @@
    },
    "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
    "melhor_preco": 3010.0,
-   "ultima_vez": "2026-09-19T21:43:57-03:00",
+   "ultima_vez": "2026-09-19T22:14:20-03:00",
    "ultimo_preco": 3010.0,
    "menor_preco": 3010.0
   },
@@ -133,7 +192,7 @@
    },
    "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
    "melhor_preco": 2957.0,
-   "ultima_vez": "2026-09-19T21:43:57-03:00",
+   "ultima_vez": "2026-09-19T22:14:20-03:00",
    "ultimo_preco": 2957.0,
    "menor_preco": 2957.0
   },
@@ -158,7 +217,7 @@
    },
    "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
    "melhor_preco": 2969.0,
-   "ultima_vez": "2026-09-19T21:43:57-03:00",
+   "ultima_vez": "2026-09-19T22:14:20-03:00",
    "ultimo_preco": 2969.0,
    "menor_preco": 2969.0
   },
@@ -175,7 +234,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-08-20T21:42:38-03:00",
+   "publicado": "2026-08-20T22:12:38-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -183,7 +242,7 @@
    },
    "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-09-19T21:43:57-03:00",
+   "ultima_vez": "2026-09-19T22:14:20-03:00",
    "ultimo_preco": 2799.0,
    "menor_preco": 2799.0
   },
@@ -200,7 +259,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-08-20T21:42:38-03:00",
+   "publicado": "2026-08-20T22:12:38-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -208,7 +267,7 @@
    },
    "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-09-19T21:43:57-03:00",
+   "ultima_vez": "2026-09-19T22:14:20-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0
   }
@@ -223,7 +282,7 @@
    "id": "d420871f-3659-42ae-b337-948190e9dea7",
    "regra": "Cupom válido acima de R$ 350 em lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-19T09:42:39-03:00",
+   "publicado": "2026-09-19T09:12:38-03:00",
    "especifico": false,
    "chave": "pelando:d420871f-3659-42ae-b337-948190e9dea7"
   },
@@ -236,7 +295,7 @@
    "id": "c024df42-f581-4b03-9335-905d027651a9",
    "regra": "Cupom valido para lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-19T09:42:39-03:00",
+   "publicado": "2026-09-19T09:12:38-03:00",
    "especifico": false,
    "chave": "pelando:c024df42-f581-4b03-9335-905d027651a9"
   },
@@ -249,7 +308,7 @@
    "id": "fc1e13f1-e6b7-46b0-8332-6c77e509fcec",
    "regra": "Cupom válido para itens vendidos pela Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:fc1e13f1-e6b7-46b0-8332-6c77e509fcec"
   },
@@ -262,7 +321,7 @@
    "id": "a69bf73b-f1f4-4cde-9508-ce1ae421d888",
    "regra": "Cupom válido para itens vendidos pela Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:a69bf73b-f1f4-4cde-9508-ce1ae421d888"
   },
@@ -275,7 +334,7 @@
    "id": "4bcb9f49-9ef4-4554-bf60-8de3f38565e9",
    "regra": "Cupom Magazine Luiza Para itens vendidos pela Magazine Luzia",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:4bcb9f49-9ef4-4554-bf60-8de3f38565e9"
   },
@@ -288,7 +347,7 @@
    "id": "17cd12f4-668b-4beb-aace-e4738bb0267e",
    "regra": "Valido no APP da Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:17cd12f4-668b-4beb-aace-e4738bb0267e"
   },
@@ -301,7 +360,7 @@
    "id": "0231baa5-df67-4aa3-82c8-9cec1956006a",
    "regra": "Válido no app . Em tudo",
    "validade": null,
-   "publicado": "2026-09-08T21:42:39-03:00",
+   "publicado": "2026-09-08T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:0231baa5-df67-4aa3-82c8-9cec1956006a"
   },
@@ -314,7 +373,7 @@
    "id": "fb0eebb5-b3a6-4b62-9d3e-eec4a1ab5713",
    "regra": "R$100 a partir de R$900 (válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:fb0eebb5-b3a6-4b62-9d3e-eec4a1ab5713"
   },
@@ -327,7 +386,7 @@
    "id": "bd8df981-f3eb-4267-97c2-e8c37f178e2b",
    "regra": "R$30 a partir de R$250 (válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:bd8df981-f3eb-4267-97c2-e8c37f178e2b"
   },
@@ -340,7 +399,7 @@
    "id": "a44fdd07-3363-4c9e-a5ff-088bffddb12a",
    "regra": "R$320 partir de R$3.000 (válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-06T21:42:39-03:00",
+   "publicado": "2026-09-06T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:a44fdd07-3363-4c9e-a5ff-088bffddb12a"
   },
@@ -353,7 +412,7 @@
    "id": "d9de4ed8-7183-421d-ac35-d3b46ff8159f",
    "regra": "R$150 partir de R$1.000 (válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-05T21:42:39-03:00",
+   "publicado": "2026-09-05T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:d9de4ed8-7183-421d-ac35-d3b46ff8159f"
   },
@@ -366,7 +425,7 @@
    "id": "28154f3a-e1d2-456f-889e-beba7fed1780",
    "regra": "R$250 OFF em compras a partir de R$2.000\n(válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-04T21:42:39-03:00",
+   "publicado": "2026-09-04T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:28154f3a-e1d2-456f-889e-beba7fed1780"
   },
@@ -379,7 +438,7 @@
    "id": "904f1b7e-d653-4be3-9005-90134b3bb07e",
    "regra": "R$15 OFF em compras a partir de R$180 \n(válido para itens elegíveis )",
    "validade": null,
-   "publicado": "2026-09-04T21:42:39-03:00",
+   "publicado": "2026-09-04T22:12:38-03:00",
    "especifico": false,
    "chave": "pelando:904f1b7e-d653-4be3-9005-90134b3bb07e"
   },
@@ -392,7 +451,7 @@
    "id": "5c976429-c034-4c59-a3a4-929096d2d669",
    "regra": "Algumas tvs com R$ 100 OFF",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:5c976429-c034-4c59-a3a4-929096d2d669"
   },
@@ -405,7 +464,7 @@
    "id": "e65411a3-c64d-4fd4-a8db-06e9405f94e0",
    "regra": "pedido mínimo R$ 149 em itens NÃO vendidos e entregues por Amazon",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:e65411a3-c64d-4fd4-a8db-06e9405f94e0"
   },
@@ -418,7 +477,7 @@
    "id": "6af8b3ad-1282-4ad5-814a-339c4fef2767",
    "regra": "Cupom Mercado Livre 30% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:6af8b3ad-1282-4ad5-814a-339c4fef2767"
   },
@@ -431,7 +490,7 @@
    "id": "d04e05eb-7b76-41f6-910c-fd3825f5a0e7",
    "regra": "Cupom Mercado Livre 22% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:d04e05eb-7b76-41f6-910c-fd3825f5a0e7"
   },
@@ -444,7 +503,7 @@
    "id": "d304aa87-1d08-4f2b-bba5-c6f02ef43dd5",
    "regra": "Cupom Mercado Livre 30% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:d304aa87-1d08-4f2b-bba5-c6f02ef43dd5"
   },
@@ -457,7 +516,7 @@
    "id": "3e36ead6-2901-4c0f-9ad6-303c3c66557b",
    "regra": "Cupom Mercado Livre 25% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:3e36ead6-2901-4c0f-9ad6-303c3c66557b"
   },
@@ -470,7 +529,7 @@
    "id": "93f889b1-beb8-4aa2-98f2-25fb67167659",
    "regra": "Cupom Mercado Livre 20% OFF acima de R$ 1 (limi R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:93f889b1-beb8-4aa2-98f2-25fb67167659"
   },
@@ -483,7 +542,7 @@
    "id": "b5452c22-eade-42db-a032-42f261082952",
    "regra": "Cupom Mercado Livre 8% OFF acima de R$ 150 (limi R$ 300 OFF)",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:b5452c22-eade-42db-a032-42f261082952"
   },
@@ -496,7 +555,7 @@
    "id": "5f3de95d-fe45-4679-b94d-4d9a5c12f744",
    "regra": "Cupom Mercado Livre 25% OFF acima de R$ 149 (limi R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-14T21:42:39-03:00",
+   "publicado": "2026-09-14T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:5f3de95d-fe45-4679-b94d-4d9a5c12f744"
   },
@@ -509,7 +568,7 @@
    "id": "02839ed7-a7ff-4e05-aa2d-36111e9f567c",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:02839ed7-a7ff-4e05-aa2d-36111e9f567c"
   },
@@ -522,7 +581,7 @@
    "id": "c6a779ab-75af-4236-a983-16e507f9ea1a",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-17T21:42:39-03:00",
+   "publicado": "2026-09-17T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:c6a779ab-75af-4236-a983-16e507f9ea1a"
   },
@@ -535,7 +594,7 @@
    "id": "37fb6ba2-7832-449e-8232-5a81685d4391",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:37fb6ba2-7832-449e-8232-5a81685d4391"
   },
@@ -548,7 +607,7 @@
    "id": "d97df9fb-517d-49a5-9dfa-c9f66eaf3b7a",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:d97df9fb-517d-49a5-9dfa-c9f66eaf3b7a"
   },
@@ -561,7 +620,7 @@
    "id": "39c8b4f0-3162-4b9e-bb75-08a04a78457d",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:39c8b4f0-3162-4b9e-bb75-08a04a78457d"
   },
@@ -574,7 +633,7 @@
    "id": "94ddf091-9054-4e05-a844-bed69f584d5b",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:94ddf091-9054-4e05-a844-bed69f584d5b"
   },
@@ -587,7 +646,7 @@
    "id": "63a94619-b642-45a7-ac0d-d0a79539bbea",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:63a94619-b642-45a7-ac0d-d0a79539bbea"
   },
@@ -600,7 +659,7 @@
    "id": "f388f4da-9a19-46bc-b74a-4cc8f292b7ab",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:f388f4da-9a19-46bc-b74a-4cc8f292b7ab"
   },
@@ -613,7 +672,7 @@
    "id": "1305f68d-b032-427c-9e2f-cccc4cfe5ac9",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:1305f68d-b032-427c-9e2f-cccc4cfe5ac9"
   },
@@ -626,7 +685,7 @@
    "id": "4e965f63-b66c-40e1-bec7-c99b163e8ae5",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:4e965f63-b66c-40e1-bec7-c99b163e8ae5"
   },
@@ -639,7 +698,7 @@
    "id": "82f3cb51-42ac-44d9-86b6-b22f0759caf1",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:82f3cb51-42ac-44d9-86b6-b22f0759caf1"
   },
@@ -652,7 +711,7 @@
    "id": "6dbbec31-d5f8-405a-b87e-12453cabaf22",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:6dbbec31-d5f8-405a-b87e-12453cabaf22"
   },
@@ -665,7 +724,7 @@
    "id": "e81c611f-e0df-4241-b6a6-3a4e23dd4fd6",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:e81c611f-e0df-4241-b6a6-3a4e23dd4fd6"
   },
@@ -678,7 +737,7 @@
    "id": "1948a4a0-c564-4e4d-acaa-819d60bb7ca3",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:1948a4a0-c564-4e4d-acaa-819d60bb7ca3"
   },
@@ -691,7 +750,7 @@
    "id": "8681527f-8ca9-4f72-8b0b-0798e7d64460",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:8681527f-8ca9-4f72-8b0b-0798e7d64460"
   },
@@ -704,7 +763,7 @@
    "id": "c7d42290-8ee1-450f-97f3-87c494d311e4",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-13T21:42:39-03:00",
+   "publicado": "2026-09-13T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:c7d42290-8ee1-450f-97f3-87c494d311e4"
   },
@@ -717,7 +776,7 @@
    "id": "6389e8b0-ca51-4c7d-a87c-c298d68c75ee",
    "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:6389e8b0-ca51-4c7d-a87c-c298d68c75ee"
   },
@@ -730,7 +789,7 @@
    "id": "18e3e207-9727-48a0-8374-47525d529a29",
    "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:18e3e207-9727-48a0-8374-47525d529a29"
   },
@@ -743,7 +802,7 @@
    "id": "87d914af-028d-4023-ac1a-db45b65985c6",
    "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:87d914af-028d-4023-ac1a-db45b65985c6"
   },
@@ -756,7 +815,7 @@
    "id": "524933c6-9740-4763-b32a-87bb0645b260",
    "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:524933c6-9740-4763-b32a-87bb0645b260"
   },
@@ -769,7 +828,7 @@
    "id": "7f4637b0-76a7-46a3-af32-e96e6c23a427",
    "regra": "Vendas Oficiais: 08.09.2026 às 00h01 até 11.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-07T21:42:39-03:00",
+   "publicado": "2026-09-07T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:7f4637b0-76a7-46a3-af32-e96e6c23a427"
   },
@@ -782,7 +841,7 @@
    "id": "d927b950-72f1-49e3-ab07-5268ab79aa40",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-05T21:42:39-03:00",
+   "publicado": "2026-09-05T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:d927b950-72f1-49e3-ab07-5268ab79aa40"
   },
@@ -795,7 +854,7 @@
    "id": "6c40cf06-8ed6-4298-b172-c5297f84b4bc",
    "regra": "Resgate na Área de cupons",
    "validade": null,
-   "publicado": "2026-09-05T21:42:39-03:00",
+   "publicado": "2026-09-05T22:12:39-03:00",
    "especifico": false,
    "chave": "pelando:6c40cf06-8ed6-4298-b172-c5297f84b4bc"
   }
@@ -803,42 +862,42 @@
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:42:58-03:00",
+   "ultimo_ok": "2026-09-19T22:12:55-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:43:17-03:00",
+   "ultimo_ok": "2026-09-19T22:13:33-03:00",
    "ultimo_erro": null
   },
   "mercadolivre": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:43:36-03:00",
+   "ultimo_ok": "2026-09-19T22:13:58-03:00",
    "ultimo_erro": null
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:43:56-03:00",
+   "ultimo_ok": "2026-09-19T22:14:18-03:00",
    "ultimo_erro": null
   },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:42:38-03:00",
+   "ultimo_ok": "2026-09-19T22:12:38-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:42:39-03:00",
+   "ultimo_ok": "2026-09-19T22:12:39-03:00",
    "ultimo_erro": null
   },
   "shopee": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:43:56-03:00",
+   "ultimo_ok": "2026-09-19T22:14:19-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-19T21:43:57-03:00",
+   "ultimo_ok": "2026-09-19T22:14:19-03:00",
    "ultimo_erro": null
   }
  }
