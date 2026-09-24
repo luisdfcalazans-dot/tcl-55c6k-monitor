@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-24T17:01:40-03:00",
+ "atualizado": "2026-09-24T17:16:45-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -271,7 +271,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-24T17:01:40-03:00",
+   "ultima_vez": "2026-09-24T17:16:45-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -586,7 +586,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T17:01:40-03:00",
+   "ultima_vez": "2026-09-24T17:16:45-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -612,7 +612,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-24T17:01:40-03:00",
+   "ultima_vez": "2026-09-24T17:16:45-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -638,7 +638,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T17:01:40-03:00",
+   "ultima_vez": "2026-09-24T17:16:45-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -664,7 +664,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-24T17:01:40-03:00",
+   "ultima_vez": "2026-09-24T17:16:45-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -1373,6 +1373,32 @@
   {
    "fonte": "promobit",
    "loja": "KaBuM!",
+   "codigo": "TV100",
+   "titulo": "R$100 de Desconto em TVs selecionadas",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "69942",
+   "regra": "produtos KaBuM! R$100 OFF em TVs selecionadas",
+   "validade": "2026-09-28T23:59:00-03:00",
+   "publicado": "2026-09-24T17:00:09-03:00",
+   "especifico": false,
+   "chave": "promobit:69942"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "KaBuM!",
+   "codigo": "TV300",
+   "titulo": "R$300 de Desconto em TVs selecionadas",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "69941",
+   "regra": "produtos KaBuM! R$300 OFF em TVs selecionadas",
+   "validade": "2026-09-28T23:59:00-03:00",
+   "publicado": "2026-09-24T17:00:09-03:00",
+   "especifico": false,
+   "chave": "promobit:69941"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "KaBuM!",
    "codigo": "INTELWEEK",
    "titulo": "Desfrute de 10% OFF com o cupom KaBum! em suas compras",
    "url": "https://www.promobit.com.br/cupons/loja/kabum/",
@@ -1491,52 +1517,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:00:52-03:00",
+   "ultimo_ok": "2026-09-24T17:15:52-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:00:53-03:00",
+   "ultimo_ok": "2026-09-24T17:15:53-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:00:58-03:00",
+   "ultimo_ok": "2026-09-24T17:15:59-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:00:59-03:00",
+   "ultimo_ok": "2026-09-24T17:16:00-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:30-03:00",
+   "ultimo_ok": "2026-09-24T17:16:30-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:31-03:00",
+   "ultimo_ok": "2026-09-24T17:16:31-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:32-03:00",
+   "ultimo_ok": "2026-09-24T17:16:32-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:33-03:00",
+   "ultimo_ok": "2026-09-24T17:16:33-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:34-03:00",
+   "ultimo_ok": "2026-09-24T17:16:34-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T17:01:39-03:00",
+   "ultimo_ok": "2026-09-24T17:16:42-03:00",
    "ultimo_erro": null
   }
  }
