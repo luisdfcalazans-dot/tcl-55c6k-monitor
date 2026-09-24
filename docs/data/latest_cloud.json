@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-24T13:26:23-03:00",
+ "atualizado": "2026-09-24T13:41:29-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -271,7 +271,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-24T13:26:23-03:00",
+   "ultima_vez": "2026-09-24T13:41:29-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -586,7 +586,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T13:26:23-03:00",
+   "ultima_vez": "2026-09-24T13:41:29-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -612,7 +612,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-24T13:26:23-03:00",
+   "ultima_vez": "2026-09-24T13:41:29-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -638,7 +638,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T13:26:23-03:00",
+   "ultima_vez": "2026-09-24T13:41:29-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -664,7 +664,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-24T13:26:23-03:00",
+   "ultima_vez": "2026-09-24T13:41:29-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -953,6 +953,19 @@
    "publicado": "2026-09-21T17:05:25-03:00",
    "especifico": false,
    "chave": "promobit:69780"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "WAPXP26",
+   "titulo": "Os melhores itens do site com 10% OFF aplicando cupom Mercado Livre",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69925",
+   "regra": "produtos Mercado Livre Aplique o código promocional no carrinho de compras e ganhe até 10% de desconto (Compra mínima R$150)",
+   "validade": null,
+   "publicado": "2026-09-24T13:29:16-03:00",
+   "especifico": false,
+   "chave": "promobit:69925"
   },
   {
    "fonte": "promobit",
@@ -1359,19 +1372,6 @@
   },
   {
    "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "CORREAQUI",
-   "titulo": "SURPRESA DOMÉSTICA: 8% OFF em Geral no Mercado Livre (acima de R$150) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69753",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 8% em compra a partir de R$150, excluído o valor do frete, com desconto máximo de R$300 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-21T09:11:16-03:00",
-   "especifico": false,
-   "chave": "promobit:69753"
-  },
-  {
-   "fonte": "promobit",
    "loja": "KaBuM!",
    "codigo": "ADAMANTIUM",
    "titulo": "Garanta 25% de desconto em suas compras com o cupom KaBum!",
@@ -1478,52 +1478,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:25:35-03:00",
+   "ultimo_ok": "2026-09-24T13:40:35-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:25:38-03:00",
+   "ultimo_ok": "2026-09-24T13:40:38-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:25:43-03:00",
+   "ultimo_ok": "2026-09-24T13:40:45-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:25:44-03:00",
+   "ultimo_ok": "2026-09-24T13:40:46-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:10-03:00",
+   "ultimo_ok": "2026-09-24T13:41:14-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:11-03:00",
+   "ultimo_ok": "2026-09-24T13:41:15-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:13-03:00",
+   "ultimo_ok": "2026-09-24T13:41:16-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:14-03:00",
+   "ultimo_ok": "2026-09-24T13:41:18-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:15-03:00",
+   "ultimo_ok": "2026-09-24T13:41:19-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T13:26:23-03:00",
+   "ultimo_ok": "2026-09-24T13:41:26-03:00",
    "ultimo_erro": null
   }
  }
