@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-24T09:28:42-03:00",
+ "atualizado": "2026-09-24T12:56:34-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -51,6 +51,26 @@
    },
    "chave": "vtex:Loja TCL-32054-1",
    "melhor_preco": 3421.48
+  },
+  {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
+   "id": "1561988278",
+   "preco": 4124.0,
+   "preco_pix": 3794.08,
+   "parcelado": "10x R$ 412,40 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true
+   },
+   "chave": "zoom:1561988278",
+   "melhor_preco": 3794.08
   },
   {
    "fonte": "magalu",
@@ -119,26 +139,6 @@
    },
    "chave": "magalu:240162800-magazineluiza",
    "melhor_preco": 3894.05
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
-   "id": "1561988278",
-   "preco": 4443.0,
-   "preco_pix": 4087.56,
-   "parcelado": "10x R$ 444,30 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true
-   },
-   "chave": "zoom:1561988278",
-   "melhor_preco": 4087.56
   },
   {
    "fonte": "zoom",
@@ -271,7 +271,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-24T09:28:42-03:00",
+   "ultima_vez": "2026-09-24T12:56:34-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -586,7 +586,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T09:28:42-03:00",
+   "ultima_vez": "2026-09-24T12:56:34-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -612,7 +612,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-24T09:28:42-03:00",
+   "ultima_vez": "2026-09-24T12:56:34-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -638,7 +638,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-24T09:28:42-03:00",
+   "ultima_vez": "2026-09-24T12:56:34-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -664,7 +664,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-24T09:28:42-03:00",
+   "ultima_vez": "2026-09-24T12:56:34-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -996,110 +996,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "TACOMVC",
-   "titulo": "GARIMPO DO DIA: 30,00% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69902",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 29/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:35-03:00",
-   "especifico": false,
-   "chave": "promobit:69902"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "VOLTAAQUI",
-   "titulo": "PULSE DE ECONOMIA: 25% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69901",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 28/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:33-03:00",
-   "especifico": false,
-   "chave": "promobit:69901"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "MELHORESCUPONS",
-   "titulo": "CAÇA AO DESCONTO: 25% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69900",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 28/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:31-03:00",
-   "especifico": false,
-   "chave": "promobit:69900"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "ACHEIOFF",
-   "titulo": "PULSE ECONOMIA: 25% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69899",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 28/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:28-03:00",
-   "especifico": false,
-   "chave": "promobit:69899"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "CARRINHOCHEIO",
-   "titulo": "ACHADO RÁPIDO: 22% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69898",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:27-03:00",
-   "especifico": false,
-   "chave": "promobit:69898"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "VIPAQUI",
-   "titulo": "CAÇA DE OFERTAS: 25% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69897",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:24-03:00",
-   "especifico": false,
-   "chave": "promobit:69897"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "PROMONOMELI",
-   "titulo": "CHUVA DE OFERTAS: 18% OFF em geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69896",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 18% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:22-03:00",
-   "especifico": false,
-   "chave": "promobit:69896"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "QUEROMAIS",
-   "titulo": "CAÇADOR DE OFERTAS: 30% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69895",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 249/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-24T07:01:20-03:00",
-   "especifico": false,
-   "chave": "promobit:69895"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "PAGARPOUCO",
    "titulo": "Oferta relâmpago: 25% OFF em ofertas no Mercado Livre (acima de R$1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -1122,45 +1018,6 @@
    "publicado": "2026-09-23T12:31:26-03:00",
    "especifico": false,
    "chave": "promobit:69870"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "CUPOMAQUI",
-   "titulo": "CAÇA RÁPIDA: 30,00% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69869",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 28/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T12:31:23-03:00",
-   "especifico": false,
-   "chave": "promobit:69869"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "SEMPREML",
-   "titulo": "BATEU A SORTE: 25% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69868",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 24/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T12:31:21-03:00",
-   "especifico": false,
-   "chave": "promobit:69868"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "DESCONTOSML",
-   "titulo": "SURPRESA DO DIA: 25% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69867",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 24/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T12:31:19-03:00",
-   "especifico": false,
-   "chave": "promobit:69867"
   },
   {
    "fonte": "promobit",
@@ -1204,45 +1061,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "PEGAMELI",
-   "titulo": "CAÇA RÁPIDA: 22% OFF em Ofertas Gerais no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69847",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 06/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T10:11:42-03:00",
-   "especifico": false,
-   "chave": "promobit:69847"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "APROVEITAMUITO",
-   "titulo": "GARIMPO DO DIA: 25% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69846",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 06/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T10:11:39-03:00",
-   "especifico": false,
-   "chave": "promobit:69846"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "COMPRINHASML",
-   "titulo": "SINAL VERDE: 22% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69845",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 07/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T10:01:16-03:00",
-   "especifico": false,
-   "chave": "promobit:69845"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "MELIBAIXOU",
    "titulo": "PULSO DE ECONOMIA: 25% OFF em Ofertas Gerais no Mercado Livre (acima de R$1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -1265,32 +1083,6 @@
    "publicado": "2026-09-23T09:41:10-03:00",
    "especifico": false,
    "chave": "promobit:69843"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "BARRATINHOAQUI",
-   "titulo": "CAÇA DE OPORTUNIDADES: 25% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69842",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 13/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T09:41:07-03:00",
-   "especifico": false,
-   "chave": "promobit:69842"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "COMPRANOMELI",
-   "titulo": "PULSO DE ECONOMIA: 22% OFF em Tudo no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69841",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 13/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-23T09:41:06-03:00",
-   "especifico": false,
-   "chave": "promobit:69841"
   },
   {
    "fonte": "promobit",
@@ -1360,19 +1152,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "OPAECONOMIZEI",
-   "titulo": "PULSO DE ECONOMIA: 30% OFF no Mercado Livre (acima de R$1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69813",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 05/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": null,
-   "publicado": "2026-09-22T11:41:08-03:00",
-   "especifico": false,
-   "chave": "promobit:69813"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "SAINDOBARRATO",
    "titulo": "Caça ao Tesouro: 30% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -1399,28 +1178,184 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "DESCONTOBOM",
-   "titulo": "DESCOBRI O SEGREDO: 25% OFF no Mercado Livre (acima de R$1) com cupom",
+   "codigo": "MELIDESCONTEI",
+   "titulo": "SURPRESA DO DIA: 30% OFF em geral no Mercado Livre (acima de R$1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69810",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 11/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "id": "69805",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
    "validade": null,
-   "publicado": "2026-09-22T09:41:14-03:00",
+   "publicado": "2026-09-22T09:11:22-03:00",
    "especifico": false,
-   "chave": "promobit:69810"
+   "chave": "promobit:69805"
   },
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "BATEDESCONTO",
-   "titulo": "SURPRESA DIGITAL: 30% OFF no Mercado Livre (acima de R$1) com cupom",
+   "codigo": "MELINOCARRINHO",
+   "titulo": "Caça ao Tesouro: 22% OFF em Ofertas Gerais no Mercado Livre com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69809",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 11/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "id": "69804",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
    "validade": null,
-   "publicado": "2026-09-22T09:41:12-03:00",
+   "publicado": "2026-09-22T09:11:19-03:00",
    "especifico": false,
-   "chave": "promobit:69809"
+   "chave": "promobit:69804"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "MLCUPOM",
+   "titulo": "PULSE DE OFERTAS: 25% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69803",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-22T09:11:17-03:00",
+   "especifico": false,
+   "chave": "promobit:69803"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "MELICOMPRAS",
+   "titulo": "FLASH: 30% OFF em Geral no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69802",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-22T09:11:15-03:00",
+   "especifico": false,
+   "chave": "promobit:69802"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "OFERTAHJ",
+   "titulo": "CONEXÃO RÁPIDA: 10% OFF em Eletrônicos no Mercado Livre (acima de R$149) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69801",
+   "regra": "produtos Mercado Livre",
+   "validade": null,
+   "publicado": "2026-09-22T09:11:12-03:00",
+   "especifico": false,
+   "chave": "promobit:69801"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "APROVEITAESSA",
+   "titulo": "GARIMPO: 20% OFF em Ofertas Gerais no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69766",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 08/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 20% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:41:13-03:00",
+   "especifico": false,
+   "chave": "promobit:69766"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "OFERTASMELI",
+   "titulo": "BOM NEGÓCIO: 30% OFF em Produtos no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69765",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 08/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:41:10-03:00",
+   "especifico": false,
+   "chave": "promobit:69765"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "DESCONTOJUSTO",
+   "titulo": "ACHADO: 22% OFF em ofertas gerais no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69762",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 14/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:31:17-03:00",
+   "especifico": false,
+   "chave": "promobit:69762"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "VALEMUITO",
+   "titulo": "CAÇA AO DESCONTO: 25% OFF em ofertas gerais no Mercado Livre (acima de R$1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69761",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 15/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:31:16-03:00",
+   "especifico": false,
+   "chave": "promobit:69761"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "BATEUAQUI",
+   "titulo": "CORRE PRO MELI: 20% OFF no Mercado Livre (acima de R$ 79) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69759",
+   "regra": "produtos Mercado Livre",
+   "validade": null,
+   "publicado": "2026-09-21T09:11:30-03:00",
+   "especifico": false,
+   "chave": "promobit:69759"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "ACHADINHO",
+   "titulo": "POTÊNCIA NA MÃO: 10% OFF em Eletronicos no Mercado Livre (acima de R$99) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69756",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 10% em compra a partir de R$99, excluído o valor do frete, com desconto máximo de R$300 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:11:24-03:00",
+   "especifico": false,
+   "chave": "promobit:69756"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "VIPNOMELI",
+   "titulo": "PULSO ECONÔMICO: 10% OFF em ofertas no Mercado Livre (acima de R$99) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69755",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 10% em compra a partir de R$99, excluído o valor do frete, com desconto máximo de R$300 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:11:21-03:00",
+   "especifico": false,
+   "chave": "promobit:69755"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "AMODESCONTO",
+   "titulo": "CAÇA DE OFERTAS: 15% OFF em ofertas gerais no Mercado Livre (acima de R$50) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69754",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 15% em compra a partir de R$50, excluído o valor do frete, com desconto máximo de R$200 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:11:19-03:00",
+   "especifico": false,
+   "chave": "promobit:69754"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "CORREAQUI",
+   "titulo": "SURPRESA DOMÉSTICA: 8% OFF em Geral no Mercado Livre (acima de R$150) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69753",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 27/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 8% em compra a partir de R$150, excluído o valor do frete, com desconto máximo de R$300 válido para itens elegíveis.",
+   "validade": null,
+   "publicado": "2026-09-21T09:11:16-03:00",
+   "especifico": false,
+   "chave": "promobit:69753"
   },
   {
    "fonte": "promobit",
@@ -1530,52 +1465,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:27:52-03:00",
+   "ultimo_ok": "2026-09-24T12:55:34-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:27:54-03:00",
+   "ultimo_ok": "2026-09-24T12:55:36-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:01-03:00",
+   "ultimo_ok": "2026-09-24T12:55:44-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:03-03:00",
+   "ultimo_ok": "2026-09-24T12:55:45-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:31-03:00",
+   "ultimo_ok": "2026-09-24T12:56:21-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:32-03:00",
+   "ultimo_ok": "2026-09-24T12:56:22-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:32-03:00",
+   "ultimo_ok": "2026-09-24T12:56:23-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:33-03:00",
+   "ultimo_ok": "2026-09-24T12:56:25-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:34-03:00",
+   "ultimo_ok": "2026-09-24T12:56:26-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-24T09:28:40-03:00",
+   "ultimo_ok": "2026-09-24T12:56:33-03:00",
    "ultimo_erro": null
   }
  }
