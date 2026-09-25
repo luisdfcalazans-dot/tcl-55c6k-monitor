@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-25T20:18:28-03:00",
+ "atualizado": "2026-09-25T20:33:25-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -118,6 +118,26 @@
    "melhor_preco": 3699.0
   },
   {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
+   "id": "1561988278",
+   "preco": 4124.0,
+   "preco_pix": 3711.6,
+   "parcelado": "10x R$ 412,40 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true
+   },
+   "chave": "zoom:1561988278",
+   "melhor_preco": 3711.6
+  },
+  {
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -139,26 +159,6 @@
    },
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 3711.6
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
-   "id": "1561988278",
-   "preco": 4124.0,
-   "preco_pix": 3794.08,
-   "parcelado": "10x R$ 412,40 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true
-   },
-   "chave": "zoom:1561988278",
-   "melhor_preco": 3794.08
   },
   {
    "fonte": "zoom",
@@ -269,7 +269,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-25T20:18:28-03:00",
+   "ultima_vez": "2026-09-25T20:33:25-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -584,7 +584,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-25T20:18:28-03:00",
+   "ultima_vez": "2026-09-25T20:33:25-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -610,7 +610,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-25T20:18:28-03:00",
+   "ultima_vez": "2026-09-25T20:33:25-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -636,7 +636,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-25T20:18:28-03:00",
+   "ultima_vez": "2026-09-25T20:33:25-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -662,7 +662,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-25T20:18:28-03:00",
+   "ultima_vez": "2026-09-25T20:33:25-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -1541,52 +1541,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:17:38-03:00",
+   "ultimo_ok": "2026-09-25T20:32:39-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:17:40-03:00",
+   "ultimo_ok": "2026-09-25T20:32:41-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:17:44-03:00",
+   "ultimo_ok": "2026-09-25T20:32:46-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:17:45-03:00",
+   "ultimo_ok": "2026-09-25T20:32:47-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:12-03:00",
+   "ultimo_ok": "2026-09-25T20:33:15-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:13-03:00",
+   "ultimo_ok": "2026-09-25T20:33:15-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:14-03:00",
+   "ultimo_ok": "2026-09-25T20:33:17-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:16-03:00",
+   "ultimo_ok": "2026-09-25T20:33:17-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:17-03:00",
+   "ultimo_ok": "2026-09-25T20:33:18-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T20:18:22-03:00",
+   "ultimo_ok": "2026-09-25T20:33:24-03:00",
    "ultimo_erro": null
   }
  }
