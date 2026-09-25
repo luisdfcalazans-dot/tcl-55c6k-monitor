@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-25T09:20:47-03:00",
+ "atualizado": "2026-09-25T09:35:49-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -137,6 +137,31 @@
    "melhor_preco": 3894.05
   },
   {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
+   "id": "240162800-magazineluiza",
+   "preco": 4099.0,
+   "preco_pix": 3894.05,
+   "parcelado": "10x R$ 409,90 sem juros",
+   "cupom": "LU300",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4199.0,
+    "1p": true,
+    "anuncio": "240162700",
+    "vendedor_id": "magazineluiza",
+    "preco_com_cupom": 3594.05,
+    "cupom_regra": "R$ 300,00 OFF com cupom: LU300"
+   },
+   "chave": "magalu:240162800-magazineluiza",
+   "melhor_preco": 3894.05
+  },
+  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Fast Shop",
@@ -222,31 +247,6 @@
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
-   "id": "240162800-magazineluiza",
-   "preco": 4099.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "LU300",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4199.0,
-    "1p": true,
-    "anuncio": "240162700",
-    "vendedor_id": "magazineluiza",
-    "preco_com_cupom": 3799.0,
-    "cupom_regra": "R$ 300,00 OFF com cupom: LU300"
-   },
-   "chave": "magalu:240162800-magazineluiza",
-   "melhor_preco": 4099.0
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
    "titulo": "Smart TV C6K 55 Polegadas 4K 144 HZ QLED Mini Led TCL",
    "url": "https://www.magazineluiza.com.br/smart-tv-c6k-55-polegadas-4k-144-hz-qled-mini-led-tcl/p/eecab9199g/et/elit/",
    "id": "eecab9199g-leonfer",
@@ -313,7 +313,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-25T09:20:47-03:00",
+   "ultima_vez": "2026-09-25T09:35:49-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -628,7 +628,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-25T09:20:47-03:00",
+   "ultima_vez": "2026-09-25T09:35:49-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -654,7 +654,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-25T09:20:47-03:00",
+   "ultima_vez": "2026-09-25T09:35:49-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -680,7 +680,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-25T09:20:47-03:00",
+   "ultima_vez": "2026-09-25T09:35:49-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -706,7 +706,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-25T09:20:47-03:00",
+   "ultima_vez": "2026-09-25T09:35:49-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -1559,52 +1559,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:19:55-03:00",
+   "ultimo_ok": "2026-09-25T09:34:57-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:19:58-03:00",
+   "ultimo_ok": "2026-09-25T09:34:58-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:05-03:00",
+   "ultimo_ok": "2026-09-25T09:35:04-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:06-03:00",
+   "ultimo_ok": "2026-09-25T09:35:05-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:34-03:00",
+   "ultimo_ok": "2026-09-25T09:35:36-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:35-03:00",
+   "ultimo_ok": "2026-09-25T09:35:37-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:36-03:00",
+   "ultimo_ok": "2026-09-25T09:35:38-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:37-03:00",
+   "ultimo_ok": "2026-09-25T09:35:39-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:38-03:00",
+   "ultimo_ok": "2026-09-25T09:35:40-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-25T09:20:45-03:00",
+   "ultimo_ok": "2026-09-25T09:35:46-03:00",
    "ultimo_erro": null
   }
  }
