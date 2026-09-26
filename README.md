@@ -21,6 +21,21 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 
 Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO`.
 
+### Confiança nos vendedores (antes de qualquer alerta de preço)
+
+Cada anúncio de loja recebe um veredito (`monitor/confianca.py`), sem atrasar os vendedores conhecidos:
+
+| Veredito | O que acontece |
+|---|---|
+| **confiável** (lista `monitor/listas_confianca.json`) | alerta na hora, sem checagem nenhuma |
+| **reprovado** (lista curada ou reprovado automático) | descartado de cara: sem alerta, mínimo, histórico, painel nem carrinho |
+| **suspeito** (vendedor fora da lista com qualquer sinal forte, ou 4+ sinais fracos) | uma mensagem ⚠️ "Anúncio suspeito — possível golpe" com os sinais (repetida só se o preço cair mais 2%); sem 🎯/🏆/🔻, fora do mínimo, histórico, painel, resumo e carrinho |
+| **sem risco aparente** (desconhecido que passou) | alerta normal + linha 🔎 com o que foi checado |
+
+Sinais fortes: preço até 80% da loja confiável mais barata (sozinho já torna o anúncio suspeito), "preço cheio" (o do cartão da própria oferta) igual ao de uma loja confiável com desconto enorme só no Pix/1x, homologação Anatel diferente da 55C6K (`00738-24-06714`), tamanho errado e, no Magalu, loja do vendedor sem TV no catálogo (1 requisição, guardada por 7 dias). Sinais fracos: modelo genérico, anúncio sem avaliações, peso de mentira, sem Full, vendedor novo, com poucas vendas ou de outro ramo. O suspeito só vira **reprovado automático** (descartado de cara nas próximas coletas) com 2+ sinais fortes, um deles de identidade (Anatel, tamanho ou catálogo); preço baixo sozinho é reavaliado a cada rodada. A chave do reprovado automático é o vendedor, nunca o anúncio de outro vendedor. Linha do Zoom de loja sem coleta própria passa pela mesma checagem de preço. Para liberar um vendedor suspeito ou reprovado automaticamente, ponha-o em `confiaveis` (a lista curada vence, inclusive no painel); quando a oferta traz o id do vendedor, a lista casa pelo id, não pelo nome de exibição. O texto das listas é neutro: uma empresa listada pode ser vítima (conta invadida), não autora.
+
+No Magalu, vendedor novo que ficou sem checagem nesta rodada (403, limite de 2 vendedores por rodada, página ilegível) e está abaixo da loja confiável mais barata também sai como suspeito ("não deu para checar"), sem virar reprovado: é reavaliado na rodada seguinte. A ficha do anúncio lida numa rodada (Anatel, modelo, avaliações...) fica no state por 7 dias e vale quando a coleta só traz a busca. O cupom da página de um anúncio reprovado ou suspeito não vai ao alerta, ao painel nem ao testador. Se o `listas_confianca.json` tiver erro de sintaxe, valem as entradas de reserva do código (as próprias lojas e o bloqueio curado) e chega um aviso no Telegram (no máximo a cada 6 h).
+
 ## Configurar (uma vez)
 
 ### 1. Bot do Telegram (2 min)
@@ -68,6 +83,8 @@ monitor/config.py        URLs, alvos, canais, lojas
 monitor/filtro.py        aceita só 55C6K (rejeita 65/75/85C6K, combos, acessórios, usados)
 monitor/sources/*.py     um coletor por fonte
 monitor/regras.py        o que vira alerta
+monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
+monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
 docs/index.html          painel (GitHub Pages)
 tests/                   testes com HTML/JSON reais salvos

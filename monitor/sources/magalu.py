@@ -95,6 +95,81 @@ def _e_55(p: dict) -> bool:
     return True
 
 
+def _ficha_tecnica(p: dict) -> dict[str, str]:
+    """Ficha técnica do anúncio (product.factsheet) achatada: {nome do campo sem acento, minúsculo: valor}."""
+    from ..util import sem_acentos
+
+    out: dict[str, str] = {}
+
+    def visita(no: dict) -> None:
+        for e in no.get("elements") or []:
+            if not isinstance(e, dict):
+                continue
+            if e.get("keyName") and e.get("elements"):
+                vals = [str(x.get("value")) for x in e["elements"]
+                        if isinstance(x, dict) and not x.get("isHtml") and x.get("value") not in (None, "")]
+                if vals:
+                    out.setdefault(sem_acentos(str(e["keyName"])).lower().strip(), " | ".join(vals)[:120])
+            visita(e)
+
+    for secao in p.get("factsheet") or []:
+        if isinstance(secao, dict):
+            visita(secao)
+    return out
+
+
+_RE_ANATEL_DE_ACESSORIO = re.compile(r"controle|remoto|modulo|bateria|carregador|acessori|wi-?fi|bluetooth|fonte")
+
+
+def _dados_do_vendedor(seller: dict) -> dict:
+    """Razão social, desde quando vende, vendas e nota do vendedor (seller.details), para a checagem de confiança."""
+    det = (seller or {}).get("details") or {}
+    if not isinstance(det, dict):
+        return {}
+    out: dict = {}
+    if det.get("legalName"):
+        out["razao_social"] = str(det["legalName"])[:80]
+    if det.get("sellerSince"):
+        out["vendedor_desde"] = str(det["sellerSince"])[:10]
+    for campo, chave in (("totalSales", "vendas_vendedor"), ("score", "nota_vendedor")):
+        if isinstance(det.get(campo), (int, float)):
+            out[chave] = det[campo]
+    return out
+
+
+def _ficha(p: dict) -> dict:
+    """O que a página (ou a busca) já traz para checar a legitimidade do anúncio sem requisição extra: homologação
+    Anatel, modelo e tamanho da ficha, avaliações, peso e os dados do vendedor. Ver monitor/confianca.py (caso de
+    25/09/2026: Anatel de celular, modelo 'Vários', 0 avaliações, peso 0,1 kg, loja de outro ramo)."""
+    f: dict = {}
+    ft = _ficha_tecnica(p)
+    # a homologação da TV, não a de um acessório (controle remoto, módulo Wi-Fi...) que a ficha às vezes lista antes
+    chaves = [k for k in ft if "anatel" in k]
+    da_tv = [k for k in chaves if not _RE_ANATEL_DE_ACESSORIO.search(k)]
+    if chaves:
+        f["anatel"] = ft[(da_tv or chaves)[0]]
+    modelo = ft.get("modelo") or ft.get("referencia")
+    if modelo:
+        f["modelo"] = modelo
+    tam = ft.get("polegadas") or ft.get("tamanho da tela") or ft.get("tamanho")
+    if not tam:
+        for a in p.get("attributes") or []:
+            if isinstance(a, dict) and _variacao_de_tamanho({"label": a.get("label"), "type": a.get("type"),
+                                                             "value": a.get("current")}) and a.get("current"):
+                tam = str(a["current"])
+                break
+    if tam:
+        f["tamanho"] = tam
+    rating = p.get("rating")
+    if isinstance(rating, dict) and isinstance(rating.get("count"), (int, float)):
+        f["avaliacoes"] = int(rating["count"])
+    dims = p.get("dimensions")
+    if isinstance(dims, dict) and isinstance(dims.get("weight"), (int, float)) and dims["weight"] > 0:
+        f["peso_kg"] = dims["weight"]
+    f.update(_dados_do_vendedor(p.get("seller") or {}))
+    return f
+
+
 def _oferta(p: dict) -> Oferta | None:
     """Oferta do vendedor do buy box (o que a página/busca mostra com preço, Pix e parcelado)."""
     titulo = p.get("title") or ""
@@ -113,8 +188,18 @@ def _oferta(p: dict) -> Oferta | None:
         preco=cartao, preco_pix=pix if pix and cartao and pix < cartao else (pix if not cartao else None),
         parcelado=_parcelado(inst), vendedor=vendedor,
         extra={"preco_de": parse_preco(price.get("price")), "1p": seller.get("category") == "1p",
-               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None},
+               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None, "ficha": _ficha(p),
+               "anuncio_exclusivo": _anuncio_exclusivo(p)},
     )
+
+
+def _anuncio_exclusivo(p: dict) -> bool:
+    """O anúncio (/p/<id>/) é só do vendedor do buy box? Só quando a página traz a lista de vendedores (product.offers)
+    e nela não há outro. A busca não traz a lista: aí não se sabe (False). A confiança só guarda o id do anúncio de um
+    reprovado automático quando ele é exclusivo; senão bloquearia os outros vendedores do mesmo anúncio."""
+    sid = (p.get("seller") or {}).get("id")
+    ofs = [of for of in p.get("offers") or [] if isinstance(of, dict)]
+    return bool(sid and ofs) and all((of.get("seller") or {}).get("id") == sid for of in ofs)
 
 
 def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
@@ -145,7 +230,9 @@ def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
         url=url, id=f"{p.get('id')}-{sid}", preco=cartao, preco_pix=pix,
         vendedor=sel.get("description") or sid,
         extra={"preco_de": parse_preco(price.get("price")), "1p": sel.get("category") == "1p",
-               "anuncio": id_anuncio(url), "vendedor_id": sid, "so_lista_de_vendedores": True},
+               "anuncio": id_anuncio(url), "vendedor_id": sid, "so_lista_de_vendedores": True,
+               # a ficha da página é do anúncio do buy box: deste vendedor só os dados dele
+               "ficha": _dados_do_vendedor(sel)},
     )
 
 
@@ -284,6 +371,15 @@ def _guarda(por_id: dict[str, Oferta], o: Oferta) -> None:
         por_id[o.id] = o
 
 
+# quando a coleta levou 403/429 (time.time()): a checagem de confiança (monitor/confianca.py) não insiste logo depois
+BLOQUEADO_EM: float | None = None
+JANELA_BLOQUEIO_S = 15 * 60
+
+
+def bloqueio_recente(janela_s: float = JANELA_BLOQUEIO_S) -> bool:
+    return BLOQUEADO_EM is not None and time.time() - BLOQUEADO_EM < janela_s
+
+
 class _Orcamento:
     """Conta as requisições da rodada e faz a pausa entre elas (educação com o site)."""
 
@@ -300,6 +396,7 @@ class _Orcamento:
 
         403/429 (bloqueio ou excesso de requisições): o orçamento da rodada acaba na hora e o erro sobe.
         Insistir só piora o bloqueio."""
+        global BLOQUEADO_EM
         if self.sobra <= 0:
             return None
         if self.usadas:
@@ -313,6 +410,7 @@ class _Orcamento:
                 return None
             if status in (403, 429):
                 self.bloqueado = True
+                BLOQUEADO_EM = time.time()
             raise
 
 
@@ -387,7 +485,13 @@ class Magalu(Fonte):
                     continue
                 ofs, cps, variacoes = parse_produto_todas(html)
                 pedido = _seller_da_url(url)
+                buybox = ofs[0] if ofs and not ofs[0].extra.get("so_lista_de_vendedores") else None
+                dono = buybox.extra.get("vendedor_id") if buybox else None
                 for c in cps:
+                    if pedido and dono == pedido:
+                        # o cupom é do vendedor do buy box desta página: o link leva a ele (a confiança casa o cupom
+                        # com a oferta desse vendedor; ver confianca.cupom_barrado)
+                        c.url = com_vendedor(c.url, pedido)
                     cupons.setdefault(c.chave, c)
                 for o in ofs:
                     if pedido and o.extra.get("vendedor_id") == pedido and not _seller_da_url(o.url):
@@ -418,8 +522,10 @@ class Magalu(Fonte):
                 if det and det.extra.get("vendedor_id") == sid:
                     det.url = com_vendedor(det.url, sid)
                     det.id = o.id
+                    det.extra["anuncio_exclusivo"] = False  # veio da lista de vendedores do anúncio de outro
                     _guarda(por_id, det)
                     for c in cps:
+                        c.url = com_vendedor(c.url, sid)  # cupom deste vendedor, não do buy box padrão do anúncio
                         cupons.setdefault(c.chave, c)
 
         visitar(list(candidatos.items()))

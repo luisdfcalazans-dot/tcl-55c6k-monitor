@@ -1,0 +1,95 @@
+{
+ "_sobre": [
+  "Listas curadas de confiança dos vendedores da TV (lidas por monitor/confianca.py).",
+  "confiaveis: vendedor conhecido; o alerta sai na hora, sem checagem nenhuma.",
+  "reprovados: descartado de cara (sem alerta, mínimo, histórico, painel nem carrinho).",
+  "Cada entrada: ids (id do vendedor na loja), nomes (nome como a loja mostra), anuncios (ids de anúncio, só em",
+  "reprovados), motivo e desde. Por loja (nome canônico de config.LOJAS_CANONICAS). Em confiaveis, oferta que traz",
+  "o id do vendedor só casa pelo id (o nome de exibição é escolhido pelo vendedor); o nome vale só para oferta sem id.",
+  "O repositório é público: texto NEUTRO e factual. Uma empresa listada em reprovados pode ser vítima (conta",
+  "invadida), não autora. Reprovados automáticos ficam em docs/data/state_<modo>.json; para liberar um vendedor",
+  "suspeito ou reprovado automaticamente, ponha-o em confiaveis (a lista curada vence, inclusive no painel).",
+  "Com erro de sintaxe neste arquivo, valem só as entradas de reserva do código (monitor/confianca.py, RESERVA_LISTAS)",
+  "e o monitor avisa no Telegram: confira o JSON antes de enviar."
+ ],
+ "confiaveis": {
+  "Magazine Luiza": [
+   {"ids": ["magazineluiza"], "nomes": ["Magalu", "Magazine Luiza"],
+    "motivo": "a própria loja (vendido e entregue pelo Magalu)", "desde": "2026-09-13"},
+   {"ids": ["lojascolombooficial"], "nomes": ["Lojas Colombo Oficial"],
+    "motivo": "varejista grande de eletro; vende a 55C6K também na Amazon, Casas Bahia e KaBuM (visto desde 13/09)",
+    "desde": "2026-09-13"},
+   {"ids": ["fastshop2"], "nomes": ["Fast Shop"],
+    "motivo": "varejista grande (loja própria na VTEX); visto como vendedor no Magalu, KaBuM, Amazon e Webcontinental",
+    "desde": "2026-09-13"},
+   {"ids": ["lojawebcontinentalmarketplace"], "nomes": ["Webcontinental Marketplace"],
+    "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-14"},
+   {"ids": ["lojatclsemp"], "nomes": ["Loja TCL Semp", "TCL Semp"], "motivo": "loja oficial do fabricante (TCL SEMP)",
+    "desde": "2026-09-13"}
+  ],
+  "Amazon": [
+   {"ids": ["A1ZZFT5FULY4LN"], "nomes": ["Amazon.com.br", "Amazon"], "motivo": "a própria loja (1P)",
+    "desde": "2026-09-13"},
+   {"ids": ["ACUNARZFR75ET"], "nomes": ["Magalu."], "motivo": "Magazine Luiza vendendo na Amazon",
+    "desde": "2026-09-13"},
+   {"ids": ["A30OZFNW1RCCSM"], "nomes": ["Lojas Colombo S/A"], "motivo": "varejista grande de eletro",
+    "desde": "2026-09-19"},
+   {"ids": ["A3R1Z59ZORN2J9"], "nomes": ["TCLSEMP."], "motivo": "loja oficial do fabricante (TCL SEMP)",
+    "desde": "2026-09-22"},
+   {"ids": ["A122ZHUG7SODV0"], "nomes": ["Fast Shop Loja Oficial"],
+    "motivo": "varejista grande (loja própria na VTEX); id do vendedor da página do B0F7JZMVKF de 13/09",
+    "desde": "2026-09-13"}
+  ],
+  "Mercado Livre": [
+   {"ids": ["480263032"], "nomes": ["Mercado Livre"], "motivo": "a própria loja (1P)", "desde": "2026-09-18"},
+   {"ids": ["3592255542"], "nomes": ["Loja oficial Magalu", "Magalu", "Magazine Luiza"],
+    "motivo": "loja oficial do Magazine Luiza no Mercado Livre", "desde": "2026-09-13"},
+   {"ids": ["3328858476"], "nomes": ["TCL", "Loja oficial TCL"], "motivo": "loja oficial do fabricante no Mercado Livre",
+    "desde": "2026-09-22"},
+   {"nomes": ["Casas Bahia", "Loja oficial Casas Bahia"], "motivo": "loja oficial da Casas Bahia no Mercado Livre",
+    "desde": "2026-09-21"}
+  ],
+  "Casas Bahia": [
+   {"ids": ["10037"], "nomes": ["Casas Bahia"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
+   {"ids": ["115221"], "nomes": ["LOJAS COLOMBO", "Lojas Colombo"], "motivo": "varejista grande de eletro",
+    "desde": "2026-09-19"}
+  ],
+  "KaBuM!": [
+   {"nomes": ["KaBuM!", "KaBuM"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
+   {"ids": ["4269"], "nomes": ["LOJAS COLOMBO", "Lojas Colombo"],
+    "motivo": "varejista grande de eletro; seller_id 4269 no marketplace da KaBuM (visto em 26/09)", "desde": "2026-09-13"},
+   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-21"},
+   {"ids": ["1000"], "nomes": ["Magalu"],
+    "motivo": "Magazine Luiza vendendo no marketplace da KaBuM; seller_id 1000 (visto em 26/09)", "desde": "2026-09-26"}
+  ],
+  "AliExpress": [
+   {"nomes": ["Magalu Store"], "motivo": "loja do Magazine Luiza no AliExpress (visto em 26/09)", "desde": "2026-09-26"}
+  ],
+  "Fast Shop": [
+   {"nomes": ["Fast Shop"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
+   {"nomes": ["Casas Bahia"], "motivo": "varejista grande (parceiro da Fast Shop)", "desde": "2026-09-15"},
+   {"nomes": ["Ponto"], "motivo": "varejista grande (grupo Casas Bahia; parceiro da Fast Shop)", "desde": "2026-09-15"},
+   {"nomes": ["TCL SEMP"], "motivo": "fabricante (parceiro da Fast Shop)", "desde": "2026-09-13"}
+  ],
+  "Loja TCL": [
+   {"nomes": ["TCL - Brasil", "Loja TCL"], "motivo": "loja oficial do fabricante", "desde": "2026-09-13"}
+  ],
+  "Webcontinental": [
+   {"nomes": ["Webcontinental"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
+   {"nomes": ["Ponto"], "motivo": "varejista grande (grupo Casas Bahia)", "desde": "2026-09-13"},
+   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-13"},
+   {"ids": ["003731"], "nomes": ["Casas Bahia"],
+    "motivo": "varejista grande; sellerId 003731 no marketplace da Webcontinental (visto em 26/09)", "desde": "2026-09-26"},
+   {"ids": ["003082"], "nomes": ["Lojas Colombo SA", "Lojas Colombo"],
+    "motivo": "varejista grande de eletro; sellerId 003082 no marketplace da Webcontinental (visto em 26/09)",
+    "desde": "2026-09-26"}
+  ]
+ },
+ "reprovados": {
+  "Magazine Luiza": [
+   {"ids": ["importadoslili"], "nomes": ["Importados Lili"], "anuncios": ["kc3ca4k960", "kd12g2e47k"],
+    "motivo": "anúncio da TV com sinais de risco em 25/09/2026: certificado Anatel de outro produto, preço cheio igual ao Pix do próprio Magalu com 33% de desconto só no Pix/1x, modelo 'Vários', 0 avaliações, e a loja não costuma vender TVs. Padrão de conta de vendedor possivelmente invadida: a empresa pode ser vítima.",
+    "desde": "2026-09-25"}
+  ]
+ }
+}

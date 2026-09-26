@@ -8,6 +8,7 @@ from functools import lru_cache
 from typing import Optional
 
 from . import config
+from . import confianca
 from .estado import Estado, conta_como_preco, e_agregador, lojas_diretas, marca_cupom
 from .models import Cupom, Oferta
 from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
@@ -863,7 +864,7 @@ def _esc(s: Optional[str]) -> str:
     return html.escape(s or "", quote=False)
 
 
-def _linha_preco(o: Oferta) -> str:
+def _linha_preco(o: Oferta, com_cupom: bool = True) -> str:
     partes = []
     if o.preco:
         partes.append(f"<b>{fmt_preco(o.preco)}</b>")
@@ -871,12 +872,12 @@ def _linha_preco(o: Oferta) -> str:
         partes.append(f"Pix {fmt_preco(o.preco_pix)}")
     if o.parcelado:
         partes.append(_esc(o.parcelado))
-    if o.cupom:
+    if o.cupom and com_cupom:
         partes.append(f"cupom <code>{_esc(o.cupom)}</code>")
     return " · ".join(partes) if partes else "preço não informado"
 
 
-def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None) -> str:
+def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None, nota: Optional[str] = None) -> str:
     cab = " ".join(etiquetas)
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
     linhas = [f"{cab} — <b>{_esc(quem)}</b>", _esc(o.titulo[:140]), _linha_preco(o)]
@@ -884,8 +885,54 @@ def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = Non
         linhas.append(f"antes: {fmt_preco(anterior)}")
     if o.tipo == "post":
         linhas.append(f"via {_esc(o.fonte)}" + (f" · {_esc(o.publicado[:16].replace('T', ' '))}" if o.publicado else ""))
+    if nota:
+        linhas.append(_esc(nota))
     linhas.append(o.url)
     return "\n".join(linhas)
+
+
+CAB_SUSPEITO = "⚠️ <b>Anúncio suspeito — possível golpe</b>"
+
+
+def mensagem_suspeito(o: Oferta) -> str:
+    """Mensagem para anúncio de vendedor não confiável com sinais de golpe (monitor/confianca.py): loja, vendedor,
+    preço e os sinais concretos. Sem 🎯/🏆/🔻: não é alerta de promoção. Sai uma vez (e de novo só se o preço cair
+    mais; ver confianca.deve_avisar)."""
+    quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
+    if (o.extra.get("confianca") or {}).get("agregador"):
+        quem += " — linha de agregador, vendedor não identificado"
+    linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b>"]
+    # a razão social vai só nesta mensagem (privada), para a pessoa conferir; o sinal gravado no latest/state (públicos)
+    # diz só o ramo (a empresa pode ser vítima de conta invadida)
+    razao = str((o.extra.get("ficha") or {}).get("razao_social") or "").strip()
+    if razao:
+        linhas.append(f"razão social: {_esc(razao[:80])}")
+    # sem o cupom do anúncio: o aviso não divulga o cupom da página barrada
+    linhas += [_esc(o.titulo[:140]), _linha_preco(o, com_cupom=False), "Sinais:"]
+    linhas += [f"• {_esc(s)}" for s in confianca.sinais_de(o)] or ["• (sem detalhe)"]
+    if (o.extra.get("confianca") or {}).get("reprovado_auto"):
+        destino = ("e o vendedor fica reprovado nas próximas coletas (se for engano, ponha-o em confiaveis no "
+                   "monitor/listas_confianca.json)")
+    else:
+        destino = ("enquanto os sinais durarem (se o vendedor for de confiança, ponha-o em confiaveis no "
+                   "monitor/listas_confianca.json e o alerta de preço sai na rodada seguinte)")
+    linhas.append(f"Não conta como preço (mínimo, histórico, painel, resumo) nem vai ao carrinho, {destino}. Não "
+                  "compre sem conferir o vendedor; pagamento só pelo site, nunca por WhatsApp/Pix direto.")
+    linhas.append(o.url)
+    return "\n".join(linhas)
+
+
+def _reprovados_auto(estado: Optional[Estado]) -> list[dict]:
+    """Reprovados automáticos dos dois modos (monitor/confianca.py); vazio sem estado."""
+    ler = getattr(estado, "reprovados_auto", None)
+    return ler() if callable(ler) else []
+
+
+def menor_preco_confiavel(ofertas: list[Oferta]) -> Optional[float]:
+    """Menor preço entre as ofertas de loja com veredito 'confiavel' nesta rodada (None sem veredito/sem oferta)."""
+    precos = [o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco
+              and not e_agregador(o) and confianca.veredito_de(o) == confianca.CONFIAVEL]
+    return min(precos) if precos else None
 
 
 def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> tuple[list[str], dict[str, float]]:
@@ -908,6 +955,12 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     # ---- preços de loja ----
     for o in lojas:
         p = o.melhor_preco
+        if confianca.veredito_de(o) == confianca.SUSPEITO:
+            # vendedor não confiável com sinais de golpe: uma mensagem de aviso (sem repetir a cada rodada), sem
+            # 🎯/🏆/🔻, e não conta como preço (mínimo, histórico, painel, resumo, carrinho)
+            if o.ativo and p and not estado.bootstrap and confianca.deve_avisar(estado, o):
+                msgs.append(mensagem_suspeito(o))
+            continue
         # inativa, sem preço, ou agregador (Zoom) de loja com fonte direta conhecida: não gera alerta de preço
         if not p or not conta_como_preco(o, diretas):
             continue
@@ -934,12 +987,17 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             if ja is None or p < float(ja) - 0.5:
                 etiquetas.append("🎯 Abaixo do alvo")
         if etiquetas:
-            msgs.append(_msg_oferta(etiquetas, o, anterior))
+            # vendedor fora da lista de confiáveis que passou nas checagens: o alerta sai, com o que foi checado
+            msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o)))
             alertados[o.chave] = p
         if novo_minimo:
             preco_minimo_antes = p
 
     # ---- postagens em sites de promoção e canais ----
+    # postagem com preço muito abaixo da loja confiável mais barata da rodada, ou que leva a anúncio que a rodada julgou
+    # suspeito/reprovado (ou cita o vendedor dele): pode ser anúncio de golpe divulgado. Sai com "⚠️ confira", sem 🎯
+    ref_confiavel = menor_preco_confiavel(ofertas)
+    auto = _reprovados_auto(estado)
     for o in posts:
         if estado.oferta_anterior(o.chave) is not None:
             continue
@@ -951,9 +1009,14 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         if estado.bootstrap:
             continue
         et = ["📣 Promoção postada"]
-        if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX:
+        muito_abaixo = bool(ref_confiavel and o.melhor_preco
+                            and o.melhor_preco <= ref_confiavel * confianca.FRACAO_MUITO_ABAIXO)
+        barrada = confianca.postagem_barrada(o, lojas, auto)
+        if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX and not muito_abaixo and not barrada:
             et.append("🎯")
-        msgs.append(_msg_oferta(et, o))
+        nota = f"⚠️ confira: {barrada}" if barrada else \
+            "⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None
+        msgs.append(_msg_oferta(et, o, nota=nota))
 
     # ---- cupons ----
     preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, diretas, _substitutas(estado, ofertas, diretas))
@@ -973,6 +1036,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         lc = loja_canonica(c.loja)
         if lc not in lojas_com_tv and not c.especifico:
             continue
+        if confianca.cupom_barrado(c, ofertas, auto):
+            continue  # cupom da página de anúncio reprovado/suspeito: o link levaria ao anúncio barrado
         ok, _motivo = cupom_compativel(c, preco_por_loja.get(lc))
         if not ok:
             continue
@@ -1066,11 +1131,14 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Option
     else:
         preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, lojas_diretas(ofertas))
     restritos = restricao_do_codigo(cupons, estado.cupons_vistos() if estado else [])
+    auto = _reprovados_auto(estado)
     out: list[Cupom] = []
     vistos: set[str] = set()
     for c in cupons:
         lc = loja_canonica(c.loja)
         if lc not in lojas_com_tv and not c.especifico:
+            continue
+        if confianca.cupom_barrado(c, ofertas, auto):
             continue
         if not cupom_compativel(c, preco_por_loja.get(lc))[0]:
             continue
@@ -1093,7 +1161,7 @@ def _precos_da_tv(ofertas: list[Oferta], diretas: Optional[set[str]],
     preco: dict[str, float] = {}
     com_tv: set[str] = set(_LOJAS_COM_TV)
     for o in ofertas:
-        if o.tipo != "loja" or not o.melhor_preco or not o.ativo:
+        if o.tipo != "loja" or not o.melhor_preco or not o.ativo or confianca.fora_de_preco(o):
             continue
         lc = loja_canonica(o.loja)
         com_tv.add(lc)

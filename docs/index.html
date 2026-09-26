@@ -52,6 +52,8 @@
   .ok { background:var(--ok-bg); color:var(--ok); } .warn { background:var(--warn-bg); color:var(--warn); } .bad { background:var(--bad-bg); color:var(--bad); } .mute { background:var(--mute-bg); color:var(--ink-2); }
   .best td { background:var(--accent-soft); }
   .velho td, .velho td.num b { color:var(--ink-3); }
+  .sus td, .sus td.num b { color:var(--ink-3); } .sus td.num b { text-decoration:line-through; }
+  .chip.selo { margin-left:6px; vertical-align:1px; }
   .chart-wrap { border:1px solid var(--line); border-radius:8px; background:var(--surface); padding:12px 12px 6px; }
   canvas { width:100%; height:300px; display:block; }
   .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); padding:8px 4px 4px; }
@@ -123,6 +125,37 @@ const lojasDiretas = linhas => new Set(linhas.filter(o => !ehAgregador(o)).map(o
 const VENDEDOR_1P = {'magazine luiza': ['magalu', 'magazine luiza'], 'amazon': ['amazon.com.br', 'amazon']};
 const vendedorChave = o => { const v = normLoja(o.vendedor), l = normLoja(o.loja); return !v || v === l || (VENDEDOR_1P[l] || []).includes(v) ? '' : v; };
 const menorPreco = r => Math.min(...[r.preco_pix, r.preco].filter(Boolean).map(Number));
+
+// Confiança nos vendedores (monitor/confianca.py). Vendedor/anúncio reprovado (lista curada ou automático, que o
+// latest traz em confianca.reprovados) some de tudo, inclusive das linhas antigas do histórico e do "minimo";
+// anúncio suspeito aparece riscado no fim da tabela e nunca vira "Melhor"/"Menor já visto"; vendedor fora da lista
+// de confiáveis ganha um selo com o que foi checado.
+const idNorm = s => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const nomeNorm = s => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  .replace(/a classificacao do vendedor.*$/, '').replace(/politica de devolucao|^\s*vendido por\s+/g, '').replace(/[^a-z0-9]/g, '');
+const RE_VID = /[?&](?:seller_id|smid|idLojista)=([^&#]+)/i, RE_ANUNCIO = /\/p\/([0-9a-z]{6,})(?:\/|$|\?|#)/i;
+const pistas = o => {
+  const ehMagalu = normLoja(o?.loja) === 'magazine luiza', id = String(o?.id || '');
+  const vid = idNorm(o?.extra?.vendedor_id) || idNorm((RE_VID.exec(o?.url || '') || [])[1])
+    || (ehMagalu && id.includes('-') ? idNorm(id.slice(id.lastIndexOf('-') + 1)) : '');
+  const anuncios = new Set([o?.extra?.anuncio, o?.extra?.item_id, (RE_ANUNCIO.exec(o?.url || '') || [])[1],
+    ehMagalu && id.includes('-') ? id.split('-')[0] : ''].map(idNorm).filter(Boolean));
+  return {vid, nome: nomeNorm(o?.vendedor), anuncios};
+};
+// O anúncio de um reprovado AUTOMÁTICO só esconde linha que não diz quem vende: outro vendedor no mesmo anúncio (ex.:
+// o Magalu 1P no /p/ em que o reprovado aparecia na lista de vendedores) continua. Anúncio da lista curada vale sempre.
+const reprovadoPor = lista => o => { if (!o) return false; const p = pistas(o);
+  return lista.some(e => normLoja(e.loja) === normLoja(o.loja) && ((p.vid && (e.ids || []).includes(p.vid))
+    || (p.nome && (e.nomes || []).includes(p.nome))
+    || ((e.anuncios || []).some(a => p.anuncios.has(a)) && (e.origem !== 'automatico' || (!p.vid && !p.nome))))); };
+const veredito = o => o?.extra?.confianca?.veredito || '';
+const suspeito = o => veredito(o) === 'suspeito';
+const selo = o => {
+  const c = o?.extra?.confianca || {}, sinais = (c.sinais || []).join('; ');
+  if (c.veredito === 'suspeito') return `<span class="chip bad selo" title="${esc(sinais)}">sinais de risco</span>`;
+  if (c.veredito === 'sem_risco_aparente') return `<span class="chip warn selo" title="${esc(`checagens: ${(c.checagens || []).join(', ') || '—'}${sinais ? ' · atenção: ' + sinais : ''}`)}">vendedor novo</span>`;
+  return '';
+};
 // Parcelamento: "12x R$ 312,49 sem juros", "10x de R$ 418,48 sem juros", "10x R$ 399,90 sem juros (cartão Casas Bahia)".
 // Total = parcelas x valor; mas a loja arredonda a parcela (Amazon: 12x R$ 312,49 de um total de R$ 3.749,00), então
 // quando a conta fica a menos de 1% do preço do cartão, o total cobrado é o próprio preço do cartão.
@@ -175,20 +208,23 @@ function parseCsv(txt) {
   const todas = fontes.flatMap(f => { const velho = !(agora - Date.parse(f.atualizado) <= VELHO_MS);
     return (f.ofertas_loja || []).map(o => ({...o, _modo: f.modo, _visto: f.atualizado, _velho: velho})); });
   // Linha do agregador some quando alguma fonte direta cobre a mesma loja (mesmo que parada ou indisponível).
-  const diretas = lojasDiretas(todas);
-  let lojas = todas.filter(o => o.ativo !== false && o.melhor_preco && !(ehAgregador(o) && diretas.has(normLoja(o.loja))));
-  lojas.sort((a, b) => (a._velho - b._velho) || (a.melhor_preco - b.melhor_preco));
+  const reprovado = reprovadoPor(fontes.flatMap(f => (f.confianca && f.confianca.reprovados) || []));
+  const diretas = lojasDiretas(todas.filter(o => !reprovado(o)));
+  // o suspeito da própria rodada já entra na lista de reprovados, mas aparece (riscado) até a próxima coleta
+  let lojas = todas.filter(o => o.ativo !== false && o.melhor_preco && !(ehAgregador(o) && diretas.has(normLoja(o.loja)))
+    && (suspeito(o) || (!reprovado(o) && veredito(o) !== 'reprovado')));
+  lojas.sort((a, b) => (suspeito(a) - suspeito(b)) || (a._velho - b._velho) || (a.melhor_preco - b.melhor_preco));
   const vistas = new Set();
   lojas = lojas.filter(o => { const k = normLoja(o.loja) + '|' + vendedorChave(o); if (vistas.has(k)) return false; vistas.add(k); return true; });
-  const melhor = lojas.find(o => !o._velho);
+  const melhor = lojas.find(o => !o._velho && !suspeito(o));
   // Melhor parcelado: menor TOTAL entre as linhas recentes que informam parcelamento; no empate, sem juros e sem
   // condição (ex.: "cartão Casas Bahia") primeiro.
-  const comParc = lojas.filter(o => !o._velho).map(o => ({o, pc: parcela(o)})).filter(x => x.pc)
+  const comParc = lojas.filter(o => !o._velho && !suspeito(o)).map(o => ({o, pc: parcela(o)})).filter(x => x.pc)
     .sort((a, b) => (a.pc.total - b.pc.total) || (b.pc.semJuros - a.pc.semJuros) || (!!a.pc.condicao - !!b.pc.condicao));
   const melhorParc = comParc[0] || null;
   const tb = document.querySelector('#t-lojas tbody');
-  tb.innerHTML = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : o._velho ? 'velho' : ''}">
-    <td><b>${esc(o.loja)}</b>${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
+  tb.innerHTML = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : suspeito(o) ? 'sus' : o._velho ? 'velho' : ''}">
+    <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
     <td class="num">${fmt(o.preco)}</td>
     <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
     <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
@@ -206,12 +242,13 @@ function parseCsv(txt) {
     : (lojas.length ? 'nenhuma loja recente informa parcelamento' : 'sem coleta');
 
   // ---- histórico (CSV de cada modo): linha do agregador não vale para loja que tem fonte direta
-  const ehLinhaLoja = r => r.tipo === 'loja' && (r.preco_pix || r.preco);
+  const ehLinhaLoja = r => r.tipo === 'loja' && (r.preco_pix || r.preco) && !reprovado(r);
   const hist = {cloud: parseCsv(csv1).filter(ehLinhaLoja), pc: parseCsv(csv2).filter(ehLinhaLoja)};
   const diretasHist = new Set([...diretas, ...lojasDiretas([...hist.cloud, ...hist.pc])]);
-  const vale = o => !(ehAgregador(o) && diretasHist.has(normLoja(o.loja)));
+  const vale = o => !(ehAgregador(o) && diretasHist.has(normLoja(o.loja))) && !reprovado(o);
 
-  // "Menor já visto": mínimo vindo do agregador não conta; aí recalcula o do modo pelo histórico dele.
+  // "Menor já visto": mínimo vindo do agregador ou de vendedor/anúncio reprovado não conta; aí recalcula o do modo
+  // pelo histórico dele.
   const minDoModo = f => {
     if (!f.minimo || vale(f.minimo)) return f.minimo;
     return (hist[f.modo] || []).filter(vale).map(r => ({preco: menorPreco(r), loja: r.loja, quando: r.quando}))

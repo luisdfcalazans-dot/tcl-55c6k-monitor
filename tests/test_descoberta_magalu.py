@@ -383,3 +383,30 @@ def test_variacao_de_polegadas_continua_mandando():
 def test_variacao_que_nao_e_de_tamanho_nao_vira_candidata():
     _, _, variacoes = magalu.parse_produto_todas(_html_produto(_com_variacao_de_cor()))
     assert variacoes == [], "a outra cor não é outro tamanho para visitar"
+
+
+# ------------------------------------------------------------------------------------------------
+# 2ª revisão de 26/09: o cupom da página aberta com ?seller_id é DESSE vendedor (seller.tags do buy box da página): o
+# link dele leva o vendedor, e a confiança casa o cupom com a oferta certa (confianca.cupom_barrado)
+# ------------------------------------------------------------------------------------------------
+
+def test_cupom_da_pagina_do_vendedor_de_fora_do_buybox_leva_o_vendedor_no_link(monkeypatch, sem_pausa):
+    p = _com_outro_vendedor("3400.00")
+    p["seller"] = dict(p["seller"], tags=[{"type": "coupon", "code": "MAGALU50", "message": "R$ 50 OFF",
+                                           "endDate": "2026-10-01T23:59:59"}])
+    pv = _produto(P1P)
+    pv["seller"] = {"id": "lojaxyz", "description": "Loja XYZ", "category": "3p",
+                    "tags": [{"type": "coupon", "code": "XYZ100", "message": "R$ 100 OFF",
+                              "endDate": "2026-10-01T23:59:59"}]}
+    pv["price"] = {"paymentMethodDescription": "no Pix", "price": "4199.00", "fullPrice": "3579.00",
+                   "bestPrice": "3400.00"}
+    site = _SiteFalso({"seller_id=lojaxyz": _html_produto(pv), "/p/240162700/": _html_produto(p),
+                       "/p/kc7h6f4k4b/": PCOLOMBO, "/busca/": BUSCA})
+    monkeypatch.setattr(magalu, "get_html", site)
+    ofertas, cupons = magalu.Magalu().coletar()
+    por_codigo = {c.codigo: c for c in cupons}
+    assert por_codigo["XYZ100"].url.endswith("/p/240162700/et/elit/?seller_id=lojaxyz")
+    x = next(o for o in ofertas if o.extra.get("vendedor_id") == "lojaxyz")
+    assert x.url == por_codigo["XYZ100"].url
+    # o cupom do 1P (buy box padrão da página) continua com o link sem seletor
+    assert "seller_id" not in por_codigo["MAGALU50"].url

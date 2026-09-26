@@ -104,20 +104,29 @@ def main() -> int:
         unicos.setdefault(c.chave, c)
     cupons = list(unicos.values())  # type: ignore[assignment]
 
-    # vendedor/anúncio bloqueado (sinais de fraude) não vira alerta, mínimo, histórico nem painel
-    from monitor.confianca import motivo_bloqueio
-    liberadas = []
-    for o in ofertas:
-        motivo = motivo_bloqueio(o)
-        if motivo:
-            print(f"[confiança] descartado {o.loja}/{o.vendedor} ({o.id}): {motivo}")
-        else:
-            liberadas.append(o)
-    ofertas = liberadas  # type: ignore[assignment]
+    # confiança (monitor/confianca.py): vendedor/anúncio reprovado (lista curada ou reprovado automático) sai de cara,
+    # sem alerta, mínimo, histórico, painel nem carrinho
+    from monitor import confianca
+    aviso_listas = confianca.aviso_de_lista_quebrada(estado)  # listas_confianca.json com erro: vale a reserva do código
+    if aviso_listas:
+        avisos.append(aviso_listas)
+    coletadas = list(ofertas)
+    ofertas = confianca.descarta_reprovados(estado, ofertas)  # type: ignore[arg-type]
 
     ofertas, avisos_sanidade = sanear(ofertas)  # type: ignore[arg-type]
     for a in avisos_sanidade:
         print(f"[sanidade] {a}")
+
+    # veredito de cada oferta de loja: confiável (lista) passa direto; desconhecido passa pelas checagens rápidas
+    # (dados da coleta + 1-2 requisições só para vendedor novo com preço atraente); suspeito vira aviso de golpe
+    t_conf = time.time()
+    contagem = confianca.avaliar(estado, ofertas)  # type: ignore[arg-type]
+    if contagem:
+        print(f"[confiança] {', '.join(f'{v}: {n}' for v, n in sorted(contagem.items()))} "
+              f"({time.time() - t_conf:.1f}s)")
+    # cupom da página de anúncio reprovado/suspeito (no Magalu, o do vendedor do buy box, com o link do anúncio) não vai
+    # ao alerta, ao painel nem ao testador
+    cupons = confianca.descarta_cupons_barrados(estado, cupons, coletadas)  # type: ignore[arg-type]
 
     # chave de oferta que mudou de formato (a coleta passou a pôr o vendedor nela) leva o histórico junto:
     # sem isto a rodada não manda 🔻 e pode repetir 🎯 no mesmo anúncio
@@ -168,7 +177,8 @@ def main() -> int:
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]
     n_post = len(ofertas) - n_loja
-    melhor = min([o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco] or [0])  # type: ignore[union-attr]
+    melhor = min([o.melhor_preco for o in ofertas  # type: ignore[union-attr]
+                  if o.tipo == "loja" and o.ativo and o.melhor_preco and not confianca.fora_de_preco(o)] or [0])
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
           f"{enviados} alertas, melhor preço {melhor:.2f}, {time.time()-t0:.0f}s")
     return 0

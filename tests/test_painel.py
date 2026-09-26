@@ -395,3 +395,114 @@ def test_sem_parcelamento_informado(tmp_path):
     assert out["parc"] == "—" and "parcelamento" in out["parc_s"]
     cel = [ _celula_parcelado(l["html"]) for l in linhas(out["tabela"]) if l["loja"] == "Amazon"][0]
     assert "em até 12x sem juros" in cel, "texto que não dá para somar aparece como veio"
+
+
+# ---------------- Confiança (monitor/confianca.py): caso real de 25/09/2026 ----------------
+# O anúncio suspeito da "Importados Lili" (R$ 2.609,01 no Pix) virou o "Melhor à vista" e o "Menor já visto" do painel.
+# Reprovado some de tudo (tabela, destaques, mínimo, gráfico), inclusive das linhas antigas do latest/histórico;
+# suspeito aparece riscado no fim; vendedor fora da lista de confiáveis ganha um selo.
+
+URL_LILI = ("https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-"
+            "assistente-4-hdmi-2-usb/p/kc3ca4k960/et/elit/")
+REPROVADOS = [{"loja": "Magazine Luiza", "ids": ["importadoslili"], "nomes": ["importadoslili"],
+               "anuncios": ["kc3ca4k960", "kd12g2e47k"]}]
+MIN_LILI = {"preco": 2609.01, "loja": "Magazine Luiza", "quando": "2026-09-25T20:18:28-03:00", "url": URL_LILI,
+            "titulo": "Smart TV 55 TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB"}
+LINHAS_LILI = (
+    f"2026-09-18T10:18:28-03:00,magalu,loja,Magazine Luiza,Importados Lili,Smart TV 55 TCL,3894.05,2609.01,"
+    f"\"10x R$ 389,41 sem juros\",,{URL_LILI}\n")
+
+
+def _lili_latest():
+    # o registro real do latest_cloud de 25/09 (sem veredito: gravado antes da checagem existir)
+    return oferta("magalu", "Magazine Luiza", 3894.05, 2609.01, vendedor="Importados Lili",
+                  parcelado="10x R$ 389,41 sem juros", url=URL_LILI, oid="kd12g2e47k-importadoslili",
+                  extra={"preco_de": 3894.05, "1p": False, "anuncio": "kc3ca4k960", "vendedor_id": "importadoslili"})
+
+
+def test_confianca_reprovado_some_da_tabela_dos_destaques_do_minimo_e_do_grafico(tmp_path):
+    cloud = latest("cloud", CLOUD_AT, [_lili_latest(), *ofertas_cloud_hoje()], MIN_LILI)
+    cloud["confianca"] = {"reprovados": REPROVADOS}
+    out = roda_painel(tmp_path, cloud, latest("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON),
+                      csv_cloud=CSV_CLOUD + LINHAS_LILI)
+    assert out["melhor"] == brl(3561.55), out["melhor"]     # antes: R$ 2.609,01 (Importados Lili)
+    assert "Lili" not in out["tabela"] and "Lili" not in out["parc_s"]
+    assert out["min"] == brl(3199.0), out["min"]             # antes: R$ 2.609,01
+    assert out["serie"]["Magazine Luiza"] == {"2026-09-17": 3561.55, "2026-09-18": 3561.55}
+
+
+def test_confianca_lista_de_reprovados_vale_para_o_latest_do_outro_modo(tmp_path):
+    """O PC ainda sem a lista (latest antigo) e a nuvem com ela: a lista de um vale para as linhas do outro."""
+    cloud = latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    cloud["confianca"] = {"reprovados": REPROVADOS}
+    pc = latest("pc", PC_AT, [*ofertas_pc_hoje(), _lili_latest()], MIN_LILI)
+    out = roda_painel(tmp_path, cloud, pc, csv_pc=CSV_PC + LINHAS_LILI)
+    assert "Lili" not in out["tabela"] and out["min"] == brl(2991.6)
+
+
+def test_confianca_suspeito_riscado_no_fim_e_vendedor_novo_com_selo(tmp_path):
+    sus = oferta("magalu", "Magazine Luiza", 3000.0, 2500.0, vendedor="Loja X", parcelado="10x R$ 300,00 sem juros",
+                 oid="kx-lojax", extra={"vendedor_id": "lojax", "confianca": {
+                     "veredito": "suspeito", "sinais": ["certificado Anatel 09573-24-00953 não é o da 55C6K"]}})
+    novo = oferta("magalu", "Magazine Luiza", 3600.0, 3500.0, vendedor="Loja Boa Eletro", oid="kb-lojaboa",
+                  parcelado="10x R$ 360,00 sem juros",
+                  extra={"vendedor_id": "lojaboa", "confianca": {"veredito": "sem_risco_aparente",
+                                                                 "checagens": ["preço", "Anatel"], "sinais": []}})
+    p1 = oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", parcelado="10x R$ 374,90 sem juros",
+                url=URL_MAGALU, extra={"confianca": {"veredito": "confiavel"}})
+    cloud = latest("cloud", CLOUD_AT, [sus, novo, p1])
+    # o suspeito já vira reprovado automático na mesma rodada: mesmo assim aparece (riscado) até a próxima coleta
+    cloud["confianca"] = {"reprovados": [{"loja": "Magazine Luiza", "ids": ["lojax"], "nomes": ["lojax"],
+                                          "anuncios": []}]}
+    out = roda_painel(tmp_path, cloud, latest("pc", PC_AT, []))
+    assert out["melhor"] == brl(3500.0) and "Loja Boa Eletro" in out["melhor_s"]
+    assert out["parc"] == brl(3600.0)
+    ls = linhas(out["tabela"])
+    assert "Loja X" in ls[-1]["html"] and ls[-1]["classe"] == "sus"
+    assert "chip bad selo" in ls[-1]["html"] and "09573-24-00953" in ls[-1]["html"]
+    boa = [l for l in ls if "Loja Boa Eletro" in l["html"]][0]
+    assert "vendedor novo" in boa["html"] and "chip warn selo" in boa["html"]
+    assert "selo" not in [l for l in ls if "vendido por Magalu" in l["html"]][0]["html"]
+
+
+# ---- 2ª passada (revisão de 26/09) ----
+
+def test_confianca_reprovado_automatico_com_anuncio_nao_esconde_outro_vendedor_do_mesmo_anuncio(tmp_path):
+    """Reprovado automático antigo com o /p/ do buy box (240162700, do Magalu 1P): a linha do 1P, a do CSV e a série
+    do gráfico continuam. Anúncio de reprovado automático só vale para linha sem vendedor ou do próprio vendedor."""
+    cloud = latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    cloud["confianca"] = {"reprovados": [
+        *REPROVADOS,
+        {"loja": "Magazine Luiza", "ids": ["lojagolpe"], "nomes": ["lojagolpe"], "anuncios": ["240162700"],
+         "origem": "automatico"}]}
+    out = roda_painel(tmp_path, cloud, latest("pc", PC_AT, ofertas_pc_hoje()))
+    assert "vendido por Magalu" in out["tabela"]
+    assert out["melhor"] == brl(3561.55) and out["melhor_s"].startswith("Magazine Luiza")
+    assert out["serie"]["Magazine Luiza"] == {"2026-09-17": 3561.55, "2026-09-18": 3561.55}
+
+
+def test_confianca_nome_com_ruido_repetido_casa_como_no_python(tmp_path):
+    """nomeNorm do painel tira TODAS as ocorrências do ruído, como nome_normalizado() do Python."""
+    sus = oferta("amazon", "Amazon", 2500.0, vendedor="Loja X Política de devolução Política de devolução",
+                 oid="amz-lojax", url=URL_AMAZON)
+    cloud = latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    pc = latest("pc", PC_AT, [*ofertas_pc_hoje(), sus], MIN_AMAZON)
+    pc["confianca"] = {"reprovados": [{"loja": "Amazon", "ids": [], "nomes": ["lojax"], "anuncios": []}]}
+    out = roda_painel(tmp_path, cloud, pc)
+    assert "Loja X" not in out["tabela"] and out["melhor"] == brl(3561.55)
+
+
+# ---- 3ª passada (2ª revisão de 26/09): rótulo neutro no painel público ----
+
+def test_confianca_selo_do_suspeito_tem_rotulo_neutro(tmp_path):
+    """O painel é público e a empresa do anúncio pode ser vítima (conta invadida): o selo diz 'sinais de risco', não
+    'suspeito', e os sinais ficam no title."""
+    sus = oferta("magalu", "Magazine Luiza", 3000.0, 2500.0, vendedor="Loja X", oid="kx-lojax",
+                 extra={"vendedor_id": "lojax", "confianca": {
+                     "veredito": "suspeito", "sinais": ["certificado Anatel 09573-24-00953 não é o da 55C6K"]}})
+    p1 = oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", url=URL_MAGALU,
+                extra={"confianca": {"veredito": "confiavel"}})
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, [sus, p1]), latest("pc", PC_AT, []))
+    (linha,) = [l for l in linhas(out["tabela"]) if "Loja X" in l["html"]]
+    assert ">sinais de risco</span>" in linha["html"] and ">suspeito</span>" not in linha["html"]
+    assert "09573-24-00953" in linha["html"]

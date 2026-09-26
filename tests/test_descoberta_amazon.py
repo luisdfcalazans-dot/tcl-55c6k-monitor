@@ -33,7 +33,12 @@ def test_painel_de_ofertas_um_vendedor_por_bloco():
     assert magalu.url == "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET"
     colombo = por_id["B0F7JZMVKF-A30OZFNW1RCCSM"]
     assert (colombo.preco, colombo.preco_pix, colombo.vendedor) == (4184.88, None, "Lojas Colombo S/A")
-    assert colombo.extra == {"anuncio": ASIN, "asin": ASIN, "vendedor_id": "A30OZFNW1RCCSM", "destaque": False}
+    # a ficha (avaliações do vendedor e quem envia) é para a checagem de confiança (monitor/confianca.py)
+    assert colombo.extra == {"anuncio": ASIN, "asin": ASIN, "vendedor_id": "A30OZFNW1RCCSM", "destaque": False,
+                             "ficha": {"avaliacoes_vendedor": 695, "positivas_pct": 69,
+                                       "enviado_por": "Lojas Colombo S/A", "full": False}}
+    assert magalu.extra["ficha"] == {"avaliacoes_vendedor": 2982, "positivas_pct": 60, "enviado_por": "Magalu.",
+                                     "full": False}
 
 
 def test_busca_so_asins_da_55c6k():
