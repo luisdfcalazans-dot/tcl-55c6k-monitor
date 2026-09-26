@@ -596,8 +596,9 @@ def test_loja_fora_do_ar_no_passo_final_pausa(amb):
 
 class CarrinhoQueEsvazia(CarrinhoFalsoMagalu):
     """garantir_item esvazia a sacola ANTES de tentar pôr o anúncio (é o que o Magalu faz: esvaziar e só depois
-    adicionar; o ML, desde a F2 de 22/09, põe antes de tirar) e a adição falha em `nao_entra`. Como o adaptador
-    real, conta em `remocoes` o que tirou (F3: é isso que decide o aviso de sacola vazia)."""
+    adicionar; o ML, desde a G1 de 22/09, também tira antes de pôr, depois de pré-checar o anúncio novo) e a adição
+    falha em `nao_entra`. Como o adaptador real, conta em `remocoes` o que tirou (F3: é isso que decide o aviso de
+    sacola vazia)."""
 
     def garantir_item(self, page, url, alvo=None):
         chave = (alvo or {}).get("chave")
@@ -1050,7 +1051,7 @@ class CarrinhoFalsoML(MercadoLivre):
     """Identidade real do ML, carrinho falso (nenhum navegador, nenhum perfil).
 
     `no_carrinho`: o item que está no carrinho da pessoa. `nao_entra`: itens cuja troca falha SEM mexer no
-    carrinho (é o que o adaptador garante desde a F2: adiciona antes de tirar; adição que falha não muda nada).
+    carrinho (é o que o adaptador garante desde a G1: pré-checagem que falha não tira nada do carrinho).
     Anúncio sem item (o catálogo, anúncio padrão de antes da F1) também não entra, como no incidente.
     `opcoes`: o que a página logada do catálogo mostra; vai para `opcoes_vistas` em cada garantir_item, como
     o adaptador real faz (F5)."""
