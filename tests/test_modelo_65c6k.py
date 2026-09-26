@@ -409,7 +409,7 @@ def test_mercadolivre_catalogo_da_65(monkeypatch, tmp_path):
 def test_mercadolivre_bloqueio_na_65_guarda_a_55_e_para(monkeypatch, tmp_path):
     marca = tmp_path / "ml_bloqueado_em"
     monkeypatch.setattr(ps, "MARCA_BLOQUEIO_ML", marca)
-    monkeypatch.setattr(ps.shutil if hasattr(ps, "shutil") else __import__("shutil"), "rmtree", lambda *a, **k: None)
+    monkeypatch.setattr(ps, "_dir_perfil", lambda perfil: tmp_path / f"perfil-{perfil}")  # nunca o perfil de verdade
     bloqueio = ('<html>suspicious-traffic</html>', "Para continuar, acesse")
     paginas = {"/p/MLB48808732": _catalogo_ml(T55_ML, 3749.0), "tcl-55c6k": ("<html></html>", ""),
                "/p/MLB50368907": bloqueio, "tcl-65c6k": bloqueio}
@@ -759,3 +759,62 @@ def test_catalogo_da_65_no_ml_nao_e_anuncio_de_um_vendedor():
     o = Oferta("mercadolivre", "loja", "Mercado Livre", "TV", "u", "MLB50368907", preco=4000.0, modelo="65C6K",
                extra={"item_id": "MLB50368907", "vendedor_id": "123"})
     assert confianca._anuncio_proprio(o) == ""
+
+
+# ------------------------------------------------------------------------------------------------
+# rodada inteira (run.main) com fontes falsas: a 65" entra num state que já existia
+# ------------------------------------------------------------------------------------------------
+
+class _FonteFalsa:
+    nome = "falsa"
+    modo = "cloud"
+    alerta_falha = True
+
+    def __init__(self, ofertas):
+        self.ofertas = ofertas
+
+    def coletar(self):
+        return list(self.ofertas), []
+
+
+def _roda(monkeypatch, ofertas, capsys) -> str:
+    import sys
+
+    import run
+    from monitor import sources
+
+    monkeypatch.setattr(run, "carrega_env", lambda: None)  # nunca lê .env
+    monkeypatch.setattr(sources, "por_modo", lambda modo: [_FonteFalsa(ofertas)])
+    monkeypatch.setattr(run.time, "sleep", lambda s: None)
+    monkeypatch.setattr(sys, "argv", ["run.py", "--mode", "cloud", "--no-notify"])
+    monkeypatch.setattr(config, "HORA_RESUMO_DIARIO", -1)
+    assert run.main() == 0
+    return capsys.readouterr().out
+
+
+def test_rodada_inteira_com_a_65_entrando(dados, monkeypatch, capsys):
+    o55 = _loja(3749.0, 3561.55, modelo="55C6K", oid="240162700-magazineluiza")
+    _state(dados, ofertas={f"magalu:{o55.id}": _reg(o55)})
+    cab = "quando,fonte,tipo,loja,vendedor,titulo,preco,preco_pix,parcelado,cupom,url\n"
+    (dados / "historico_cloud.csv").write_text(cab + "2026-09-20T10:00:00-03:00,magalu,loja,Magazine Luiza,Magalu,TV,"
+                                               "3749.0,3561.55,,,https://loja.example/x\n", encoding="utf-8")
+    rodada1 = [o55, _loja(4799.0, 4559.05, oid="240162600-magazineluiza"),
+               _loja(4274.05, 3963.60, oid="w65", loja="Webcontinental", vendedor="Casas Bahia", fonte="vtex")]
+    out = _roda(monkeypatch, rodada1, capsys)
+    assert "Monitor da TCL 65C6K iniciado" in out and "Webcontinental/Casas Bahia: <b>R$ 3.963,60</b>" in out
+    st = json.loads((dados / "state_cloud.json").read_text(encoding="utf-8"))
+    assert st["modelos_iniciados"] == ["55C6K", "65C6K"] and st["minimo_65C6K"]["preco"] == 3963.6
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert {o["modelo"] for o in lt["ofertas_loja"]} == {"55C6K", "65C6K"} and lt["alvos"]["65C6K"]["pix"] == 3300.0
+    linhas = (dados / "historico_cloud.csv").read_text(encoding="utf-8").splitlines()
+    assert linhas[0].endswith(",modelo") and linhas[1].endswith("https://loja.example/x")
+    assert sorted(l.rsplit(",", 1)[1] for l in linhas[2:]) == ["55C6K", "65C6K", "65C6K"]
+    # 2ª rodada: a 65" cai para 3.290 no Pix na Webcontinental -> 🎯 e 🏆 da 65C6K (a 55" não muda)
+    rodada2 = [o55, rodada1[1], _loja(4274.05, 3290.0, oid="w65", loja="Webcontinental", vendedor="Casas Bahia",
+                                      fonte="vtex")]
+    out = _roda(monkeypatch, rodada2, capsys)
+    assert "iniciado" not in out
+    (cab65,) = [l for l in out.splitlines() if "65C6K — <b>" in l]
+    assert "🏆" in cab65 and "🎯 Abaixo do alvo" in cab65 and "🔻" in cab65
+    assert not any("55C6K — <b>" in l for l in out.splitlines())
+    assert "melhor preço 55C6K 3561.55 / 65C6K 3290.00" in out
