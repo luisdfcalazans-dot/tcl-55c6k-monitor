@@ -228,15 +228,19 @@ def test_nome_de_confiavel_com_id_diferente_nao_e_confiavel():
 
 def test_coleta_do_magalu_guarda_a_ficha_real():
     o = lili()
-    assert (o.id, o.vendedor, o.preco, o.preco_pix) == ("kd12g2e47k-importadoslili", "Importados Lili", 3894.05, 2609.01)
+    # id = o /p/ da variação (26/09; antes era o do grupo, kd12g2e47k, o mesmo da opção de 65")
+    assert (o.id, o.vendedor, o.preco, o.preco_pix) == ("kc3ca4k960-importadoslili", "Importados Lili", 3894.05, 2609.01)
     f = o.extra["ficha"]
     assert (f["anatel"], f["modelo"], f["avaliacoes"], f["peso_kg"]) == ("095732400953", "Vários", 0, 0.1)
     assert f["razao_social"] == "Comercial De Brinquedos Lili Ltda" and f["vendedor_desde"] == "2022-07-25"
     p = magalu_1p()
     assert (p.extra["ficha"]["anatel"], p.extra["ficha"]["modelo"], p.extra["ficha"]["avaliacoes"]) == \
         ("00738-24-06714", "55C6K", 3644)
-    # o de 65" do mesmo grupo (título diz 55") nem entra na coleta
-    assert magalu.parse_produto_todas(LILI65)[0] == []
+    # o de 65" do mesmo grupo (título diz 55"): desde 26/09 a variação diz o tamanho e ele entra como 65C6K, mas a lista
+    # curada de reprovados barra o vendedor nas duas medidas
+    (l65,) = magalu.parse_produto_todas(LILI65)[0]
+    assert (l65.id, l65.modelo, l65.vendedor) == ("kd12g2e47k-importadoslili", "65C6K", "Importados Lili")
+    assert confianca.motivo_bloqueio(l65, ())
 
 
 def test_lili_real_vira_suspeito_so_pelas_checagens(dados, sem_lili_na_lista):

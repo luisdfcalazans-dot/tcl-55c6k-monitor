@@ -2,6 +2,11 @@
 
 Cada modo (cloud / pc) tem os seus próprios arquivos para que os dois executores
 não briguem no git: docs/data/state_<modo>.json, historico_<modo>.csv, latest_<modo>.json.
+
+Dois modelos (26/09/2026): 55C6K e 65C6K. Registro de oferta e linha do histórico levam 'modelo' (dado antigo sem o
+campo é da 55C6K; nada é reescrito à mão). O "menor já visto" é por modelo: 'minimo' (55C6K, a chave de sempre) e
+'minimo_65C6K' no state e no latest (chave_minimo). A primeira rodada em que um modelo aparece num modo é a partida
+("bootstrap") desse modelo: registra tudo, sem alerta dele.
 """
 
 from __future__ import annotations
@@ -18,15 +23,28 @@ from .confianca import (
     REPROVADO, e_do_reprovado_auto, fora_de_preco, identidade_em_duvida, motivo_bloqueio, reprovados_auto_do_estado,
     reprovados_para_painel, veredito_de,
 )
-from .models import Cupom, Oferta
+from .models import MODELO_PADRAO, MODELOS, Cupom, Oferta, modelo_de
 from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
 
+# 'modelo' no fim (26/09): o CSV antigo ganha a coluna só no cabeçalho, e as linhas antigas (sem ela) são da 55C6K
 CAMPOS_HISTORICO = [
-    "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url",
+    "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url", "modelo",
 ]
 MODOS = ("cloud", "pc")
 # um cupom já alertado só volta a ser alerta depois deste prazo sem aparecer (ou se o desconto mudar)
 JANELA_CUPOM_DIAS = 30
+
+
+def chave_minimo(modelo: str = MODELO_PADRAO) -> str:
+    """Chave do "menor já visto" do modelo no state e no latest: 'minimo' (55C6K, a de sempre) ou 'minimo_65C6K'."""
+    m = modelo_de({"modelo": modelo})
+    return "minimo" if m == MODELO_PADRAO else f"minimo_{m}"
+
+
+def _linha_csv_valida(cab: list[str], row: list[str]) -> bool:
+    """A linha tem o número de colunas do cabeçalho, ou uma a menos quando a que falta é a 'modelo' do fim (linha
+    gravada antes de 26/09 num arquivo cujo cabeçalho já ganhou a coluna)."""
+    return len(row) == len(cab) or (len(row) == len(cab) - 1 and bool(cab) and cab[-1] == "modelo")
 
 
 def marca_cupom(loja: str, codigo: str) -> str:
@@ -70,15 +88,15 @@ def _caminho_url(url: Any) -> str:
     return str(url or "").strip().lower().split("#", 1)[0].split("?", 1)[0].rstrip("/")
 
 
-def _identidade_de_oferta(o: Any) -> tuple[str, str, str] | None:
-    """(loja canônica, vendedor, caminho da URL) de uma oferta de loja: o que identifica anúncio+vendedor
-    independentemente do formato da chave 'fonte:id'. None quando falta alguma das três."""
+def _identidade_de_oferta(o: Any) -> tuple[str, str, str, str] | None:
+    """(loja canônica, vendedor, caminho da URL, modelo) de uma oferta de loja: o que identifica anúncio+vendedor
+    independentemente do formato da chave 'fonte:id'. None quando falta alguma das três primeiras."""
     if str(_campo(o, "tipo") or "") != "loja":
         return None
     loja = loja_canonica(str(_campo(o, "loja") or ""))
     vend = _norm_vendedor(_campo(o, "vendedor"))
     url = _caminho_url(_campo(o, "url"))
-    return (loja, vend, url) if loja and loja != "?" and vend and url else None
+    return (loja, vend, url, modelo_de(o)) if loja and loja != "?" and vend and url else None
 
 
 def _e_direta(r: Any) -> bool:
@@ -123,12 +141,13 @@ def _minimo_conta(m: Any, diretas: set[str], bloqueado: Callable[[Any], bool] = 
         and not bloqueado(m)
 
 
-def _minimo_dos_registros(registros: Any, diretas: set[str], bloqueado: Callable[[Any], bool] = _nunca) -> dict | None:
-    """O menor preço já gravado nos registros de oferta que contam (substitui um mínimo de agregador ou de vendedor
-    reprovado que não vale)."""
+def _minimo_dos_registros(registros: Any, diretas: set[str], bloqueado: Callable[[Any], bool] = _nunca,
+                         modelo: str = MODELO_PADRAO) -> dict | None:
+    """O menor preço já gravado nos registros de oferta do `modelo` que contam (substitui um mínimo de agregador ou de
+    vendedor reprovado que não vale)."""
     melhor = None
     for r in (registros.values() if isinstance(registros, dict) else registros or []):
-        if not isinstance(r, dict) or r.get("tipo") != "loja" or bloqueado(r):
+        if not isinstance(r, dict) or r.get("tipo") != "loja" or modelo_de(r) != modelo or bloqueado(r):
             continue
         try:
             p = float(r.get("menor_preco") or 0)
@@ -142,7 +161,7 @@ def _minimo_dos_registros(registros: Any, diretas: set[str], bloqueado: Callable
         return None
     p, r = melhor
     return {"preco": p, "loja": r.get("loja"), "quando": r.get("ultima_vez") or r.get("primeira_vez") or "",
-            "url": r.get("url"), "titulo": r.get("titulo")}
+            "url": r.get("url"), "titulo": r.get("titulo"), "modelo": modelo}
 
 
 class Estado:
@@ -155,7 +174,7 @@ class Estado:
         self.dados: dict[str, Any] = {
             "ofertas": {},        # chave -> registro
             "cupons": {},         # chave -> registro
-            "minimo": None,       # {"preco", "loja", "quando", "url"}
+            "minimo": None,       # 55C6K: {"preco", "loja", "quando", "url"}; a 65C6K em "minimo_65C6K" (chave_minimo)
             "saude": {},          # fonte -> {"falhas", "ultimo_ok", "ultimo_erro"}
             "ultimo_resumo": None,
             "criado_em": None,
@@ -179,8 +198,26 @@ class Estado:
         self.bootstrap = not self.dados["ofertas"] and self.dados.get("criado_em") is None
         if self.dados.get("criado_em") is None:
             self.dados["criado_em"] = agora_iso()
+        # modelos que este modo já registrou (oferta no state ou partida feita): um modelo novo tem a própria partida. A
+        # 55C6K é monitorada desde o começo: todo state que existe já passou pela partida dela
+        iniciados = self.dados.get("modelos_iniciados")
+        self._modelos_conhecidos = {MODELO_PADRAO} | \
+            {modelo_de(r) for r in self.dados["ofertas"].values() if isinstance(r, dict)} | \
+            {m for m in (iniciados if isinstance(iniciados, list) else []) if m in MODELOS}
         self._historico_purgado = False
         self._purga_reprovados()
+
+    def bootstrap_modelo(self, modelo: str) -> bool:
+        """Primeira rodada deste modo com o `modelo` (a partida geral, ou a 65C6K entrando num state que já existia):
+        registra ofertas e postagens sem alertar (senão as postagens antigas da 65" viram uma enxurrada de 📣) e manda
+        a mensagem de início do modelo."""
+        return self.bootstrap or modelo_de({"modelo": modelo}) not in self._modelos_conhecidos
+
+    def marca_modelos_iniciados(self, modelos: set[str]) -> None:
+        """Os modelos que tiveram oferta registrada nesta rodada deixam de estar na partida (vale na próxima rodada)."""
+        atuais = self.dados.get("modelos_iniciados")
+        atuais = [m for m in atuais if m in MODELOS] if isinstance(atuais, list) else []
+        self.dados["modelos_iniciados"] = sorted(set(atuais) | {m for m in modelos if m in MODELOS})
 
     # ---- confiança: vendedor/anúncio reprovado some do estado, do mínimo e do histórico ----
     def reprovados_auto(self) -> list[dict]:
@@ -214,17 +251,22 @@ class Estado:
             partes = ([f"{len(reprovados)} de vendedor/anúncio reprovado"] if reprovados else []) + \
                 ([f"{len(suspeitos)} de anúncio suspeito na rodada anterior"] if suspeitos else [])
             print(f"[confiança] state_{self.modo}: registro(s) removido(s): {' e '.join(partes)}")
-        m = self.dados.get("minimo")
-        if _preco_do_minimo(m) and self._bloqueado(m):
-            diretas = self.lojas_diretas_conhecidas()
-            novo = self._minimo_do_historico(diretas) or _minimo_dos_registros(regs, diretas, self._bloqueado)
-            self.dados["minimo"] = novo
-            print(f"[confiança] state_{self.modo}: mínimo de vendedor/anúncio reprovado ({_preco_do_minimo(m)}) "
-                  f"refeito: {_preco_do_minimo(novo)}")
+        for modelo in MODELOS:
+            chave = chave_minimo(modelo)
+            m = self.dados.get(chave)
+            if _preco_do_minimo(m) and self._bloqueado(m):
+                diretas = self.lojas_diretas_conhecidas()
+                novo = self._minimo_do_historico(diretas, modelo=modelo) or \
+                    _minimo_dos_registros(regs, diretas, self._bloqueado, modelo)
+                self.dados[chave] = novo
+                print(f"[confiança] state_{self.modo}: mínimo da {modelo} de vendedor/anúncio reprovado "
+                      f"({_preco_do_minimo(m)}) refeito: {_preco_do_minimo(novo)}")
 
-    def _minimo_do_historico(self, diretas: set[str], bloqueado: Callable[[Any], bool] | None = None) -> dict | None:
-        """O menor preço do histórico deste modo que conta (sem reprovado e sem agregador de loja com fonte direta),
-        com o horário da linha. None sem histórico legível. `bloqueado`: o que não conta (padrão: _bloqueado)."""
+    def _minimo_do_historico(self, diretas: set[str], bloqueado: Callable[[Any], bool] | None = None,
+                             modelo: str = MODELO_PADRAO) -> dict | None:
+        """O menor preço do `modelo` no histórico deste modo que conta (sem reprovado e sem agregador de loja com fonte
+        direta), com o horário da linha. None sem histórico legível. `bloqueado`: o que não conta (padrão:
+        _bloqueado). Linha antiga (sem a coluna 'modelo') é da 55C6K."""
         bloqueado = bloqueado or self._bloqueado
         try:
             with self.arq_hist.open(encoding="utf-8", newline="") as f:
@@ -233,7 +275,7 @@ class Estado:
             return None
         melhor: tuple[float, dict] | None = None
         for r in linhas:
-            if r.get("tipo") != "loja":
+            if r.get("tipo") != "loja" or modelo_de(r) != modelo:
                 continue
             if e_agregador(r) and loja_canonica(r.get("loja") or "") in diretas:
                 continue
@@ -252,7 +294,7 @@ class Estado:
             return None
         p, r = melhor
         return {"preco": p, "loja": r.get("loja"), "quando": r.get("quando") or "", "url": r.get("url"),
-                "titulo": r.get("titulo"), "vendedor": r.get("vendedor") or None}
+                "titulo": r.get("titulo"), "vendedor": r.get("vendedor") or None, "modelo": modelo}
 
     def _purga_historico(self) -> int:
         """Tira do CSV deste modo as linhas de vendedor/anúncio da lista CURADA de reprovados (uma vez por execução, só
@@ -282,7 +324,7 @@ class Estado:
                 row = next(csv.reader([ln]))
             except (csv.Error, StopIteration):
                 row = []
-            if len(row) == len(cab):
+            if _linha_csv_valida(cab, row):
                 r = dict(zip(cab, row))
                 if r.get("tipo") == "loja" and loja_canonica(r.get("loja") or "") in lojas \
                         and motivo_bloqueio(r, ()):
@@ -502,42 +544,45 @@ class Estado:
         reg["ultima_vez"] = agora_iso()
         self.dados["cupons"][c.chave] = reg
 
-    # ---- mínimo histórico (só lojas confiáveis) ----
-    def minimo(self) -> dict | None:
-        return self.dados.get("minimo")
+    # ---- mínimo histórico (só lojas confiáveis), por modelo ----
+    def minimo(self, modelo: str = MODELO_PADRAO) -> dict | None:
+        return self.dados.get(chave_minimo(modelo))
 
-    def _minimo_do_modo(self, modo: str, diretas: set[str]) -> dict | None:
-        """Mínimo gravado pelo outro modo (só leitura). Arquivo ausente ou quebrado -> None. Mínimo que veio de
-        agregador de loja com fonte direta não vale: fica o menor dos registros que contam (como o painel)."""
+    def _minimo_do_modo(self, modo: str, diretas: set[str], modelo: str = MODELO_PADRAO) -> dict | None:
+        """Mínimo do `modelo` gravado pelo outro modo (só leitura). Arquivo ausente ou quebrado -> None. Mínimo que veio
+        de agregador de loja com fonte direta não vale: fica o menor dos registros que contam (como o painel)."""
+        chave = chave_minimo(modelo)
         for nome in (f"state_{modo}.json", f"latest_{modo}.json"):
             d = self._arquivo_do_modo(nome)
-            m = d.get("minimo") if d else None
+            m = d.get(chave) if d else None
             if not _preco_do_minimo(m):
                 continue
             if _minimo_conta(m, diretas, self._bloqueado):
                 return m
             if nome.startswith("state_"):
-                return _minimo_dos_registros(d.get("ofertas"), diretas, self._bloqueado)
+                return _minimo_dos_registros(d.get("ofertas"), diretas, self._bloqueado, modelo)
         return None
 
-    def _minimo_proprio(self, diretas: set[str]) -> dict | None:
-        m = self.dados.get("minimo")
+    def _minimo_proprio(self, diretas: set[str], modelo: str = MODELO_PADRAO) -> dict | None:
+        m = self.dados.get(chave_minimo(modelo))
         if not _preco_do_minimo(m):
             return None
         return m if _minimo_conta(m, diretas, self._bloqueado) else \
-            _minimo_dos_registros(self.dados["ofertas"], diretas, self._bloqueado)
+            _minimo_dos_registros(self.dados["ofertas"], diretas, self._bloqueado, modelo)
 
-    def minimo_geral(self, diretas: set[str] | None = None) -> dict | None:
-        """Menor preço já visto considerando os dois modos (cloud e pc), como o painel mostra. `diretas`: ver
-        lojas_diretas_conhecidas (None: calcula sem as ofertas da rodada)."""
+    def minimo_geral(self, diretas: set[str] | None = None, modelo: str = MODELO_PADRAO) -> dict | None:
+        """Menor preço já visto do `modelo` considerando os dois modos (cloud e pc), como o painel mostra. `diretas`:
+        ver lojas_diretas_conhecidas (None: calcula sem as ofertas da rodada)."""
         if diretas is None:
             diretas = self.lojas_diretas_conhecidas()
-        candidatos = [self._minimo_proprio(diretas)] + [self._minimo_do_modo(m, diretas) for m in self._outros_modos()]
+        candidatos = [self._minimo_proprio(diretas, modelo)] + \
+            [self._minimo_do_modo(m, diretas, modelo) for m in self._outros_modos()]
         validos = [m for m in candidatos if _preco_do_minimo(m)]
         return min(validos, key=_preco_do_minimo) if validos else None
 
     def atualiza_minimo(self, o: Oferta, diretas: set[str] | None = None) -> bool:
-        """`diretas`: lojas com fonte direta conhecidas (lojas_diretas_conhecidas). Ver conta_como_preco."""
+        """`diretas`: lojas com fonte direta conhecidas (lojas_diretas_conhecidas). Ver conta_como_preco. O mínimo é o
+        do modelo da oferta."""
         if fora_de_preco(o):
             if identidade_em_duvida(o):
                 self._tira_do_minimo(o, diretas)
@@ -545,28 +590,33 @@ class Estado:
         p = o.melhor_preco
         if not p or not conta_como_preco(o, diretas):
             return False
-        m = self.dados.get("minimo")
+        modelo = modelo_de(o)
+        chave = chave_minimo(modelo)
+        m = self.dados.get(chave)
         if diretas is not None and _preco_do_minimo(m) and not _minimo_conta(m, diretas, self._bloqueado):
             # mínimo gravado de agregador de loja que tem fonte direta (preço parado no Zoom): não vale
-            m = self.dados["minimo"] = _minimo_dos_registros(self.dados["ofertas"], diretas, self._bloqueado)
+            m = self.dados[chave] = _minimo_dos_registros(self.dados["ofertas"], diretas, self._bloqueado, modelo)
         if m is None or p < float(m["preco"]):
             # vendedor e chave vão junto: se ele for reprovado depois, o mínimo sai (Estado._purga_reprovados)
-            self.dados["minimo"] = {"preco": p, "loja": o.loja, "quando": agora_iso(), "url": o.url, "titulo": o.titulo,
-                                    "vendedor": o.vendedor, "vendedor_id": o.extra.get("vendedor_id"),
-                                    "chave": o.chave}
+            self.dados[chave] = {"preco": p, "loja": o.loja, "quando": agora_iso(), "url": o.url, "titulo": o.titulo,
+                                 "vendedor": o.vendedor, "vendedor_id": o.extra.get("vendedor_id"),
+                                 "chave": o.chave, "modelo": modelo}
             return m is not None  # na primeira vez não é "novo mínimo", é o primeiro
         return False
 
     def _tira_do_minimo(self, o: Oferta, diretas: set[str] | None) -> None:
-        """A oferta que é o 'minimo' ficou suspeita nesta rodada por sinal de identidade (o anúncio passou a ter a
-        homologação de outro produto, a loja não vende TV...): o mínimo é refeito sem ela, pelo histórico e pelos
+        """A oferta que é o 'minimo' do modelo dela ficou suspeita nesta rodada por sinal de identidade (o anúncio passou
+        a ter a homologação de outro produto, a loja não vende TV...): o mínimo é refeito sem ela, pelo histórico e pelos
         registros (revisão de 26/09: o expurgo ao carregar só tira mínimo de reprovado, e suspeito não é reprovado).
         Suspeita só pelo preço de agora não apaga o preço que o anúncio mostrou quando passou nas checagens."""
-        m = self.dados.get("minimo")
+        modelo = modelo_de(o)
+        chave = chave_minimo(modelo)
+        m = self.dados.get(chave)
         if not _preco_do_minimo(m) or not isinstance(m, dict):
             return
         ident = _identidade_de_oferta(o)
-        if m.get("chave") != o.chave and (ident is None or _identidade_de_oferta({**m, "tipo": "loja"}) != ident):
+        if m.get("chave") != o.chave and (ident is None or
+                                          _identidade_de_oferta({"modelo": modelo, **m, "tipo": "loja"}) != ident):
             return
 
         def fora(r: Any) -> bool:
@@ -575,27 +625,31 @@ class Estado:
 
         if diretas is None:
             diretas = self.lojas_diretas_conhecidas()
-        novo = self._minimo_do_historico(diretas, fora) or _minimo_dos_registros(self.dados["ofertas"], diretas, fora)
-        self.dados["minimo"] = novo
-        print(f"[confiança] state_{self.modo}: mínimo de oferta que ficou suspeita ({_preco_do_minimo(m)}) refeito: "
-              f"{_preco_do_minimo(novo)}")
+        novo = self._minimo_do_historico(diretas, fora, modelo) or \
+            _minimo_dos_registros(self.dados["ofertas"], diretas, fora, modelo)
+        self.dados[chave] = novo
+        print(f"[confiança] state_{self.modo}: mínimo da {modelo} de oferta que ficou suspeita ({_preco_do_minimo(m)}) "
+              f"refeito: {_preco_do_minimo(novo)}")
 
     def restaura_minimo_de_liberados(self, liberados: list[dict]) -> None:
         """Reprovado automático cujo vendedor foi posto em confiáveis (confianca.avaliar): as linhas dele no histórico,
-        que o expurgo não apaga, voltam a contar. Se a mais barata delas é menor que o 'minimo' gravado (que foi refeito
-        sem ele), ela volta a ser o mínimo. Só as linhas desse vendedor: o resto do mínimo não muda."""
+        que o expurgo não apaga, voltam a contar. Se a mais barata delas é menor que o mínimo gravado do modelo (que foi
+        refeito sem ele), ela volta a ser o mínimo. Só as linhas desse vendedor: o resto do mínimo não muda."""
         if not liberados:
             return
 
         def fora(r: Any) -> bool:
             return self._bloqueado(r) or not any(e_do_reprovado_auto(e, r) for e in liberados)
 
-        m = self._minimo_do_historico(self.lojas_diretas_conhecidas(), fora)
-        atual = _preco_do_minimo(self.dados.get("minimo"))
-        if m and (atual is None or m["preco"] < atual):
-            self.dados["minimo"] = m
-            print(f"[confiança] state_{self.modo}: vendedor liberado pela lista de confiáveis; mínimo volta a "
-                  f"{m['preco']} ({m.get('vendedor') or m.get('loja')}, {m.get('quando')})")
+        diretas = self.lojas_diretas_conhecidas()
+        for modelo in MODELOS:
+            chave = chave_minimo(modelo)
+            m = self._minimo_do_historico(diretas, fora, modelo)
+            atual = _preco_do_minimo(self.dados.get(chave))
+            if m and (atual is None or m["preco"] < atual):
+                self.dados[chave] = m
+                print(f"[confiança] state_{self.modo}: vendedor liberado pela lista de confiáveis; mínimo da {modelo} "
+                      f"volta a {m['preco']} ({m.get('vendedor') or m.get('loja')}, {m.get('quando')})")
 
     # ---- saúde das fontes ----
     def fonte_ok(self, nome: str) -> None:
@@ -614,27 +668,54 @@ class Estado:
     def salva(self) -> None:
         self.arq_estado.write_text(json.dumps(self.dados, ensure_ascii=False, indent=1), encoding="utf-8")
 
+    def _cabecalho_com_modelo(self) -> None:
+        """CSV gravado antes de 26/09 (sem a coluna 'modelo'): o cabeçalho ganha a coluna no fim, por código, e as linhas
+        antigas ficam byte a byte como estão (quem lê trata a coluna que falta como 55C6K)."""
+        try:
+            with self.arq_hist.open(encoding="utf-8", newline="") as f:
+                texto = f.read()
+        except OSError:
+            return
+        fim = texto.find("\n")
+        primeira = texto if fim < 0 else texto[:fim + 1]
+        corpo = "" if fim < 0 else texto[fim + 1:]
+        quebra = "\r\n" if primeira.endswith("\r\n") else "\n" if primeira.endswith("\n") else ""
+        try:
+            cab = next(csv.reader([primeira]))
+        except (csv.Error, StopIteration):
+            return
+        if not cab or "modelo" in cab:
+            return
+        tmp = self.arq_hist.with_suffix(".csv.tmp")
+        with tmp.open("w", encoding="utf-8", newline="") as f:
+            f.write(primeira[:len(primeira) - len(quebra)] + ",modelo" + (quebra or "\r\n") + corpo)
+        os.replace(tmp, self.arq_hist)
+        print(f"[estado] historico_{self.modo}.csv: coluna 'modelo' acrescentada ao cabeçalho (linhas antigas = "
+              f"{MODELO_PADRAO})")
+
     def anexa_historico(self, ofertas: list[Oferta]) -> None:
         self._purga_historico()
+        linhas = [o for o in ofertas if o.ativo and o.melhor_preco and not self._bloqueado(o)]
         novo = not self.arq_hist.exists()
+        if linhas and not novo:
+            self._cabecalho_com_modelo()
         with self.arq_hist.open("a", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=CAMPOS_HISTORICO)
             if novo:
                 w.writeheader()
-            for o in ofertas:
-                if not o.ativo or not o.melhor_preco or self._bloqueado(o):
-                    continue  # esgotada, descartada pelo sanear ou suspeita: o preço não é da TV e distorce o gráfico
+            # esgotada, descartada pelo sanear ou suspeita ficam de fora: o preço não é da TV e distorce o gráfico
+            for o in linhas:
                 w.writerow({
                     "quando": agora_iso(), "fonte": o.fonte, "tipo": o.tipo, "loja": o.loja,
                     "vendedor": o.vendedor or "", "titulo": o.titulo[:160], "preco": o.preco or "",
                     "preco_pix": o.preco_pix or "", "parcelado": o.parcelado or "", "cupom": o.cupom or "",
-                    "url": o.url,
+                    "url": o.url, "modelo": modelo_de(o),
                 })
 
     def escreve_latest(self, ofertas: list[Oferta], cupons: list[Cupom]) -> None:
         lojas = [o.to_dict() for o in ofertas if o.tipo == "loja"]
         lojas.sort(key=lambda d: (d["melhor_preco"] is None, d["melhor_preco"] or 0))
-        # posts: os desta execução + os recentes já conhecidos
+        # posts: os desta execução + os recentes já conhecidos (as duas TVs dividem a lista)
         posts_conhecidos = [r for r in self.dados["ofertas"].values() if r.get("tipo") == "post"]
         posts_conhecidos.sort(key=lambda r: r.get("publicado") or r.get("primeira_vez") or "", reverse=True)
         cupons_ativos = [c.to_dict() for c in cupons]
@@ -642,11 +723,13 @@ class Estado:
         latest = {
             "modo": self.modo,
             "atualizado": agora_iso(),
+            # alvo_pix/alvo_parcelado/minimo: os da 55C6K (nomes de sempre); os de cada modelo em alvos/minimo_<modelo>
             "alvo_pix": config.ALVO_PIX,
             "alvo_parcelado": config.ALVO_PARCELADO,
-            "minimo": self.dados.get("minimo"),
+            "alvos": config.alvos(),
+            **{chave_minimo(m): self.dados.get(chave_minimo(m)) for m in MODELOS},
             "ofertas_loja": lojas,
-            "posts": posts_conhecidos[:60],
+            "posts": posts_conhecidos[:80],
             "cupons": cupons_ativos,
             "saude": self.dados["saude"],
             # o painel esconde linhas antigas (latest/histórico) de vendedor/anúncio reprovado com esta lista

@@ -5,8 +5,8 @@ from __future__ import annotations
 from bs4 import BeautifulSoup
 
 from .. import config
-from ..filtro import extrai_55c6k
-from ..models import Oferta
+from ..filtro import extrai_modelos
+from ..models import MODELO_PADRAO, Oferta
 from ..util import (PISO_PRECO_TV, cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto,
                     preco_postagem)
 from . import Fonte, Resultado
@@ -44,27 +44,30 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
         texto = txt_el.get_text(" ", strip=False)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
         # o filtro de título roda na linha-título (a descrição da TV, com "suporte a HDR10+" e "controle remoto",
-        # derrubava postagens legítimas); estado do produto e combo valem em qualquer linha
-        achado = extrai_55c6k(texto)
-        if not achado:
+        # derrubava postagens legítimas); estado do produto e combo valem em qualquer linha. Um bloco por TV
+        # monitorada (55C6K, 65C6K): a postagem com as duas vira duas ofertas, cada uma com o próprio preço
+        achados = extrai_modelos(texto)
+        if not achados:
             continue
-        # preço, parcelado e cupom saem do trecho sem os valores de outros produtos: numa postagem com várias
-        # TVs, o menor valor da mensagem era o de outra TV e virava alerta 🎯 falso. O cupom das linhas antes do
-        # 1º produto ("Use o Cupom: X" acima das linhas "55''" / "65''") vale para todos.
-        titulo, trecho, preambulo = achado
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
-        # menor candidato do bloco da 55C6K (fora mínimo/teto do cupom, desconto, parcela, preço "De" e valores
-        # abaixo de R$ 1.500, que não podem ser o preço desta TV)
-        preco = preco_postagem(trecho, PISO_PRECO_TV)
-        out.append(Oferta(
-            fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
-            titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}", id=post,
-            preco=preco, parcelado=parcelado_no_texto(trecho),
-            cupom=cupom_no_texto(trecho) or cupom_no_texto(preambulo),
-            publicado=iso_normaliza(t.get("datetime")) if t else None,
-            extra={"canal": canal, "links": links[:3], "texto": texto[:600]},
-        ))
+        for modelo, (titulo, trecho, preambulo) in achados.items():
+            # preço, parcelado e cupom saem do trecho sem os valores de outros produtos: numa postagem com várias
+            # TVs, o menor valor da mensagem era o de outra TV e virava alerta 🎯 falso. O cupom das linhas antes do
+            # 1º produto ("Use o Cupom: X" acima das linhas "55''" / "65''") vale para todos.
+            # menor candidato do bloco da TV (fora mínimo/teto do cupom, desconto, parcela, preço "De" e valores
+            # abaixo de R$ 1.500, que não podem ser o preço desta TV)
+            preco = preco_postagem(trecho, PISO_PRECO_TV)
+            out.append(Oferta(
+                fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
+                titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}",
+                # a mesma mensagem com as duas TVs: o id da 65" leva o modelo (o da 55" é o de sempre)
+                id=post if modelo == MODELO_PADRAO else f"{post}#{modelo}",
+                preco=preco, parcelado=parcelado_no_texto(trecho),
+                cupom=cupom_no_texto(trecho) or cupom_no_texto(preambulo),
+                publicado=iso_normaliza(t.get("datetime")) if t else None,
+                extra={"canal": canal, "links": links[:3], "texto": texto[:600]}, modelo=modelo,
+            ))
     return out
 
 

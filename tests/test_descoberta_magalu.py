@@ -42,7 +42,9 @@ def _com_outro_vendedor(pix: str = "3400.00") -> dict:
 
 def test_busca_real_so_a_55c6k():
     ofs = magalu.parse_busca(BUSCA)
-    assert {o.id for o in ofs} == {"240162800-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
+    # id = o /p/ da variação (26/09): o product.id 240162800 é o do grupo, o mesmo da 65" (240162600)
+    assert {o.id for o in ofs} == {"240162700-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
+    assert {o.modelo for o in ofs} == {"55C6K"}
     o1p = next(o for o in ofs if o.vendedor == "Magalu")
     assert (o1p.preco, o1p.preco_pix) == (3749.0, 3561.55)
     assert o1p.extra["anuncio"] == "240162700" and o1p.extra["vendedor_id"] == "magazineluiza"
@@ -54,17 +56,19 @@ def test_busca_real_so_a_55c6k():
 
 def test_produto_1p_compativel_com_o_parse_antigo():
     o, cupons = magalu.parse_produto(P1P)
-    assert o.id == "240162800-magazineluiza" and o.parcelado == "10x R$ 374,90 sem juros"
+    assert o.id == "240162700-magazineluiza" and o.parcelado == "10x R$ 374,90 sem juros"
     ofs, cps, variacoes = magalu.parse_produto_todas(P1P)
-    assert [x.id for x in ofs] == ["240162800-magazineluiza"]
-    assert variacoes == []  # 65" e 75" não entram
+    assert [x.id for x in ofs] == ["240162700-magazineluiza"]
+    # a variação de 65" (26/09: monitorada) entra na fila; a de 75" não (nem é monitorada, e está indisponível)
+    assert variacoes == ["/magazinecanaltechbr/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-google-tv-aipq-google-"
+                         "assistente-4-hdmi-2-usb/p/240162600/et/elit/"]
 
 
 def test_um_oferta_por_vendedor_da_lista_offers():
     ofs, _, _ = magalu.parse_produto_todas(_html_produto(_com_outro_vendedor()))
     por_id = {o.id: o for o in ofs}
-    assert set(por_id) == {"240162800-magazineluiza", "240162800-lojaxyz"}
-    x = por_id["240162800-lojaxyz"]
+    assert set(por_id) == {"240162700-magazineluiza", "240162700-lojaxyz"}
+    x = por_id["240162700-lojaxyz"]
     assert x.vendedor == "Loja XYZ" and x.extra["vendedor_id"] == "lojaxyz" and x.extra["anuncio"] == "240162700"
     # a lista só traz o Pix: o do cartão fica vazio (nunca repetir o Pix como cartão)
     assert (x.preco, x.preco_pix, x.parcelado) == (None, 3400.0, None)
@@ -72,8 +76,14 @@ def test_um_oferta_por_vendedor_da_lista_offers():
 
 
 def test_variacao_de_outro_tamanho_e_rejeitada():
+    # 26/09: a variação de 65" é a 65C6K (o tamanho sai da variação, não do título, que continua dizendo 55")
     p = _produto(P1P)
-    p["variationId"] = "240162600"  # a página seria a do 65" (título trocado de propósito)
+    p["variationId"] = "240162600"
+    ofs, _cps, _var = magalu.parse_produto_todas(_html_produto(p))
+    assert [(o.id, o.modelo) for o in ofs] == [("240162600-magazineluiza", "65C6K")]
+    # a de 75" (não monitorada) continua rejeitada
+    p = _produto(P1P)
+    p["variationId"] = "240162800"
     assert magalu.parse_produto_todas(_html_produto(p)) == ([], [], [])
     p = _produto(P1P)
     p["available"] = False
@@ -85,7 +95,8 @@ def test_variacao_55_nova_vira_candidata():
     p["variations"].append({"id": "abc123def4", "label": "Polegadas", "type": "inch", "value": "55\"",
                             "available": True, "path": "smart-tv-55-tcl-55c6k-full/p/abc123def4/et/elit/"})
     _, _, variacoes = magalu.parse_produto_todas(_html_produto(p))
-    assert variacoes == ["/magazinecanaltechbr/smart-tv-55-tcl-55c6k-full/p/abc123def4/et/elit/"]
+    assert "/magazinecanaltechbr/smart-tv-55-tcl-55c6k-full/p/abc123def4/et/elit/" in variacoes
+    assert not any("/p/240162800/" in v for v in variacoes), "75\" não é monitorada"
 
 
 def test_anuncios_do_estado_so_os_ultimos_14_dias(tmp_path):
@@ -151,8 +162,8 @@ def test_coletar_todos_os_vendedores_e_completa_o_de_fora_do_buybox(monkeypatch,
     monkeypatch.setattr(magalu, "get_html", site)
     ofertas, cupons = magalu.Magalu().coletar()
     por_id = {o.id: o for o in ofertas}
-    assert set(por_id) == {"240162800-magazineluiza", "240162800-lojaxyz", "kc7h6f4k4b-lojascolombooficial"}
-    x = por_id["240162800-lojaxyz"]
+    assert set(por_id) == {"240162700-magazineluiza", "240162700-lojaxyz", "kc7h6f4k4b-lojascolombooficial"}
+    x = por_id["240162700-lojaxyz"]
     assert (x.preco, x.preco_pix, x.parcelado) == (3579.0, 3400.0, "10x R$ 357,90 sem juros")
     assert x.url.endswith("?seller_id=lojaxyz") and x.extra["vendedor_id"] == "lojaxyz"
     assert len(site.pedidas) <= config.MAGALU_MAX_REQUISICOES
@@ -169,7 +180,7 @@ def test_coletar_respeita_o_teto_e_pula_anuncio_que_saiu_do_ar(monkeypatch, sem_
     monkeypatch.setattr(magalu, "get_html", site)
     ofertas, _ = magalu.Magalu().coletar()
     assert len(site.pedidas) == config.MAGALU_MAX_REQUISICOES  # 20 anúncios antigos, mas só até o teto
-    assert {o.id for o in ofertas} == {"240162800-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
+    assert {o.id for o in ofertas} == {"240162700-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
 
 
 def test_coletar_sem_nada_e_com_erro_de_rede_vira_falha(monkeypatch, sem_pausa):
@@ -217,15 +228,15 @@ def _variacao_55(pid: str, pix: str, cartao: str) -> dict:
 
 
 def test_variacao_mais_cara_do_mesmo_grupo_nao_apaga_a_mais_barata(monkeypatch, sem_pausa):
-    # product.id é o do GRUPO: as duas variações de 55" do Magalu viram o mesmo id '240162800-magazineluiza'
+    # 26/09: o id é o /p/ da variação, não o product.id do GRUPO: as duas variações de 55" do Magalu são duas ofertas
     site = _SiteFalso({"/p/240162701/": _html_produto(_variacao_55("240162701", "3999.00", "4199.00")),
                        "/p/240162700/": _html_produto(_com_variacao("240162701"))})
     monkeypatch.setattr(magalu, "get_html", site)
     monkeypatch.setattr(config, "MAGALU_TERMOS", [])
     ofertas, _ = magalu.Magalu().coletar()
     assert any("/p/240162701/" in u for u in site.pedidas), "a variação foi visitada"
-    assert [(o.id, o.extra["anuncio"], o.preco_pix) for o in ofertas] == \
-        [("240162800-magazineluiza", "240162700", 3561.55)], "fica a mais barata (a visitada por último era mais cara)"
+    assert sorted((o.id, o.extra["anuncio"], o.preco_pix) for o in ofertas) == [
+        ("240162700-magazineluiza", "240162700", 3561.55), ("240162701-magazineluiza", "240162701", 3999.0)]
 
 
 def test_variacao_mais_barata_do_mesmo_grupo_substitui(monkeypatch, sem_pausa):
@@ -234,8 +245,9 @@ def test_variacao_mais_barata_do_mesmo_grupo_substitui(monkeypatch, sem_pausa):
     monkeypatch.setattr(magalu, "get_html", site)
     monkeypatch.setattr(config, "MAGALU_TERMOS", [])
     ofertas, _ = magalu.Magalu().coletar()
-    assert [(o.extra["anuncio"], o.preco_pix) for o in ofertas] == [("240162701", 3300.0)]
-    assert "/p/240162701/" in ofertas[0].url
+    por_anuncio = {o.extra["anuncio"]: o for o in ofertas}
+    assert {a: o.preco_pix for a, o in por_anuncio.items()} == {"240162700": 3561.55, "240162701": 3300.0}
+    assert "/p/240162701/" in por_anuncio["240162701"].url
 
 
 def test_pagina_do_produto_substitui_a_leitura_da_busca_do_mesmo_anuncio(monkeypatch, sem_pausa):
@@ -246,7 +258,7 @@ def test_pagina_do_produto_substitui_a_leitura_da_busca_do_mesmo_anuncio(monkeyp
     monkeypatch.setattr(magalu, "get_html", site)
     monkeypatch.setattr(config, "MAGALU_TERMOS", ["tcl 55c6k"])
     ofertas, _ = magalu.Magalu().coletar()
-    assert {o.id: o.preco_pix for o in ofertas}["240162800-magazineluiza"] == 3600.0
+    assert {o.id: o.preco_pix for o in ofertas}["240162700-magazineluiza"] == 3600.0
 
 
 def test_anuncio_extra_com_vendedor_na_url_guarda_o_vendedor_no_link(monkeypatch, sem_pausa):
@@ -307,7 +319,7 @@ def test_bloqueio_no_meio_guarda_o_que_ja_veio(monkeypatch, sem_pausa):
     monkeypatch.setattr(magalu, "get_html", site)
     monkeypatch.setattr(config, "MAGALU_TERMOS", ["tcl 55c6k", "55c6k"])
     ofertas, _ = magalu.Magalu().coletar()
-    assert {o.id for o in ofertas} == {"240162800-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
+    assert {o.id for o in ofertas} == {"240162700-magazineluiza", "kc7h6f4k4b-lojascolombooficial"}
     assert len(pedidas) == 3, "2 buscas e a 1ª página que deu 429; nada depois"
 
 
@@ -326,7 +338,7 @@ def test_vendedor_de_fora_do_buybox_antes_dos_anuncios_do_estado(monkeypatch, se
                        "/p/kc7h6f4k4b/": PCOLOMBO, "/busca/": BUSCA})
     monkeypatch.setattr(magalu, "get_html", site)
     ofertas, _ = magalu.Magalu().coletar()
-    x = {o.id: o for o in ofertas}["240162800-lojaxyz"]
+    x = {o.id: o for o in ofertas}["240162700-lojaxyz"]
     assert x.parcelado == "10x R$ 357,90 sem juros", "a página do vendedor foi aberta"
     assert len(site.pedidas) == config.MAGALU_MAX_REQUISICOES, "o resto do orçamento vai para o estado"
     assert any("/p/zz000000" in u for u in site.pedidas)
@@ -354,7 +366,7 @@ def _com_variacao_de_cor(valor: str = "Preto") -> dict:
 def test_variacao_de_cor_nao_apaga_o_anuncio_1p():
     # o título continua sendo o da 55C6K de 55": quem decide é ele, não o valor da variação
     ofertas, cupons, _ = magalu.parse_produto_todas(_html_produto(_com_variacao_de_cor()))
-    assert [o.id for o in ofertas][:1] == ["240162800-magazineluiza"]
+    assert [o.id for o in ofertas][:1] == ["240162700-magazineluiza"]
     assert magalu.parse_produto(_html_produto(_com_variacao_de_cor()))[0] is not None
     assert cupons == magalu.parse_produto_todas(P1P)[1], "os cupons do anúncio continuam sendo lidos"
 
@@ -365,18 +377,23 @@ def test_variacao_de_voltagem_na_busca_nao_apaga_o_anuncio():
          "path": "smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz/p/240162700/et/elit/"}])
     nd = {"props": {"pageProps": {"data": {"search": {"products": [produto]}}}}}
     html = f'<script id="__NEXT_DATA__" type="application/json">{json.dumps(nd, ensure_ascii=False)}</script>'
-    assert [o.id for o in magalu.parse_busca(html)] == ["240162800-magazineluiza"]
+    assert [o.id for o in magalu.parse_busca(html)] == ["240162700-magazineluiza"]
 
 
 def test_variacao_de_polegadas_continua_mandando():
-    # a regra antiga não se perde: variação de tamanho de outro tamanho segue rejeitando o anúncio
+    # a variação de tamanho manda (26/09: 65" é a 65C6K, mesmo com o título dizendo 55"; 75" continua rejeitada)
     p = _produto(P1P)
     p["variationId"] = "240162600"
+    assert [o.modelo for o in magalu.parse_produto_todas(_html_produto(p))[0]] == ["65C6K"]
+    p["variationId"] = "240162800"
     assert magalu.parse_produto_todas(_html_produto(p)) == ([], [], [])
-    # e uma variação de tamanho sem 'label'/'type', só com o valor '65"', também
+    # e uma variação de tamanho sem 'label'/'type', só com o valor, também
     p = _produto(P1P)
     p["variations"] = [{"id": "240162700", "value": '65"', "available": True,
                         "path": "smart-tv-65-tcl-65c6k/p/240162700/et/elit/"}]
+    p["attributes"] = []
+    assert [o.modelo for o in magalu.parse_produto_todas(_html_produto(p))[0]] == ["65C6K"]
+    p["variations"][0]["value"] = '75"'
     assert magalu.parse_produto_todas(_html_produto(p)) == ([], [], [])
 
 

@@ -1,12 +1,15 @@
-"""Amazon.com.br: todos os vendedores da 55C6K (só leitura; a Amazon é "somente leitura" também no carrinho).
+"""Amazon.com.br: todos os vendedores da 55C6K e da 65C6K (só leitura; a Amazon é "somente leitura" também no carrinho).
 
-Descoberta (19/09/2026), até config.AMAZON_MAX_CARGAS páginas por rodada:
+Descoberta (19/09/2026), por modelo (config.ASINS_AMAZON: 55C6K B0F7JZMVKF, 65C6K B0F7K7B2PD), até
+config.AMAZON_MAX_CARGAS páginas por modelo e rodada:
 1. a página do produto (HTTP): vendedor do destaque com cartão, Pix e parcelado completos;
 2. o painel "Outras opções de compra" (aodAjaxMain) do ASIN principal, no Chrome (por HTTP deu 503
    em 2 de 3 tentativas): um vendedor por bloco (preço, Pix quando aparece, nome e id do vendedor);
 3. no Chrome: a página do produto, se o HTTP veio sem preço; senão a busca (por HTTP dá 503), para
-   outros ASINs da 55C6K.
+   outros ASINs do modelo.
 Uma Oferta por ASIN+vendedor, id "<ASIN>-<id do vendedor>" e URL /dp/<ASIN>?smid=<id do vendedor>.
+Na 65C6K o destaque é a própria Amazon (26/09): o bloco fixado do painel não tem link seller=, e o id do vendedor vem
+do merchantID (da página, ou do campo escondido do bloco); "Amazon.com.br" sem id é a própria Amazon (A1ZZFT5FULY4LN).
 """
 
 from __future__ import annotations
@@ -16,8 +19,8 @@ import re
 from bs4 import BeautifulSoup
 
 from .. import config
-from ..filtro import eh_55c6k
-from ..models import Oferta
+from ..filtro import modelo_do_titulo
+from ..models import MODELO_PADRAO, Oferta
 from ..util import get_html, parcelado_no_texto, parse_preco
 from . import Fonte, Pular, Resultado
 
@@ -84,13 +87,27 @@ def _extra(asin: str, vendedor_id: str | None, **mais) -> dict:
     return {"anuncio": asin, "asin": asin, "vendedor_id": vendedor_id, **mais}
 
 
-def parse_produto(html: str, asin: str = config.ASIN_AMAZON) -> Oferta | None:
+def modelo_do_asin(asin: str) -> str:
+    """O modelo de um ASIN fixo (config.ASINS_AMAZON); ASIN desconhecido: 55C6K."""
+    return next((m for m, a in config.ASINS_AMAZON.items() if a == asin), MODELO_PADRAO)
+
+
+def _e_a_amazon(nome: str | None) -> bool:
+    """'Amazon.com.br', 'Vendido por Amazon.com.br', 'Amazon.com.br Política de devolução': a própria Amazon."""
+    n = re.sub(r"[^a-z0-9]+", "", (nome or "").lower())
+    n = re.sub(r"^(?:enviadodeevendidopor|enviadoevendidopor|vendidopor)", "", n)
+    return n.startswith("amazoncombr")
+
+
+def parse_produto(html: str, asin: str = config.ASIN_AMAZON, modelo: str | None = None) -> Oferta | None:
+    """Oferta do vendedor em destaque na página do produto. O título tem de ser do modelo do ASIN (ou `modelo`)."""
     if "api-services-support@amazon.com" in html or "Digite os caracteres" in html:
         raise RuntimeError("Amazon devolveu captcha")
+    modelo = modelo or modelo_do_asin(asin)
     soup = BeautifulSoup(html, "html.parser")
     titulo_el = soup.select_one("#productTitle")
     titulo = titulo_el.get_text(" ", strip=True) if titulo_el else ""
-    if not eh_55c6k(titulo):
+    if modelo_do_titulo(titulo) != modelo:
         return None
     preco = None
     bloco = soup.select_one("#corePriceDisplay_desktop_feature_div, #corePrice_feature_div, #apex_desktop")
@@ -119,11 +136,14 @@ def parse_produto(html: str, asin: str = config.ASIN_AMAZON) -> Oferta | None:
     if not preco:
         return None if not ativo else Oferta(
             fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo, url=url_vendedor(asin, vendedor_id),
-            id=_id_oferta(asin, vendedor_id, None), ativo=False, extra=_extra(asin, vendedor_id))
+            id=_id_oferta(asin, vendedor_id, None), ativo=False, extra=_extra(asin, vendedor_id), modelo=modelo)
     vendedor = None
     mi = soup.select_one("#merchant-info, #sellerProfileTriggerId")
     if mi:
         vendedor = mi.get_text(" ", strip=True)[:60]
+    if not vendedor and vendedor_id == config.AMAZON_1P_ID:
+        # a própria Amazon no destaque (65C6K, 26/09): a página não tem o link do perfil do vendedor, só o merchantID
+        vendedor = "Amazon.com.br"
     unico = soup.select_one("#oneTimePaymentPrice_feature_div")
     melhor = soup.select_one("#best-offer-string-cc")
     cartao, pix, parcelado = separa_pix_cartao(
@@ -134,22 +154,29 @@ def parse_produto(html: str, asin: str = config.ASIN_AMAZON) -> Oferta | None:
         fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo, url=url_vendedor(asin, vendedor_id),
         id=_id_oferta(asin, vendedor_id, vendedor),
         preco=cartao, preco_pix=pix, parcelado=parcelado, ativo=ativo, vendedor=vendedor,
-        extra=_extra(asin, vendedor_id, disponibilidade=disp_txt[:80], destaque=True),
+        extra=_extra(asin, vendedor_id, disponibilidade=disp_txt[:80], destaque=True), modelo=modelo,
     )
 
 
-def parse_ofertas(html: str, asin: str, titulo: str = "") -> list[Oferta]:
+def parse_ofertas(html: str, asin: str, titulo: str = "", modelo: str | None = None) -> list[Oferta]:
     """Um vendedor por bloco do painel de ofertas (#aod-pinned-offer e cada #aod-offer), só "Novo".
 
     O preço do bloco é o que o vendedor cobra; com a frase "à vista no Pix" ele é o do Pix e o do
     cartão fica vazio (a página do produto, com smid, completa). Sem a frase, é o preço de todos os meios.
+    O painel é o do ASIN: o modelo é o dele (ou `modelo`).
     """
     if "api-services-support@amazon.com" in html or "Digite os caracteres" in html:
         raise RuntimeError("Amazon devolveu captcha")
+    modelo = modelo or modelo_do_asin(asin)
     soup = BeautifulSoup(html, "html.parser")
-    if not titulo:
-        t = soup.select_one("#aod-asin-title-text, #aod-asin-title h5")
-        titulo = t.get_text(" ", strip=True) if t else ""
+    t = soup.select_one("#aod-asin-title-text, #aod-asin-title h5")
+    titulo_painel = t.get_text(" ", strip=True) if t else ""
+    if titulo_painel and modelo_do_titulo(titulo_painel) not in (None, modelo):
+        # o painel é de outro modelo (outro ASIN): as ofertas dele não são desta TV
+        print(f"[amazon] o painel de ofertas pedido para a {modelo} ({asin}) é de outro modelo: "
+              f"{titulo_painel[:60]!r} — ignorado")
+        return []
+    titulo = titulo or titulo_painel
     out: dict[str, Oferta] = {}
     for b in soup.select("#aod-pinned-offer, #aod-offer"):
         cab = b.select_one("#aod-offer-heading")
@@ -169,6 +196,12 @@ def parse_ofertas(html: str, asin: str, titulo: str = "") -> list[Oferta]:
         else:
             txt = sb.get_text(" ", strip=True) if sb else ""
             vendedor = re.sub(r"^\s*Vendido por\s*", "", txt).strip()[:60] or None
+            # bloco sem link seller= (o da própria Amazon: ela não tem página de vendedor): o id vem do campo escondido
+            # merchantID do bloco ou, sem ele, "Vendido por Amazon.com.br" é a própria Amazon
+            mid = b.select_one("input[name='merchantID'], input#merchantID")
+            vendedor_id = ((mid.get("value") or "").strip() or None) if mid else None
+            if not vendedor_id and _e_a_amazon(vendedor):
+                vendedor_id = config.AMAZON_1P_ID
         pix = any("pix" in s.lower() and ("vista" in s.lower() or "no pix" in s.lower())
                   for s in b.find_all(string=True) if s and "pix" in s.lower())
         mais = {"destaque": b.get("id") == "aod-pinned-offer"}
@@ -176,10 +209,10 @@ def parse_ofertas(html: str, asin: str, titulo: str = "") -> list[Oferta]:
         if ficha:
             mais["ficha"] = ficha
         o = Oferta(
-            fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo or f"TCL 55C6K ({asin})",
+            fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo or f"TCL {modelo} ({asin})",
             url=url_vendedor(asin, vendedor_id), id=_id_oferta(asin, vendedor_id, vendedor),
             preco=None if pix else preco, preco_pix=preco if pix else None, vendedor=vendedor,
-            extra=_extra(asin, vendedor_id, **mais),
+            extra=_extra(asin, vendedor_id, **mais), modelo=modelo,
         )
         out.setdefault(o.id, o)
     return list(out.values())
@@ -212,14 +245,16 @@ def _ficha_do_bloco(b) -> dict:
 
 
 def parse_busca(html: str) -> list[Oferta]:
-    """Cartões da busca: um por ASIN da 55C6K (vendedor do destaque não aparece no cartão)."""
+    """Cartões da busca: um por ASIN da 55C6K ou da 65C6K, com o modelo do título (vendedor do destaque não aparece no
+    cartão)."""
     soup = BeautifulSoup(html, "html.parser")
     out: dict[str, Oferta] = {}
     for c in soup.select("div[data-component-type='s-search-result'][data-asin]"):
         asin = (c.get("data-asin") or "").strip()
         h2 = c.select_one("h2")
         titulo = h2.get_text(" ", strip=True) if h2 else ""
-        if not asin or asin in out or not eh_55c6k(titulo):
+        modelo = modelo_do_titulo(titulo)
+        if not asin or asin in out or not modelo:
             continue
         preco = _preco_do_bloco(c.select_one(".a-price:not(.a-text-price)"))
         if not preco:
@@ -234,7 +269,7 @@ def parse_busca(html: str) -> list[Oferta]:
         out[asin] = Oferta(
             fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo, url=url_vendedor(asin, None),
             id=_id_oferta(asin, None, None), preco=None if pix else preco, preco_pix=preco if pix else None,
-            parcelado=parc, extra=_extra(asin, None, origem="busca"),
+            parcelado=parc, extra=_extra(asin, None, origem="busca"), modelo=modelo,
         )
     return list(out.values())
 
@@ -244,16 +279,30 @@ class Amazon(Fonte):
     modo = "pc"
 
     def coletar(self) -> Resultado:
-        """Até config.AMAZON_MAX_CARGAS cargas: 1) página do produto por HTTP; 2) painel de ofertas no
-        Chrome; 3) no Chrome, a página do produto se o HTTP veio sem preço, senão a busca por outros ASINs."""
+        """Por modelo (config.ASINS_AMAZON), até config.AMAZON_MAX_CARGAS cargas: 1) página do produto por HTTP;
+        2) painel de ofertas no Chrome; 3) no Chrome, a página do produto se o HTTP veio sem preço, senão a busca por
+        outros ASINs do modelo. A mesma janela do Chrome serve aos dois modelos."""
         from .playwright_sources import _abrir, sessao
 
-        asin = config.ASIN_AMAZON
+        por_id: dict[str, Oferta] = {}
+        erros: list[str] = []
+        asins_fixos = set(config.ASINS_AMAZON.values())
+        with sessao("default"):
+            for modelo, asin in config.ASINS_AMAZON.items():
+                self._coleta_do_modelo(modelo, asin, asins_fixos, por_id, erros, _abrir)
+        if erros:
+            print("[amazon] " + " | ".join(erros))
+        if not por_id and erros:
+            raise RuntimeError(erros[0])
+        return list(por_id.values()), []
+
+    def _coleta_do_modelo(self, modelo: str, asin: str, asins_fixos: set[str], por_id: dict[str, Oferta],
+                          erros: list[str], _abrir) -> None:
         url_dp = f"https://www.amazon.com.br/dp/{asin}"
         url_aod = config.URL_AMAZON_OFERTAS.format(asin=asin)
         cargas = 0
-        por_id: dict[str, Oferta] = {}
-        erros: list[str] = []
+        rot = "" if modelo == MODELO_PADRAO else f" {modelo}"
+        do_modelo: dict[str, Oferta] = {}
 
         def http(url: str, rotulo: str) -> str | None:
             nonlocal cargas
@@ -261,7 +310,7 @@ class Amazon(Fonte):
             try:
                 return get_html(url, tentativas=1)
             except Exception as e:  # noqa: BLE001 - 503 da Amazon para robô, rede
-                erros.append(f"{rotulo} (HTTP): {type(e).__name__}: {e}"[:160])
+                erros.append(f"{rotulo}{rot} (HTTP): {type(e).__name__}: {e}"[:160])
                 return None
 
         def chrome(url: str, esperar: str, rotulo: str) -> str | None:
@@ -272,52 +321,50 @@ class Amazon(Fonte):
             except Pular:
                 raise
             except Exception as e:  # noqa: BLE001
-                erros.append(f"{rotulo} (Chrome): {type(e).__name__}: {e}"[:160])
+                erros.append(f"{rotulo}{rot} (Chrome): {type(e).__name__}: {e}"[:160])
                 return None
 
         def le_ofertas(html: str | None) -> bool:
             if not html:
                 return False
             try:
-                ofs = parse_ofertas(html, asin)
+                ofs = parse_ofertas(html, asin, modelo=modelo)
             except RuntimeError as e:  # captcha
-                erros.append(f"ofertas: {e}")
+                erros.append(f"ofertas{rot}: {e}")
                 return False
             for o in ofs:
-                por_id.setdefault(o.id, o)
+                do_modelo.setdefault(o.id, o)
             return bool(ofs)
 
         def le_produto(html: str | None) -> Oferta | None:
             if not html:
                 return None
             try:
-                o = parse_produto(html, asin)
+                o = parse_produto(html, asin, modelo)
             except RuntimeError as e:  # captcha
-                erros.append(f"produto: {e}")
+                erros.append(f"produto{rot}: {e}")
                 return None
             return o
 
-        with sessao("default"):
-            dest = le_produto(http(url_dp, "produto"))
-            # o painel por HTTP deu 503 em 2 de 3 tentativas em 19/09: no Chrome ele vem sempre
-            le_ofertas(chrome(url_aod, "#aod-offer, #aod-pinned-offer", "ofertas"))
-            if cargas < config.AMAZON_MAX_CARGAS:
-                if dest is None or not (dest.preco or dest.preco_pix):
-                    # a Amazon às vezes entrega a página sem o bloco de preço para clientes sem cookies
-                    # (anúncio indisponível continua valendo: ativo=False, sem preço)
-                    dest = le_produto(chrome(url_dp, "#productTitle", "produto")) or dest
-                else:
-                    html = chrome(config.URL_AMAZON_BUSCA, "div[data-component-type='s-search-result']", "busca")
-                    for o in parse_busca(html or ""):
-                        if o.extra["asin"] != asin:
-                            por_id.setdefault(o.id, o)
-            if dest is not None:
-                self._junta_destaque(dest, por_id, asin)
-        if erros:
-            print("[amazon] " + " | ".join(erros))
-        if not por_id and erros:
-            raise RuntimeError(erros[0])
-        return list(por_id.values()), []
+        dest = le_produto(http(url_dp, "produto"))
+        # o painel por HTTP deu 503 em 2 de 3 tentativas em 19/09: no Chrome ele vem sempre
+        le_ofertas(chrome(url_aod, "#aod-offer, #aod-pinned-offer", "ofertas"))
+        if cargas < config.AMAZON_MAX_CARGAS:
+            if dest is None or not (dest.preco or dest.preco_pix):
+                # a Amazon às vezes entrega a página sem o bloco de preço para clientes sem cookies (na 65C6K, por
+                # HTTP, sempre: 26/09) (anúncio indisponível continua valendo: ativo=False, sem preço)
+                dest = le_produto(chrome(url_dp, "#productTitle", "produto")) or dest
+            else:
+                html = chrome(config.URLS_AMAZON_BUSCA.get(modelo, config.URL_AMAZON_BUSCA),
+                              "div[data-component-type='s-search-result']", "busca")
+                for o in parse_busca(html or ""):
+                    # outros ASINs do modelo (os fixos das duas TVs têm a própria coleta)
+                    if o.extra["asin"] not in asins_fixos and o.modelo == modelo:
+                        do_modelo.setdefault(o.id, o)
+        if dest is not None:
+            self._junta_destaque(dest, do_modelo, asin)
+        for k, o in do_modelo.items():
+            por_id.setdefault(k, o)
 
     @staticmethod
     def _junta_destaque(dest: Oferta, por_id: dict[str, Oferta], asin: str) -> None:

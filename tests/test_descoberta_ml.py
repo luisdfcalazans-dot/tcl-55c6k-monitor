@@ -7,8 +7,17 @@ de um anúncio avulso de vendedor com 0 vendas a R$ 2.769). O Chrome nunca abre:
 import json
 from pathlib import Path
 
+import pytest
+
 from monitor import config
 from monitor.sources import playwright_sources as ps
+
+
+@pytest.fixture(autouse=True)
+def so_a_55(monkeypatch):
+    """Estes testes são da coleta da 55C6K (o site falso só tem as páginas dela); a da 65C6K (26/09) tem os seus em
+    test_modelo_65c6k.py."""
+    monkeypatch.setattr(config, "ML_CATALOGOS", {"55C6K": config.ML_CATALOGO_ID})
 
 FX = Path(__file__).parent / "fixtures"
 BUSCA = (FX / "ml_busca_2026-09-19.html").read_text(encoding="utf-8")

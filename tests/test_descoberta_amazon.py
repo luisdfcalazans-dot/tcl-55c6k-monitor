@@ -23,6 +23,13 @@ ASIN = "B0F7JZMVKF"
 TITULO = "TCL Smart TV 55 Polegadas QLED Mini LED 4K C6K Google TV 55C6K"
 
 
+@pytest.fixture(autouse=True)
+def so_a_55(monkeypatch):
+    """Estes testes são da coleta da 55C6K (as fixtures são dela); a da 65C6K (26/09) tem os seus em
+    test_modelo_65c6k.py. Sem isto, os falsos devolveriam a página da 55" também para o ASIN da 65"."""
+    monkeypatch.setattr(config, "ASINS_AMAZON", {"55C6K": ASIN})
+
+
 def test_painel_de_ofertas_um_vendedor_por_bloco():
     por_id = {o.id: o for o in amazon.parse_ofertas(AOD, ASIN)}
     assert set(por_id) == {"B0F7JZMVKF-ACUNARZFR75ET", "B0F7JZMVKF-A30OZFNW1RCCSM"}
@@ -43,8 +50,9 @@ def test_painel_de_ofertas_um_vendedor_por_bloco():
 
 def test_busca_so_asins_da_55c6k():
     ofs = amazon.parse_busca(BUSCA)
-    assert [o.extra["asin"] for o in ofs] == [ASIN]  # 65C6K, 50C6KS e controle remoto ficam de fora
-    (o,) = ofs
+    # 50C6KS e controle remoto ficam de fora; a 65C6K (26/09: monitorada) vem com o modelo dela
+    assert [(o.extra["asin"], o.modelo) for o in ofs] == [(ASIN, "55C6K"), ("B0F7K7B2PD", "65C6K")]
+    o = ofs[0]
     assert (o.preco, o.preco_pix, o.parcelado) == (None, 3374.10, "12x R$ 312,41 sem juros")
 
 

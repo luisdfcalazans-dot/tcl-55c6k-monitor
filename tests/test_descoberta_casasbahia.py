@@ -7,6 +7,8 @@ lista "sellers" real do item (só a Casas Bahia hoje). O Chrome nunca abre: _abr
 import json
 from pathlib import Path
 
+import pytest
+
 from monitor import config
 from monitor.sources import playwright_sources as ps
 
@@ -14,6 +16,13 @@ FX = Path(__file__).parent / "fixtures"
 BUSCA = (FX / "casasbahia_busca_2026-09-19.html").read_text(encoding="utf-8")
 VENDEDORES = (FX / "casasbahia_vendedores_2026-09-19.txt").read_text(encoding="utf-8").strip()
 TITULO = "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV"
+
+
+@pytest.fixture(autouse=True)
+def so_a_55(monkeypatch):
+    """Estes testes são da coleta da 55C6K (as páginas falsas são dela); a da 65C6K (26/09) tem os seus em
+    test_modelo_65c6k.py."""
+    monkeypatch.setattr(config, "SKUS_CASASBAHIA", {"55C6K": "55069456"})
 
 
 def _pagina(sku: str, titulo: str, pix: float, cartao: float, vendedores: str, seller_id: int = 10037) -> str:
@@ -29,8 +38,12 @@ def _pagina(sku: str, titulo: str, pix: float, cartao: float, vendedores: str, s
 
 
 def test_busca_real_so_skus_da_55c6k():
-    por_sku = {o.extra["sku"]: o for o in ps._cb_parse_busca(BUSCA)}
-    assert set(por_sku) == {"55069456", "1582483296"}  # as 65C6K ficam de fora
+    todos = ps._cb_parse_busca(BUSCA)
+    # as 65C6K (26/09: monitoradas) vêm com o modelo delas; a coleta de cada modelo fica só com os dele
+    assert {o.extra["sku"]: o.modelo for o in todos if o.modelo == "65C6K"} == \
+        {"55069453": "65C6K", "1582860724": "65C6K"}
+    por_sku = {o.extra["sku"]: o for o in todos if o.modelo == "55C6K"}
+    assert set(por_sku) == {"55069456", "1582483296"}
     cb = por_sku["55069456"]
     assert (cb.preco, cb.preco_pix) == (3998.99, 3599.09)
     assert cb.parcelado is None  # "11x de R$ 399,83" sem "sem juros" é com juros

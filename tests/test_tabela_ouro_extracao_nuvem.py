@@ -148,7 +148,8 @@ def _canal(*linhas: str) -> str:
 
 
 def _post(html: str, monkeypatch) -> dict | None:
-    ofs = telegram_public.parse_canal(html, "canal")
+    # a tabela é da 55C6K: o bloco da 65C6K da mesma mensagem (26/09) é outra oferta, conferida em test_modelo_65c6k.py
+    ofs = [o for o in telegram_public.parse_canal(html, "canal") if o.modelo == "55C6K"]
     if not ofs:
         return None
     assert len(ofs) == 1, ofs
@@ -450,8 +451,8 @@ def test_nf1_controle_magalu_snapshot():
     ofs = magalu.parse_busca(html)
     assert ofs and all(o.preco >= 3000 for o in ofs), [(o.titulo[:40], o.preco) for o in ofs]
     assert not any("controle" in o.titulo.lower() for o in ofs)
-    # as 4 ofertas reais da 55C6K continuam
-    assert {o.id for o in ofs} == {"240162800-magazineluiza", "kc7h6f4k4b-lojascolombooficial",
+    # as 4 ofertas reais da 55C6K continuam (o id do 1P é o /p/ da variação desde 26/09, não o do grupo 240162800)
+    assert {o.id for o in ofs} == {"240162700-magazineluiza", "kc7h6f4k4b-lojascolombooficial",
                                    "eecab9199g-leonfer", "kkfe3d8a79-lojawebcontinentalmarketplace"}
 
 

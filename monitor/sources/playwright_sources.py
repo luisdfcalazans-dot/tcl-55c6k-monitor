@@ -14,8 +14,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .. import config
-from ..filtro import eh_55c6k
-from ..models import Oferta
+from ..filtro import eh_modelo, modelo_do_titulo
+from ..models import MODELO_PADRAO, Oferta
 from ..util import fmt_preco, jsonld_produtos, limpa_html, loja_canonica, parse_preco, precos_no_texto
 from ..trava import PerfilOcupado, trava_perfil
 from . import Fonte, Pular, Resultado
@@ -257,11 +257,15 @@ def _esgotado_jsonld(html: str) -> bool:
     return False
 
 
-def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str) -> Oferta | None:
+def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str,
+                   modelo: str = MODELO_PADRAO) -> Oferta | None:
     for prod in jsonld_produtos(html):
         nome = prod.get("name") or ""
-        if not eh_55c6k(nome):
+        if not eh_modelo(nome, modelo):
             continue
+        ean = str(prod.get("gtin13") or prod.get("gtin") or prod.get("gtin14") or "").strip().lstrip("0").zfill(13)
+        if config.EAN_POR_MODELO.get(ean) not in (None, modelo):
+            continue  # o código de barras (EAN) é o da outra TV: o título está errado
         offers = prod.get("offers")
         lista = offers if isinstance(offers, list) else [offers] if offers else []
         for of in lista:
@@ -274,7 +278,8 @@ def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str) -> Ofer
             seller = of.get("seller")
             vend = seller.get("name") if isinstance(seller, dict) else None
             return Oferta(fonte=fonte, tipo="loja", loja=loja, titulo=nome, url=of.get("url") or url, id=oid,
-                          preco=preco, ativo=("OutOfStock" not in disp and "SoldOut" not in disp), vendedor=vend)
+                          preco=preco, ativo=("OutOfStock" not in disp and "SoldOut" not in disp), vendedor=vend,
+                          modelo=modelo)
     return None
 
 
@@ -380,7 +385,8 @@ _RE_CB_SKU = re.compile(r"/p/(\d+)")
 
 
 def _cb_parse_busca(html: str) -> list[Oferta]:
-    """Cartões da busca da Casas Bahia (só dentro da grade de resultados, nunca carrossel): um por sku.
+    """Cartões da busca da Casas Bahia (só dentro da grade de resultados, nunca carrossel): um por sku, da 55C6K ou da
+    65C6K (o modelo sai do título; a busca "tcl-65c6k" traz muitos TCL de outros modelos e tamanhos).
 
     Cartão: "por R$ 3.998,99 ou em até 11x de R$ 399,83 ou" (cartão; parcela sem 'sem juros' = com juros)
     e "por R$ 3.599,09 No Pix". O vendedor não aparece no cartão.
@@ -398,7 +404,8 @@ def _cb_parse_busca(html: str) -> list[Oferta]:
         link = card.select_one("a[href*='/p/']")
         href = (link.get("href") or "") if link else ""
         m = _RE_CB_SKU.search(href)
-        if not m or not eh_55c6k(titulo) or m.group(1) in out:
+        modelo = modelo_do_titulo(titulo)
+        if not m or not modelo or m.group(1) in out:
             continue
         inst = card.select_one("[data-testid=product-card-installment]")
         dest = card.select_one("[data-testid=product-card-highlight-price-section]")
@@ -419,49 +426,80 @@ def _cb_parse_busca(html: str) -> list[Oferta]:
             fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo, url=url, id=_cb_id(sku, None, None),
             preco=cartao, preco_pix=pix if pix and cartao and pix < cartao else (pix if not cartao else None),
             parcelado=_parcelado_sem_juros(txt_inst),
-            extra={"anuncio": sku, "sku": sku, "vendedor_id": None, "origem": "busca"},
+            extra={"anuncio": sku, "sku": sku, "vendedor_id": None, "origem": "busca"}, modelo=modelo,
         )
     return list(out.values())
 
 
 class CasasBahia(Fonte):
     """Casas Bahia (só coleta, sem carrinho). Até config.CASASBAHIA_MAX_CARGAS páginas na mesma janela:
-    o item 55069456 (buy box + "outros vendedores"), a busca por outros skus da 55C6K e a página do sku
-    mais barato achado na busca. Proteções contra preço falso mantidas: esgotado não tem preço e o texto
-    da página só vale no bloco do produto (nunca carrossel)."""
+    o item de cada modelo (config.SKUS_CASASBAHIA: 55069456 da 55C6K, 55069453 da 65C6K; buy box + "outros
+    vendedores"), a busca de cada modelo por outros skus e a página do sku mais barato achado nas buscas. Proteções
+    contra preço falso mantidas: esgotado não tem preço, a página de outro sku não vira preço e o texto da página só
+    vale no bloco do produto (nunca carrossel). Na 65C6K o 12x sem juros aparece no grupo "Bandeira" (o cartão Casas
+    Bahia, como na 55"): continua escrito "(cartão Casas Bahia)"."""
 
     nome = "casasbahia"
     modo = "pc"
 
+    @staticmethod
+    def _bloqueou(html: str, texto: str) -> bool:
+        return "Access Denied" in html[:3000] or "Reference #" in texto[:500]
+
     def coletar(self) -> Resultado:
         out: dict[str, Oferta] = {}
+        skus = dict(config.SKUS_CASASBAHIA)
+        fixos = set(skus.values())
         with sessao("default"):
-            html, texto, _ = _abrir(config.URL_CASASBAHIA_PRODUTO, esperar="h1")
-            cargas = 1
-            if "Access Denied" in html[:3000] or "Reference #" in texto[:500]:
-                raise RuntimeError("Casas Bahia bloqueou (Akamai)")
-            for o in self._do_produto(html, texto, config.URL_CASASBAHIA_PRODUTO, _ID_CASASBAHIA):
-                out.setdefault(o.id, o)
-            outros: list[Oferta] = []
-            if cargas < config.CASASBAHIA_MAX_CARGAS:
+            cargas = 0
+            # 1) o item fixo de cada modelo (o da 55C6K primeiro: bloqueio nele derruba a fonte, como antes)
+            for modelo, sku in skus.items():
+                if cargas >= config.CASASBAHIA_MAX_CARGAS:
+                    break
+                url = config.URLS_CASASBAHIA_PRODUTO.get(modelo) or f"https://www.casasbahia.com.br/p/{sku}"
+                cargas += 1
+                if modelo == MODELO_PADRAO:
+                    html, texto, _ = _abrir(url, esperar="h1")
+                    if self._bloqueou(html, texto):
+                        raise RuntimeError("Casas Bahia bloqueou (Akamai)")
+                else:
+                    try:
+                        html, texto, _ = _abrir(url, esperar="h1", ocioso_ms=6000)
+                    except Pular:
+                        raise
+                    except Exception as e:  # noqa: BLE001
+                        print(f"[casasbahia] item da {modelo} ({sku}) falhou: {type(e).__name__}: {str(e)[:120]}")
+                        continue
+                    if self._bloqueou(html, texto):
+                        print(f"[casasbahia] item da {modelo} ({sku}): página bloqueada")
+                        continue
+                for o in self._do_produto(html, texto, url, sku, modelo):
+                    out.setdefault(o.id, o)
+            # 2) a busca de cada modelo, por outros skus dele
+            outros: dict[str, Oferta] = {}
+            for modelo in skus:
+                if cargas >= config.CASASBAHIA_MAX_CARGAS:
+                    break
                 cargas += 1
                 try:
-                    hb, tb, _ = _abrir(config.URL_CASASBAHIA_BUSCA, esperar="[data-testid=product-card-item]",
-                                       ocioso_ms=4000)
-                    if not ("Access Denied" in hb[:3000] or "Reference #" in tb[:500]):
-                        outros = [o for o in _cb_parse_busca(hb) if o.extra["sku"] != _ID_CASASBAHIA]
+                    hb, tb, _ = _abrir(config.URLS_CASASBAHIA_BUSCA.get(modelo, config.URL_CASASBAHIA_BUSCA),
+                                       esperar="[data-testid=product-card-item]", ocioso_ms=4000)
+                    if not self._bloqueou(hb, tb):
+                        for o in _cb_parse_busca(hb):
+                            if o.extra["sku"] not in fixos and o.modelo == modelo:
+                                outros.setdefault(o.extra["sku"], o)
                 except Pular:
                     raise
                 except Exception as e:  # noqa: BLE001
-                    print(f"[casasbahia] busca falhou: {type(e).__name__}: {str(e)[:120]}")
-            outros.sort(key=lambda o: o.melhor_preco or 1e9)
-            for o in outros:
+                    print(f"[casasbahia] busca da {modelo} falhou: {type(e).__name__}: {str(e)[:120]}")
+            # 3) a página do sku mais barato achado nas buscas (as duas TVs juntas), enquanto houver carga
+            for o in sorted(outros.values(), key=lambda o: o.melhor_preco or 1e9):
                 if cargas < config.CASASBAHIA_MAX_CARGAS:
                     # a página do item completa vendedor, cartão x Pix e parcelado
                     cargas += 1
                     try:
                         hp, tp, _ = _abrir(o.url, esperar="h1", ocioso_ms=6000)
-                        completos = self._do_produto(hp, tp, o.url, o.extra["sku"])
+                        completos = self._do_produto(hp, tp, o.url, o.extra["sku"], o.modelo)
                     except Pular:
                         raise
                     except Exception as e:  # noqa: BLE001
@@ -475,8 +513,9 @@ class CasasBahia(Fonte):
         return list(out.values()), []
 
     @staticmethod
-    def _do_produto(html: str, texto: str, url: str, sku: str) -> list[Oferta]:
-        """Ofertas de uma página de item: a do buy box (com cartão x Pix e parcelado) e uma por outro vendedor."""
+    def _do_produto(html: str, texto: str, url: str, sku: str, modelo: str = MODELO_PADRAO) -> list[Oferta]:
+        """Ofertas de uma página de item do `modelo`: a do buy box (com cartão x Pix e parcelado) e uma por outro
+        vendedor. Página de outro sku ou de outro produto/modelo não vira preço."""
         if "Access Denied" in html[:3000] or "Reference #" in texto[:500]:
             return []
         pagina_sku = _cb_sku_da_pagina(html)
@@ -484,7 +523,7 @@ class CasasBahia(Fonte):
             return []  # a página é de outro item
         m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
         titulo = limpa_html(m.group(1)) if m else ""
-        if titulo and not eh_55c6k(titulo):
+        if titulo and not eh_modelo(titulo, modelo):
             return []
         vendedores = _cb_vendedores(html)
         eleito = next((v for v in vendedores if v["eleito"]), None)
@@ -493,14 +532,14 @@ class CasasBahia(Fonte):
         vid = eleito["id"] if eleito else (str(sp["sellerId"]) if sp.get("sellerId") else None)
 
         def base(**kw) -> Oferta:
-            o = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo or "Smart TV TCL 55C6K",
+            o = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo or f"Smart TV TCL {modelo}",
                        url=url, id=_cb_id(sku, vid, eleito["nome"] if eleito else None),
-                       vendedor=eleito["nome"] if eleito else None, **kw)
+                       vendedor=eleito["nome"] if eleito else None, modelo=modelo, **kw)
             o.extra.update({"anuncio": sku, "sku": sku, "vendedor_id": vid})
             return o
 
         esgotado = _esgotado_jsonld(html)
-        o = _oferta_jsonld(html, "casasbahia", "Casas Bahia", url, sku)
+        o = _oferta_jsonld(html, "casasbahia", "Casas Bahia", url, sku, modelo)
         if o is not None and not o.preco:
             o = None
         if o is None:
@@ -540,7 +579,8 @@ class CasasBahia(Fonte):
             x = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=o.titulo,
                        url=_cb_url_vendedor(url, v["id"]), id=_cb_id(sku, v["id"], v["nome"]),
                        preco=v["preco"], vendedor=v["nome"], ativo=v["ativo"],
-                       extra={"anuncio": sku, "sku": sku, "vendedor_id": v["id"], "origem": "outros_vendedores"})
+                       extra={"anuncio": sku, "sku": sku, "vendedor_id": v["id"], "origem": "outros_vendedores"},
+                       modelo=modelo)
             ofertas.append(x)
         return ofertas
 
@@ -743,13 +783,13 @@ TETO_PRECO_ML = 2.5      # rede de segurança só para cima: acima disso não é
 PISO_PRECO_ML = 900.0    # nenhuma 55" QD-Mini LED nova custa menos que isto (peça/acessório/erro de leitura)
 
 
-def _titulo_de_outro_produto(titulo: str | None) -> bool:
-    """O título lido da opção é de OUTRO produto?
+def _titulo_de_outro_produto(titulo: str | None, modelo: str = MODELO_PADRAO) -> bool:
+    """O título lido da opção é de OUTRO produto (que não a TV do `modelo` do catálogo)?
 
-    Só derruba quando o texto parece mesmo nome de produto (tem cara de título e não passa no filtro da 55C6K).
+    Só derruba quando o texto parece mesmo nome de produto (tem cara de título e não passa no filtro do modelo).
     Rótulo curto do buy box ("Melhor preço", "Parcelamento sem juros") ou texto vazio não derruba opção legítima."""
     t = (titulo or "").strip()
-    if not t or eh_55c6k(t):
+    if not t or eh_modelo(t, modelo):
         return False
     parece_titulo = len(t.split()) >= 4 or re.search(r"\b(tv|televis|polegada|monitor|smart)\b", t, re.I)
     return bool(parece_titulo)
@@ -821,11 +861,13 @@ class MercadoLivre(Fonte):
     """O ML marca perfis automatizados e passa a exigir login. Usa um perfil só dele, recriado quando bloqueado.
     Falhas aqui não geram aviso: as ofertas do ML também chegam via Promobit, Pelando e Telegram.
 
-    Descoberta (19/09/2026): até config.ML_MAX_CARGAS páginas na MESMA janela: (1) o catálogo
-    MLB48808732 com todas as opções de compra (buy box + "Outras opções"); (2) a busca, para anúncios
-    fora do catálogo; (3) a página de um anúncio fora do catálogo mais barato que o catálogo, para
-    conferir o vendedor antes de aceitar o preço. A lista "/p/MLB48808732/s" pede login a perfil sem
-    conta (conferido em 19/09), por isso não é usada. Uma Oferta por item_id.
+    Descoberta (19/09/2026), por modelo (config.ML_CATALOGOS: 55C6K MLB48808732, 65C6K MLB50368907; o da 65C7K,
+    MLB49823182, é vizinho), até config.ML_MAX_CARGAS páginas na MESMA janela: (1) o catálogo com todas as opções de
+    compra (buy box + "Outras opções"); (2) a busca, para anúncios fora do catálogo; (3) a página de um anúncio fora
+    do catálogo mais barato que o catálogo, para conferir o vendedor antes de aceitar o preço. A 55C6K vem primeiro e
+    deixa reservadas as páginas da 65C6K (catálogo e busca). No primeiro bloqueio a rodada para: nenhuma página a mais
+    (o ML marca o perfil). A lista "/p/<catálogo>/s" pede login a perfil sem conta (conferido em 19/09), por isso não
+    é usada. Uma Oferta por item_id.
     """
 
     nome = "mercadolivre"
@@ -850,54 +892,86 @@ class MercadoLivre(Fonte):
                 raise Pular(f"bloqueado pelo ML; nova tentativa em {restante/60:.0f} min")
         bloqueado = False
         out: list[Oferta] = []
+        modelos = list(config.ML_CATALOGOS)
         with sessao("ml"):
-            html, texto, capt = _abrir(config.URL_ML_CATALOGO, esperar=".ui-pdp-price, .andes-money-amount",
-                                       capturar=["/p/api/deferred"], perfil="ml")
-            cargas = 1
-            catalogo_ok = not self._bloqueado(html, texto)
-            if catalogo_ok:
-                out = self._ofertas_do_catalogo(html, texto, capt)
-            html2, texto2 = "", ""
-            if cargas < config.ML_MAX_CARGAS:
-                cargas += 1
-                try:
-                    html2, texto2, _ = _abrir(config.URL_ML_BUSCA, esperar=".ui-search-result, .poly-card",
-                                              perfil="ml", ocioso_ms=6000)
-                except Pular:
-                    raise
-                except Exception as e:  # noqa: BLE001 - a busca é extra: o catálogo já foi lido
-                    print(f"[mercadolivre] busca falhou: {type(e).__name__}: {str(e)[:120]}")
-            lista = [] if (not html2 or self._bloqueado(html2, texto2)) else self._parse_lista(html2)
-            if html2:
-                n_fora = sum(o.extra.get("catalogo") != config.ML_CATALOGO_ID for o in lista)
-                print(f"[mercadolivre] busca: {len(lista)} anúncios da 55C6K ({n_fora} fora do catálogo)"
-                      if lista else "[mercadolivre] busca: nenhum anúncio da 55C6K (ou página bloqueada)")
-            if not catalogo_ok and not lista:
-                bloqueado = True
-            else:
-                if not out:
-                    # catálogo bloqueado ou ilegível: o cartão do catálogo na busca vale pelo vencedor do buy box
-                    out = [o for o in lista if o.extra.get("catalogo") == config.ML_CATALOGO_ID]
-                fora = [o for o in lista if o.extra.get("catalogo") != config.ML_CATALOGO_ID]
-                out += self._conferir_fora_do_catalogo(fora, out, config.ML_MAX_CARGAS - cargas)
+            cargas = 0
+            for i, modelo in enumerate(modelos):
+                if cargas >= config.ML_MAX_CARGAS:
+                    break
+                # catálogo e busca de cada modelo que ainda falta ficam reservados
+                teto = config.ML_MAX_CARGAS - 2 * (len(modelos) - i - 1)
+                ofs, cargas, bloq = self._coleta_do_modelo(modelo, cargas, max(teto, cargas + 1), primeiro=i == 0)
+                out += ofs
+                if bloq:
+                    bloqueado = True
+                    break  # o ML marcou o perfil: nenhuma página a mais nesta rodada
         if bloqueado:
             shutil.rmtree(_dir_perfil("ml"), ignore_errors=True)  # perfil marcado: começa do zero na próxima
             MARCA_BLOQUEIO_ML.parent.mkdir(exist_ok=True)
             MARCA_BLOQUEIO_ML.write_text(_t.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
-            raise RuntimeError("Mercado Livre pediu verificação anti-bot; próxima tentativa em 2 h")
-        MARCA_BLOQUEIO_ML.unlink(missing_ok=True)
+            if not out:
+                raise RuntimeError("Mercado Livre pediu verificação anti-bot; próxima tentativa em 2 h")
+            print("[mercadolivre] a página seguinte pediu verificação anti-bot; fica o que já veio e a próxima tentativa "
+                  "é em 2 h")
+        else:
+            MARCA_BLOQUEIO_ML.unlink(missing_ok=True)
         unicas: dict[str, Oferta] = {}
         for o in out:
             unicas.setdefault(o.id, o)
         return list(unicas.values()), []
 
-    def _ofertas_do_catalogo(self, html: str, texto: str, capt: list[Any]) -> list[Oferta]:
-        """Uma Oferta por opção de compra do catálogo (buy box e "Outras opções de compra")."""
-        o = _oferta_jsonld(html, "mercadolivre", "Mercado Livre", config.URL_ML_CATALOGO, config.ML_CATALOGO_ID)
+    def _coleta_do_modelo(self, modelo: str, cargas: int, teto: int, primeiro: bool) -> tuple[list[Oferta], int, bool]:
+        """(ofertas, cargas usadas até aqui, bloqueado) de um modelo: catálogo, busca e conferência de vendedor, sem
+        passar de `teto` páginas no total. Erro ao abrir o catálogo do 1º modelo sobe (como antes); o dos outros vai
+        para o log."""
+        cat_id = config.ML_CATALOGOS[modelo]
+        url_cat = config.URLS_ML_CATALOGO.get(modelo) or f"https://www.mercadolivre.com.br/p/{cat_id}"
+        try:
+            html, texto, capt = _abrir(url_cat, esperar=".ui-pdp-price, .andes-money-amount",
+                                       capturar=["/p/api/deferred"], perfil="ml")
+        except Pular:
+            raise
+        except Exception as e:  # noqa: BLE001
+            if primeiro:
+                raise
+            print(f"[mercadolivre] catálogo da {modelo} falhou: {type(e).__name__}: {str(e)[:120]}")
+            return [], cargas + 1, False
+        cargas += 1
+        catalogo_ok = not self._bloqueado(html, texto)
+        out = self._ofertas_do_catalogo(html, texto, capt, modelo) if catalogo_ok else []
+        html2, texto2 = "", ""
+        if cargas < teto:
+            cargas += 1
+            try:
+                html2, texto2, _ = _abrir(config.URLS_ML_BUSCA.get(modelo, config.URL_ML_BUSCA),
+                                          esperar=".ui-search-result, .poly-card", perfil="ml", ocioso_ms=6000)
+            except Pular:
+                raise
+            except Exception as e:  # noqa: BLE001 - a busca é extra: o catálogo já foi lido
+                print(f"[mercadolivre] busca da {modelo} falhou: {type(e).__name__}: {str(e)[:120]}")
+        lista = [] if (not html2 or self._bloqueado(html2, texto2)) else self._parse_lista(html2, modelo)
+        if html2:
+            n_fora = sum(o.extra.get("catalogo") != cat_id for o in lista)
+            print(f"[mercadolivre] busca: {len(lista)} anúncios da {modelo} ({n_fora} fora do catálogo)"
+                  if lista else f"[mercadolivre] busca: nenhum anúncio da {modelo} (ou página bloqueada)")
+        if not catalogo_ok and not lista:
+            return [], cargas, True
+        if not out:
+            # catálogo bloqueado ou ilegível: o cartão do catálogo na busca vale pelo vencedor do buy box
+            out = [o for o in lista if o.extra.get("catalogo") == cat_id]
+        fora = [o for o in lista if o.extra.get("catalogo") != cat_id]
+        aceitos, usadas = self._confere(fora, out, teto - cargas)
+        return out + aceitos, cargas + usadas, False
+
+    def _ofertas_do_catalogo(self, html: str, texto: str, capt: list[Any], modelo: str = MODELO_PADRAO) -> list[Oferta]:
+        """Uma Oferta por opção de compra do catálogo do `modelo` (buy box e "Outras opções de compra")."""
+        cat_id = config.ML_CATALOGOS.get(modelo, config.ML_CATALOGO_ID)
+        url_cat = config.URLS_ML_CATALOGO.get(modelo) or f"https://www.mercadolivre.com.br/p/{cat_id}"
+        o = _oferta_jsonld(html, "mercadolivre", "Mercado Livre", url_cat, cat_id, modelo)
         if o is None:
             m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
             titulo = limpa_html(m.group(1)) if m else ""
-            if eh_55c6k(titulo):
+            if eh_modelo(titulo, modelo):
                 mp = re.search(r'"price":\s*([\d.]+)', html)
                 preco = parse_preco(mp.group(1)) if mp else None
                 if not preco:
@@ -905,7 +979,7 @@ class MercadoLivre(Fonte):
                     preco = min(precos) if precos else None
                 if preco:
                     o = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo,
-                               url=config.URL_ML_CATALOGO, id=config.ML_CATALOGO_ID, preco=preco)
+                               url=url_cat, id=cat_id, preco=preco, modelo=modelo)
         if not o:
             return []
         # só o bloco do produto: abaixo dele vêm "Opções de compra" e o carrossel de relacionados
@@ -931,16 +1005,16 @@ class MercadoLivre(Fonte):
         o.parcelado = o.parcelado or sel.get("parcelado") or _parcelado_sem_juros(topo)
         vend = _ml_vendedor(html)
         ofertas = self._por_opcao(o, html, sel)
-        if len(ofertas) == 1 and ofertas[0].id == config.ML_CATALOGO_ID and vend.get("item_id"):
+        if len(ofertas) == 1 and ofertas[0].id == cat_id and vend.get("item_id"):
             # uma opção só: o id é o item do vendedor (o mesmo que ela tem quando há várias opções)
             ofertas[0].id = vend["item_id"]
         # "Outras opções de compra" que não estão no buy box
         ja = {x.id for x in ofertas}
         refs = [x.melhor_preco for x in ofertas if x.melhor_preco]
-        for op in _ml_alternativas(html, capt, config.ML_CATALOGO_ID):
+        for op in _ml_alternativas(html, capt, cat_id):
             if op["item_id"] in ja:
                 continue
-            if _titulo_de_outro_produto(op.get("titulo")):
+            if _titulo_de_outro_produto(op.get("titulo"), modelo):
                 print(f"[mercadolivre] opção {op['item_id']} com título de outro produto "
                       f"({op['titulo'][:60]!r}) — descartada")
                 continue
@@ -949,7 +1023,8 @@ class MercadoLivre(Fonte):
                       f"para esta TV — descartada")
                 continue
             x = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=o.titulo, url=o.url,
-                       id=op["item_id"], preco=op["preco"], parcelado=op.get("parcelado"), vendedor=op.get("vendedor"))
+                       id=op["item_id"], preco=op["preco"], parcelado=op.get("parcelado"), vendedor=op.get("vendedor"),
+                       modelo=modelo)
             if op.get("desconto") and op.get("preco_de") and op["preco_de"] > op["preco"] + 0.005:
                 x.preco, x.preco_pix = op["preco_de"], op["preco"]
             x.extra["opcao_ml"] = op.get("tipo") or "OUTRAS_OPCOES"
@@ -957,13 +1032,15 @@ class MercadoLivre(Fonte):
             ja.add(x.id)
         n_opcoes = _ml_total_de_opcoes(html)
         if n_opcoes and n_opcoes > len(ofertas):
-            # a lista completa (/p/MLB48808732/s) pede login a perfil sem conta (conferido em 19/09)
-            print(f"[mercadolivre] o catálogo diz {n_opcoes} opções de compra; {len(ofertas)} visíveis sem login")
+            # a lista completa (/p/<catálogo>/s) pede login a perfil sem conta (conferido em 19/09)
+            print(f"[mercadolivre] o catálogo da {modelo} diz {n_opcoes} opções de compra; {len(ofertas)} visíveis "
+                  "sem login")
         for x in ofertas:
-            item = x.id if x.id.startswith("MLB") and x.id != config.ML_CATALOGO_ID else None
-            x.url = _ml_url_item_do_catalogo(config.URL_ML_CATALOGO, item)
-            x.extra.update({"anuncio": item or config.ML_CATALOGO_ID, "item_id": item,
-                            "catalogo": config.ML_CATALOGO_ID, "opcoes_no_catalogo": n_opcoes,
+            item = x.id if x.id.startswith("MLB") and x.id != cat_id else None
+            x.url = _ml_url_item_do_catalogo(url_cat, item)
+            x.modelo = modelo
+            x.extra.update({"anuncio": item or cat_id, "item_id": item,
+                            "catalogo": cat_id, "opcoes_no_catalogo": n_opcoes,
                             "vendedor_id": vend.get("vendedor_id") if item and item == vend.get("item_id") else None})
             if item and item == vend.get("item_id") and vend.get("vendas") is not None:
                 x.extra["vendas_vendedor"] = vend["vendas"]  # checagem de confiança (monitor/confianca.py)
@@ -973,6 +1050,11 @@ class MercadoLivre(Fonte):
         """Anúncios fora do catálogo. Os que custam menos que o catálogo só entram depois de conferir o
         vendedor na página do anúncio (até `cargas` páginas, do mais barato ao mais caro); vendedor com
         menos de config.ML_VENDAS_MINIMAS vendas, ou não conferido, fica de fora (e vai para o log)."""
+        return self._confere(fora, catalogo, cargas)[0]
+
+    def _confere(self, fora: list[Oferta], catalogo: list[Oferta], cargas: int) -> tuple[list[Oferta], int]:
+        """_conferir_fora_do_catalogo e quantas páginas ela abriu."""
+        disponiveis = cargas
         precos_cat = [o.melhor_preco for o in catalogo if o.melhor_preco]
         ref = min(precos_cat) if precos_cat else None
         aceitos: list[Oferta] = []
@@ -1012,7 +1094,7 @@ class MercadoLivre(Fonte):
             o.extra.update({"vendedor_id": v.get("vendedor_id"), "vendas_vendedor": vendas,
                             "vendedor_conferido": True})
             aceitos.append(o)
-        return aceitos
+        return aceitos, disponiveis - cargas
 
     @staticmethod
     def _por_opcao(o: Oferta, html: str, sel: dict) -> list[Oferta]:
@@ -1035,7 +1117,7 @@ class MercadoLivre(Fonte):
                 x.extra = dict(o.extra)
             else:
                 x = Oferta(fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=o.titulo,
-                           url=o.url, id="", preco=op["preco"])
+                           url=o.url, id="", preco=op["preco"], modelo=o.modelo)
                 if op.get("desconto") and op.get("preco_de") and op["preco_de"] > op["preco"] + 0.005:
                     x.preco, x.preco_pix = op["preco_de"], op["preco"]
                 x.parcelado = op.get("parcelado")
@@ -1046,8 +1128,9 @@ class MercadoLivre(Fonte):
         return out
 
     @staticmethod
-    def _parse_lista(html: str) -> list[Oferta]:
-        """Resultados da busca do ML: título, preço (inteiro + centavos em spans separados) e link.
+    def _parse_lista(html: str, modelo: str = MODELO_PADRAO) -> list[Oferta]:
+        """Resultados da busca do ML do `modelo` (pelo título): título, preço (inteiro + centavos em spans
+        separados) e link. A busca de uma TV traz a outra também; ela tem a própria busca.
 
         Cartão de catálogo (/p/MLB...) traz o item vencedor no fragmento do link (wid=MLB...): o id da
         Oferta é esse item_id; cartão de anúncio avulso (produto.mercadolivre.com.br/MLB-...) usa o dele.
@@ -1061,7 +1144,7 @@ class MercadoLivre(Fonte):
             if not t:
                 continue
             titulo = t.get_text(" ", strip=True)
-            if not eh_55c6k(titulo):
+            if not eh_modelo(titulo, modelo):
                 continue
             link_el = t if t.name == "a" else card.select_one("a[href*='mercadolivre.com.br']")
             href = (link_el.get("href") or "") if link_el else ""
@@ -1102,9 +1185,11 @@ class MercadoLivre(Fonte):
                 extra = {"item_id": oid_s if oid else None, "anuncio": oid_s}
             extra["vendedor_id"] = None
             out.setdefault(oid_s, Oferta(
-                fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo, url=url or config.URL_ML_BUSCA,
+                fonte="mercadolivre", tipo="loja", loja="Mercado Livre", titulo=titulo,
+                url=url or config.URLS_ML_BUSCA.get(modelo, config.URL_ML_BUSCA),
                 id=oid_s, preco=preco, preco_pix=pix, parcelado=_parcelado_sem_juros(texto_card),
                 vendedor=vend.get_text(" ", strip=True).replace("Por ", "") if vend else None, extra=extra,
+                modelo=modelo,
             ))
         return list(out.values())
 
@@ -1116,13 +1201,33 @@ def _ml_url_item_do_catalogo(url_catalogo: str, item_id: str | None) -> str:
 
 
 class AliExpress(Fonte):
-    """Busca no AliExpress (inclui a loja da Magalu e a loja oficial TCL). Melhor esforço."""
+    """Busca no AliExpress (inclui a loja da Magalu e a loja oficial TCL), uma por modelo
+    (config.URLS_ALIEXPRESS_BUSCA; a 65C6K da Magalu Store é o item 1005009036343124). Melhor esforço."""
 
     nome = "aliexpress"
     modo = "pc"
 
     def coletar(self) -> Resultado:
-        html, texto, _ = _abrir(config.URL_ALIEXPRESS_BUSCA, scroll=True)
+        out: dict[str, Oferta] = {}
+        with sessao("default"):
+            for modelo, url in config.URLS_ALIEXPRESS_BUSCA.items():
+                if modelo == MODELO_PADRAO:
+                    html, _texto, _ = _abrir(url, scroll=True)   # a busca da 55C6K falhando, a fonte falha
+                else:
+                    try:
+                        html, _texto, _ = _abrir(url, scroll=True)
+                    except Pular:
+                        raise
+                    except Exception as e:  # noqa: BLE001
+                        print(f"[aliexpress] busca da {modelo} falhou: {type(e).__name__}: {str(e)[:120]}")
+                        continue
+                for o in self._parse(html, modelo):
+                    out.setdefault(o.id, o)
+        return list(out.values()), []
+
+    @staticmethod
+    def _parse(html: str, modelo: str = MODELO_PADRAO) -> list[Oferta]:
+        """Ofertas do `modelo` na página de busca (cada busca traz só o modelo dela; os outros cartões ficam de fora)."""
         out: dict[str, Oferta] = {}
         # 1) estado embutido: window._dida_config_._init_data_ ou _init_data_
         m = re.search(r"_init_data_\s*=\s*(\{.*?\});?\s*</script>", html, re.S)
@@ -1136,7 +1241,7 @@ class AliExpress(Fonte):
                 for it in itens:
                     titulo = (it.get("title") or {}).get("displayTitle") if isinstance(it.get("title"), dict) else it.get("title")
                     titulo = titulo or ""
-                    if not eh_55c6k(titulo):
+                    if not eh_modelo(titulo, modelo):
                         continue
                     prices = it.get("prices") or {}
                     sale = (prices.get("salePrice") or {}).get("minPrice") or (prices.get("salePrice") or {}).get("formattedPrice")
@@ -1144,20 +1249,21 @@ class AliExpress(Fonte):
                     loja = (it.get("store") or {}).get("storeName") or "AliExpress"
                     pid = str(it.get("productId"))
                     out[pid] = Oferta(fonte="aliexpress", tipo="loja", loja="AliExpress", titulo=titulo,
-                                      url=f"https://pt.aliexpress.com/item/{pid}.html", id=pid, preco=preco, vendedor=loja)
+                                      url=f"https://pt.aliexpress.com/item/{pid}.html", id=pid, preco=preco, vendedor=loja,
+                                      modelo=modelo)
         # 2) fallback: cartões renderizados
         if not out:
             for card in re.finditer(r'<a[^>]+href="([^"]*?/item/(\d+)\.html[^"]*)"[^>]*>(.*?)</a>', html, re.S):
                 # o preço de venda vem em spans separados ("R$ 3 . 499"): sem colar, sobrava só o riscado
                 bloco = _junta_precos(limpa_html(card.group(3)))
-                if not eh_55c6k(bloco):
+                if not eh_modelo(bloco, modelo):
                     continue
                 precos = [p for p in precos_no_texto(bloco) if p >= 1000]
                 pid = card.group(2)
                 out.setdefault(pid, Oferta(fonte="aliexpress", tipo="loja", loja="AliExpress", titulo=bloco[:140],
                                            url=f"https://pt.aliexpress.com/item/{pid}.html", id=pid,
-                                           preco=min(precos) if precos else None))
-        return list(out.values()), []
+                                           preco=min(precos) if precos else None, modelo=modelo))
+        return list(out.values())
 
 
 class Shopee(Fonte):
@@ -1170,21 +1276,25 @@ class Shopee(Fonte):
         import os
         if os.environ.get("SHOPEE", "0") != "1":
             return [], []  # a busca da Shopee exige login; ligue com SHOPEE=1 no .env se quiser tentar
-        _, texto, capt = _abrir(config.URL_SHOPEE_BUSCA, capturar=["/api/v4/search/search_items"], scroll=True)
         out: dict[str, Oferta] = {}
-        for c in capt:
-            for it in (c["json"].get("items") or []):
-                b = it.get("item_basic") or it
-                nome = b.get("name") or ""
-                if not eh_55c6k(nome):
-                    continue
-                preco = (b.get("price") or 0) / 100000 or None
-                iid, sid = b.get("itemid"), b.get("shopid")
-                out[str(iid)] = Oferta(fonte="shopee", tipo="loja", loja="Shopee", titulo=nome,
-                                       url=f"https://shopee.com.br/product/{sid}/{iid}", id=str(iid), preco=preco,
-                                       vendedor=b.get("shop_name") or None)
-        if not out and ("login" in texto.lower()[:2000] or "entrar" in texto.lower()[:2000]):
-            raise RuntimeError("Shopee exigiu login para buscar")
+        texto = ""
+        with sessao("default"):
+            for url in config.URLS_SHOPEE_BUSCA.values():  # a 55C6K e a 65C6K (uma busca por modelo)
+                _, texto, capt = _abrir(url, capturar=["/api/v4/search/search_items"], scroll=True)
+                for c in capt:
+                    for it in (c["json"].get("items") or []):
+                        b = it.get("item_basic") or it
+                        nome = b.get("name") or ""
+                        modelo = modelo_do_titulo(nome)
+                        if not modelo:
+                            continue
+                        preco = (b.get("price") or 0) / 100000 or None
+                        iid, sid = b.get("itemid"), b.get("shopid")
+                        out[str(iid)] = Oferta(fonte="shopee", tipo="loja", loja="Shopee", titulo=nome,
+                                               url=f"https://shopee.com.br/product/{sid}/{iid}", id=str(iid),
+                                               preco=preco, vendedor=b.get("shop_name") or None, modelo=modelo)
+                if not out and ("login" in texto.lower()[:2000] or "entrar" in texto.lower()[:2000]):
+                    raise RuntimeError("Shopee exigiu login para buscar")
         return list(out.values()), []
 
 

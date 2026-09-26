@@ -82,7 +82,10 @@ def test_vtex():
     ofs = vtex.parse_catalogo(json.loads(le("fastshop_vtex.json")), "Fast Shop", "https://site.fastshop.com.br")
     assert ofs and all("Combo" not in o.titulo for o in ofs)
     assert any(o.preco == 3296.81 and o.vendedor == "Fast Shop" for o in ofs)
-    assert any(o.vendedor == "TCL SEMP" and o.parcelado == "12x R$ 334,08 sem juros" for o in ofs)
+    # 26/09: o parcelado é o dos CARTÕES (10x); o 12x sem juros só existe em "Outros Pagamentos APP Vendedor"
+    assert any(o.vendedor == "TCL SEMP" and o.parcelado == "10x R$ 400,90 sem juros" for o in ofs)
+    assert not any("334,08" in (o.parcelado or "") for o in ofs)
+    assert {o.modelo for o in ofs} == {"55C6K"}
 
 
 def test_telegram_publico():
