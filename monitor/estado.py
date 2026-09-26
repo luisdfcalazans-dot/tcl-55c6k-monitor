@@ -15,7 +15,8 @@ from typing import Any, Callable
 
 from . import config
 from .confianca import (
-    fora_de_preco, identidade_em_duvida, motivo_bloqueio, reprovados_auto_do_estado, reprovados_para_painel,
+    REPROVADO, e_do_reprovado_auto, fora_de_preco, identidade_em_duvida, motivo_bloqueio, reprovados_auto_do_estado,
+    reprovados_para_painel, veredito_de,
 )
 from .models import Cupom, Oferta
 from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
@@ -193,14 +194,26 @@ class Estado:
 
     def _purga_reprovados(self) -> None:
         """Feito por código ao carregar (os dois executores commitam docs/data; nada de editar à mão): tira do state os
-        registros de vendedor/anúncio reprovado e refaz o 'minimo' quando ele veio de um deles. O histórico (CSV) é
-        limpo na próxima gravação (anexa_historico)."""
+        registros de vendedor/anúncio reprovado ou de anúncio que a rodada anterior julgou suspeito e refaz o 'minimo'
+        quando ele veio de um reprovado. O histórico (CSV) perde só as linhas da lista curada, na próxima gravação
+        (anexa_historico)."""
         regs = self.dados["ofertas"]
-        fora = [k for k, r in regs.items() if isinstance(r, dict) and self._bloqueado(r)]
-        for k in fora:
+        auto = self.reprovados_auto()
+        reprovados, suspeitos = [], []
+        for k, r in regs.items():
+            if not isinstance(r, dict):
+                continue
+            if veredito_de(r) == REPROVADO or motivo_bloqueio(r, auto):
+                reprovados.append(k)
+            elif fora_de_preco(r):
+                suspeitos.append(k)
+        for k in reprovados + suspeitos:
             del regs[k]
-        if fora:
-            print(f"[confiança] state_{self.modo}: {len(fora)} registro(s) de vendedor/anúncio reprovado removido(s)")
+        if reprovados or suspeitos:
+            # o log diz o que saiu de fato (revisão 3 de 26/09: o suspeito da rodada anterior aparecia como reprovado)
+            partes = ([f"{len(reprovados)} de vendedor/anúncio reprovado"] if reprovados else []) + \
+                ([f"{len(suspeitos)} de anúncio suspeito na rodada anterior"] if suspeitos else [])
+            print(f"[confiança] state_{self.modo}: registro(s) removido(s): {' e '.join(partes)}")
         m = self.dados.get("minimo")
         if _preco_do_minimo(m) and self._bloqueado(m):
             diretas = self.lojas_diretas_conhecidas()
@@ -242,15 +255,18 @@ class Estado:
                 "titulo": r.get("titulo"), "vendedor": r.get("vendedor") or None}
 
     def _purga_historico(self) -> int:
-        """Tira do CSV deste modo as linhas de vendedor/anúncio reprovado (uma vez por execução, só se houver). As
-        outras linhas ficam byte a byte como estão."""
+        """Tira do CSV deste modo as linhas de vendedor/anúncio da lista CURADA de reprovados (uma vez por execução, só
+        se houver). As outras linhas ficam byte a byte como estão.
+
+        O reprovado automático não apaga linha nenhuma (revisão 3 de 26/09): é heurística e pode ser falso positivo.
+        As linhas dele ficam fora do mínimo (_bloqueado) e do painel (latest.confianca.reprovados) e voltam a valer
+        quando o vendedor é posto em confiáveis (restaura_minimo_de_liberados)."""
         if self._historico_purgado or not self.arq_hist.exists():
             return 0
         self._historico_purgado = True
-        auto = self.reprovados_auto()
         from .confianca import listas
 
-        lojas = set(listas()["reprovados"]) | {loja_canonica(str(e.get("loja") or "")) for e in auto}
+        lojas = set(listas()["reprovados"])
         try:
             with self.arq_hist.open(encoding="utf-8", newline="") as f:  # sem traduzir \r\n: o resto fica igual
                 texto = f.read()
@@ -269,7 +285,7 @@ class Estado:
             if len(row) == len(cab):
                 r = dict(zip(cab, row))
                 if r.get("tipo") == "loja" and loja_canonica(r.get("loja") or "") in lojas \
-                        and motivo_bloqueio(r, auto):
+                        and motivo_bloqueio(r, ()):
                     tirou += 1
                     continue
             manter.append(ln)
@@ -563,6 +579,23 @@ class Estado:
         self.dados["minimo"] = novo
         print(f"[confiança] state_{self.modo}: mínimo de oferta que ficou suspeita ({_preco_do_minimo(m)}) refeito: "
               f"{_preco_do_minimo(novo)}")
+
+    def restaura_minimo_de_liberados(self, liberados: list[dict]) -> None:
+        """Reprovado automático cujo vendedor foi posto em confiáveis (confianca.avaliar): as linhas dele no histórico,
+        que o expurgo não apaga, voltam a contar. Se a mais barata delas é menor que o 'minimo' gravado (que foi refeito
+        sem ele), ela volta a ser o mínimo. Só as linhas desse vendedor: o resto do mínimo não muda."""
+        if not liberados:
+            return
+
+        def fora(r: Any) -> bool:
+            return self._bloqueado(r) or not any(e_do_reprovado_auto(e, r) for e in liberados)
+
+        m = self._minimo_do_historico(self.lojas_diretas_conhecidas(), fora)
+        atual = _preco_do_minimo(self.dados.get("minimo"))
+        if m and (atual is None or m["preco"] < atual):
+            self.dados["minimo"] = m
+            print(f"[confiança] state_{self.modo}: vendedor liberado pela lista de confiáveis; mínimo volta a "
+                  f"{m['preco']} ({m.get('vendedor') or m.get('loja')}, {m.get('quando')})")
 
     # ---- saúde das fontes ----
     def fonte_ok(self, nome: str) -> None:

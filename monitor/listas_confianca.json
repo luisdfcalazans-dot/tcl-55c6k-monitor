@@ -56,8 +56,14 @@
   ],
   "KaBuM!": [
    {"nomes": ["KaBuM!", "KaBuM"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
-   {"nomes": ["LOJAS COLOMBO", "Lojas Colombo"], "motivo": "varejista grande de eletro", "desde": "2026-09-13"},
-   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-21"}
+   {"ids": ["4269"], "nomes": ["LOJAS COLOMBO", "Lojas Colombo"],
+    "motivo": "varejista grande de eletro; seller_id 4269 no marketplace da KaBuM (visto em 26/09)", "desde": "2026-09-13"},
+   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-21"},
+   {"ids": ["1000"], "nomes": ["Magalu"],
+    "motivo": "Magazine Luiza vendendo no marketplace da KaBuM; seller_id 1000 (visto em 26/09)", "desde": "2026-09-26"}
+  ],
+  "AliExpress": [
+   {"nomes": ["Magalu Store"], "motivo": "loja do Magazine Luiza no AliExpress (visto em 26/09)", "desde": "2026-09-26"}
   ],
   "Fast Shop": [
    {"nomes": ["Fast Shop"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
@@ -71,7 +77,12 @@
   "Webcontinental": [
    {"nomes": ["Webcontinental"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
    {"nomes": ["Ponto"], "motivo": "varejista grande (grupo Casas Bahia)", "desde": "2026-09-13"},
-   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-13"}
+   {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-13"},
+   {"ids": ["003731"], "nomes": ["Casas Bahia"],
+    "motivo": "varejista grande; sellerId 003731 no marketplace da Webcontinental (visto em 26/09)", "desde": "2026-09-26"},
+   {"ids": ["003082"], "nomes": ["Lojas Colombo SA", "Lojas Colombo"],
+    "motivo": "varejista grande de eletro; sellerId 003082 no marketplace da Webcontinental (visto em 26/09)",
+    "desde": "2026-09-26"}
   ]
  },
  "reprovados": {

@@ -994,8 +994,10 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             preco_minimo_antes = p
 
     # ---- postagens em sites de promoção e canais ----
-    # postagem com preço muito abaixo da loja confiável mais barata da rodada: pode ser anúncio de golpe divulgado
+    # postagem com preço muito abaixo da loja confiável mais barata da rodada, ou que leva a anúncio que a rodada julgou
+    # suspeito/reprovado (ou cita o vendedor dele): pode ser anúncio de golpe divulgado. Sai com "⚠️ confira", sem 🎯
     ref_confiavel = menor_preco_confiavel(ofertas)
+    auto = _reprovados_auto(estado)
     for o in posts:
         if estado.oferta_anterior(o.chave) is not None:
             continue
@@ -1009,9 +1011,12 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         et = ["📣 Promoção postada"]
         muito_abaixo = bool(ref_confiavel and o.melhor_preco
                             and o.melhor_preco <= ref_confiavel * confianca.FRACAO_MUITO_ABAIXO)
-        if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX and not muito_abaixo:
+        barrada = confianca.postagem_barrada(o, lojas, auto)
+        if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX and not muito_abaixo and not barrada:
             et.append("🎯")
-        msgs.append(_msg_oferta(et, o, nota="⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None))
+        nota = f"⚠️ confira: {barrada}" if barrada else \
+            "⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None
+        msgs.append(_msg_oferta(et, o, nota=nota))
 
     # ---- cupons ----
     preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, diretas, _substitutas(estado, ofertas, diretas))
@@ -1021,7 +1026,6 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     estado.migra_alertas_de_cupom(lambda reg: _alertado_no_codigo_antigo(reg, preco_antigo))
     # códigos que outro anúncio declara serem de outra categoria (ex.: DESCONTOEMCASA "em Casa e Decor")
     restritos = restricao_do_codigo(cupons, estado.cupons_vistos())
-    auto = _reprovados_auto(estado)
     novos: list[tuple[Cupom, str]] = []
     codigos_vistos: set[str] = set()
     # cupom da página do produto primeiro (se o mesmo código vier também como cupom do site, fica a linha do produto),

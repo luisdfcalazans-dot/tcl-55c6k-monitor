@@ -1204,3 +1204,314 @@ def test_sinal_de_outro_ramo_nao_leva_a_razao_social_para_os_arquivos_publicos(d
     # a mensagem do Telegram (privada) mostra a razão social para a pessoa conferir
     (m,) = [m for m in msgs if m.startswith(CAB_SUSPEITO)]
     assert "Comercial De Brinquedos Lili Ltda" in m
+
+
+# ================================================================================================
+# 4ª passada (3ª revisão de 26/09, lista fechada C1-C6): postagem com link de anúncio barrado sem 🎯; "preço cheio"
+# copiado com mais de 15% só no Pix é sinal forte; falha passageira na checagem da loja não segura vendedor limpo;
+# confiáveis vistos no levantamento da 65"; reprovado automático não apaga o histórico; log do expurgo diz suspeito
+# ou reprovado.
+# ================================================================================================
+
+def _iso_ha(minutos: float) -> str:
+    from datetime import timedelta
+
+    from monitor.util import agora
+
+    return (agora() - timedelta(minutes=minutos)).isoformat(timespec="seconds")
+
+
+def _envelhece(pasta: Path, secao: str, minutos: float, campos=("quando",), modo: str = "cloud") -> None:
+    """Faz de conta que o que está em state.confianca[secao] foi gravado há `minutos` (a rodada seguinte da nuvem
+    começa 15 min depois da anterior)."""
+    arq = pasta / f"state_{modo}.json"
+    st = json.loads(arq.read_text(encoding="utf-8"))
+    for reg in st["confianca"][secao].values():
+        for c in campos:
+            if reg.get(c):
+                reg[c] = _iso_ha(minutos)
+    arq.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+
+
+def _msgs_de_post(msgs):
+    return [m for m in msgs if m.startswith("📣")]
+
+
+# ---- C1: postagem que leva ao anúncio suspeito/reprovado (ou cita o vendedor dele) não ganha 🎯 ----
+
+def test_c1_postagem_com_link_do_anuncio_suspeito_da_rodada_sai_com_aviso_e_sem_alvo(dados):
+    rodada("cloud", _confiaveis_reais())
+    (o,) = magalu.parse_produto_todas(_html_eletro_z(pix="2850.00", cartao="2990.00"))[0]
+    post = Oferta("promobit", "post", "Magazine Luiza", 'Smart TV TCL 55C6K 55" Mini LED - Magalu', o.url,
+                  "promobit-999", preco_pix=2850.00, publicado=agora_iso())
+    _est, ofs, msgs = rodada("cloud", [o, post] + _confiaveis_reais(), rede=Rede({"/lojista/eletroz/": _catalogo_com_tv()}))
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Eletro Z")) == confianca.SUSPEITO
+    assert any(m.startswith(CAB_SUSPEITO) for m in msgs)
+    (mp,) = _msgs_de_post(msgs)
+    assert "🎯" not in mp and "⚠️ confira" in mp and "sinais de risco" in mp
+
+
+def test_c1_postagem_da_rodada_seguinte_pelo_link_do_telegram_ou_pelo_nome_do_vendedor(dados):
+    rodada("cloud", _confiaveis_reais())
+    html = _html_eletro_z(pix="2850.00", cartao="2990.00")
+    rede = Rede({"/lojista/eletroz/": _catalogo_com_tv()})
+    rodada("cloud", magalu.parse_produto_todas(html)[0] + _confiaveis_reais(), rede=rede)
+    (o,) = magalu.parse_produto_todas(html)[0]
+    tg = Oferta("telegram", "post", "Magazine Luiza", "[canal] TV TCL 55C6K por 2.850 no Pix", "https://t.me/canal/123",
+                "canal/123", preco_pix=2850.00, publicado=agora_iso(),
+                extra={"canal": "canal", "links": [o.url], "texto": "TV TCL 55C6K por 2.850 no Pix"})
+    pelo_nome = Oferta("promobit", "post", "Magazine Luiza", "Smart TV TCL 55C6K 55 polegadas vendida por Eletro Z",
+                       "https://www.promobit.com.br/oferta/tv-tcl-55c6k-eletro-z/", "promobit-1000", preco_pix=2850.00,
+                       publicado=agora_iso())
+    est, _ofs, msgs = rodada("cloud", [o, tg, pelo_nome] + _confiaveis_reais(), rede=rede)
+    posts = _msgs_de_post(msgs)
+    assert len(posts) == 2
+    for mp in posts:
+        assert "🎯" not in mp and "⚠️ confira" in mp, mp
+    assert est.dados["minimo"]["preco"] > 2850.00
+
+
+def test_c1_postagem_com_link_de_anuncio_reprovado_pelo_telegram_nao_ganha_alvo(dados):
+    rodada("cloud", _confiaveis_reais())
+    tg = Oferta("telegram", "post", "Magazine Luiza", "[canal] TV TCL 55C6K por 2.609 no Pix", "https://t.me/canal/7",
+                "canal/7", preco_pix=2609.01, publicado=agora_iso(), extra={"canal": "canal", "links": [URL_LILI]})
+    _est, _ofs, msgs = rodada("cloud", [tg] + _confiaveis_reais())
+    (mp,) = _msgs_de_post(msgs)
+    assert "🎯" not in mp and "⚠️ confira" in mp
+
+
+def test_c1_postagem_do_anuncio_do_1p_continua_com_alvo_com_suspeito_na_lista_de_vendedores(dados):
+    """O suspeito da lista de vendedores do anúncio do 1P (link com ?seller_id) não contamina a postagem que leva ao
+    anúncio do 1P (sem ?seller_id: abre no buy box do Magalu)."""
+    rodada("cloud", _confiaveis_reais())
+    p = _produto(P1P)
+    sel = _seller("lojagolpe", "Loja Golpe", razao="Comercial de Brinquedos Ltda")
+    p["offers"].append({"sku": "9", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "2400.00",
+                                              "fullPrice": "3894.05", "price": "3894.05"}, "seller": sel})
+    ofs = magalu.parse_produto_todas(_html_produto(p))[0]
+    post = Oferta("promobit", "post", "Magazine Luiza", "Smart TV TCL 55C6K no Magalu com cupom", URL_1P,
+                  "promobit-1001", preco_pix=2850.00, publicado=agora_iso())
+    rede = Rede({"/lojista/lojagolpe/": catalogo_html(800, [("ET", "Tv e Vídeo", 2), ("BR", "Brinquedos", 798)]),
+                 "/p/240162700/": P1P})
+    _est, ofs2, msgs = rodada("cloud", ofs + [post] + _confiaveis_reais()[1:], rede=rede)
+    assert confianca.veredito_de(next(o for o in ofs2 if o.vendedor == "Loja Golpe")) == confianca.SUSPEITO
+    (mp,) = _msgs_de_post(msgs)
+    assert "🎯" in mp and "confira" not in mp
+
+
+# ---- C2: "preço cheio" copiado + mais de 15% só no Pix/1x é sinal forte; Pix real de loja limpa (5-12%) não ----
+
+def _cb_marketplace(cartao: float, pix: float) -> Oferta:
+    return Oferta("casasbahia", "loja", "Casas Bahia", "TCL 55C6K", config.URL_CASASBAHIA_PRODUTO + "?idLojista=88888",
+                  "55069456-88888", preco=cartao, preco_pix=pix, vendedor="Mega Eletro Oficial",
+                  extra={"vendedor_id": "88888", "anuncio": "55069456"})
+
+
+@pytest.mark.parametrize("pix", [3115.24, 2959.48, 3290.00])   # 20%, 24% e 15,5% abaixo do cartão
+def test_c2_preco_cheio_copiado_com_mais_de_15pct_so_no_pix_segura_tudo(dados, pix):
+    minimo_antes = _minimo_das_confiaveis()
+    est, ofs, msgs = rodada("cloud", [_cb_marketplace(3894.05, pix)] + _confiaveis_reais())
+    c = next(x for x in ofs if x.vendedor == "Mega Eletro Oficial").extra["confianca"]
+    assert c["veredito"] == confianca.SUSPEITO, c
+    assert "preco_cheio_copiado" in c["codigos"]
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Mega Eletro Oficial"))
+    assert est.dados["minimo"]["preco"] == minimo_antes
+    assert not _no_historico(dados, "Mega Eletro Oficial")
+    assert _carrinho_do_latest(dados, "Mega Eletro Oficial") is False
+    assert est.dados["confianca"]["reprovados_auto"] == {}   # preço sozinho nunca reprova de vez
+
+
+@pytest.mark.parametrize("cartao,pix", [
+    (3894.05, 3504.65),   # cartão igual ao Pix do Magalu 1P, 10% no Pix (Colombo dá 10%)
+    (3894.05, 3426.76),   # 12%
+    (3950.00, 3160.00),   # 20% só no Pix, mas o cartão não é cópia de ninguém: sem o "copiado", nada muda
+])
+def test_c2_desconto_real_no_pix_ou_sem_preco_copiado_nao_e_sinal_forte(cartao, pix):
+    ref = confianca.referencias(_confiaveis_reais())
+    sinais, _f = confianca.sinais_da_oferta(_cb_marketplace(cartao, pix), ref)
+    assert not any(s.forte for s in sinais), sinais
+
+
+def test_c2_anuncio_proprio_no_magalu_com_cartao_do_1p_e_17pct_no_pix():
+    ref = confianca.referencias(_confiaveis_reais())
+    o = _anuncio_proprio("eletrocopia", "Eletro Copia", "3400.00", "4099.00", reviews=12,
+                         razao="Eletro Copia Comercio de Eletronicos Ltda")
+    sinais, _f = confianca.sinais_da_oferta(o, ref)
+    assert any(s.codigo == "preco_cheio_copiado" and s.forte for s in sinais), sinais
+
+
+# ---- C3: falha passageira ao ler a página da loja do vendedor não é sinal e é tentada de novo na próxima rodada ----
+
+def _http_erro(status: int):
+    import requests
+
+    r = requests.Response()
+    r.status_code = status
+    return requests.HTTPError(f"{status} Server Error", response=r)
+
+
+class RedeInstavel(Rede):
+    """Rede falsa em que alguns endereços falham nas primeiras vezes (exceção ou página ilegível)."""
+
+    def __init__(self, paginas: dict[str, str], falhas: dict[str, list]):
+        super().__init__(paginas)
+        self.falhas = falhas
+
+    def __call__(self, url: str) -> str:
+        for trecho, lista in self.falhas.items():
+            if trecho in url and lista:
+                self.pedidas.append(url)
+                f = lista.pop(0)
+                if isinstance(f, Exception):
+                    raise f
+                return f
+        return super().__call__(url)
+
+
+def _falhas_passageiras():
+    import requests
+
+    return [requests.Timeout("read timed out"), requests.ConnectionError("connection reset"), _http_erro(500),
+            _http_erro(502), _http_erro(404), "<html>página em manutenção</html>"]
+
+
+@pytest.mark.parametrize("n", range(6), ids=["timeout", "conexao", "500", "502", "404", "ilegivel"])
+def test_c3_falha_passageira_no_catalogo_nao_segura_vendedor_limpo_e_tenta_na_proxima_rodada(dados, n):
+    minimo_antes = _minimo_das_confiaveis()
+    falha = _falhas_passageiras()[n]
+    rede = RedeInstavel({"/lojista/lojaboaeletro/": _catalogo_com_tv()}, {"/lojista/lojaboaeletro/": [falha]})
+    est, ofs, msgs = rodada("cloud", [vendedor_limpo(pix="2890.00", cartao="3099.00")] + _confiaveis_reais(), rede=rede)
+    c = next(x for x in ofs if x.vendedor == "Loja Boa Eletro").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO, c
+    assert not any("não deu para checar" in s for s in c["sinais"]), c["sinais"]
+    (m,) = _msgs_de(msgs, "Loja Boa Eletro")
+    assert "🎯" in m and "🏆" in m and CAB_SUSPEITO not in m
+    assert "🔎 vendedor novo: checagem da loja pendente" in m
+    assert est.dados["minimo"]["preco"] == 2890.00 < minimo_antes
+    assert _carrinho_do_latest(dados, "Loja Boa Eletro") is True
+    assert len(rede.pedidas) == 1
+    # outra execução logo em seguida: não insiste na mesma hora, e o vendedor continua sem aviso de golpe
+    _est, ofs, msgs = rodada("cloud", [vendedor_limpo(pix="2890.00", cartao="3099.00")] + _confiaveis_reais(), rede=rede)
+    assert len(rede.pedidas) == 1
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Loja Boa Eletro")) == confianca.SEM_RISCO
+    assert not any(m.startswith(CAB_SUSPEITO) for m in msgs)
+    # a próxima rodada da nuvem (15 min depois) tenta de novo e completa a checagem
+    _envelhece(dados, "catalogos", 15)
+    _est, ofs, _msgs = rodada("cloud", [vendedor_limpo(pix="2890.00", cartao="3099.00")] + _confiaveis_reais(), rede=rede)
+    assert len(rede.pedidas) == 2
+    c = next(x for x in ofs if x.vendedor == "Loja Boa Eletro").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO and "catálogo da loja" in c["checagens"], c
+
+
+def test_c3_falha_passageira_ao_abrir_o_anuncio_e_tentada_de_novo_na_proxima_rodada(dados):
+    minimo_antes = _minimo_das_confiaveis()
+    html = _html_vendedor_limpo(pix="2890.00", cartao="3099.00")
+    rede = RedeInstavel({"/p/kb0aeletro1/": html, "/lojista/lojaboaeletro/": _catalogo_com_tv()},
+                        {"/p/kb0aeletro1/": [_http_erro(500)]})
+    est, ofs, msgs = rodada("cloud", [_so_da_busca(html)] + _confiaveis_reais(), rede=rede)
+    # sem a ficha (Anatel, avaliações) e abaixo da confiável mais barata: segura só esta rodada
+    c = next(x for x in ofs if x.vendedor == "Loja Boa Eletro").extra["confianca"]
+    assert c["veredito"] == confianca.SUSPEITO and any("não deu para checar a ficha" in s for s in c["sinais"]), c
+    assert est.dados["minimo"]["preco"] == minimo_antes
+    # a próxima rodada da nuvem (15 min depois) reabre o anúncio e o alerta sai
+    _envelhece(dados, "fichas", 15, campos=("aberto_em", "quando"))
+    est, ofs, msgs = rodada("cloud", [_so_da_busca(html)] + _confiaveis_reais(), rede=rede)
+    c = next(x for x in ofs if x.vendedor == "Loja Boa Eletro").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO, c
+    (m,) = _msgs_de(msgs, "Loja Boa Eletro")
+    assert "🎯" in m and CAB_SUSPEITO not in m
+    assert est.dados["minimo"]["preco"] == 2890.00
+    assert sum(1 for u in rede.pedidas if "/p/kb0aeletro1/" in u) == 2
+
+
+# ---- C4: confiáveis vistos em dado real no levantamento da 65C6K (26/09) ----
+
+@pytest.mark.parametrize("o", [
+    Oferta("vtex", "loja", "Webcontinental", "TCL 65C6K", "https://www.webcontinental.com.br/x/p",
+           "Webcontinental-4806999-003731", preco=4274.05, preco_pix=3963.60, vendedor="Casas Bahia"),
+    Oferta("vtex", "loja", "Webcontinental", "TCL 65C6K", "https://www.webcontinental.com.br/y/p",
+           "Webcontinental-5364479-003082", preco=5059.61, preco_pix=4844.31, vendedor="Lojas Colombo SA"),
+    Oferta("aliexpress", "loja", "AliExpress", "TCL 65C6K", "https://pt.aliexpress.com/item/1005009036343124.html",
+           "1005009036343124", preco=4659.00, vendedor="Magalu Store"),
+    Oferta("amazon", "loja", "Amazon", "TCL 65C6K", "https://www.amazon.com.br/dp/B0F7K7B2PD",
+           "B0F7K7B2PD-A1ZZFT5FULY4LN", preco_pix=4219.07, extra={"vendedor_id": "A1ZZFT5FULY4LN"}),
+    Oferta("kabum", "loja", "KaBuM!", "TCL 65C6K", config.URL_KABUM_PRODUTO, "911480", preco=4736.00,
+           vendedor="LOJAS COLOMBO"),
+    Oferta("kabum", "loja", "KaBuM!", "TCL 65C6K", config.URL_KABUM_PRODUTO, "911480-4269", preco=4736.00,
+           vendedor="LOJAS COLOMBO", extra={"vendedor_id": "4269"}),
+    Oferta("kabum", "loja", "KaBuM!", "TCL 65C6K", config.URL_KABUM_PRODUTO, "938060", preco=4799.00,
+           vendedor="Magalu"),
+    Oferta("kabum", "loja", "KaBuM!", "TCL 65C6K", config.URL_KABUM_PRODUTO, "938060-1000", preco=4799.00,
+           vendedor="Magalu", extra={"vendedor_id": "1000"}),
+], ids=["webc-casasbahia", "webc-colombo", "ali-magalustore", "amazon-1p-id", "kabum-colombo", "kabum-colombo-id",
+        "kabum-magalu", "kabum-magalu-id"])
+def test_c4_vendedores_reais_do_levantamento_da_65_sao_confiaveis(o):
+    assert confianca.classifica_por_lista(o, ())[0] == confianca.CONFIAVEL
+
+
+def test_c4_nome_de_confiavel_da_kabum_com_outro_id_nao_e_confiavel():
+    o = Oferta("kabum", "loja", "KaBuM!", "TCL 55C6K", config.URL_KABUM_PRODUTO, "911482-9999", preco=2500.00,
+               vendedor="Magalu", extra={"vendedor_id": "9999"})
+    assert confianca.classifica_por_lista(o, ())[0] is None
+
+
+# ---- C5: reprovado automático não apaga linhas do histórico; a lista de confiáveis devolve tudo ----
+
+def test_c5_reprovado_automatico_nao_apaga_o_historico_e_a_lista_de_confiaveis_devolve_tudo(dados, monkeypatch):
+    rodada("cloud", _confiaveis_reais())
+    url_golpe = URL_1P + "?seller_id=lojagolpe"
+    linha = f"2026-09-24T10:00:00-03:00,magalu,loja,Magazine Luiza,Loja Golpe,Smart TV 55 TCL 55C6K,3894.05,2799.0,,,{url_golpe}\r\n"
+    with (dados / "historico_cloud.csv").open("a", encoding="utf-8", newline="") as f:
+        f.write(linha)
+    # a Loja Golpe volta com o preço lá embaixo e a loja de brinquedos: reprovado automático
+    p = _produto(P1P)
+    sel = _seller("lojagolpe", "Loja Golpe", razao="Comercial de Brinquedos Ltda")
+    p["offers"].append({"sku": "9", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "2400.00",
+                                              "fullPrice": "3894.05", "price": "3894.05"}, "seller": sel})
+    rede = Rede({"/lojista/lojagolpe/": catalogo_html(800, [("ET", "Tv e Vídeo", 2), ("BR", "Brinquedos", 798)]),
+                 "/p/240162700/": P1P})
+    est, _ofs, _msgs = rodada("cloud", magalu.parse_produto_todas(_html_produto(p))[0] + _confiaveis_reais()[1:],
+                              rede=rede)
+    assert "Magazine Luiza|lojagolpe" in est.dados["confianca"]["reprovados_auto"]
+    rodada("cloud", _confiaveis_reais())
+    assert linha.encode("utf-8") in (dados / "historico_cloud.csv").read_bytes()     # a linha fica
+    est = Estado("cloud")
+    assert (est.minimo_geral() or {}).get("preco") != 2799.0                            # mas não conta
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert any("lojagolpe" in e["ids"] for e in lt["confianca"]["reprovados"])       # e o painel a esconde
+    # o usuário põe a Loja Golpe em confiáveis: a linha volta a contar (mínimo) e o painel volta a mostrá-la
+    _com_confiavel(monkeypatch, "Magazine Luiza", {"ids": ["lojagolpe"], "nomes": ["Loja Golpe"]})
+    est, _ofs, _msgs = rodada("cloud", _confiaveis_reais())
+    assert linha.encode("utf-8") in (dados / "historico_cloud.csv").read_bytes()
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert not any("lojagolpe" in e["ids"] for e in lt["confianca"]["reprovados"])
+    assert est.dados["minimo"]["preco"] == 2799.0
+    assert Estado("cloud").minimo_geral()["preco"] == 2799.0
+
+
+def test_c5_reprovado_curado_continua_saindo_do_historico(dados):
+    _grava_dado_real(dados)
+    Estado("cloud").anexa_historico([])
+    assert b"Importados Lili" not in (dados / "historico_cloud.csv").read_bytes()
+
+
+# ---- C6: o log do expurgo ao carregar diz suspeito ou reprovado ----
+
+def test_c6_log_do_expurgo_diz_suspeito_ou_reprovado(dados, capsys):
+    _grava_dado_real(dados)   # registro da Lili: reprovado pela lista curada
+    arq = dados / "state_cloud.json"
+    st = json.loads(arq.read_text(encoding="utf-8"))
+    sus = vendedor_limpo(pix="2400.00", cartao="3099.00").to_dict()
+    sus["extra"]["confianca"] = {"veredito": confianca.SUSPEITO, "sinais": ["preço 23% menor"]}
+    st["ofertas"]["magalu:kb0aeletro0-lojaboaeletro"] = sus
+    arq.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+    capsys.readouterr()
+    Estado("cloud")
+    (linha,) = [ln for ln in capsys.readouterr().out.splitlines() if "registro(s)" in ln]
+    assert "1 de vendedor/anúncio reprovado" in linha and "1 de anúncio suspeito" in linha, linha
+    # só suspeito: a linha não fala em reprovado
+    st["ofertas"] = {"magalu:kb0aeletro0-lojaboaeletro": sus}
+    arq.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+    Estado("cloud")
+    (linha,) = [ln for ln in capsys.readouterr().out.splitlines() if "registro(s)" in ln]
+    assert "1 de anúncio suspeito" in linha and "reprovado" not in linha, linha
