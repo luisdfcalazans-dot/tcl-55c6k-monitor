@@ -10,7 +10,7 @@ from typing import Optional
 from . import config
 from . import confianca
 from .estado import Estado, conta_como_preco, e_agregador, lojas_diretas, marca_cupom
-from .models import Cupom, Oferta
+from .models import MODELO_PADRAO, MODELOS, POLEGADAS, Cupom, Oferta, modelo_de, rotulo_modelo
 from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
 
 # Teto (F3): "até R$ X", "máximo (de) R$ X", "no máximo R$ X", "compra máxima de R$ X". Como na main, o teto limita a
@@ -391,19 +391,24 @@ def _sem_exclusoes(t: str) -> tuple[str, list[str]]:
     return _RE_EXCLUSAO.sub(" ", t), excl
 
 
-def _tamanhos_incluem_55(pre: str, nums: str, pos: str) -> bool:
-    """(c) "50, 55 e 65", "55 a 85", "50" a 65"", "a partir de 50", "50 ou mais", "até 65" incluem a 55"."""
+def _tamanhos_incluem(pre: str, nums: str, pos: str, pol: int = 55) -> bool:
+    """(c) "50, 55 e 65", "55 a 85", "50" a 65"", "a partir de 50", "50 ou mais", "até 65" incluem a TV de `pol`
+    polegadas (55 ou 65)."""
     limpo = _RE_TEM_POLEGADA.sub(" ", nums)
     ns = [int(n) for n in re.findall(r"\d{2}", limpo)]
-    if 55 in ns:
+    if pol in ns:
         return True
     for faixa in re.finditer(r"(\d{2})\s*(?:\ba\b|\bate\b|-|–)\s*(\d{2})", limpo):
-        if int(faixa.group(1)) <= 55 <= int(faixa.group(2)):
+        if int(faixa.group(1)) <= pol <= int(faixa.group(2)):
             return True
     qual = f"{pre} {pos}"
-    if (re.search(r"\b(?:acima|partir|maior\w*|mais|superior\w*|cima)\b", qual) or "+" in pos) and min(ns) <= 55:
+    if (re.search(r"\b(?:acima|partir|maior\w*|mais|superior\w*|cima)\b", qual) or "+" in pos) and min(ns) <= pol:
         return True
-    return bool(re.search(r"\b(?:ate|abaixo|menor\w*|menos|inferior\w*)\b", qual)) and max(ns) >= 55
+    return bool(re.search(r"\b(?:ate|abaixo|menor\w*|menos|inferior\w*)\b", qual)) and max(ns) >= pol
+
+
+def _tamanhos_incluem_55(pre: str, nums: str, pos: str) -> bool:
+    return _tamanhos_incluem(pre, nums, pos, 55)
 
 
 def _lista_explicita(pre: str, nums: str, depois: str) -> bool:
@@ -428,11 +433,11 @@ def _tamanhos_de_tv(t: str) -> list[re.Match]:
     return out
 
 
-def _outro_tamanho(campos: tuple[str, ...]) -> Optional[str]:
-    """(c) 'smart tv tcl 50' quando o cupom é só de uma TV de outro tamanho (ou de outro modelo TCL com o tamanho no
-    nome: '65C6K', '50P7K'). None quando a lista/faixa inclui o 55 ou quando o texto também fala de TVs em geral
-    ("R$ 300 OFF em TVs, inclusive a Smart TV TCL 50"). Cada campo (título, regra) é lido separado: a busca não
-    atravessa a junção dos dois."""
+def _outro_tamanho(campos: tuple[str, ...], pol: int = 55) -> Optional[str]:
+    """(c) 'smart tv tcl 50' quando o cupom é só de uma TV de outro tamanho que não `pol` (ou de outro modelo TCL com o
+    tamanho no nome: '65C6K' para a 55", '50P7K'). None quando a lista/faixa inclui o `pol` ou quando o texto também
+    fala de TVs em geral ("R$ 300 OFF em TVs, inclusive a Smart TV TCL 50"). Cada campo (título, regra) é lido
+    separado: a busca não atravessa a junção dos dois."""
     tamanhos: list[re.Match] = []
     modelos: list[re.Match] = []
     restos = []
@@ -444,8 +449,8 @@ def _outro_tamanho(campos: tuple[str, ...]) -> Optional[str]:
         for m in tams + mods:
             fora.update(range(m.start(), m.end()))
         restos.append(_RE_NAO_E_TV.sub(" ", "".join(" " if i in fora else ch for i, ch in enumerate(t))))
-    if any(_tamanhos_incluem_55(m.group("pre"), m.group("nums"), m.group("pos")) for m in tamanhos) \
-            or any(m.group(1) == "55" for m in modelos):
+    if any(_tamanhos_incluem(m.group("pre"), m.group("nums"), m.group("pos"), pol) for m in tamanhos) \
+            or any(m.group(1) == str(pol) for m in modelos):
         return None
     outros = [m.group(0).strip() for m in tamanhos] + [m.group(0) for m in modelos]
     if not outros:
@@ -453,10 +458,10 @@ def _outro_tamanho(campos: tuple[str, ...]) -> Optional[str]:
     return None if any(_RE_TV.search(r) for r in restos) else outros[0]
 
 
-def _tv_excluida(exclusoes: list[str]) -> str:
-    """(a) A exclusão tira a 55C6K ("exceto TVs", "não vale para eletrônicos", "exceto TCL", "exceto a linha C6K",
-    "exceto TVs 55 polegadas")? Devolve o trecho. Exclusão com qualificador que não cobre a 55C6K (outra marca, outro
-    tamanho, outro modelo, mesmo da TCL: "exceto a TCL 32S5400A", "exceto modelos TCL de 32 e 43 polegadas";
+def _tv_excluida(exclusoes: list[str], pol: int = 55) -> str:
+    """(a) A exclusão tira a C6K de `pol` polegadas ("exceto TVs", "não vale para eletrônicos", "exceto TCL", "exceto a
+    linha C6K", "exceto TVs 55 polegadas")? Devolve o trecho. Exclusão com qualificador que não cobre a TV (outra marca,
+    outro tamanho, outro modelo, mesmo da TCL: "exceto a TCL 32S5400A", "exceto modelos TCL de 32 e 43 polegadas";
     vendedor; preço) não tira a TV."""
     for ex in exclusoes:
         m = _RE_TV_EXCLUIDA.search(_RE_NAO_E_TV.sub(" ", _RE_ACESSORIO_DE_TV.sub(" acessorios ", ex)))
@@ -474,8 +479,8 @@ def _tv_excluida(exclusoes: list[str]) -> str:
                  and not _RE_DATA_HORA_DEPOIS.match(ex[t.end("nums"):])]
         modelos = [(s.group("tam"), s.group("serie")) for s in _RE_SERIE_TCL.finditer(ex)]
         if tams or modelos:
-            cobre = any(_tamanhos_incluem_55(t.group("pre"), t.group("nums"), t.group("pos")) for t in tams) \
-                or any(serie == "c6k" and tam in (None, "55") for tam, serie in modelos)
+            cobre = any(_tamanhos_incluem(t.group("pre"), t.group("nums"), t.group("pos"), pol) for t in tams) \
+                or any(serie == "c6k" and tam in (None, str(pol)) for tam, serie in modelos)
             if not cobre:
                 continue  # "exceto TVs de 32 polegadas", "exceto a TCL 32S5400A", "exceto a TCL 65C6K"
         return m.group(0)
@@ -616,7 +621,9 @@ class _Escopo:
         self.tit_cat = _RE_ACESSORIO_DE_TV.sub(" acessorios ", _RE_LOJA_NO_TEXTO.sub(" ", tit))
         self.reg_cat = _RE_ACESSORIO_DE_TV.sub(" acessorios ", _RE_LOJA_NO_TEXTO.sub(" ", reg))
         self.cat = f"{self.tit_cat} {self.reg_cat}"  # para as categorias
-        self.tv_excluida = _tv_excluida(self.exclusoes)
+        self.tv_excluida = _tv_excluida(self.exclusoes)   # a 55C6K (o de sempre); a de outro tamanho em excluida_de()
+        self._excluida: dict[int, str] = {55: self.tv_excluida}
+        self._outro: dict[int, Optional[str]] = {}
         self.loja_de_marca = _loja_de_marca((self.tit_cat, self.reg_cat))
         alvos = _alvos(self.tit_cat, True) + _alvos(self.reg_cat, False)
         self.classes = [(*_classe_do_alvo(a), a.forte) for a in alvos]
@@ -627,6 +634,18 @@ class _Escopo:
         self.selecao = next((r for k, r, _f in self.classes if k == "selecao"), "")
         # anúncio cortado: "15% de Desconto em" e nada mais (a categoria sumiu)
         self.cortado = bool(re.search(r"\bem\s*[!.:\s]*$", self.tit_cat))
+
+    def excluida_de(self, pol: int) -> str:
+        """(a) O trecho da exclusão que tira a TV de `pol` polegadas ('' se nenhuma tira)."""
+        if pol not in self._excluida:
+            self._excluida[pol] = _tv_excluida(self.exclusoes, pol)
+        return self._excluida[pol]
+
+    def outro_tamanho_de(self, pol: int) -> Optional[str]:
+        """(c) A TV de outro tamanho que o cupom cita, quando não é a de `pol` polegadas (None se serve)."""
+        if pol not in self._outro:
+            self._outro[pol] = _outro_tamanho(self.campos, pol)
+        return self._outro[pol]
 
     def categoria_declarada(self, so_explicita: bool = False) -> str:
         """(b) A categoria que não é TV que o anúncio declara ser o escopo ('' se não declara nenhuma, ou se algum alvo
@@ -650,19 +669,24 @@ def _so_frete(e: _Escopo) -> bool:
     return not _RE_TEM_DESCONTO.search(resto)
 
 
-def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
-    """Verifica se a regra do cupom cabe na TV. Devolve (ok, motivo)."""
+def cupom_compativel(c: Cupom, preco_loja: Optional[float], modelo: str = MODELO_PADRAO) -> tuple[bool, str]:
+    """Verifica se a regra do cupom cabe na TV do `modelo` (padrão: a 55C6K), com o preço dela na loja. Devolve
+    (ok, motivo). O cupom da página do produto só serve para o modelo do anúncio (c.modelo; sem ele, qualquer um)."""
     if c.especifico:
+        if c.modelo and modelo_de({"modelo": c.modelo}) != modelo_de({"modelo": modelo}):
+            return False, f"cupom do produto da {c.modelo}"
         return True, "cupom do produto"
+    pol = POLEGADAS.get(modelo_de({"modelo": modelo}), 55)
     e = _escopo(c.titulo, c.regra)
-    if e.tv_excluida:
-        return False, f"exclui: {e.tv_excluida}"
+    excluida = e.excluida_de(pol)
+    if excluida:
+        return False, f"exclui: {excluida}"
     marca = _motivo_marca(e.escopo, sem_acentos(c.codigo).lower())
     if marca:
         return False, marca
     if e.loja_de_marca:
         return False, f"loja/marca: {e.loja_de_marca}"
-    outro = _outro_tamanho(e.campos)
+    outro = e.outro_tamanho_de(pol)
     # anúncio de um kit ("Kit Streamer HyperX ... com 10% de Desconto"): o kit é o produto do título, sem TV em lugar
     # nenhum, sem o site todo e sem "compras"/"pedidos" (aí "kit" é só uma palavra do texto)
     if not outro and _RE_KIT.search(e.tit_cat) and not _RE_TV_EXCLUIDA.search(_RE_NAO_E_TV.sub(" ", e.cat)) \
@@ -693,7 +717,7 @@ def cupom_compativel(c: Cupom, preco_loja: Optional[float]) -> tuple[bool, str]:
     selecao = m.group(0) if m else e.selecao
     if selecao and not (e.tem_tv or e.site_todo or _RE_TV.search(_RE_NAO_E_TV.sub(" ", e.cat))):
         return False, f"restrito: {selecao}"
-    p = preco_loja or config.ALVO_PARCELADO
+    p = preco_loja or config.alvo_parcelado(modelo)
     # cupom progressivo (em faixas: "R$ 100 OFF acima de R$ 1.000, R$ 300 OFF acima de R$ 3.000 e R$ 500 OFF acima de
     # R$ 5.000") serve se o preço da TV alcança QUALQUER faixa: vale o menor mínimo, e o mínimo de uma faixa de cima
     # nunca recusa. Pelo mesmo motivo, o teto de uma faixa de baixo ("Compras de R$ 800 até R$ 1.999") não recusa
@@ -760,11 +784,11 @@ def _alertado_no_codigo_antigo(reg: dict, preco_por_loja: dict[str, float]) -> b
     return _compativel_regra_antiga(c, preco_por_loja.get(lc))
 
 
-def restricao_do_codigo(cupons: list[Cupom], registros=()) -> set[str]:
+def restricao_do_codigo(cupons: list[Cupom], registros=(), modelo: str = MODELO_PADRAO) -> set[str]:
     """'loja|CÓDIGO' que algum anúncio (desta rodada, ou dos `registros` vistos nos últimos 30 dias, nos dois modos)
     declara ser de uma categoria que não é TV/eletrônicos/tecnologia nem o site todo ("20% OFF em Casa e Decor", "na
-    categoria Casa"), de uma loja oficial/marca que não é a TCL ("na Loja Oficial LG"), ou que exclui a TV ("exceto
-    TVs"; uma exclusão de outras TVs, "exceto TVs 32 e 43 polegadas", não barra).
+    categoria Casa"), de uma loja oficial/marca que não é a TCL ("na Loja Oficial LG"), ou que exclui a TV do `modelo`
+    ("exceto TVs"; uma exclusão de outras TVs, "exceto TVs 32 e 43 polegadas", não barra).
 
     O mesmo código aparece em anúncios diferentes, e o Promobit alterna títulos genéricos ("20% OFF no Mercado
     Livre", "Economize 20% em seus pedidos") com o que diz a categoria: o cupom é o mesmo, então o anúncio genérico
@@ -776,12 +800,13 @@ def restricao_do_codigo(cupons: list[Cupom], registros=()) -> set[str]:
     categoria: set[str] = set()
     exclui_tv: set[str] = set()
     diz_tv: set[str] = set()
+    pol = POLEGADAS.get(modelo_de({"modelo": modelo}), 55)
     for c in list(cupons) + [_cupom_do_registro(r) for r in registros]:
         if c.especifico or not (c.codigo or "").strip():
             continue
         e = _escopo(c.titulo, c.regra)
         marca = marca_cupom(c.loja, c.codigo)
-        if e.tv_excluida:
+        if e.excluida_de(pol):
             exclui_tv.add(marca)
         elif e.loja_de_marca:
             categoria.add(marca)  # (e) o código é da loja oficial/marca ("na Loja Oficial LG"), como uma categoria
@@ -878,7 +903,8 @@ def _linha_preco(o: Oferta, com_cupom: bool = True) -> str:
 
 
 def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None, nota: Optional[str] = None) -> str:
-    cab = " ".join(etiquetas)
+    # o modelo vai no cabeçalho (26/09: as duas TVs chegam no mesmo chat; o título da loja às vezes nem diz o tamanho)
+    cab = " ".join(etiquetas) + f" · {rotulo_modelo(modelo_de(o))}"
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
     linhas = [f"{cab} — <b>{_esc(quem)}</b>", _esc(o.titulo[:140]), _linha_preco(o)]
     if anterior:
@@ -901,7 +927,7 @@ def mensagem_suspeito(o: Oferta) -> str:
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
     if (o.extra.get("confianca") or {}).get("agregador"):
         quem += " — linha de agregador, vendedor não identificado"
-    linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b>"]
+    linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b> · {rotulo_modelo(modelo_de(o))}"]
     # a razão social vai só nesta mensagem (privada), para a pessoa conferir; o sinal gravado no latest/state (públicos)
     # diz só o ramo (a empresa pode ser vítima de conta invadida)
     razao = str((o.extra.get("ficha") or {}).get("razao_social") or "").strip()
@@ -928,16 +954,34 @@ def _reprovados_auto(estado: Optional[Estado]) -> list[dict]:
     return ler() if callable(ler) else []
 
 
-def menor_preco_confiavel(ofertas: list[Oferta]) -> Optional[float]:
-    """Menor preço entre as ofertas de loja com veredito 'confiavel' nesta rodada (None sem veredito/sem oferta)."""
+def menor_preco_confiavel(ofertas: list[Oferta], modelo: Optional[str] = None) -> Optional[float]:
+    """Menor preço entre as ofertas de loja com veredito 'confiavel' nesta rodada, do `modelo` (None: de qualquer um;
+    None também sem veredito/sem oferta). A 65" é mais cara: comparar a postagem dela com a 55" daria "⚠️ confira" à
+    toa, e a da 55" com a 65" esconderia o preço bom demais."""
     precos = [o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco
+              and (modelo is None or modelo_de(o) == modelo)
               and not e_agregador(o) and confianca.veredito_de(o) == confianca.CONFIAVEL]
     return min(precos) if precos else None
+
+
+def _boot(estado: Estado, modelo: str) -> bool:
+    """A rodada é a partida do `modelo` neste modo (Estado.bootstrap_modelo; a partida geral vale para os dois)."""
+    f = getattr(estado, "bootstrap_modelo", None)
+    return bool(f(modelo)) if callable(f) else bool(estado.bootstrap)
+
+
+def modelos_em_jogo(ofertas: list[Oferta]) -> list[str]:
+    """Os modelos que contam para os cupons desta rodada: a 55C6K sempre (como antes) e a 65C6K quando a rodada trouxe
+    preço de loja dela."""
+    com_loja = {modelo_de(o) for o in ofertas if o.tipo == "loja"}
+    return [m for m in MODELOS if m == MODELO_PADRAO or m in com_loja]
 
 
 def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> tuple[list[str], dict[str, float]]:
     """Devolve (mensagens, {chave_oferta: preco_alertado}).
 
+    Cada oferta é comparada com o alvo e o "menor já visto" do SEU modelo (55C6K ou 65C6K). Na partida de um modelo
+    (a primeira rodada em que ele aparece neste modo) as ofertas e postagens dele são registradas sem alerta.
     Os cupons alertados ficam registrados no estado (em memória; o run.py salva no fim da rodada): quando o mesmo
     código volta com outro id, só deixa de ser novidade se já foi alertado com o mesmo desconto.
     """
@@ -945,20 +989,23 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     alertados: dict[str, float] = {}
     # agregador (Zoom) de loja que tem fonte direta nesta rodada, no state ou no outro modo não é preço
     diretas = estado.lojas_diretas_conhecidas(ofertas)
-    # o "menor já visto" é o dos dois modos (o painel mostra o menor entre cloud e pc)
-    minimo_antes = estado.minimo_geral(diretas)
-    preco_minimo_antes = float(minimo_antes["preco"]) if minimo_antes else None
-
     lojas = [o for o in ofertas if o.tipo == "loja"]
     posts = [o for o in ofertas if o.tipo == "post"]
+    # o "menor já visto" de cada modelo da rodada é o dos dois modos (o painel mostra o menor entre cloud e pc)
+    preco_minimo_antes: dict[str, Optional[float]] = {}
+    for m in {modelo_de(o) for o in lojas}:
+        minimo_antes = estado.minimo_geral(diretas) if m == MODELO_PADRAO else estado.minimo_geral(diretas, modelo=m)
+        preco_minimo_antes[m] = float(minimo_antes["preco"]) if minimo_antes else None
+    boot = {m: _boot(estado, m) for m in MODELOS}
 
     # ---- preços de loja ----
     for o in lojas:
+        modelo = modelo_de(o)
         p = o.melhor_preco
         if confianca.veredito_de(o) == confianca.SUSPEITO:
             # vendedor não confiável com sinais de golpe: uma mensagem de aviso (sem repetir a cada rodada), sem
             # 🎯/🏆/🔻, e não conta como preço (mínimo, histórico, painel, resumo, carrinho)
-            if o.ativo and p and not estado.bootstrap and confianca.deve_avisar(estado, o):
+            if o.ativo and p and not boot[modelo] and confianca.deve_avisar(estado, o):
                 msgs.append(mensagem_suspeito(o))
             continue
         # inativa, sem preço, ou agregador (Zoom) de loja com fonte direta conhecida: não gera alerta de preço
@@ -967,11 +1014,12 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         prev = estado.oferta_anterior(o.chave)
         etiquetas: list[str] = []
         anterior = None
-        novo_minimo = preco_minimo_antes is not None and p < preco_minimo_antes
+        pma = preco_minimo_antes[modelo]
+        novo_minimo = pma is not None and p < pma
         if novo_minimo:
             etiquetas.append("🏆 MENOR PREÇO já visto")
         if prev is None:
-            if not estado.bootstrap and (p <= config.ALVO_PARCELADO or (preco_minimo_antes and p <= preco_minimo_antes * 1.03)):
+            if not boot[modelo] and (p <= config.alvo_parcelado(modelo) or (pma and p <= pma * 1.03)):
                 etiquetas.append("🆕 Nova oferta")
         else:
             anterior = prev.get("ultimo_preco")
@@ -980,25 +1028,30 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
                 anterior = float(anterior)
             else:
                 anterior = None
-        abaixo_alvo = (o.preco_pix and o.preco_pix <= config.ALVO_PIX) or p <= config.ALVO_PIX or \
-            (o.preco and o.preco <= config.ALVO_PARCELADO and o.parcelado)
-        if abaixo_alvo and not estado.bootstrap:
+        alvo_pix, alvo_parc = config.alvo_pix(modelo), config.alvo_parcelado(modelo)
+        abaixo_alvo = (o.preco_pix and o.preco_pix <= alvo_pix) or p <= alvo_pix or \
+            (o.preco and o.preco <= alvo_parc and o.parcelado)
+        if abaixo_alvo and not boot[modelo]:
             ja = prev.get("preco_alertado") if prev else None
             if ja is None or p < float(ja) - 0.5:
                 etiquetas.append("🎯 Abaixo do alvo")
         if etiquetas:
-            # vendedor fora da lista de confiáveis que passou nas checagens: o alerta sai, com o que foi checado
-            msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o)))
+            # na partida só do modelo (a geral é trocada pela mensagem de início no run.py) a mensagem não sai
+            if not boot[modelo] or estado.bootstrap:
+                # vendedor fora da lista de confiáveis que passou nas checagens: o alerta sai, com o que foi checado
+                msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o)))
             alertados[o.chave] = p
         if novo_minimo:
-            preco_minimo_antes = p
+            preco_minimo_antes[modelo] = p
 
     # ---- postagens em sites de promoção e canais ----
-    # postagem com preço muito abaixo da loja confiável mais barata da rodada, ou que leva a anúncio que a rodada julgou
-    # suspeito/reprovado (ou cita o vendedor dele): pode ser anúncio de golpe divulgado. Sai com "⚠️ confira", sem 🎯
-    ref_confiavel = menor_preco_confiavel(ofertas)
+    # postagem com preço muito abaixo da loja confiável mais barata do MESMO modelo nesta rodada, ou que leva a anúncio
+    # que a rodada julgou suspeito/reprovado (ou cita o vendedor dele): pode ser anúncio de golpe divulgado. Sai com
+    # "⚠️ confira", sem 🎯
+    ref_confiavel = {m: menor_preco_confiavel(ofertas, m) for m in MODELOS}
     auto = _reprovados_auto(estado)
     for o in posts:
+        modelo = modelo_de(o)
         if estado.oferta_anterior(o.chave) is not None:
             continue
         if not o.ativo:
@@ -1006,26 +1059,28 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         d = dias_desde(o.publicado)
         if d is not None and d > 3:
             continue
-        if estado.bootstrap:
+        if boot[modelo]:
             continue
         et = ["📣 Promoção postada"]
-        muito_abaixo = bool(ref_confiavel and o.melhor_preco
-                            and o.melhor_preco <= ref_confiavel * confianca.FRACAO_MUITO_ABAIXO)
+        ref = ref_confiavel[modelo]
+        muito_abaixo = bool(ref and o.melhor_preco and o.melhor_preco <= ref * confianca.FRACAO_MUITO_ABAIXO)
         barrada = confianca.postagem_barrada(o, lojas, auto)
-        if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX and not muito_abaixo and not barrada:
+        if o.melhor_preco and o.melhor_preco <= config.alvo_pix(modelo) and not muito_abaixo and not barrada:
             et.append("🎯")
         nota = f"⚠️ confira: {barrada}" if barrada else \
             "⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None
         msgs.append(_msg_oferta(et, o, nota=nota))
 
     # ---- cupons ----
-    preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, diretas, _substitutas(estado, ofertas, diretas))
+    em_jogo = modelos_em_jogo(ofertas)
+    precos_mod, lojas_com_tv = _precos_por_modelo(estado, ofertas, diretas, em_jogo)
     # estado antigo não registrava os alertas de cupom: reconstrói (uma vez) o que o código da época alertou, com o
-    # preço que ele usava (qualquer oferta de loja ativa, agregador inclusive)
-    preco_antigo = _precos_da_tv(ofertas, None)[0]
+    # preço que ele usava (qualquer oferta de loja ativa da 55C6K, agregador inclusive)
+    preco_antigo = _precos_da_tv(ofertas, None, modelo=MODELO_PADRAO)[0]
     estado.migra_alertas_de_cupom(lambda reg: _alertado_no_codigo_antigo(reg, preco_antigo))
     # códigos que outro anúncio declara serem de outra categoria (ex.: DESCONTOEMCASA "em Casa e Decor")
-    restritos = restricao_do_codigo(cupons, estado.cupons_vistos())
+    vistos = estado.cupons_vistos()
+    restritos = {m: restricao_do_codigo(cupons, vistos, m) for m in em_jogo}
     novos: list[tuple[Cupom, str]] = []
     codigos_vistos: set[str] = set()
     # cupom da página do produto primeiro (se o mesmo código vier também como cupom do site, fica a linha do produto),
@@ -1038,11 +1093,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             continue
         if confianca.cupom_barrado(c, ofertas, auto):
             continue  # cupom da página de anúncio reprovado/suspeito: o link levaria ao anúncio barrado
-        ok, _motivo = cupom_compativel(c, preco_por_loja.get(lc))
-        if not ok:
-            continue
         marca = marca_cupom(lc, c.codigo)
-        if marca in restritos and not c.especifico:
+        servem = _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo)
+        if not servem:
             continue
         if marca in codigos_vistos:
             continue  # o mesmo cupom no Promobit e no Pelando nesta rodada
@@ -1055,12 +1108,10 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             # partida: a mensagem de início anuncia os cupons aplicáveis e avisa que só chegam novidades depois
             estado.registra_alerta_cupom(c, origem="partida")
             continue
-        pl = preco_por_loja.get(lc)
         linha = f"• <b>{_esc(lc)}</b> <code>{_esc(c.codigo)}</code> — {_esc(c.titulo[:90])}"
         if c.validade:
             linha += f" (até {_esc(c.validade[:10])})"
-        if pl:
-            linha += f" · TV lá: {fmt_preco(pl)}"
+        linha += _tv_la(lc, servem, precos_mod, em_jogo)
         if c.especifico:
             linha = "⭐ " + linha + " — cupom do produto"
         linha += f"\n  {c.url}"
@@ -1078,6 +1129,45 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     return msgs, alertados
 
 
+def _modelos_do_cupom(c: Cupom, lc: str, marca: str, precos_mod: dict[str, dict[str, float]],
+                      restritos: dict[str, set[str]], em_jogo: list[str]) -> list[str]:
+    """Os modelos (dos que estão em jogo) para os quais o cupom serve: a regra cabe no preço da TV na loja e o código
+    não é de outra categoria/não exclui aquela TV."""
+    out = []
+    for m in em_jogo:
+        if not cupom_compativel(c, precos_mod.get(m, {}).get(lc), m)[0]:
+            continue
+        if marca in restritos.get(m, set()) and not c.especifico:
+            continue
+        out.append(m)
+    return out
+
+
+def _tv_la(lc: str, servem: list[str], precos_mod: dict[str, dict[str, float]], em_jogo: list[str]) -> str:
+    """" · TV lá: R$ X" (só a 55C6K em jogo, como antes) ou " · TV lá: R$ X (55\") · R$ Y (65\")", e " — só 65\""
+    quando o cupom serve para um modelo só."""
+    if len(em_jogo) == 1:
+        pl = precos_mod.get(em_jogo[0], {}).get(lc)
+        return f" · TV lá: {fmt_preco(pl)}" if pl else ""
+    partes = [f"{fmt_preco(precos_mod[m][lc])} ({POLEGADAS[m]}\")" for m in servem if precos_mod.get(m, {}).get(lc)]
+    txt = f" · TV lá: {' · '.join(partes)}" if partes else ""
+    if len(servem) < len(em_jogo):
+        txt += " — só " + " e ".join(f"{POLEGADAS[m]}\"" for m in servem)
+    return txt
+
+
+def _precos_por_modelo(estado: Optional[Estado], ofertas: list[Oferta], diretas: Optional[set[str]],
+                       em_jogo: list[str]) -> tuple[dict[str, dict[str, float]], set[str]]:
+    """({modelo: {loja: preço da TV}}, lojas que vendem alguma das TVs) para os cupons (ver _precos_da_tv)."""
+    precos: dict[str, dict[str, float]] = {}
+    com_tv: set[str] = set()
+    for m in em_jogo:
+        subs = _substitutas(estado, ofertas, diretas, m) if estado is not None and diretas is not None else []
+        precos[m], tv = _precos_da_tv(ofertas, diretas, subs, modelo=m)
+        com_tv |= tv
+    return precos, com_tv
+
+
 _RE_PARCELA_TXT = re.compile(r"(\d{1,2})x\s*(?:de\s*)?R\$\s?([\d.]+(?:,\d{2})?)", re.I)
 
 
@@ -1086,7 +1176,8 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
 
     Nasceu de um caso real: a página esgotada da Casas Bahia fez o coletor pegar o preço de uma
     Hisense do carrossel de recomendados (R$ 2.189) como se fosse a 55C6K.
-    Duas checagens: parcelamento que não fecha com o preço, e preço fora da faixa das outras lojas.
+    Duas checagens: parcelamento que não fecha com o preço, e preço fora da faixa das outras lojas DO MESMO MODELO
+    (a 65" custa ~30% mais: misturar as duas puxaria a mediana para o meio).
     """
     from statistics import median
 
@@ -1107,12 +1198,15 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
             o.extra["parcelado_descartado"] = o.parcelado
             o.parcelado = None
 
-    # 2) preço muito fora da faixa das demais lojas
-    precos = [o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco]
-    if len(precos) >= 4:
+    # 2) preço muito fora da faixa das demais lojas do mesmo modelo
+    for modelo in MODELOS:
+        do_modelo = [o for o in ofertas if modelo_de(o) == modelo]
+        precos = [o.melhor_preco for o in do_modelo if o.tipo == "loja" and o.ativo and o.melhor_preco]
+        if len(precos) < 4:
+            continue
         meio = median(precos)
         piso, teto = meio * 0.55, meio * 2.2
-        for o in ofertas:
+        for o in do_modelo:
             p = o.melhor_preco
             if o.tipo != "loja" or not o.ativo or not p or piso <= p <= teto:
                 continue
@@ -1123,14 +1217,13 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
 
 
 def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Optional[Estado] = None) -> list[Cupom]:
-    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço dela (para o painel e o resumo).
+    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço de alguma das TVs (para o painel e o resumo).
     Com o estado, um código que outro anúncio já visto diz ser de outra categoria também fica fora."""
-    if estado is not None:
-        diretas = estado.lojas_diretas_conhecidas(ofertas)
-        preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, diretas, _substitutas(estado, ofertas, diretas))
-    else:
-        preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, lojas_diretas(ofertas))
-    restritos = restricao_do_codigo(cupons, estado.cupons_vistos() if estado else [])
+    em_jogo = modelos_em_jogo(ofertas)
+    diretas = estado.lojas_diretas_conhecidas(ofertas) if estado is not None else lojas_diretas(ofertas)
+    precos_mod, lojas_com_tv = _precos_por_modelo(estado, ofertas, diretas, em_jogo)
+    vistos_estado = estado.cupons_vistos() if estado else []
+    restritos = {m: restricao_do_codigo(cupons, vistos_estado, m) for m in em_jogo}
     auto = _reprovados_auto(estado)
     out: list[Cupom] = []
     vistos: set[str] = set()
@@ -1140,10 +1233,8 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Option
             continue
         if confianca.cupom_barrado(c, ofertas, auto):
             continue
-        if not cupom_compativel(c, preco_por_loja.get(lc))[0]:
-            continue
         marca = marca_cupom(lc, c.codigo)
-        if marca in restritos and not c.especifico:
+        if not _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo):
             continue
         if marca in vistos:
             continue
@@ -1153,38 +1244,46 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Option
 
 
 def _precos_da_tv(ofertas: list[Oferta], diretas: Optional[set[str]],
-                  substitutas: list[dict] = ()) -> tuple[dict[str, float], set[str]]:
+                  substitutas: list[dict] = (), modelo: Optional[str] = None) -> tuple[dict[str, float], set[str]]:
     """({loja: preço da TV}, lojas que vendem a TV) para os cupons ("TV lá" e o valor mínimo/teto da compra).
 
-    O preço é o menor que conta (conta_como_preco; diretas=None: qualquer oferta de loja ativa, a regra antiga). A
-    loja que nesta rodada só aparece por agregador que não conta usa a oferta direta do outro modo (`substitutas`)."""
+    O preço é o menor que conta (conta_como_preco; diretas=None: qualquer oferta de loja ativa, a regra antiga), do
+    `modelo` (None: de qualquer um). A loja que nesta rodada só aparece por agregador que não conta usa a oferta direta
+    do outro modo (`substitutas`)."""
     preco: dict[str, float] = {}
     com_tv: set[str] = set(_LOJAS_COM_TV)
     for o in ofertas:
         if o.tipo != "loja" or not o.melhor_preco or not o.ativo or confianca.fora_de_preco(o):
+            continue
+        if modelo is not None and modelo_de(o) != modelo:
             continue
         lc = loja_canonica(o.loja)
         com_tv.add(lc)
         if diretas is None or conta_como_preco(o, diretas):
             preco[lc] = min(preco.get(lc, 1e9), o.melhor_preco)
     for d in substitutas:
+        if modelo is not None and modelo_de(d) != modelo:
+            continue
         lc = loja_canonica(d.get("loja") or "")
         com_tv.add(lc)
         preco.setdefault(lc, float(d["melhor_preco"]))
     return preco, com_tv
 
 
-def _substitutas(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -> list[dict]:
+def _substitutas(estado: Estado, ofertas: list[Oferta], diretas: set[str], modelo: Optional[str] = None) -> list[dict]:
     """Lojas que nesta rodada só aparecem por agregador (Zoom) que não conta porque o outro modo tem fonte direta
-    delas: a oferta direta mais barata do outro modo, com '_modo' e '_visto'. Ex.: no cloud, a Amazon do Zoom (R$ 3.279
-    parado desde 14/09) dá lugar à Amazon que o pc viu (R$ 3.749)."""
-    contam = {loja_canonica(o.loja) for o in ofertas if conta_como_preco(o, diretas)}
-    suprimidas = {loja_canonica(o.loja) for o in ofertas
+    delas: a oferta direta mais barata do outro modo, do `modelo` (None: de qualquer um), com '_modo' e '_visto'. Ex.:
+    no cloud, a Amazon do Zoom (R$ 3.279 parado desde 14/09) dá lugar à Amazon que o pc viu (R$ 3.749)."""
+    do_modelo = [o for o in ofertas if modelo is None or modelo_de(o) == modelo]
+    contam = {loja_canonica(o.loja) for o in do_modelo if conta_como_preco(o, diretas)}
+    suprimidas = {loja_canonica(o.loja) for o in do_modelo
                   if o.tipo == "loja" and o.ativo and o.melhor_preco and e_agregador(o)} - contam
     if not suprimidas:
         return []
     melhor: dict[str, dict] = {}
     for d in estado.ofertas_diretas_de_outros_modos():
+        if modelo is not None and modelo_de(d) != modelo:
+            continue
         lc = loja_canonica(d.get("loja") or "")
         if lc in suprimidas and (lc not in melhor or float(d["melhor_preco"]) < float(melhor[lc]["melhor_preco"])):
             melhor[lc] = d
@@ -1200,17 +1299,16 @@ def _quando_curto(iso: str) -> str:
     return f"{m.group(2)}/{m.group(1)} {m.group(3)}" if m else (iso or "?")[:16]
 
 
-def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> str:
-    diretas = estado.lojas_diretas_conhecidas(ofertas)
-    # (preço, linha): ofertas desta rodada que contam como preço e, no lugar da linha do agregador que não conta, a
-    # oferta direta que o outro modo viu (com quando e qual modo)
+def _linhas_do_resumo(estado: Estado, ofertas: list[Oferta], diretas: set[str], modelo: str) -> list[tuple[float, str]]:
+    """(preço, linha) do resumo de um modelo: ofertas desta rodada que contam como preço e, no lugar da linha do
+    agregador que não conta, a oferta direta que o outro modo viu (com quando e qual modo)."""
     itens: list[tuple[float, str]] = []
     for o in ofertas:
-        if o.tipo == "loja" and conta_como_preco(o, diretas):
+        if o.tipo == "loja" and modelo_de(o) == modelo and conta_como_preco(o, diretas):
             quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
             extra = f" · {o.parcelado}" if o.parcelado else ""
             itens.append((o.melhor_preco or 0, f"• {_esc(quem)}: <b>{fmt_preco(o.melhor_preco)}</b>{_esc(extra)}"))
-    for d in _substitutas(estado, ofertas, diretas):
+    for d in _substitutas(estado, ofertas, diretas, modelo):
         vend = d.get("vendedor")
         quem = (d.get("loja") or "") + (f"/{vend}" if vend and vend != d.get("loja") else "")
         extra = f" · {d['parcelado']}" if d.get("parcelado") else ""
@@ -1219,7 +1317,14 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         p = float(d["melhor_preco"])
         itens.append((p, f"• {_esc(quem)}: <b>{fmt_preco(p)}</b>{_esc(extra)}{_esc(visto)}"))
     itens.sort(key=lambda x: x[0])
+    return itens
+
+
+def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> str:
+    """Resumo das 9h: um bloco por modelo (a 55C6K como sempre; a 65C6K quando há preço ou mínimo dela)."""
+    diretas = estado.lojas_diretas_conhecidas(ofertas)
     linhas = ["☀️ <b>Resumo diário — TCL 55C6K</b>"]
+    itens = _linhas_do_resumo(estado, ofertas, diretas, MODELO_PADRAO)
     if itens:
         linhas += [linha for _p, linha in itens[:10]]
     else:
@@ -1228,6 +1333,20 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     if m:
         linhas.append(f"Menor já visto: {fmt_preco(float(m['preco']))} ({_esc(m['loja'])}, {m['quando'][:10]})")
     linhas.append(f"Alvo: Pix {fmt_preco(config.ALVO_PIX)} · parcelado {fmt_preco(config.ALVO_PARCELADO)}")
+    for modelo in MODELOS:
+        if modelo == MODELO_PADRAO:
+            continue
+        itens = _linhas_do_resumo(estado, ofertas, diretas, modelo)
+        m = estado.minimo_geral(diretas, modelo)
+        if not itens and not m:
+            continue
+        linhas.append(f"\n📺 <b>TCL {modelo}</b> ({POLEGADAS[modelo]}\")")
+        linhas += [linha for _p, linha in itens[:10]] or ["nenhum preço de loja coletado nesta rodada"]
+        if m:
+            linhas.append(f"Menor já visto ({POLEGADAS[modelo]}\"): {fmt_preco(float(m['preco']))} "
+                          f"({_esc(m['loja'])}, {m['quando'][:10]})")
+        linhas.append(f"Alvo ({POLEGADAS[modelo]}\"): Pix {fmt_preco(config.alvo_pix(modelo))} · parcelado "
+                      f"{fmt_preco(config.alvo_parcelado(modelo))}")
     if cupons:
         cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
         linhas.append(f"Cupons ativos: {_esc(cods)}")
@@ -1235,16 +1354,23 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
 
 
 def mensagem_bootstrap(ofertas: list[Oferta], cupons: list[Cupom], modo: str,
-                       diretas: Optional[set[str]] = None) -> str:
-    """`diretas`: lojas com fonte direta conhecidas (Estado.lojas_diretas_conhecidas); None: só as desta rodada."""
+                       diretas: Optional[set[str]] = None, modelos: Optional[list[str]] = None) -> str:
+    """Mensagem de início. `diretas`: lojas com fonte direta conhecidas (Estado.lojas_diretas_conhecidas); None: só as
+    desta rodada. `modelos`: None na partida geral (as duas TVs); ['65C6K'] quando só a 65" começa neste modo."""
     if diretas is None:
         diretas = lojas_diretas(ofertas)
-    lojas = sorted([o for o in ofertas if o.tipo == "loja" and conta_como_preco(o, diretas)],
-                   key=lambda o: o.melhor_preco or 0)
-    posts = [o for o in ofertas if o.tipo == "post"]
-    linhas = [f"✅ <b>Monitor da TCL 55C6K iniciado</b> (modo {modo})"]
-    for o in lojas[:8]:
-        linhas.append(f"• {_esc(o.loja)}: <b>{fmt_preco(o.melhor_preco)}</b>" + (f" · {_esc(o.parcelado)}" if o.parcelado else ""))
+    blocos = [m for m in MODELOS if modelos is None or m in modelos]
+    linhas = [f"✅ <b>Monitor da {' e da '.join(rotulo_modelo(m) for m in blocos)} iniciado</b> (modo {modo})"]
+    for modelo in blocos:
+        lojas = sorted([o for o in ofertas if o.tipo == "loja" and modelo_de(o) == modelo and conta_como_preco(o, diretas)],
+                       key=lambda o: o.melhor_preco or 0)
+        if len(blocos) > 1:
+            if not lojas:
+                continue
+            linhas.append(f"📺 <b>{rotulo_modelo(modelo)}</b>")
+        for o in lojas[:8]:
+            linhas.append(f"• {_esc(o.loja)}: <b>{fmt_preco(o.melhor_preco)}</b>" + (f" · {_esc(o.parcelado)}" if o.parcelado else ""))
+    posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in blocos]
     linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só chegam novidades.")
     return "\n".join(linhas)
 

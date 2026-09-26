@@ -48,6 +48,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, NamedTuple, Optional
 
 from . import config
+from .models import POLEGADAS, modelo_de
 
 ARQ_LISTAS = Path(__file__).with_name("listas_confianca.json")
 
@@ -57,7 +58,8 @@ SUSPEITO = "suspeito"
 SEM_RISCO = "sem_risco_aparente"
 VEREDITOS_FORA = frozenset({SUSPEITO, REPROVADO})
 
-# homologação Anatel da TCL C6K (página do Magalu 1P; o anúncio de 25/09 tinha 09573-24-00953, de um celular)
+# homologação Anatel da TCL C6K (página do Magalu 1P; o anúncio de 25/09 tinha 09573-24-00953, de um celular). É a
+# mesma na 55" e na 65" (levantamento de 26/09): ela não distingue os tamanhos; quem distingue é a ficha/variação
 ANATEL_55C6K = "00738-24-06714"
 
 FRACAO_MUITO_ABAIXO = 0.80   # preço até 80% da loja confiável mais barata da rodada = sinal forte (sozinho: suspeito)
@@ -226,8 +228,13 @@ def _anuncio_proprio(o: Any) -> str:
         return _norm(ex.get("anuncio")) if ex.get("anuncio_exclusivo") and vendedor_id(o) else ""
     if loja == "Mercado Livre":
         item = _norm(ex.get("item_id"))
-        return item if item and item != _norm(config.ML_CATALOGO_ID) and _norm(ex.get("vendedor_id")) else ""
+        return item if item and item not in _catalogos_ml() and _norm(ex.get("vendedor_id")) else ""
     return ""
+
+
+def _catalogos_ml() -> set[str]:
+    """Os catálogos do ML (55C6K e 65C6K): são de todas as opções de compra, nunca de um vendedor só."""
+    return {_norm(c) for c in (*config.ML_CATALOGOS.values(), config.ML_CATALOGO_ID) if _norm(c)}
 
 
 def chave_vendedor(o: Any) -> Optional[str]:
@@ -242,8 +249,11 @@ def chave_vendedor(o: Any) -> Optional[str]:
 
 
 def chave_aviso(o: Any) -> str:
-    """Chave do aviso de suspeito no state: o vendedor ou, sem ele, a própria oferta."""
-    return chave_vendedor(o) or f"{_loja(o)}|oferta:{_campo(o, 'chave') or _campo(o, 'id') or _campo(o, 'url')}"
+    """Chave do aviso de suspeito no state: o vendedor ou, sem ele, a própria oferta; na 65C6K com o modelo no fim (o
+    mesmo vendedor com as duas TVs são dois anúncios, e cada um tem o seu aviso)."""
+    chave = chave_vendedor(o) or f"{_loja(o)}|oferta:{_campo(o, 'chave') or _campo(o, 'id') or _campo(o, 'url')}"
+    modelo = modelo_de(o)
+    return chave if modelo == config.MODELO else f"{chave}|{modelo}"
 
 
 def veredito_de(o: Any) -> Optional[str]:
@@ -520,10 +530,14 @@ def _e_agregador(o: Any) -> bool:
     return e_agregador(o)
 
 
-def referencias(ofertas: Iterable[Any], extras: Iterable[Any] = ()) -> Referencias:
+def referencias(ofertas: Iterable[Any], extras: Iterable[Any] = (), modelo: Optional[str] = None) -> Referencias:
+    """As referências das lojas confiáveis do `modelo` (None: de todas as ofertas). A 65" custa ~30% mais que a 55":
+    comparar uma com a outra esconderia o golpe da 65" e acusaria a promoção da 55"."""
     ref = Referencias()
     for o in list(ofertas) + list(extras):
         if str(_campo(o, "tipo") or "") != "loja" or _campo(o, "ativo") is False or _e_agregador(o):
+            continue
+        if modelo is not None and modelo_de(o) != modelo:
             continue
         v = veredito_de(o)
         if v is None:
@@ -644,7 +658,7 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
         if anatel_confere(ficha.get("anatel")) is False:
             numeros = _numeros_anatel(ficha.get("anatel")) or [_digitos(ficha.get("anatel"))]
             s.append(Sinal("anatel_diferente", True,
-                           f"certificado Anatel {', '.join(_anatel_fmt(n) for n in numeros[:3])} não é o da 55C6K "
+                           f"certificado Anatel {', '.join(_anatel_fmt(n) for n in numeros[:3])} não é o da TCL C6K "
                            f"({ANATEL_55C6K})"))
     modelo = str(ficha.get("modelo") or "").strip()
     if modelo:
@@ -655,8 +669,10 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
     tam = _tamanho_na_ficha(ficha)
     if tam is not None:
         feitas.append("tamanho")
-        if tam != 55:
-            s.append(Sinal("tamanho_diferente", True, f"título diz 55\", mas a ficha/seleção do anúncio diz {tam}\""))
+        pol = POLEGADAS.get(modelo_de(o), 55)   # o tamanho do modelo da oferta (55C6K ou 65C6K)
+        if tam != pol:
+            s.append(Sinal("tamanho_diferente", True,
+                           f"título diz {pol}\", mas a ficha/seleção do anúncio diz {tam}\""))
     peso = ficha.get("peso_kg")
     if isinstance(peso, (int, float)) and peso > 0:
         feitas.append("peso")
@@ -753,7 +769,7 @@ def _sinal_sem_checagem(o: Any, ref: Referencias, cat: Optional[dict], porque: s
         return None
     if ref.menor is not None and p >= ref.menor[0]:
         return None
-    if ref.menor is None and p > config.ALVO_PARCELADO:
+    if ref.menor is None and p > config.alvo_parcelado(modelo_de(o)):
         return None
     faltou = []
     if not _tem_identidade(_extra(o).get("ficha")):
@@ -965,7 +981,7 @@ def _atraente(o: Any, ref: Referencias, sinais: list[Sinal]) -> bool:
     p = melhor_preco(o)
     if not p:
         return False
-    if ref.menor is None or p <= ref.menor[0] or p <= config.ALVO_PARCELADO:
+    if ref.menor is None or p <= ref.menor[0] or p <= config.alvo_parcelado(modelo_de(o)):
         return True
     return any(x.forte for x in sinais)
 
@@ -978,10 +994,14 @@ def _diretas(estado: Any, ofertas: list) -> set[str]:
         return {_loja(o) for o in ofertas}
 
 
-def _avalia_agregadas(agregadas: list, ref: Referencias, contagem: dict) -> None:
+def _avalia_agregadas(agregadas: list, refs: dict[str, Referencias], contagem: dict) -> None:
     """Linha de agregador (Zoom) de loja sem fonte direta: não há vendedor nem ficha, só a comparação de preço com as
-    lojas confiáveis. Muito abaixo -> suspeita (fora de alerta de preço, mínimo e painel); senão, a linha 🔎."""
+    lojas confiáveis do mesmo modelo. Muito abaixo -> suspeita (fora de alerta de preço, mínimo e painel); senão, a
+    linha 🔎. Sem nenhuma loja confiável do modelo de referência não há o que comparar."""
     for o in agregadas:
+        ref = refs[modelo_de(o)]
+        if not ref.menor:
+            continue
         sinais, feitas = sinais_da_oferta(o, ref, so_preco=True)
         veredito = decide(sinais)
         o.extra["confianca"] = {"veredito": veredito, "checagens": feitas, "sinais": [x.texto for x in sinais],
@@ -1045,19 +1065,22 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
         elif o.ativo and melhor_preco(o):  # esgotada/sem preço não alerta nem conta: nada a checar
             desconhecidas.append(o)
     if desconhecidas or agregadas:
-        ref = referencias(ofertas, _extras_de_referencia(estado))
-        if agregadas and ref.menor:  # sem nenhuma loja confiável de referência não há o que comparar
-            _avalia_agregadas(agregadas, ref, contagem)
-        _avalia_desconhecidas(estado, bloco, desconhecidas, ref, contagem, agora, rede, pedir)
+        extras = _extras_de_referencia(estado)
+        # cada oferta é comparada com as lojas confiáveis do MESMO modelo (55C6K com 55C6K, 65C6K com 65C6K)
+        refs = {m: referencias(ofertas, extras, m) for m in {modelo_de(o) for o in desconhecidas + agregadas}}
+        if agregadas:
+            _avalia_agregadas(agregadas, refs, contagem)
+        _avalia_desconhecidas(estado, bloco, desconhecidas, refs, contagem, agora, rede, pedir)
     _limpa_caches(bloco)
     return contagem
 
 
-def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Referencias, contagem: dict, agora: str,
-                          rede: bool, pedir: Callable[[str], str]) -> None:
+def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, refs: dict[str, Referencias], contagem: dict,
+                          agora: str, rede: bool, pedir: Callable[[str], str]) -> None:
     usadas = 0
     bloqueado = False
     for o in sorted(desconhecidas, key=lambda x: melhor_preco(x) or 9e9):
+        ref = refs[modelo_de(o)]
         chave = chave_vendedor(o)
         loja = _loja(o)
         vid = vendedor_id(o)
@@ -1274,7 +1297,7 @@ def postagem_barrada(p: Any, ofertas: Iterable[Any] = (), auto: Optional[Iterabl
     valem para os links (o do Telegram não passa pelo descarta_reprovados, que só vê a URL da postagem).
     `ofertas`: as de loja da rodada, com veredito; `auto`: reprovados automáticos (None: os dos state_<modo>.json)."""
     lista = list(auto) if auto is not None else reprovados_auto_dos_arquivos()
-    catalogo_ml = _norm(config.ML_CATALOGO_ID)
+    catalogos_ml = _catalogos_ml()
     barradas = [o for o in ofertas if str(_campo(o, "tipo") or "") == "loja" and veredito_de(o) in VEREDITOS_FORA
                 and not _e_agregador(o)]
     loja_post = _loja(p)
@@ -1283,7 +1306,7 @@ def postagem_barrada(p: Any, ofertas: Iterable[Any] = (), auto: Optional[Iterabl
         loja = _loja_do_link(url, loja_post)
         pista = {"loja": loja, "url": url, "tipo": "post"}
         vid = vendedor_id(pista)
-        anuncios = anuncios_da_oferta(pista) - {catalogo_ml}
+        anuncios = anuncios_da_oferta(pista) - catalogos_ml
         for o in barradas:
             if _loja(o) != loja:
                 continue
@@ -1292,7 +1315,7 @@ def postagem_barrada(p: Any, ofertas: Iterable[Any] = (), auto: Optional[Iterabl
             else:
                 vend_na_url = _pagina_e_vendedor(_campo(o, "url"))[1]
                 do_buy_box = set() if vend_na_url else anuncios_da_oferta({"loja": loja, "url": _campo(o, "url")})
-                casa = bool(anuncios & ((do_buy_box | {_anuncio_proprio(o)}) - {"", catalogo_ml}))
+                casa = bool(anuncios & ((do_buy_box | {_anuncio_proprio(o)}) - ({""} | catalogos_ml)))
             if casa:
                 return f"o link leva a anúncio com sinais de risco nesta rodada ({_quem(o)})"
         if motivo_bloqueio(pista, lista):
@@ -1393,7 +1416,7 @@ def pode_ir_ao_carrinho(o: Any, todas: Iterable[Any] = (), auto: Optional[Iterab
         return True, v
     if entrada_confiavel(o):
         return True, CONFIAVEL
-    sinais, _feitas = sinais_da_oferta(o, referencias(todas), so_preco=_e_agregador(o))
+    sinais, _feitas = sinais_da_oferta(o, referencias(todas, modelo=modelo_de(o)), so_preco=_e_agregador(o))
     if decide(sinais) == SUSPEITO:
         return False, "anúncio suspeito: " + "; ".join(x.texto for x in sinais)
     return True, SEM_RISCO
