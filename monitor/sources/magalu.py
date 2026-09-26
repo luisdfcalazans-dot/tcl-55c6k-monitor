@@ -95,8 +95,9 @@ def _polegadas(valor: object) -> int | None:
 
 
 def _tamanho_da_pagina(p: dict) -> int | None:
-    """O tamanho (polegadas) que a PÁGINA diz: a variação de tamanho desta página (variationId) ou, sem ela, o
-    atributo de tamanho ('current'). None quando o anúncio não varia de tamanho (a busca não traz as variações)."""
+    """O tamanho (polegadas) que a PÁGINA diz: a variação de tamanho desta página (variationId), o atributo de tamanho
+    ('current') ou a ficha técnica ('Polegadas' / 'Tamanho da tela'). None quando a página não diz (a busca não traz
+    variações nem ficha): aí decide o título."""
     var_id = str(p.get("variationId") or "")
     for v in p.get("variations") or []:
         if isinstance(v, dict) and str(v.get("id")) == var_id and v.get("value") and _variacao_de_tamanho(v):
@@ -105,7 +106,8 @@ def _tamanho_da_pagina(p: dict) -> int | None:
         if isinstance(a, dict) and a.get("current") and _variacao_de_tamanho(
                 {"label": a.get("label"), "type": a.get("type"), "value": a.get("current")}):
             return _polegadas(a["current"])
-    return None
+    ft = _ficha_tecnica(p) if p.get("factsheet") else {}
+    return _polegadas(ft.get("polegadas") or ft.get("tamanho da tela")) if ft else None
 
 
 def modelo_do_produto(p: dict) -> str | None:

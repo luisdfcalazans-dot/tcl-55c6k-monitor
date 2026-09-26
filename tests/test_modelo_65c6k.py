@@ -162,6 +162,10 @@ def _pagina_1p_65() -> dict:
     p["price"] = dict(p["price"], fullPrice="4799.00", bestPrice="4559.05", price="4899.00")
     p["installment"] = dict(p["installment"], amount="479.90", totalAmount="4799.00")
     p["attributes"] = [dict(p["attributes"][0], value='65"', current='65"')]
+    for secao in p["factsheet"]:
+        for e in secao.get("elements") or []:
+            if e.get("keyName") in ("Polegadas", "Modelo", "Referência"):
+                e["elements"][0]["value"] = '65"' if e["keyName"] == "Polegadas" else "65C6K"
     return p
 
 
@@ -184,9 +188,21 @@ def test_magalu_tamanho_pela_variacao_e_nao_pelo_titulo():
     assert confianca.motivo_bloqueio(o, ())  # a lista curada barra o vendedor nas duas medidas
 
 
+def test_magalu_tamanho_pela_ficha_quando_nao_ha_variacao():
+    p = _produto(P1P)
+    p["variations"], p["attributes"] = [], []
+    for secao in p["factsheet"]:
+        for e in secao.get("elements") or []:
+            if e.get("keyName") == "Polegadas":
+                e["elements"][0]["value"] = '65"'
+    (o,) = magalu.parse_produto_todas(_html_produto(p))[0]
+    assert "55C6K" in o.titulo and o.modelo == "65C6K"
+
+
 def test_magalu_busca_da_65_e_controle_de_fora():
     p = _pagina_1p_65()
-    p.pop("variations"), p.pop("attributes")  # a busca não traz as variações: o título decide
+    for k in ("variations", "attributes", "factsheet"):
+        p.pop(k)  # a busca não traz variações nem ficha: o título decide
     controle = {"id": "fa14gj5k07", "variationId": "fa14gj5k07", "available": True,
                 "title": "Controle comando de voz para tv tcl 55c6k 65c6k 55p8k 65p8k 75c6k",
                 "path": "/magazinecanaltechbr/controle/p/fa14gj5k07/", "price": {"bestPrice": "149.99"},
@@ -350,6 +366,11 @@ def test_casasbahia_coleta_o_sku_da_65(monkeypatch):
     assert len(chamadas) <= config.CASASBAHIA_MAX_CARGAS
     # a página da 55" servida no lugar da 65" (redirecionamento) não vira preço da 65"
     assert ps.CasasBahia._do_produto(paginas["/p/55069456"], "", "u", "55069453", "65C6K") == []
+    # o EAN do JSON-LD é o da 55C6K: o título dizendo 65" não basta
+    com_ean = paginas["/p/55069453"].replace('"@type": "Product",', '"@type": "Product", "gtin13": "7899968301747",')
+    assert '"gtin13"' in com_ean
+    assert ps._oferta_jsonld(com_ean, "casasbahia", "Casas Bahia", "u", "55069453", "65C6K") is None
+    assert ps._oferta_jsonld(paginas["/p/55069453"], "casasbahia", "Casas Bahia", "u", "55069453", "65C6K")
 
 
 T65_ML = "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K Wifi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K"

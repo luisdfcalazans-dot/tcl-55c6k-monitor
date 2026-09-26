@@ -263,6 +263,9 @@ def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str,
         nome = prod.get("name") or ""
         if not eh_modelo(nome, modelo):
             continue
+        ean = str(prod.get("gtin13") or prod.get("gtin") or prod.get("gtin14") or "").strip().lstrip("0").zfill(13)
+        if config.EAN_POR_MODELO.get(ean) not in (None, modelo):
+            continue  # o código de barras (EAN) é o da outra TV: o título está errado
         offers = prod.get("offers")
         lista = offers if isinstance(offers, list) else [offers] if offers else []
         for of in lista:

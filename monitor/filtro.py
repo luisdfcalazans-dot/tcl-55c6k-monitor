@@ -14,9 +14,9 @@ from __future__ import annotations
 import re
 from typing import Callable, NamedTuple, Optional
 
+from .models import MODELO_55, MODELO_65
 from .util import PISO_PRECO_TV, preco_postagem, sem_acentos, so_preco_abaixo_do_piso
 
-MODELO_55, MODELO_65 = "55C6K", "65C6K"
 _TODOS_TAMANHOS = ("32", "40", "43", "50", "55", "58", "65", "70", "75", "85", "98", "100", "115")
 
 
