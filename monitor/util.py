@@ -196,7 +196,7 @@ def precos_no_texto(texto: str) -> list[float]:
 # O preço da TV é o menor candidato >= piso (abaixo de R$ 1.500 nenhum valor é o preço desta TV); sem candidato,
 # o menor "fraco" >= piso.
 
-PISO_PRECO_TV = 1500.0  # abaixo disso nenhum valor é o preço da 55C6K (peça, acessório, parcela, desconto)
+PISO_PRECO_TV = 1500.0  # abaixo disso nenhum valor é o preço da 55C6K nem da 65C6K (peça, acessório, parcela, desconto)
 _RE_VALOR_POST = re.compile(r"R\$\s*" + _NUM_BRL)  # aceita "R$  3.599" (espaço duplo, comum nos canais)
 _SETA = r"(?:-+>|=+>|>>|➡️|➡|→|⏩|⇒|➔|➜|⟶)"
 _RE_SETA_ANTES = re.compile(r"(?:" + _SETA + r"|(?<![<>!=])=)\s*$")  # "= R$ 2.899" também é o resultado
@@ -277,7 +277,7 @@ _RE_DESCONTO_DO_CUPOM = re.compile(r"\bcupo(?:m|ns)\s+de\s+r\$\s*\d[\d.,]*(?:\s*
                                    r"r\$\s*\d[\d.,]*\s*\)?\s*(?:off\b|de\s+desconto)|"
                                    r"\b(?:ganhe|economize)\s+(?:ate\s+)?r\$\s*\d[\d.,]*")
 # o texto entre o desconto e o valor fala da própria TV (não da compra): o valor é o preço dela
-_RE_A_PROPRIA_TV = re.compile(r"\b(?:tvs?|smart|tcl|c6k|55c6k|televis\w*)\b")
+_RE_A_PROPRIA_TV = re.compile(r"\b(?:tvs?|smart|tcl|c6k|55c6k|65c6k|televis\w*)\b")
 # ... ou fala da compra (mínimo do cupom mesmo com ':' antes do valor)
 _RE_TERMO_DE_COMPRA = re.compile(r"\bcompra|\bpedido|\bgast|\bacima|\bminim|\bmin\b|\bvalid|\bsuperior|\bpartir")
 _RE_SEP_CLAUSULA = re.compile(r"[|•·;()\[\]/,]|\s[-—–]\s|[.!?](?=\s|$)")

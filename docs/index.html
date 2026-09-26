@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TCL 55C6K · painel</title>
+<title>TCL C6K · painel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -11,6 +11,7 @@
     --bg:#F4F6F2; --surface:#FBFCFA; --ink:#17211B; --ink-2:#4E5D54; --ink-3:#7A877F; --line:#D8DED9; --line-2:#E8ECE8;
     --accent:#0E6E52; --accent-ink:#0B5A43; --accent-soft:#DDEFE6; --ok:#0E6E52; --ok-bg:#DDEFE6; --warn:#8A5A0E; --warn-bg:#F6E8CC;
     --bad:#9A3A2A; --bad-bg:#F5DDD6; --mute-bg:#E9ECE9; --code-bg:#EEF1EE;
+    --m55:#2F5FA8; --m55-bg:#E1E9F6; --m65:#8A4F9E; --m65-bg:#F0E4F4;
     --s1:#0E6E52; --s2:#B7791F; --s3:#2F5FA8; --s4:#9A3A2A; --s5:#6B4C9A; --s6:#2A7F8C; --s7:#7A5230; --s8:#556B2F;
     color-scheme: light;
   }
@@ -18,22 +19,27 @@
     --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
     --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
     --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
+    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D2A2E2; --m65-bg:#33223A;
     --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
     color-scheme: dark; } }
   :root[data-theme="dark"] {
     --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
     --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
     --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
+    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D2A2E2; --m65-bg:#33223A;
     --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
     color-scheme: dark; }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; font-size:15px; line-height:1.5; }
   a { color:var(--accent-ink); }
   .page { max-width:1100px; margin:0 auto; padding:28px 22px 60px; }
+  @media (max-width:600px) { .page { padding:20px 16px 48px; } }
   .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
   h1 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:30px; margin:4px 0 4px; letter-spacing:-.01em; }
   h2 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:21px; margin:32px 0 10px; }
+  h3.modelo-cab { font-size:13px; font-weight:600; margin:18px 0 6px; color:var(--ink-2); text-transform:uppercase; letter-spacing:.06em; }
   .sub { color:var(--ink-2); margin:0 0 18px; font-size:14px; }
+  .nota { color:var(--ink-3); font-size:12.5px; margin:6px 2px 0; }
   .facts { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
   .fact { background:var(--surface); padding:12px 14px; min-width:0; }
   .fact .k { font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-family:"IBM Plex Mono",ui-monospace,monospace; }
@@ -47,9 +53,12 @@
   tr:last-child td { border-bottom:0; }
   td.num { font-variant-numeric:tabular-nums; white-space:nowrap; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; }
   td.num b { font-weight:500; color:var(--ink); }
+  td.dif { background:var(--mute-bg); }
+  th.dif { color:var(--ink-2); }
   .sub2 { display:block; color:var(--ink-3); font-size:12px; }
   .chip { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
   .ok { background:var(--ok-bg); color:var(--ok); } .warn { background:var(--warn-bg); color:var(--warn); } .bad { background:var(--bad-bg); color:var(--bad); } .mute { background:var(--mute-bg); color:var(--ink-2); }
+  .m55 { background:var(--m55-bg); color:var(--m55); } .m65 { background:var(--m65-bg); color:var(--m65); }
   .best td { background:var(--accent-soft); }
   .velho td, .velho td.num b { color:var(--ink-3); }
   .sus td, .sus td.num b { color:var(--ink-3); } .sus td.num b { text-decoration:line-through; }
@@ -61,7 +70,7 @@
   .empty { color:var(--ink-3); font-size:14px; padding:14px; }
   .cols { display:grid; grid-template-columns:1fr 1fr; gap:22px; } @media (max-width:800px) { .cols { grid-template-columns:1fr; } }
   ul.lista { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-  ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:14px; }
+  ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:14px; overflow-wrap:anywhere; }
   ul.lista li:last-child { border-bottom:0; }
   ul.lista .meta { color:var(--ink-3); font-size:12px; }
   code { font-family:"IBM Plex Mono",ui-monospace,monospace; background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:.92em; }
@@ -71,9 +80,10 @@
 <body>
 <div class="page">
   <div class="eyebrow">Monitor de preço · atualizado <span id="quando">—</span></div>
-  <h1>TCL 55C6K</h1>
-  <p class="sub">QD-Mini LED 55". Alvo: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+  <h1>TCL C6K · 55" e 65"</h1>
+  <p class="sub">QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
 
+  <h3 class="modelo-cab"><span class="chip m55">55"</span> TCL 55C6K</h3>
   <div class="facts">
     <div class="fact"><div class="k">Melhor à vista agora</div><div class="v" id="f-melhor">—</div><div class="s" id="f-melhor-s">—</div></div>
     <div class="fact"><div class="k">Melhor parcelado agora</div><div class="v" id="f-parc">—</div><div class="s" id="f-parc-s">—</div></div>
@@ -82,11 +92,30 @@
     <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
   </div>
 
-  <h2>Preço por loja</h2>
+  <h3 class="modelo-cab"><span class="chip m65">65"</span> TCL 65C6K</h3>
+  <div class="facts">
+    <div class="fact"><div class="k">Melhor à vista agora</div><div class="v" id="f65-melhor">—</div><div class="s" id="f65-melhor-s">—</div></div>
+    <div class="fact"><div class="k">Melhor parcelado agora</div><div class="v" id="f65-parc">—</div><div class="s" id="f65-parc-s">—</div></div>
+    <div class="fact"><div class="k">Menor já visto</div><div class="v" id="f65-min">—</div><div class="s" id="f65-min-s">—</div></div>
+    <div class="fact"><div class="k">65" a mais · à vista</div><div class="v" id="f-dif-pix">—</div><div class="s" id="f-dif-pix-s">—</div></div>
+    <div class="fact"><div class="k">65" a mais · parcelado</div><div class="v" id="f-dif-parc">—</div><div class="s" id="f-dif-parc-s">—</div></div>
+  </div>
+
+  <h2>55" × 65" por loja</h2>
+  <div class="tbl"><table id="t-comparar"><thead><tr><th>Loja</th><th>55" à vista</th><th>65" à vista</th><th class="dif">65" a mais · à vista</th><th>55" parcelado (total)</th><th>65" parcelado (total)</th><th class="dif">65" a mais · parcelado</th></tr></thead><tbody></tbody></table></div>
+  <p class="nota">Menor preço de cada TV na mesma loja (Pix/à vista e total do parcelamento), entre as coletas recentes; a diferença é quanto a 65" custa a mais que a 55" ali.</p>
+
+  <h2>Ofertas da 55C6K</h2>
   <div class="tbl"><table id="t-lojas"><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado (total)</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody></tbody></table></div>
 
-  <h2>Histórico</h2>
+  <h2>Ofertas da 65C6K</h2>
+  <div class="tbl"><table id="t-lojas-65"><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado (total)</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody></tbody></table></div>
+
+  <h2>Histórico da 55C6K</h2>
   <div class="chart-wrap"><canvas id="chart" width="1060" height="300"></canvas><div class="legend" id="legend"></div></div>
+
+  <h2>Histórico da 65C6K</h2>
+  <div class="chart-wrap"><canvas id="chart-65" width="1060" height="300"></canvas><div class="legend" id="legend-65"></div></div>
 
   <div class="cols">
     <div>
@@ -110,6 +139,14 @@ const fmt = v => v == null || isNaN(v) ? '—' : 'R$ ' + Number(v).toLocaleStrin
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dt = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? s : d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); };
 const dias = s => { if (!s) return null; const d = new Date(s); return isNaN(d) ? null : (Date.now() - d) / 864e5; };
+
+// Duas TVs (26/09/2026): a 55C6K e a 65C6K. Registro sem o campo 'modelo' (latest/histórico antigos) é da 55C6K.
+const MODELOS = ['55C6K', '65C6K'], POL = {'55C6K': 55, '65C6K': 65};
+const modeloDe = o => { const m = String(o?.modelo || '').trim().toUpperCase(); return MODELOS.includes(m) ? m : '55C6K'; };
+const chipModelo = m => `<span class="chip m${POL[m]}">${POL[m]}"</span>`;
+// "menor já visto" de cada modelo no latest: 'minimo' (55C6K, a chave de sempre) e 'minimo_65C6K'
+const chaveMin = m => m === '55C6K' ? 'minimo' : 'minimo_' + m;
+const alvosDe = (f, m) => (f?.alvos && f.alvos[m]) || (m === '55C6K' && f ? {pix: f.alvo_pix, parcelado: f.alvo_parcelado} : null);
 
 // Zoom/Buscapé é agregador, não loja: o preço que ele mostra para uma loja pode ficar parado por dias
 // (ex.: Amazon a R$ 3.279 em 81 coletas seguidas, com a loja a R$ 4.034,50). O monitor marca extra.agregador;
@@ -169,6 +206,10 @@ const parcela = o => {
   return {n, valor: p, total, semJuros: /sem\s+juros/i.test(txt), comJuros: /com\s+juros/i.test(txt), condicao: (txt.match(/\(([^)]*)\)/) || [])[1] || ''};
 };
 const textoParc = pc => `${pc.n}x ${fmt(pc.valor)}${pc.semJuros ? ' sem juros' : pc.comJuros ? ' com juros' : ''}${pc.condicao ? ` (${pc.condicao})` : ''}`;
+const quem = o => o.loja + (vendedorChave(o) ? ` (${o.vendedor})` : '');
+// diferença "65\" a mais": valor e percentual (negativo quando a 65\" sai mais barata)
+const fmtDif = (d, base) => d == null || isNaN(d) ? '—'
+  : `${d < 0 ? '−' : '+'}${fmt(Math.abs(d))}${base ? ` (${d < 0 ? '−' : '+'}${Math.abs(d / base * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0})}%)` : ''}`;
 
 async function getJson(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.json() : null; } catch { return null; } }
 async function getText(u) { try { const r = await fetch(u + '?t=' + Date.now()); return r.ok ? r.text() : ''; } catch { return ''; } }
@@ -186,7 +227,89 @@ function parseCsv(txt) {
   if (cell || row.length) { row.push(cell); rows.push(row); }
   if (!rows.length) return [];
   const h = rows[0];
-  return rows.slice(1).filter(r => r.length >= h.length).map(r => Object.fromEntries(h.map((k, i) => [k, r[i]])));
+  // linha gravada antes de 26/09 num arquivo cujo cabeçalho já ganhou a coluna 'modelo' (a última): vale, e é da 55C6K
+  const minimo = h[h.length - 1] === 'modelo' ? h.length - 1 : h.length;
+  return rows.slice(1).filter(r => r.length >= minimo).map(r => Object.fromEntries(h.map((k, i) => [k, r[i] ?? ''])));
+}
+
+// Linhas, destaques, mínimo e série do gráfico de UM modelo (as regras são as mesmas para as duas TVs).
+function painelDoModelo(modelo, ctx) {
+  const {fontes, todas, reprovado, diretas, hist, vale} = ctx;
+  let lojas = todas.filter(o => modeloDe(o) === modelo && o.ativo !== false && o.melhor_preco
+    && !(ehAgregador(o) && diretas.has(normLoja(o.loja))) && (suspeito(o) || (!reprovado(o) && veredito(o) !== 'reprovado')));
+  lojas.sort((a, b) => (suspeito(a) - suspeito(b)) || (a._velho - b._velho) || (a.melhor_preco - b.melhor_preco));
+  const vistas = new Set();
+  lojas = lojas.filter(o => { const k = normLoja(o.loja) + '|' + vendedorChave(o); if (vistas.has(k)) return false; vistas.add(k); return true; });
+  const melhor = lojas.find(o => !o._velho && !suspeito(o));
+  // Melhor parcelado: menor TOTAL entre as linhas recentes que informam parcelamento; no empate, sem juros e sem
+  // condição (ex.: "cartão Casas Bahia") primeiro.
+  const comParc = lojas.filter(o => !o._velho && !suspeito(o)).map(o => ({o, pc: parcela(o)})).filter(x => x.pc)
+    .sort((a, b) => (a.pc.total - b.pc.total) || (b.pc.semJuros - a.pc.semJuros) || (!!a.pc.condicao - !!b.pc.condicao));
+  const melhorParc = comParc[0] || null;
+  const tabela = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : suspeito(o) ? 'sus' : o._velho ? 'velho' : ''}">
+    <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
+    <td class="num">${fmt(o.preco)}</td>
+    <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
+    <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
+    <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
+    <td><span class="chip mute">${esc(o.fonte)}</span>${ehAgregador(o) ? '<span class="sub2">agregador</span>' : ''}</td>
+    <td class="num">${dt(o._visto)}${o._velho ? ` <span class="chip warn" title="coleta com mais de ${VELHO_H} h">antigo</span>` : ''}</td>
+    <td><a href="${esc(o.url)}" target="_blank" rel="noopener">abrir</a></td></tr>`).join('')
+    : `<tr><td colspan="8" class="empty">Nenhum preço de loja da ${esc(modelo)} ainda.</td></tr>`;
+  // "Menor já visto": mínimo vindo do agregador ou de vendedor/anúncio reprovado não conta; aí recalcula o do modo
+  // pelo histórico dele (só as linhas do modelo).
+  const histModelo = {cloud: hist.cloud.filter(r => modeloDe(r) === modelo), pc: hist.pc.filter(r => modeloDe(r) === modelo)};
+  const minDoModo = f => {
+    const m = f[chaveMin(modelo)];
+    if (!m || vale(m)) return m;
+    return (histModelo[f.modo] || []).filter(vale).map(r => ({preco: menorPreco(r), loja: r.loja, quando: r.quando}))
+      .sort((a, b) => a.preco - b.preco)[0] || null;
+  };
+  const mins = fontes.map(minDoModo).filter(Boolean).sort((a, b) => a.preco - b.preco);
+  // gráfico: menor preço por loja por dia (sem o agregador nas lojas que têm fonte direta)
+  const serie = {};
+  [...histModelo.cloud, ...histModelo.pc].filter(vale).forEach(r => {
+    const dia = r.quando.slice(0, 10); const p = menorPreco(r);
+    const k = r.loja; serie[k] ??= {}; serie[k][dia] = Math.min(serie[k][dia] ?? Infinity, p);
+  });
+  return {lojas, melhor, melhorParc, tabela, min: mins[0] || null, serie};
+}
+
+function preencheDestaques(pre, res, lojasTem) {
+  const {melhor, melhorParc, min} = res;
+  document.getElementById(pre + 'melhor').textContent = melhor ? fmt(melhor.melhor_preco) : '—';
+  document.getElementById(pre + 'melhor-s').textContent = melhor ? `${quem(melhor)}${melhor.preco_pix && melhor.melhor_preco === melhor.preco_pix ? ' · Pix' : ''}` : (lojasTem ? 'sem coleta recente' : 'sem coleta');
+  document.getElementById(pre + 'parc').textContent = melhorParc ? fmt(melhorParc.pc.total) : '—';
+  document.getElementById(pre + 'parc-s').textContent = melhorParc ? `${quem(melhorParc.o)} · ${textoParc(melhorParc.pc)}`
+    : (lojasTem ? 'nenhuma loja recente informa parcelamento' : 'sem coleta');
+  document.getElementById(pre + 'min').textContent = min ? fmt(min.preco) : '—';
+  document.getElementById(pre + 'min-s').textContent = min ? `${min.loja} · ${dt(min.quando)}` : '—';
+}
+
+// Comparação 55" × 65" NA MESMA LOJA: o menor à vista e o menor total parcelado de cada TV na loja, e quanto a 65"
+// custa a mais. Só linhas que não são suspeitas; a coleta recente vale antes da antiga (a antiga fica marcada).
+function comparacao(res) {
+  const porLoja = new Map();
+  for (const m of MODELOS) {
+    for (const o of res[m].lojas) {
+      if (suspeito(o)) continue;
+      const k = normLoja(o.loja);
+      if (!porLoja.has(k)) porLoja.set(k, {loja: o.loja, m: {}});
+      const e = porLoja.get(k).m[m] ??= {vista: null, parc: null};
+      const melhorQue = (a, b, va, vb) => !b || (a._velho - b._velho) < 0 || ((a._velho === b._velho) && va < vb);
+      if (!e.vista || melhorQue(o, e.vista.o, o.melhor_preco, e.vista.v)) e.vista = {o, v: o.melhor_preco};
+      const pc = parcela(o);
+      if (pc && (!e.parc || melhorQue(o, e.parc.o, pc.total, e.parc.v))) e.parc = {o, v: pc.total, pc};
+    }
+  }
+  const linhas = [...porLoja.values()].sort((a, b) =>
+    Math.min(...MODELOS.map(m => a.m[m]?.vista?.v ?? Infinity)) - Math.min(...MODELOS.map(m => b.m[m]?.vista?.v ?? Infinity)));
+  const cel = x => !x ? '<td class="num">—</td>'
+    : `<td class="num"><b>${fmt(x.v)}</b>${vendedorChave(x.o) ? `<span class="sub2">${esc(x.o.vendedor)}</span>` : ''}${x.pc ? `<span class="sub2">${esc(textoParc(x.pc))}</span>` : ''}${x.o._velho ? ' <span class="chip warn">antigo</span>' : ''}</td>`;
+  const dif = (a, b) => `<td class="num dif"><b>${a && b ? fmtDif(b.v - a.v, a.v) : '—'}</b></td>`;
+  return linhas.length ? linhas.map(l => { const a = l.m['55C6K'] || {}, b = l.m['65C6K'] || {};
+    return `<tr><td><b>${esc(l.loja)}</b></td>${cel(a.vista)}${cel(b.vista)}${dif(a.vista, b.vista)}${cel(a.parc)}${cel(b.parc)}${dif(a.parc, b.parc)}</tr>`; }).join('')
+    : '<tr><td colspan="7" class="empty">Nenhum preço de loja ainda.</td></tr>';
 }
 
 (async () => {
@@ -197,11 +320,13 @@ function parseCsv(txt) {
   if (!fontes.length) { document.getElementById('quando').textContent = 'ainda sem dados'; return; }
   const ultimo = fontes.map(f => f.atualizado).sort().pop();
   document.getElementById('quando').textContent = dt(ultimo);
-  const alvoPix = cloud?.alvo_pix ?? pc?.alvo_pix, alvoParc = cloud?.alvo_parcelado ?? pc?.alvo_parcelado;
-  document.getElementById('alvo-pix').textContent = fmt(alvoPix);
-  document.getElementById('alvo-parc').textContent = fmt(alvoParc);
+  const alvos = Object.fromEntries(MODELOS.map(m => [m, alvosDe(cloud, m) || alvosDe(pc, m) || {}]));
+  document.getElementById('alvo-pix').textContent = fmt(alvos['55C6K'].pix);
+  document.getElementById('alvo-parc').textContent = fmt(alvos['55C6K'].parcelado);
+  document.getElementById('alvo-pix-65').textContent = fmt(alvos['65C6K'].pix);
+  document.getElementById('alvo-parc-65').textContent = fmt(alvos['65C6K'].parcelado);
 
-  // ---- ofertas de loja (ativas), uma linha por loja/vendedor, menor preço primeiro.
+  // ---- ofertas de loja (ativas), uma linha por loja/vendedor, menor preço primeiro, uma tabela por modelo.
   // Cada linha leva o horário do próprio modo (_visto = latest_<modo>.atualizado); modo parado há mais de
   // VELHO_MS fica marcado como antigo, vai para o fim e não disputa o "Melhor preço agora".
   const agora = Date.now();
@@ -210,53 +335,30 @@ function parseCsv(txt) {
   // Linha do agregador some quando alguma fonte direta cobre a mesma loja (mesmo que parada ou indisponível).
   const reprovado = reprovadoPor(fontes.flatMap(f => (f.confianca && f.confianca.reprovados) || []));
   const diretas = lojasDiretas(todas.filter(o => !reprovado(o)));
-  // o suspeito da própria rodada já entra na lista de reprovados, mas aparece (riscado) até a próxima coleta
-  let lojas = todas.filter(o => o.ativo !== false && o.melhor_preco && !(ehAgregador(o) && diretas.has(normLoja(o.loja)))
-    && (suspeito(o) || (!reprovado(o) && veredito(o) !== 'reprovado')));
-  lojas.sort((a, b) => (suspeito(a) - suspeito(b)) || (a._velho - b._velho) || (a.melhor_preco - b.melhor_preco));
-  const vistas = new Set();
-  lojas = lojas.filter(o => { const k = normLoja(o.loja) + '|' + vendedorChave(o); if (vistas.has(k)) return false; vistas.add(k); return true; });
-  const melhor = lojas.find(o => !o._velho && !suspeito(o));
-  // Melhor parcelado: menor TOTAL entre as linhas recentes que informam parcelamento; no empate, sem juros e sem
-  // condição (ex.: "cartão Casas Bahia") primeiro.
-  const comParc = lojas.filter(o => !o._velho && !suspeito(o)).map(o => ({o, pc: parcela(o)})).filter(x => x.pc)
-    .sort((a, b) => (a.pc.total - b.pc.total) || (b.pc.semJuros - a.pc.semJuros) || (!!a.pc.condicao - !!b.pc.condicao));
-  const melhorParc = comParc[0] || null;
-  const tb = document.querySelector('#t-lojas tbody');
-  tb.innerHTML = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : suspeito(o) ? 'sus' : o._velho ? 'velho' : ''}">
-    <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
-    <td class="num">${fmt(o.preco)}</td>
-    <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
-    <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
-    <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
-    <td><span class="chip mute">${esc(o.fonte)}</span>${ehAgregador(o) ? '<span class="sub2">agregador</span>' : ''}</td>
-    <td class="num">${dt(o._visto)}${o._velho ? ` <span class="chip warn" title="coleta com mais de ${VELHO_H} h">antigo</span>` : ''}</td>
-    <td><a href="${esc(o.url)}" target="_blank" rel="noopener">abrir</a></td></tr>`).join('')
-    : '<tr><td colspan="8" class="empty">Nenhum preço de loja ainda.</td></tr>';
-
-  document.getElementById('f-melhor').textContent = melhor ? fmt(melhor.melhor_preco) : '—';
-  const quem = o => o.loja + (vendedorChave(o) ? ` (${o.vendedor})` : '');
-  document.getElementById('f-melhor-s').textContent = melhor ? `${quem(melhor)}${melhor.preco_pix && melhor.melhor_preco === melhor.preco_pix ? ' · Pix' : ''}` : (lojas.length ? 'sem coleta recente' : 'sem coleta');
-  document.getElementById('f-parc').textContent = melhorParc ? fmt(melhorParc.pc.total) : '—';
-  document.getElementById('f-parc-s').textContent = melhorParc ? `${quem(melhorParc.o)} · ${textoParc(melhorParc.pc)}`
-    : (lojas.length ? 'nenhuma loja recente informa parcelamento' : 'sem coleta');
-
   // ---- histórico (CSV de cada modo): linha do agregador não vale para loja que tem fonte direta
   const ehLinhaLoja = r => r.tipo === 'loja' && (r.preco_pix || r.preco) && !reprovado(r);
   const hist = {cloud: parseCsv(csv1).filter(ehLinhaLoja), pc: parseCsv(csv2).filter(ehLinhaLoja)};
   const diretasHist = new Set([...diretas, ...lojasDiretas([...hist.cloud, ...hist.pc])]);
   const vale = o => !(ehAgregador(o) && diretasHist.has(normLoja(o.loja))) && !reprovado(o);
+  const ctx = {fontes, todas, reprovado, diretas, hist, vale};
+  const res = Object.fromEntries(MODELOS.map(m => [m, painelDoModelo(m, ctx)]));
 
-  // "Menor já visto": mínimo vindo do agregador ou de vendedor/anúncio reprovado não conta; aí recalcula o do modo
-  // pelo histórico dele.
-  const minDoModo = f => {
-    if (!f.minimo || vale(f.minimo)) return f.minimo;
-    return (hist[f.modo] || []).filter(vale).map(r => ({preco: menorPreco(r), loja: r.loja, quando: r.quando}))
-      .sort((a, b) => a.preco - b.preco)[0] || null;
-  };
-  const mins = fontes.map(minDoModo).filter(Boolean).sort((a, b) => a.preco - b.preco);
-  document.getElementById('f-min').textContent = mins[0] ? fmt(mins[0].preco) : '—';
-  document.getElementById('f-min-s').textContent = mins[0] ? `${mins[0].loja} · ${dt(mins[0].quando)}` : '—';
+  const r55 = res['55C6K'], r65 = res['65C6K'];
+  document.querySelector('#t-lojas tbody').innerHTML = r55.tabela;
+  document.querySelector('#t-lojas-65 tbody').innerHTML = r65.tabela;
+  preencheDestaques('f-', r55, r55.lojas.length);
+  preencheDestaques('f65-', r65, r65.lojas.length);
+  // diferença entre os melhores de cada TV (em qualquer loja); a tabela abaixo compara na mesma loja
+  const difPix = r55.melhor && r65.melhor ? r65.melhor.melhor_preco - r55.melhor.melhor_preco : null;
+  const difParc = r55.melhorParc && r65.melhorParc ? r65.melhorParc.pc.total - r55.melhorParc.pc.total : null;
+  const pct = (d, base) => `${d < 0 ? '−' : '+'}${Math.abs(d / base * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0})}%`;
+  document.getElementById('f-dif-pix').textContent = fmtDif(difPix);
+  document.getElementById('f-dif-pix-s').textContent = difPix == null ? 'falta preço recente de uma das TVs'
+    : `${pct(difPix, r55.melhor.melhor_preco)} · melhor da 65" − melhor da 55"`;
+  document.getElementById('f-dif-parc').textContent = fmtDif(difParc);
+  document.getElementById('f-dif-parc-s').textContent = difParc == null ? 'falta parcelado recente de uma das TVs'
+    : `${pct(difParc, r55.melhorParc.pc.total)} · melhor da 65" − melhor da 55"`;
+  document.querySelector('#t-comparar tbody').innerHTML = comparacao(res);
 
   // ---- cupons
   const cupons = fontes.flatMap(f => f.cupons || []);
@@ -265,17 +367,17 @@ function parseCsv(txt) {
   const lc = [...porCodigo.values()].sort((a, b) => (a.loja + a.codigo).localeCompare(b.loja + b.codigo));
   document.getElementById('f-cupons').textContent = lc.length;
   document.getElementById('f-cupons-s').textContent = [...new Set(lc.map(c => c.loja))].slice(0, 4).join(', ') || '—';
-  document.getElementById('l-cupons').innerHTML = lc.length ? lc.slice(0, 40).map(c => `<li><b>${esc(c.loja)}</b> <code>${esc(c.codigo)}</code>${c.especifico ? ' <span class="chip ok">produto</span>' : ''}<br>${esc(c.titulo)}${c.regra && c.regra !== c.titulo ? `<span class="meta"><br>${esc(c.regra.slice(0, 140))}</span>` : ''}<span class="meta"><br>${esc(c.fonte)}${c.validade ? ' · até ' + dt(c.validade) : ''} · <a href="${esc(c.url)}" target="_blank" rel="noopener">ver</a></span></li>`).join('') : '<li class="empty">Nenhum cupom aplicável no momento.</li>';
+  document.getElementById('l-cupons').innerHTML = lc.length ? lc.slice(0, 40).map(c => `<li><b>${esc(c.loja)}</b> <code>${esc(c.codigo)}</code>${c.especifico ? ' <span class="chip ok">produto</span>' : ''}${c.especifico && c.modelo ? ' ' + chipModelo(modeloDe(c)) : ''}<br>${esc(c.titulo)}${c.regra && c.regra !== c.titulo ? `<span class="meta"><br>${esc(c.regra.slice(0, 140))}</span>` : ''}<span class="meta"><br>${esc(c.fonte)}${c.validade ? ' · até ' + dt(c.validade) : ''} · <a href="${esc(c.url)}" target="_blank" rel="noopener">ver</a></span></li>`).join('') : '<li class="empty">Nenhum cupom aplicável no momento.</li>';
 
-  // ---- postagens
+  // ---- postagens (as duas TVs; o selo diz de qual é)
   let posts = fontes.flatMap(f => f.posts || []);
   const pv = new Set();
   posts = posts.filter(p => { if (pv.has(p.chave)) return false; pv.add(p.chave); return true; });
   posts.sort((a, b) => (b.publicado || b.primeira_vez || '').localeCompare(a.publicado || a.primeira_vez || ''));
   const recentes = posts.filter(p => { const d = dias(p.publicado || p.primeira_vez); return d != null && d <= 7; });
   document.getElementById('f-posts').textContent = recentes.length;
-  document.getElementById('f-posts-s').textContent = recentes[0] ? `última: ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana';
-  document.getElementById('l-posts').innerHTML = posts.length ? posts.slice(0, 30).map(p => `<li>${p.ativo === false ? '<span class="chip mute">expirada</span> ' : ''}<b>${fmt(p.melhor_preco)}</b> · ${esc(p.loja)}${p.cupom ? ` · <code>${esc(p.cupom)}</code>` : ''}<br>${esc(p.titulo.slice(0, 110))}<span class="meta"><br>${esc(p.fonte)} · ${dt(p.publicado || p.primeira_vez)} · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir</a></span></li>`).join('') : '<li class="empty">Nenhuma postagem registrada.</li>';
+  document.getElementById('f-posts-s').textContent = recentes[0] ? `última: ${POL[modeloDe(recentes[0])]}" ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana';
+  document.getElementById('l-posts').innerHTML = posts.length ? posts.slice(0, 30).map(p => `<li>${chipModelo(modeloDe(p))} ${p.ativo === false ? '<span class="chip mute">expirada</span> ' : ''}<b>${fmt(p.melhor_preco)}</b> · ${esc(p.loja)}${p.cupom ? ` · <code>${esc(p.cupom)}</code>` : ''}<br>${esc(p.titulo.slice(0, 110))}<span class="meta"><br>${esc(p.fonte)} · ${dt(p.publicado || p.primeira_vez)} · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir</a></span></li>`).join('') : '<li class="empty">Nenhuma postagem registrada.</li>';
 
   // ---- saúde das fontes
   const saude = Object.assign({}, cloud?.saude || {}, pc?.saude || {});
@@ -283,18 +385,16 @@ function parseCsv(txt) {
     const f = s.falhas || 0; const cls = f === 0 ? 'ok' : f < 3 ? 'warn' : 'bad'; const lab = f === 0 ? 'OK' : `${f} falhas`;
     return `<tr><td>${esc(n)}</td><td><span class="chip ${cls}">${lab}</span></td><td class="num">${dt(s.ultimo_ok)}</td><td class="sub2">${esc((s.ultimo_erro || '').slice(0, 120))}</td></tr>`; }).join('');
 
-  // ---- gráfico: menor preço por loja por dia (sem o agregador nas lojas que têm fonte direta)
-  const linhas = [...hist.cloud, ...hist.pc].filter(vale);
-  const serie = {};
-  linhas.forEach(r => {
-    const dia = r.quando.slice(0, 10); const p = menorPreco(r);
-    const k = r.loja; serie[k] ??= {}; serie[k][dia] = Math.min(serie[k][dia] ?? Infinity, p);
-  });
-  desenha(serie, alvoPix);
+  // ---- gráficos: um por modelo (a 65" custa ~30% mais: juntas, as duas linhas achatariam o gráfico)
+  grafico('chart-65', 'legend-65', r65.serie, alvos['65C6K'].pix);
+  desenha(r55.serie, alvos['55C6K'].pix);
 })();
 
-function desenha(serie, alvo) {
-  const cv = document.getElementById('chart'); const ctx = cv.getContext('2d');
+// gráfico da 55C6K (nome de sempre; os testes do painel trocam esta função por um espião)
+function desenha(serie, alvo) { grafico('chart', 'legend', serie, alvo); }
+
+function grafico(idCanvas, idLegenda, serie, alvo) {
+  const cv = document.getElementById(idCanvas); const ctx = cv.getContext('2d');
   const css = getComputedStyle(document.documentElement);
   const cores = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'].map(v => css.getPropertyValue(v).trim());
   const ink3 = css.getPropertyValue('--ink-3').trim(), line = css.getPropertyValue('--line-2').trim(), accent = css.getPropertyValue('--accent').trim();
@@ -303,7 +403,7 @@ function desenha(serie, alvo) {
   const lojas = Object.keys(serie).sort((a, b) => Math.min(...Object.values(serie[a])) - Math.min(...Object.values(serie[b]))).slice(0, 8);
   const dias = [...new Set(lojas.flatMap(l => Object.keys(serie[l])))].sort();
   ctx.font = '12px "IBM Plex Mono", monospace'; ctx.fillStyle = ink3; ctx.textAlign = 'center';
-  if (!dias.length) { ctx.fillText('O histórico aparece a partir da segunda coleta.', W / 2, H / 2); return; }
+  if (!dias.length) { ctx.fillText('O histórico aparece a partir da segunda coleta.', W / 2, H / 2); document.getElementById(idLegenda).innerHTML = ''; return; }
   const vals = lojas.flatMap(l => Object.values(serie[l])).concat(alvo ? [alvo] : []);
   let y0 = Math.floor(Math.min(...vals) / 100) * 100 - 100, y1 = Math.ceil(Math.max(...vals) / 100) * 100 + 100;
   if (y1 - y0 < 400) { y0 -= 100; y1 += 100; }
@@ -323,9 +423,9 @@ function desenha(serie, alvo) {
     ctx.stroke();
     dias.forEach((d, i) => { const v = serie[l][d]; if (v == null) return; ctx.beginPath(); ctx.arc(x(i), y(v), 2.5, 0, Math.PI * 2); ctx.fill(); });
     if (last) { ctx.beginPath(); ctx.arc(last[0], last[1], 4, 0, Math.PI * 2); ctx.fill(); }
-    leg.push(`<span><i style="background:${cor}"></i>${l}</span>`);
+    leg.push(`<span><i style="background:${cor}"></i>${esc(l)}</span>`);
   });
-  document.getElementById('legend').innerHTML = leg.join('');
+  document.getElementById(idLegenda).innerHTML = leg.join('');
 }
 </script>
 </body>

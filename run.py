@@ -55,6 +55,7 @@ def main() -> int:
 
     from monitor import config, notificar
     from monitor.estado import Estado
+    from monitor.models import MODELOS, modelo_de
     from monitor.regras import (
         cupons_aplicaveis, e_mensagem_de_cupons, gerar_alertas, mensagem_bootstrap, mensagem_fonte_quebrada,
         resumo_diario, sanear,
@@ -140,6 +141,12 @@ def main() -> int:
 
     if estado.bootstrap and (ofertas or cupons):
         msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas)]  # type: ignore[arg-type]
+    elif not estado.bootstrap:
+        # partida de um modelo que entrou num state que já existia (26/09: a 65C6K): gerar_alertas não alertou nada
+        # dele; sai a mensagem de início só dele, com os preços de agora
+        for modelo in MODELOS:
+            if estado.bootstrap_modelo(modelo) and any(modelo_de(o) == modelo for o in ofertas):  # type: ignore[arg-type]
+                msgs.append(mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas, [modelo]))  # type: ignore[arg-type]
 
     # resumo diário
     h = agora().hour
@@ -169,6 +176,8 @@ def main() -> int:
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
+    # o modelo que teve oferta ou postagem registrada nesta rodada já fez a partida dele neste modo
+    estado.marca_modelos_iniciados({modelo_de(o) for o in ofertas})  # type: ignore[arg-type]
     # histórico/gráfico: só preços ativos (esgotado ou descartado pelo sanear não é preço da TV)
     estado.anexa_historico([o for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco])  # type: ignore[union-attr]
     if not args.so:  # uma execução parcial (--so) não deve sobrescrever o painel com dados incompletos
@@ -177,10 +186,14 @@ def main() -> int:
 
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]
     n_post = len(ofertas) - n_loja
-    melhor = min([o.melhor_preco for o in ofertas  # type: ignore[union-attr]
-                  if o.tipo == "loja" and o.ativo and o.melhor_preco and not confianca.fora_de_preco(o)] or [0])
+    melhores = []
+    for modelo in MODELOS:
+        melhor = min([o.melhor_preco for o in ofertas  # type: ignore[union-attr]
+                      if o.tipo == "loja" and modelo_de(o) == modelo and o.ativo and o.melhor_preco
+                      and not confianca.fora_de_preco(o)] or [0])
+        melhores.append(f"{modelo} {melhor:.2f}")
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
-          f"{enviados} alertas, melhor preço {melhor:.2f}, {time.time()-t0:.0f}s")
+          f"{enviados} alertas, melhor preço {' / '.join(melhores)}, {time.time()-t0:.0f}s")
     return 0
 
 

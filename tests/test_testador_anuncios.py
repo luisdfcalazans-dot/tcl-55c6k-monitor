@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from monitor import config
-from monitor.carrinho import Amazon, CarrinhoOcupado, Magalu, MercadoLivre, ResultadoCupom
+from monitor.carrinho import Amazon, CarrinhoOcupado, Magalu, MercadoLivre, ResultadoCupom, item_ml_da_url
 from monitor.util import TZ_BR
 
 
@@ -473,6 +473,7 @@ def test_troca_que_esvazia_a_sacola_e_falha_volta_ao_mais_barato(amb):
             if (alvo or {}).get("chave") == KB:
                 self.eventos.append(("garantir", KB))
                 self.no_carrinho = None
+                self.remocoes += 1
                 return False
             return super().garantir_item(page, url, alvo)
 
@@ -494,6 +495,7 @@ def test_mais_barato_nao_volta_entao_tenta_o_proximo(amb):
             if (alvo or {}).get("chave") == KA:
                 self.eventos.append(("garantir", KA))
                 self.no_carrinho = None  # esvaziou e não conseguiu pôr o 1P
+                self.remocoes += 1
                 return False
             return super().garantir_item(page, url, alvo)
 
@@ -522,6 +524,7 @@ def test_timeout_no_meio_da_troca_ainda_faz_o_passo_final(amb):
             if (alvo or {}).get("chave") == KB:
                 self.eventos.append(("garantir", KB))
                 self.no_carrinho = None  # esvaziou a sacola e o goto da página do Colombo estourou
+                self.remocoes += 1
                 raise TimeoutError("Timeout 60000ms exceeded (page.goto)")
             return super().garantir_item(page, url, alvo)
 
@@ -592,15 +595,19 @@ def test_loja_fora_do_ar_no_passo_final_pausa(amb):
 # ------------------------------------------------------------------------------------------------
 
 class CarrinhoQueEsvazia(CarrinhoFalsoMagalu):
-    """garantir_item esvazia a sacola ANTES de tentar pôr o anúncio (é o que o Magalu e o ML fazem:
-    esvaziar/_tirar_outras_tvs e só depois adicionar) e a adição falha em `nao_entra`."""
+    """garantir_item esvazia a sacola ANTES de tentar pôr o anúncio (é o que o Magalu faz: esvaziar e só depois
+    adicionar; o ML, desde a G1 de 22/09, também tira antes de pôr, depois de pré-checar o anúncio novo) e a adição
+    falha em `nao_entra`. Como o adaptador real, conta em `remocoes` o que tirou (F3: é isso que decide o aviso de
+    sacola vazia)."""
 
     def garantir_item(self, page, url, alvo=None):
         chave = (alvo or {}).get("chave")
         self.alvos.append(alvo)
         self.eventos.append(("garantir", chave))
         if chave in self.nao_entra:
-            self.no_carrinho = None      # esvaziou a sacola e não conseguiu pôr o anúncio pedido
+            if self.no_carrinho is not None:
+                self.remocoes += 1       # esvaziou a sacola...
+            self.no_carrinho = None      # ...e não conseguiu pôr o anúncio pedido
             return False
         self.no_carrinho = chave
         return True
@@ -1001,3 +1008,365 @@ def test_sem_tempo_o_cupom_nao_e_reaplicado_no_passo_final(amb, monkeypatch):
     assert aceitos[0].extra["motivo_carrinho"] == tc.MOTIVO_SEM_TEMPO
     assert "Não consegui deixar o cupom aplicado" in tc.msg_melhor([("Magazine Luiza", aceitos[0])])
     assert tc.AVISOS_CARRINHO == [], "a TV está no carrinho: nada de aviso de sacola vazia"
+
+
+# ------------------------------------------------------------------------------------------------
+# 8. incidente de 22/09 10:12: coleta do ML bloqueada, troca que falhou e aviso FALSO de sacola vazia;
+#    INFLU300 (aceito em 21/09 19:42) não reaplicado no fim da rodada. Correções F1-F5.
+# ------------------------------------------------------------------------------------------------
+
+CAT_ML = "https://www.mercadolivre.com.br/p/MLB48808732"
+ML_MAGALU, ML_MELHOR = "MLB7574364080", "MLB5417889802"   # 'Parcelamento sem juros' (Magalu) e 'Melhor preço'
+TV_ML = "Smart Tv Tcl 55 Polegadas Qled Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz 55c6k"
+
+
+def _url_ml(item: str) -> str:
+    return f"{CAT_ML}?pdp_filters=item_id%3A{item}"
+
+
+def oferta_ml(item: str, vendedor: str, preco: float, pix: float | None = None, titulo: str = TV_ML) -> dict:
+    """Oferta do ML como a coleta grava no latest (uma por item do catálogo)."""
+    return {"fonte": "mercadolivre", "tipo": "loja", "loja": "Mercado Livre", "titulo": titulo, "ativo": True,
+            "url": _url_ml(item), "id": item, "vendedor": vendedor, "preco": preco, "preco_pix": pix,
+            "melhor_preco": min(x for x in (preco, pix) if x),
+            "extra": {"anuncio": item, "item_id": item, "catalogo": "MLB48808732"}}
+
+
+def _preco_lido(item: str, vendedor: str, valor: float, quando: datetime) -> dict:
+    """reg["precos"][item] como o testador grava (_precos_por_anuncio)."""
+    return {"vendedor": vendedor, "url": _url_ml(item), "tv_pix": valor, "tv_cartao": valor, "parcelado": None,
+            "cupom": "(sem cupom)", "lido_em": _iso(quando)}
+
+
+def _opcao(item: str, preco: float, vendedor: str = "Mercado Livre", quando: datetime = FIXO, **kw) -> dict:
+    """reg["opcoes_catalogo"][item]: opção do catálogo que a página LOGADA mostrou (F5)."""
+    d = {"item_id": item, "preco": preco, "preco_pix": None, "vendedor": vendedor, "parcelado": None,
+         "tipo": "BEST_PRICE", "titulo": TV_ML, "url": _url_ml(item), "catalogo": "MLB48808732",
+         "visto_em": _iso(quando)}
+    d.update(kw)
+    return d
+
+
+class CarrinhoFalsoML(MercadoLivre):
+    """Identidade real do ML, carrinho falso (nenhum navegador, nenhum perfil).
+
+    `no_carrinho`: o item que está no carrinho da pessoa. `nao_entra`: itens cuja troca falha SEM mexer no
+    carrinho (é o que o adaptador garante desde a G1: pré-checagem que falha não tira nada do carrinho).
+    Anúncio sem item (o catálogo, anúncio padrão de antes da F1) também não entra, como no incidente.
+    `opcoes`: o que a página logada do catálogo mostra; vai para `opcoes_vistas` em cada garantir_item, como
+    o adaptador real faz (F5)."""
+
+    def __init__(self, pasta, no_carrinho=ML_MAGALU, aceita=None, nao_entra=(), precos=None, opcoes=None):
+        self.pasta = pasta
+        self.no_carrinho = no_carrinho
+        self.aceita = dict(aceita or {})
+        self.nao_entra = set(nao_entra)
+        self.precos = precos or {ML_MAGALU: 3749.0, ML_MELHOR: 3599.0}
+        self.opcoes = dict(opcoes or {})
+        self.eventos: list[tuple] = []
+        self.alvos: list[dict] = []
+
+    def perfil(self):
+        return self.pasta
+
+    def garantir_item(self, page, url, alvo=None):
+        alvo = alvo or {}
+        self.alvos.append(alvo)
+        self.eventos.append(("garantir", alvo.get("chave")))
+        if self.opcoes:
+            self.opcoes_vistas = {**(getattr(self, "opcoes_vistas", None) or {}),
+                                  **{k: dict(v) for k, v in self.opcoes.items()}}
+        item = alvo.get("item_id")
+        if not item or item in self.nao_entra:
+            return False
+        self.no_carrinho = item
+        self.item_alvo = item
+        return True
+
+    def _res(self, codigo: str, desconto: float = 0.0) -> ResultadoCupom:
+        cartao = round(self.precos.get(self.no_carrinho, 3749.0) - desconto, 2)
+        return ResultadoCupom(codigo=codigo, aceito=bool(desconto), produtos=cartao, frete=0.0,
+                              desconto=desconto or None, total_pix=cartao, total_cartao=cartao, pix_real=False)
+
+    def ler_totais(self, page):
+        return self._res("")
+
+    def aplicar(self, page, codigo):
+        self.eventos.append(("aplicar", self.no_carrinho, codigo))
+        d = self.aceita.get((self.no_carrinho, codigo))
+        if d:
+            return self._res(codigo, d)
+        r = self._res(codigo)
+        r.mensagem = "sem mudança no total"
+        return r
+
+    def remover(self, page):
+        self.eventos.append(("remover", self.no_carrinho))
+
+    def tem_cupom_aplicado(self, page, base):
+        return False
+
+
+# --- F1: sem anúncio conhecido nesta rodada, o carrinho da loja não é tocado ---
+
+def test_f1_coleta_do_ml_vazia_e_estado_sem_leitura_recente_nao_mexe_no_carrinho(amb, capsys):
+    # 22/09 10:12: "Mercado Livre pediu verificação anti-bot" -> latest_pc sem nenhum anúncio do ML
+    amb.latest("pc", [], codigos=["TACOMVC", "MEUMELI"], loja="Mercado Livre")
+    antigo = {ML_MAGALU: _preco_lido(ML_MAGALU, "Magalu", 3749.0, FIXO - timedelta(hours=30))}
+    estado = {"mercadolivre": {"cupons": {}, "precos": dict(antigo)}}
+    loja = CarrinhoFalsoML(amb.pasta)
+    aceitos, estado = amb.rodar(loja, estado, loja_id="mercadolivre")
+    out = capsys.readouterr().out
+    assert loja.eventos == [], "nem troca, nem teste de cupom, nem passo final"
+    assert aceitos == [] and tc.AVISOS_CARRINHO == []
+    assert "nenhum anúncio conhecido" in out and "não mexo no carrinho" in out
+    assert estado["mercadolivre"]["precos"] == antigo, "o que o estado sabia não é apagado"
+    assert estado["mercadolivre"]["cupons"] == {}
+
+
+def test_f1_sem_coleta_usa_o_anuncio_lido_na_rodada_anterior(amb, capsys):
+    # a rodada anterior (21/09 21:24) leu o anúncio da Magalu no carrinho: 13 h atrás, ainda vale
+    amb.latest("pc", [], codigos=["TACOMVC"], loja="Mercado Livre")
+    precos = {ML_MAGALU: _preco_lido(ML_MAGALU, "Magalu", 3749.0, FIXO - timedelta(hours=13))}
+    loja = CarrinhoFalsoML(amb.pasta)
+    aceitos, estado = amb.rodar(loja, {"mercadolivre": {"cupons": {}, "precos": precos}}, loja_id="mercadolivre")
+    assert "leu nas últimas 24 h" in capsys.readouterr().out
+    assert _garantidos(loja) == [ML_MAGALU], "o anúncio do estado, não o catálogo com vendedor '?'"
+    assert (loja.alvos[0]["item_id"], loja.alvos[0]["vendedor"]) == (ML_MAGALU, "Magalu")
+    assert _aplicados(loja) == [(ML_MAGALU, "TACOMVC")]
+    assert loja.no_carrinho == ML_MAGALU and tc.AVISOS_CARRINHO == []
+    assert estado["mercadolivre"]["precos"][ML_MAGALU]["lido_em"] == _iso(FIXO)
+
+
+def test_f1_sem_anuncio_da_magalu_tambem_nao_mexe(amb):
+    amb.latest("cloud", [], codigos=["TOMA30"])
+    loja = CarrinhoFalsoMagalu(amb.pasta)
+    loja.no_carrinho = KA
+    aceitos, _ = amb.rodar(loja)
+    assert loja.eventos == [] and aceitos == [] and tc.AVISOS_CARRINHO == []
+
+
+# --- F3: aviso de sacola vazia só quando o robô tirou algo e a TV não voltou ---
+
+def test_f3_troca_que_falha_sem_tirar_nada_nao_avisa_sacola_vazia(amb, capsys):
+    # o incidente: a troca pelo 'Melhor preço' falhou sem tirar a TV da Magalu do carrinho
+    amb.latest("pc", [oferta_ml(ML_MELHOR, "Mercado Livre", 3599.0, 3491.03)], codigos=["CUPOMML"],
+               loja="Mercado Livre")
+    loja = CarrinhoFalsoML(amb.pasta, no_carrinho=ML_MAGALU, nao_entra={ML_MELHOR})
+    amb.rodar(loja, loja_id="mercadolivre")
+    out = capsys.readouterr().out
+    assert _garantidos(loja)[0] == ML_MELHOR and len(_garantidos(loja)) >= 2, "a recuperação continua tentando"
+    assert loja.no_carrinho == ML_MAGALU
+    assert tc.AVISOS_CARRINHO == [], "nada foi tirado do carrinho: sem aviso no Telegram"
+    assert "carrinho intacto" in out and "VAZIA" not in out
+
+
+def test_f3_magalu_troca_que_falha_sem_esvaziar_nao_avisa(amb, capsys):
+    amb.latest("cloud", [A], codigos=["CUPOM1"])
+    loja = CarrinhoFalsoMagalu(amb.pasta, nao_entra={KA})   # a página não conferiu o vendedor: não esvaziou
+    loja.no_carrinho = KA
+    amb.rodar(loja)
+    assert _garantidos(loja) == [KA, KA], "a tentativa de recuperação continua"
+    assert tc.AVISOS_CARRINHO == [] and "carrinho intacto" in capsys.readouterr().out
+
+
+def test_f3_loja_fora_do_ar_depois_de_esvaziar_avisa(amb):
+    # a sacola foi esvaziada e a loja parou de responder antes de a TV voltar: aí o aviso é verdadeiro
+    from monitor.carrinho import LojaIndisponivel
+
+    amb.latest("cloud", [A], codigos=["CUPOM1"])
+
+    class EsvaziaECai(CarrinhoFalsoMagalu):
+        def garantir_item(self, page, url, alvo=None):
+            self.eventos.append(("garantir", (alvo or {}).get("chave")))
+            self.no_carrinho = None
+            self.remocoes += 1
+            raise LojaIndisponivel("o Magalu não carregou a sacola")
+
+    loja = EsvaziaECai(amb.pasta)
+    loja.no_carrinho = KB
+    _, estado = amb.rodar(loja)
+    assert "pausa_ate" in estado["magalu"]
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "vazia" in aviso.lower() and "Magazine Luiza" in aviso
+
+
+# --- F4: o passo final reaplica o melhor cupom aceito nas últimas 48 h ---
+
+def _influ300(quando: datetime) -> dict:
+    return {f"INFLU300@{KA}": _rec("aceito", quando, total_pix=3261.55, total_cartao=3441.55, frete=0.0,
+                                   desconto=300.0, tv_pix=3261.55, quantidade=1)}
+
+
+def test_f4_passo_final_reaplica_cupom_aceito_ontem(amb, monkeypatch):
+    # INFLU300 aceito ontem no 1P; nesta rodada ficou fora do orçamento (cupons novos na frente)
+    monkeypatch.setattr(tc, "MAX_APLICACOES_POR_RODADA", 1)
+    amb.latest("cloud", [A], codigos=["INFLU300", "NOVO1"])
+    ontem = FIXO - timedelta(hours=19, minutes=28)
+    loja = CarrinhoFalsoMagalu(amb.pasta, aceita={(KA, "INFLU300"): 300.0})
+    _, estado = amb.rodar(loja, {"magalu": {"cupons": _influ300(ontem)}})
+    assert _aplicados(loja)[0] == (KA, "NOVO1")
+    assert loja.eventos[-2:] == [("garantir", KA), ("aplicar", KA, "INFLU300")], "o carrinho termina com INFLU300"
+    reg = estado["magalu"]["cupons"][f"INFLU300@{KA}"]
+    assert reg["status"] == "aceito" and reg["testado_em"] == _iso(FIXO), "a reaplicação conferiu o cupom agora"
+
+
+def test_f4_aceite_de_mais_de_48h_nao_e_reaplicado(amb, monkeypatch):
+    monkeypatch.setattr(tc, "MAX_APLICACOES_POR_RODADA", 1)
+    amb.latest("cloud", [A], codigos=["INFLU300", "NOVO1"])
+    loja = CarrinhoFalsoMagalu(amb.pasta, aceita={(KA, "INFLU300"): 300.0})
+    amb.rodar(loja, {"magalu": {"cupons": _influ300(FIXO - timedelta(hours=49))}})
+    assert ("aplicar", KA, "INFLU300") not in loja.eventos
+
+
+def test_f4_cupom_de_ontem_recusado_agora_e_marcado_e_o_carrinho_fica_sem_cupom(amb, monkeypatch):
+    monkeypatch.setattr(tc, "MAX_APLICACOES_POR_RODADA", 1)
+    amb.latest("cloud", [A, B], codigos=["INFLU300", "NOVO1"])
+    loja = CarrinhoFalsoMagalu(amb.pasta)   # o INFLU300 não vale mais
+    aceitos, estado = amb.rodar(loja, {"magalu": {"cupons": _influ300(FIXO - timedelta(hours=20))}})
+    assert loja.eventos[-2:] == [("garantir", KA), ("aplicar", KA, "INFLU300")]
+    reg = estado["magalu"]["cupons"][f"INFLU300@{KA}"]
+    assert reg["status"] == "recusado" and reg["testado_em"] == _iso(FIXO), "a recusa de agora fica gravada"
+    assert loja.no_carrinho == KA, "fica o anúncio mais barato, sem cupom, como já era"
+    assert aceitos == [] and tc.AVISOS_CARRINHO == []
+
+
+def test_f4_mensagem_nao_diz_hoje_para_aceite_de_ontem(amb, monkeypatch):
+    monkeypatch.setattr(tc, "MAX_APLICACOES_POR_RODADA", 1)
+    amb.latest("cloud", [A], codigos=["INFLU300", "NOVO50"])
+    ontem = FIXO - timedelta(hours=19, minutes=28)
+    loja = CarrinhoFalsoMagalu(amb.pasta, aceita={(KA, "INFLU300"): 300.0, (KA, "NOVO50"): 50.0})
+    aceitos, _ = amb.rodar(loja, {"magalu": {"cupons": _influ300(ontem)}})
+    assert [r.codigo for r in aceitos] == ["NOVO50", "INFLU300"]
+    msg = tc.msg_melhor([("Magazine Luiza", r) for r in aceitos])
+    assert "<code>INFLU300</code>" in msg and "hoje" not in msg
+    assert f"aceito em {ontem:%d/%m %H:%M}" in msg
+    assert "ficou aplicado no carrinho da Magazine Luiza" in msg
+
+
+# --- F5: opções do catálogo vistas pelo testador logado viram anúncios nas próximas rodadas ---
+
+def test_f5_opcao_vista_logado_vira_anuncio_na_proxima_rodada(amb):
+    amb.latest("pc", [oferta_ml(ML_MAGALU, "Magalu", 3749.0)], codigos=["CUPOMML"], loja="Mercado Livre")
+    vista = {k: v for k, v in _opcao(ML_MELHOR, 3599.0, preco_pix=3491.03).items() if k != "visto_em"}
+    loja = CarrinhoFalsoML(amb.pasta, opcoes={ML_MELHOR: vista})
+    _, estado = amb.rodar(loja, loja_id="mercadolivre")
+    reg = estado["mercadolivre"]["opcoes_catalogo"][ML_MELHOR]
+    assert (reg["preco"], reg["preco_pix"], reg["vendedor"]) == (3599.0, 3491.03, "Mercado Livre")
+    assert reg["visto_em"] == _iso(FIXO)
+    # próxima rodada: a coleta anônima continua vendo só a opção da Magalu
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), estado["mercadolivre"])
+    assert [a.chave for a in anuncios] == [ML_MELHOR, ML_MAGALU]
+    melhor = anuncios[0]
+    assert (melhor.vendedor, melhor.preco, melhor.preco_cartao, melhor.item_id) == \
+        ("Mercado Livre", 3491.03, 3599.0, ML_MELHOR)
+    assert item_ml_da_url(melhor.url) == ML_MELHOR, "o carrinho abre o catálogo já nesta opção"
+
+
+def test_f5_opcao_fora_das_regras_nao_vira_anuncio(amb):
+    amb.latest("pc", [oferta_ml(ML_MAGALU, "Magalu", 3749.0)], loja="Mercado Livre")
+    reg = {"opcoes_catalogo": {
+        "MLB1111111111": _opcao("MLB1111111111", 450.0, quando=FIXO - timedelta(hours=1)),   # preço de peça
+        "MLB2222222222": _opcao("MLB2222222222", 3500.0, quando=FIXO - timedelta(hours=1),
+                                titulo="Smart TV TCL 65C6K 65 polegadas QD-Mini LED"),       # outra TV
+        "MLB3333333333": _opcao("MLB3333333333", 3500.0, quando=FIXO - timedelta(hours=25)),  # visto há muito
+        "MLB4444444444": _opcao("MLB4444444444", 9999.0, quando=FIXO - timedelta(hours=1)),  # 2,5x acima
+        "MLB5555555555": _opcao("MLB5555555555", 3550.0, quando=FIXO - timedelta(hours=1)),  # ok
+    }}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [a.chave for a in anuncios] == ["MLB5555555555", ML_MAGALU]
+
+
+def test_f5_opcao_do_catalogo_nao_duplica_o_anuncio_da_coleta(amb):
+    amb.latest("pc", [oferta_ml(ML_MAGALU, "Magalu", 3749.0)], loja="Mercado Livre")
+    reg = {"opcoes_catalogo": {ML_MAGALU: _opcao(ML_MAGALU, 3700.0, vendedor="Loja oficial Magalu")}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [(a.chave, a.preco, a.vendedor) for a in anuncios] == [(ML_MAGALU, 3749.0, "Magalu")], "vale a coleta"
+
+
+def test_f5_coleta_vazia_mas_opcao_recente_do_catalogo_serve_de_anuncio(amb):
+    amb.latest("pc", [], codigos=["CUPOMML"], loja="Mercado Livre")
+    reg = {"mercadolivre": {"cupons": {}, "opcoes_catalogo": {
+        ML_MAGALU: _opcao(ML_MAGALU, 3749.0, vendedor="Loja oficial Magalu", quando=FIXO - timedelta(hours=2))}}}
+    loja = CarrinhoFalsoML(amb.pasta)
+    amb.rodar(loja, reg, loja_id="mercadolivre")
+    assert _garantidos(loja) == [ML_MAGALU] and _aplicados(loja) == [(ML_MAGALU, "CUPOMML")]
+
+
+# --- revisão de 26/09 (65C6K): anúncio que o testador conhece (F1/F5) passa pela mesma checagem de confiança da coleta
+#     (monitor.confianca.pode_ir_ao_carrinho: lista curada de reprovados, reprovado automático e preço muito abaixo da
+#     loja confiável mais barata do MESMO modelo). Antes, a opção do catálogo vista logado ou o anúncio lido há 3 h iam
+#     ao carrinho sem ela: o padrão do anúncio de 25/09 (vendedor desconhecido muito abaixo das lojas confiáveis).
+
+GOLPE_ML = "MLB9999999999"
+
+
+def _confiavel(o: dict) -> dict:
+    o.setdefault("extra", {})["confianca"] = {"veredito": "confiavel"}
+    return o
+
+
+def test_f5_opcao_do_catalogo_suspeita_nao_vai_ao_carrinho(amb, capsys):
+    # ML 1P confiável a Pix 3.491,03; a página logada mostrou um vendedor desconhecido a R$ 2.590 (26% abaixo)
+    col = _confiavel(oferta_ml(ML_MELHOR, "Mercado Livre", 3599.0, pix=3491.03))
+    amb.latest("pc", [col], codigos=["CUPOMML"], loja="Mercado Livre")
+    reg = {"cupons": {}, "opcoes_catalogo": {
+        GOLPE_ML: _opcao(GOLPE_ML, 2590.0, vendedor="Loja Nova XYZ", quando=FIXO - timedelta(hours=1)),
+        ML_MAGALU: _opcao(ML_MAGALU, 3749.0, vendedor="Loja oficial Magalu", quando=FIXO - timedelta(hours=1))}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [a.chave for a in anuncios] == [ML_MELHOR, ML_MAGALU], "a opção suspeita fica de fora; as legítimas não"
+    assert "preço R$ 2.590,00" in capsys.readouterr().out
+    # a rodada inteira: o carrinho da pessoa nunca recebe o anúncio suspeito
+    loja = CarrinhoFalsoML(amb.pasta, no_carrinho=ML_MELHOR, precos={ML_MELHOR: 3599.0, ML_MAGALU: 3749.0,
+                                                                     GOLPE_ML: 2590.0})
+    amb.rodar(loja, {"mercadolivre": reg}, loja_id="mercadolivre")
+    assert GOLPE_ML not in _garantidos(loja) and loja.no_carrinho == ML_MELHOR
+
+
+def test_f5_opcao_do_catalogo_de_vendedor_reprovado_nao_vai_ao_carrinho(amb):
+    # reprovado automático gravado pela coleta (state_pc.json): vale também para a opção vista logado
+    amb.latest("pc", [oferta_ml(ML_MAGALU, "Magalu", 3749.0)], codigos=["CUPOMML"], loja="Mercado Livre")
+    auto = {"loja": "Mercado Livre", "ids": ["777"], "nomes": ["Loja Reprovada"], "motivo": "sinais de risco",
+            "desde": "2026-09-19"}
+    (config.DIR_DADOS / "state_pc.json").write_text(
+        json.dumps({"confianca": {"reprovados_auto": {"Mercado Livre|777": auto}}}), encoding="utf-8")
+    reg = {"opcoes_catalogo": {GOLPE_ML: _opcao(GOLPE_ML, 3700.0, vendedor="Loja Reprovada",
+                                                quando=FIXO - timedelta(hours=1))}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [a.chave for a in anuncios] == [ML_MAGALU]
+
+
+def test_f1_anuncio_lido_antes_passa_pela_checagem_de_confianca(amb):
+    # a coleta do ML desta rodada não trouxe nada; o testador leu há 3 h um anúncio que hoje é de vendedor reprovado
+    amb.latest("pc", [], codigos=["CUPOMML"], loja="Mercado Livre")
+    auto = {"loja": "Mercado Livre", "ids": ["777"], "nomes": ["Loja Reprovada"], "motivo": "sinais de risco",
+            "desde": "2026-09-19"}
+    (config.DIR_DADOS / "state_pc.json").write_text(
+        json.dumps({"confianca": {"reprovados_auto": {"Mercado Livre|777": auto}}}), encoding="utf-8")
+    precos = {GOLPE_ML: {**_preco_lido(GOLPE_ML, "Loja Reprovada", 3600.0, FIXO - timedelta(hours=3)),
+                         "vendedor_id": "777"},
+              ML_MAGALU: _preco_lido(ML_MAGALU, "Magalu", 3749.0, FIXO - timedelta(hours=3))}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), {"precos": precos})
+    assert [(a.chave, a.origem) for a in anuncios] == [(ML_MAGALU, "estado")]
+
+
+def test_anuncio_barrado_pela_coleta_nao_volta_pelo_estado(amb):
+    # a coleta desta rodada marcou o anúncio como suspeito (e ele era o único da loja): o registro de 3 h atrás do
+    # mesmo anúncio não o traz de volta pela F1
+    susp = oferta_ml(GOLPE_ML, "Loja Nova XYZ", 3300.0)
+    susp["extra"]["confianca"] = {"veredito": "suspeito", "sinais": ["anúncio sem avaliações"]}
+    amb.latest("pc", [susp], codigos=["CUPOMML"], loja="Mercado Livre")
+    precos = {GOLPE_ML: _preco_lido(GOLPE_ML, "Loja Nova XYZ", 3300.0, FIXO - timedelta(hours=3))}
+    loja = CarrinhoFalsoML(amb.pasta)
+    _, anuncios = tc.codigos_conhecidos(loja, {"precos": precos})
+    assert anuncios == []
+    amb.rodar(loja, {"mercadolivre": {"cupons": {}, "precos": precos}}, loja_id="mercadolivre")
+    assert loja.eventos == [], "sem anúncio que possa ir ao carrinho, o carrinho não é tocado (F1)"
+
+
+def test_testador_grava_o_id_do_vendedor_do_anuncio_lido(amb):
+    o = oferta_ml(ML_MAGALU, "Magalu", 3749.0)
+    o["extra"]["vendedor_id"] = "3592255542"
+    amb.latest("pc", [o], codigos=["CUPOMML"], loja="Mercado Livre")
+    _, estado = amb.rodar(CarrinhoFalsoML(amb.pasta), loja_id="mercadolivre")
+    assert estado["mercadolivre"]["precos"][ML_MAGALU]["vendedor_id"] == "3592255542"

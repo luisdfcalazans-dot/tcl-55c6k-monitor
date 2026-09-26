@@ -46,7 +46,10 @@ const ctx = vm.createContext({document, fetch, getComputedStyle: () => ({getProp
 vm.runInContext('Date.now = () => ' + Date.parse(dados.agora) + ';', ctx);
 process.on('unhandledRejection', e => { saida.erro = String((e && e.stack) || e); pronto = true; });
 vm.runInContext(scripts[scripts.length - 1], ctx);
-ctx.desenha = (serie, alvo) => { saida.serie = JSON.parse(JSON.stringify(serie)); pronto = true; };
+ctx.desenha = (serie, alvo) => { saida.serie = JSON.parse(JSON.stringify(serie)); saida.alvo = alvo; pronto = true; };
+// gráfico da 65C6K (26/09): desenhado por grafico() com o id do canvas
+saida.graficos = {};
+ctx.grafico = (idCanvas, idLegenda, serie, alvo) => { saida.graficos[idCanvas] = {serie: JSON.parse(JSON.stringify(serie)), alvo}; };
 const fmtData = s => new Date(s).toLocaleString('pt-BR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'});
 (async () => {
   for (let i = 0; i < 300 && !pronto; i++) await new Promise(r => setTimeout(r, 10));
@@ -59,6 +62,12 @@ const fmtData = s => new Date(s).toLocaleString('pt-BR', {day: '2-digit', month:
   saida.min_s = el('f-min-s').textContent;
   saida.tabela = el('#t-lojas tbody').innerHTML;
   saida.datas = Object.fromEntries((dados.formatar || []).map(s => [s, fmtData(s)]));
+  // 65C6K e a comparação por loja (26/09)
+  for (const id of ['f65-melhor', 'f65-melhor-s', 'f65-parc', 'f65-parc-s', 'f65-min', 'f65-min-s', 'f-dif-pix',
+                    'f-dif-pix-s', 'f-dif-parc', 'f-dif-parc-s', 'alvo-pix', 'alvo-pix-65', 'alvo-parc-65', 'l-posts'])
+    saida[id] = el(id).textContent || el(id).innerHTML;
+  saida.tabela65 = el('#t-lojas-65 tbody').innerHTML;
+  saida.comparar = el('#t-comparar tbody').innerHTML;
   process.stdout.write(JSON.stringify(saida));
 })();
 """
@@ -506,3 +515,96 @@ def test_confianca_selo_do_suspeito_tem_rotulo_neutro(tmp_path):
     (linha,) = [l for l in linhas(out["tabela"]) if "Loja X" in l["html"]]
     assert ">sinais de risco</span>" in linha["html"] and ">suspeito</span>" not in linha["html"]
     assert "09573-24-00953" in linha["html"]
+
+
+# ---------------- 65C6K (26/09): uma tabela e um gráfico por modelo, e a coluna "65\" a mais" na mesma loja ----------------
+
+URL_MAGALU_65 = "https://www.magazineluiza.com.br/smart-tv-65-tcl-4k-uhd-miniled-65c6k/p/240162600/et/elit/"
+
+
+def oferta65(fonte, loja, preco, preco_pix=None, **kw):
+    o = oferta(fonte, loja, preco, preco_pix, **kw)
+    o.update(modelo="65C6K", titulo="Smart TV TCL 65C6K", id=o["id"] + "-65", chave=o["chave"] + "-65")
+    return o
+
+
+def _latest65(modo, atualizado, ofertas, minimo=None, minimo65=None):
+    lt = latest(modo, atualizado, ofertas, minimo)
+    lt["alvos"] = {"55C6K": {"pix": 2900.0, "parcelado": 3000.0}, "65C6K": {"pix": 3300.0, "parcelado": 3500.0}}
+    lt["minimo_65C6K"] = minimo65
+    return lt
+
+
+def _cloud_com_65():
+    return ofertas_cloud_hoje() + [
+        oferta65("magalu", "Magazine Luiza", 4799.0, 4559.05, vendedor="Magalu", parcelado="10x R$ 479,90 sem juros",
+                 url=URL_MAGALU_65),
+        oferta65("vtex", "Webcontinental", 4274.05, 3963.60, vendedor="Casas Bahia", parcelado="8x R$ 534,25 sem juros"),
+        oferta65("kabum", "KaBuM!", 4736.0, parcelado="10x de R$ 473,60 sem juros", vendedor="LOJAS COLOMBO"),
+    ]
+
+
+CAB65 = CAB.rstrip("\n") + ",modelo\n"
+CSV_CLOUD_65 = CAB65 + CSV_CLOUD[len(CAB):] + (   # linhas antigas (sem a coluna) continuam valendo como 55C6K
+    f"2026-09-26T11:00:00-03:00,magalu,loja,Magazine Luiza,Magalu,TV 65,4799.0,4559.05,,,{URL_MAGALU_65},65C6K\n"
+    f"2026-09-26T11:00:00-03:00,vtex,loja,Webcontinental,Casas Bahia,TV 65,4274.05,3963.6,,,https://w/p,65C6K\n")
+
+
+def test_65_tabela_destaques_e_comparacao_na_mesma_loja(tmp_path):
+    min65 = {"preco": 3963.6, "loja": "Webcontinental", "quando": "2026-09-26T11:03:00-03:00"}
+    out = roda_painel(tmp_path, _latest65("cloud", CLOUD_AT, _cloud_com_65(), MIN_MAGALU, min65),
+                      _latest65("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON), csv_cloud=CSV_CLOUD_65)
+    # a 55C6K continua como antes (as linhas da 65C6K não entram na tabela, no destaque nem no gráfico dela)
+    assert out["melhor"] == brl(3561.55)
+    assert {l["loja"] for l in linhas(out["tabela"])} == {"Magazine Luiza", "Casas Bahia", "Amazon", "Carrefour", "KaBuM!"}
+    assert brl(4559.05) not in out["tabela"]
+    assert out["serie"]["Magazine Luiza"] == {"2026-09-17": 3561.55, "2026-09-18": 3561.55}
+    # a 65C6K tem os dela, com os alvos dela
+    assert out["f65-melhor"] == brl(3963.6) and out["f65-melhor-s"].startswith("Webcontinental (Casas Bahia)")
+    assert out["f65-parc"] == brl(4274.05) and out["f65-min"] == brl(3963.6)
+    assert (out["alvo-pix"], out["alvo-pix-65"], out["alvo-parc-65"]) == (brl(2900.0), brl(3300.0), brl(3500.0))
+    l65 = linhas(out["tabela65"])
+    assert [l["loja"] for l in l65] == ["Webcontinental", "Magazine Luiza", "KaBuM!"] and "best" in l65[0]["classe"]
+    assert out["graficos"]["chart-65"]["serie"] == {"Magazine Luiza": {"2026-09-26": 4559.05},
+                                                     "Webcontinental": {"2026-09-26": 3963.6}}
+    assert out["graficos"]["chart-65"]["alvo"] == 3300.0
+    # diferença entre os melhores de cada TV
+    assert out["f-dif-pix"] == "+" + brl(3963.6 - 3561.55) and "melhor da 65" in out["f-dif-pix-s"]
+    # a coluna nova: quanto a 65" custa a mais NA MESMA LOJA (à vista e parcelado)
+    comp = {re.search(r"<b>(.*?)</b>", tr).group(1): tr for tr in re.findall(r"<tr[\s\S]*?</tr>", out["comparar"])}
+    mg = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["Magazine Luiza"])
+    assert brl(3561.55) in mg[1] and brl(4559.05) in mg[2] and ("+" + brl(4559.05 - 3561.55)) in mg[3]
+    assert brl(3749.0) in mg[4] and brl(4799.0) in mg[5] and ("+" + brl(4799.0 - 3749.0)) in mg[6]
+    kb = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["KaBuM!"])
+    assert ("+" + brl(4736.0 - 4184.88)) in kb[3]
+    webc = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["Webcontinental"])
+    assert webc[1] == "—" and brl(3963.6) in webc[2] and "—" in webc[3], "sem a 55\" na loja, não há diferença"
+
+
+def test_65_reprovado_e_suspeito_valem_para_a_65(tmp_path):
+    lili = oferta65("magalu", "Magazine Luiza", 4559.05, 3054.56, vendedor="Importados Lili",
+                    url="https://www.magazineluiza.com.br/x/p/kd12g2e47k/et/elit/?seller_id=importadoslili",
+                    extra={"vendedor_id": "importadoslili"})
+    cloud = _latest65("cloud", CLOUD_AT, _cloud_com_65() + [lili], MIN_MAGALU)
+    cloud["confianca"] = {"reprovados": REPROVADOS}
+    out = roda_painel(tmp_path, cloud, _latest65("pc", PC_AT, []))
+    assert "Lili" not in out["tabela65"] and "Lili" not in out["comparar"] and out["f65-melhor"] == brl(3963.6)
+
+
+def test_65_postagem_com_selo_do_modelo(tmp_path):
+    cloud = _latest65("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    cloud["posts"] = [{"fonte": "telegram", "tipo": "post", "loja": "Shopee", "titulo": "[canal] Smart TV 65 65C6K",
+                       "url": "https://t.me/c/1", "id": "c/1#65C6K", "chave": "telegram:c/1#65C6K", "preco": 3464.0,
+                       "melhor_preco": 3464.0, "publicado": "2026-09-18T10:00:00-03:00", "modelo": "65C6K"},
+                      {"fonte": "promobit", "tipo": "post", "loja": "Magazine Luiza", "titulo": "Smart TV 55C6K",
+                       "url": "https://pb/1", "id": "1", "chave": "promobit:1", "preco": 3261.55,
+                       "melhor_preco": 3261.55, "publicado": "2026-09-17T10:00:00-03:00"}]
+    out = roda_painel(tmp_path, cloud, _latest65("pc", PC_AT, []))
+    assert 'class="chip m65">65"</span>' in out["l-posts"] and 'class="chip m55">55"</span>' in out["l-posts"]
+
+
+def test_65_sem_dados_da_65_nao_quebra_o_painel(tmp_path):
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
+                      latest("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON))
+    assert out["f65-melhor"] == "—" and out["f-dif-pix"] == "—" and "Nenhum preço de loja da 65C6K" in out["tabela65"]
+    assert out["graficos"]["chart-65"]["serie"] == {}

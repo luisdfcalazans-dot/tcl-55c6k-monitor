@@ -7,11 +7,16 @@ Descoberta (19/09/2026, pedido do usuário: "não precisa se ater a somente um a
 - a página de cada anúncio: uma Oferta por vendedor em product.offers (não só o do buy box);
 - para vendedor que não é o do buy box, a página com ?seller_id=<id> (o seletor que o site usa)
   completa cartão, parcelado e cupons, se sobrar requisição.
-Ordem: buscas, anúncio fixo, os da busca, os do EXTRA, páginas de vendedor, e só então os do estado (muitos já
-saíram do ar). Tudo com limite de requisições por rodada (config.MAGALU_MAX_REQUISICOES) e pausa entre elas;
-403/429 encerra a rodada na hora. Duas variações de 55" do mesmo grupo e vendedor têm o mesmo id: fica a mais
-barata.
-Cupons do anúncio: seller.tags type=coupon (ex.: LU250), como antes.
+Ordem: buscas, anúncios fixos (1P da 55" e da 65"), os da busca, os do EXTRA, páginas de vendedor, e só então os do
+estado (muitos já saíram do ar). Tudo com limite de requisições por rodada (config.MAGALU_MAX_REQUISICOES) e pausa
+entre elas; 403/429 encerra a rodada na hora.
+
+65C6K (26/09/2026): o 1P da 65" (/p/240162600) é outra VARIAÇÃO do mesmo grupo (product.id 240162800) da 55"
+(/p/240162700). O id da Oferta é '<id do /p/ da variação>-<vendedor>' (antes era o product.id do grupo, e as duas
+medidas colidiam em '240162800-magazineluiza'). O modelo sai da variação de tamanho da página (ou do atributo de
+tamanho); o título só decide quando o anúncio não tem variação de tamanho: a opção de 65" da Importados Lili tinha
+"55C6K" no título. A página da 55" lista a variação da 65" (e vice-versa): ela entra na fila de visita.
+Cupons do anúncio: seller.tags type=coupon (ex.: LU250), como antes; o da página da 65" leva o modelo.
 """
 
 from __future__ import annotations
@@ -24,8 +29,8 @@ from urllib.parse import quote_plus
 import requests
 
 from .. import config
-from ..filtro import eh_55c6k
-from ..models import Cupom, Oferta
+from ..filtro import eh_tv_c6k, modelo_do_titulo
+from ..models import MODELO_PADRAO, MODELO_POR_POLEGADA, Cupom, Oferta
 from ..util import dias_desde, get_html, iso_normaliza, next_data, parse_preco
 from . import Fonte, Resultado
 
@@ -84,15 +89,47 @@ def _variacao_de_tamanho(v: dict) -> bool:
     return bool(_RE_VALOR_POLEGADAS.search(str(v.get("value") or "")))
 
 
-def _e_55(p: dict) -> bool:
-    """Só a 55C6K de 55": título e, quando o produto lista variações DE TAMANHO, a variação desta página."""
-    if not eh_55c6k(p.get("title") or ""):
-        return False
+def _polegadas(valor: object) -> int | None:
+    m = re.search(r"(?<!\d)(\d{2,3})(?!\d)", str(valor or ""))
+    return int(m.group(1)) if m else None
+
+
+def _tamanho_da_pagina(p: dict) -> int | None:
+    """O tamanho (polegadas) que a PÁGINA diz: a variação de tamanho desta página (variationId), o atributo de tamanho
+    ('current') ou a ficha técnica ('Polegadas' / 'Tamanho da tela'). None quando a página não diz (a busca não traz
+    variações nem ficha): aí decide o título."""
     var_id = str(p.get("variationId") or "")
     for v in p.get("variations") or []:
         if isinstance(v, dict) and str(v.get("id")) == var_id and v.get("value") and _variacao_de_tamanho(v):
-            return re.search(r"(?<!\d)55(?!\d)", str(v["value"])) is not None
-    return True
+            return _polegadas(v["value"])
+    for a in p.get("attributes") or []:
+        if isinstance(a, dict) and a.get("current") and _variacao_de_tamanho(
+                {"label": a.get("label"), "type": a.get("type"), "value": a.get("current")}):
+            return _polegadas(a["current"])
+    ft = _ficha_tecnica(p) if p.get("factsheet") else {}
+    return _polegadas(ft.get("polegadas") or ft.get("tamanho da tela")) if ft else None
+
+
+def modelo_do_produto(p: dict) -> str | None:
+    """'55C6K', '65C6K' ou None. Com variação/atributo de tamanho, o tamanho decide e o título só precisa ser de uma TV
+    C6K (o título da opção de 65" da Importados Lili diz "55C6K"; 75" não é monitorada); sem ela, o título decide."""
+    titulo = p.get("title") or ""
+    tam = _tamanho_da_pagina(p)
+    if tam is not None:
+        modelo = MODELO_POR_POLEGADA.get(tam)
+        return modelo if modelo and eh_tv_c6k(titulo) else None
+    return modelo_do_titulo(titulo)
+
+
+def _e_55(p: dict) -> bool:
+    """Só a 55C6K de 55" (nome de antes; ver modelo_do_produto)."""
+    return modelo_do_produto(p) == MODELO_PADRAO
+
+
+def _id_variacao(p: dict, url: str) -> str:
+    """Id do anúncio desta variação: variationId (= o /p/<id>/ da página, o que a sacola devolve), senão o /p/<id>/ da
+    URL; o product.id é o do GRUPO de variações e não serve (a 55" e a 65" do Magalu 1P têm o mesmo, 240162800)."""
+    return str(p.get("variationId") or "") or id_anuncio(url) or str(p.get("id") or "")
 
 
 def _ficha_tecnica(p: dict) -> dict[str, str]:
@@ -170,10 +207,11 @@ def _ficha(p: dict) -> dict:
     return f
 
 
-def _oferta(p: dict) -> Oferta | None:
+def _oferta(p: dict, modelo: str | None = None) -> Oferta | None:
     """Oferta do vendedor do buy box (o que a página/busca mostra com preço, Pix e parcelado)."""
     titulo = p.get("title") or ""
-    if not eh_55c6k(titulo) or not p.get("available", True):
+    modelo = modelo or modelo_do_produto(p)
+    if not modelo or not p.get("available", True):
         return None
     price = p.get("price") or {}
     inst = p.get("installment") or {}
@@ -184,12 +222,13 @@ def _oferta(p: dict) -> Oferta | None:
     url = _url_magalu(p.get("path") or p.get("url") or "")
     return Oferta(
         fonte="magalu", tipo="loja", loja="Magazine Luiza", titulo=titulo,
-        url=url, id=f"{p.get('id')}-{seller.get('id') or vendedor}",
+        url=url, id=f"{_id_variacao(p, url)}-{seller.get('id') or vendedor}",
         preco=cartao, preco_pix=pix if pix and cartao and pix < cartao else (pix if not cartao else None),
         parcelado=_parcelado(inst), vendedor=vendedor,
         extra={"preco_de": parse_preco(price.get("price")), "1p": seller.get("category") == "1p",
                "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None, "ficha": _ficha(p),
                "anuncio_exclusivo": _anuncio_exclusivo(p)},
+        modelo=modelo,
     )
 
 
@@ -202,8 +241,8 @@ def _anuncio_exclusivo(p: dict) -> bool:
     return bool(sid and ofs) and all((of.get("seller") or {}).get("id") == sid for of in ofs)
 
 
-def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
-    """Oferta de um vendedor da lista product.offers que NÃO é o do buy box.
+def _oferta_vendedor(p: dict, of: dict, modelo: str = MODELO_PADRAO) -> Oferta | None:
+    """Oferta de um vendedor da lista product.offers que NÃO é o do buy box (o modelo é o da página).
 
     A lista só traz o preço do Pix (bestPrice, "no Pix") e o preço "de"; o do cartão costuma vir null.
     Sem o do cartão, ele fica vazio (nunca repetir o do Pix como se fosse cartão) e o parcelado também.
@@ -227,24 +266,30 @@ def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
     url = com_vendedor(_url_magalu(p.get("path") or p.get("url") or ""), sid)
     return Oferta(
         fonte="magalu", tipo="loja", loja="Magazine Luiza", titulo=p.get("title") or "",
-        url=url, id=f"{p.get('id')}-{sid}", preco=cartao, preco_pix=pix,
+        url=url, id=f"{_id_variacao(p, url)}-{sid}", preco=cartao, preco_pix=pix,
         vendedor=sel.get("description") or sid,
         extra={"preco_de": parse_preco(price.get("price")), "1p": sel.get("category") == "1p",
                "anuncio": id_anuncio(url), "vendedor_id": sid, "so_lista_de_vendedores": True,
                # a ficha da página é do anúncio do buy box: deste vendedor só os dados dele
                "ficha": _dados_do_vendedor(sel)},
+        modelo=modelo,
     )
 
 
-def _cupons(p: dict) -> list[Cupom]:
+def _cupons(p: dict, modelo: str | None = None) -> list[Cupom]:
+    """Cupons do anúncio (seller.tags). O cupom vale para o anúncio/variação: leva o modelo da página (o da 65" tem o
+    modelo no id, para não se confundir com o mesmo código na página da 55")."""
     cupons: list[Cupom] = []
     for tag in (p.get("seller") or {}).get("tags") or []:
         if tag.get("type") == "coupon" and tag.get("code"):
+            cid = f"{tag['code']}-{(tag.get('endDate') or '')[:10]}"
+            if modelo and modelo != MODELO_PADRAO:
+                cid += f"-{modelo}"
             cupons.append(Cupom(
                 fonte="magalu", loja="Magazine Luiza", codigo=tag["code"], titulo=tag.get("message") or tag["code"],
-                url=_url_magalu(p.get("path") or ""), id=f"{tag['code']}-{(tag.get('endDate') or '')[:10]}",
+                url=_url_magalu(p.get("path") or ""), id=cid,
                 regra=tag.get("message") or "", validade=iso_normaliza(tag.get("endDate")),
-                publicado=iso_normaliza(tag.get("startDate")), especifico=True,
+                publicado=iso_normaliza(tag.get("startDate")), especifico=True, modelo=modelo,
             ))
     return cupons
 
@@ -282,7 +327,7 @@ def info_busca(html: str) -> tuple[list[dict], int, int]:
 def parse_busca(html: str) -> list[Oferta]:
     out = []
     for p in info_busca(html)[0]:
-        o = _oferta(p) if _e_55(p) else None
+        o = _oferta(p)
         if o:
             out.append(o)
     return out
@@ -293,8 +338,9 @@ def parse_produto(html: str) -> tuple[Oferta | None, list[Cupom]]:
     p = _dados(html).get("product") or {}
     if not p:
         return None, []
-    o = _oferta(p) if _e_55(p) else None
-    cupons = _cupons(p)
+    modelo = modelo_do_produto(p)
+    o = _oferta(p, modelo) if modelo else None
+    cupons = _cupons(p, modelo)
     if o:
         _aplica_cupom(o, p, cupons)
     return o, cupons
@@ -303,11 +349,12 @@ def parse_produto(html: str) -> tuple[Oferta | None, list[Cupom]]:
 def parse_produto_todas(html: str) -> tuple[list[Oferta], list[Cupom], list[str]]:
     """Todas as ofertas de um anúncio: o buy box (completo) e cada outro vendedor de product.offers.
 
-    Devolve (ofertas, cupons, paths de outras variações de 55" disponíveis). Produto indisponível,
-    de outro tamanho ou que não é a 55C6K devolve listas vazias.
+    Devolve (ofertas, cupons, paths de outras variações de tamanho monitorado — 55" e 65" — disponíveis). Produto
+    indisponível, de tamanho não monitorado ou que não é a TV C6K devolve listas vazias.
     """
     p = _dados(html).get("product") or {}
-    if not p or not p.get("available", True) or not _e_55(p):
+    modelo = modelo_do_produto(p) if p else None
+    if not p or not p.get("available", True) or not modelo:
         return [], [], []
     principal, cupons = parse_produto(html)
     ofertas: list[Oferta] = [principal] if principal else []
@@ -320,7 +367,7 @@ def parse_produto_todas(html: str) -> tuple[list[Oferta], list[Cupom], list[str]
         if not sid or sid in vistos:
             continue
         vistos.add(sid)
-        o = _oferta_vendedor(p, of)
+        o = _oferta_vendedor(p, of, modelo)
         if o:
             ofertas.append(o)
     var_id = str(p.get("variationId") or "")
@@ -330,7 +377,7 @@ def parse_produto_todas(html: str) -> tuple[list[Oferta], list[Cupom], list[str]
             continue
         if not _variacao_de_tamanho(v):
             continue   # cor/voltagem/combo não é "outro tamanho" para visitar (19/09, item B2)
-        if re.search(r"(?<!\d)55(?!\d)", str(v.get("value") or "")) and eh_55c6k((v.get("path") or "").replace("-", " ")):
+        if _polegadas(v.get("value")) in MODELO_POR_POLEGADA and eh_tv_c6k((v.get("path") or "").replace("-", " ")):
             variacoes.append("/magazinecanaltechbr/" + str(v["path"]).lstrip("/"))
     return ofertas, cupons, variacoes
 
@@ -352,6 +399,16 @@ def anuncios_do_estado(dias: float = 14.0, arquivo=None) -> list[str]:
         regs.append((reg.get("ultima_vez") or "", reg["url"]))
     regs.sort(reverse=True)
     return [u for _, u in regs]
+
+
+def _guarda_cupom(cupons: dict[str, Cupom], c: Cupom) -> None:
+    """O mesmo cupom de anúncio (código e validade) nas páginas das duas TVs vale para as duas: fica um só, sem modelo
+    (26/09: o LU300 do Magalu 1P aparece na página da 55" e na da 65")."""
+    for x in cupons.values():
+        if x.codigo == c.codigo and (x.validade or "") == (c.validade or "") and x.modelo != c.modelo:
+            x.modelo = None
+            return
+    cupons.setdefault(c.chave, c)
 
 
 def _seller_da_url(url: str) -> str:
@@ -422,9 +479,11 @@ class Magalu(Fonte):
         erros: list[str] = []
         por_id: dict[str, Oferta] = {}
         cupons: dict[str, Cupom] = {}
-        # anúncio -> URL do magazinevoce; a ordem do dicionário é a prioridade de visita
-        principal = _url_mv(config.URL_MAGALU_PRODUTO)
-        candidatos: dict[str, str] = {id_anuncio(principal): principal}
+        # anúncio -> URL do magazinevoce; a ordem do dicionário é a prioridade de visita: o 1P da 55" e o da 65" (a
+        # página dele traz o cupom do anúncio e os outros vendedores da 65"), depois os da busca
+        candidatos: dict[str, str] = {}
+        for u in (config.URL_MAGALU_PRODUTO, config.URL_MAGALU_PRODUTO_65):
+            candidatos.setdefault(id_anuncio(u), _url_mv(u))
         da_busca: list[tuple[float, str, str]] = []
 
         def tenta(url: str) -> str | None:
@@ -447,9 +506,7 @@ class Magalu(Fonte):
                 prods, pag, paginas = info_busca(html)
                 achou = False
                 for p in prods:
-                    if not _e_55(p):
-                        continue
-                    o = _oferta(p)
+                    o = _oferta(p)   # só a 55C6K e a 65C6K (modelo_do_produto)
                     path = p.get("path") or p.get("url") or ""
                     if not o or not id_anuncio(path):
                         continue
@@ -492,7 +549,7 @@ class Magalu(Fonte):
                         # o cupom é do vendedor do buy box desta página: o link leva a ele (a confiança casa o cupom
                         # com a oferta desse vendedor; ver confianca.cupom_barrado)
                         c.url = com_vendedor(c.url, pedido)
-                    cupons.setdefault(c.chave, c)
+                    _guarda_cupom(cupons, c)
                 for o in ofs:
                     if pedido and o.extra.get("vendedor_id") == pedido and not _seller_da_url(o.url):
                         # página aberta com ?seller_id (anúncio do estado ou do EXTRA): o link guarda o vendedor,
@@ -526,7 +583,7 @@ class Magalu(Fonte):
                     _guarda(por_id, det)
                     for c in cps:
                         c.url = com_vendedor(c.url, sid)  # cupom deste vendedor, não do buy box padrão do anúncio
-                        cupons.setdefault(c.chave, c)
+                        _guarda_cupom(cupons, c)
 
         visitar(list(candidatos.items()))
         completar_vendedores()
@@ -534,8 +591,9 @@ class Magalu(Fonte):
         completar_vendedores()
 
         ofertas = list(por_id.values())
+        por_modelo = ", ".join(f"{sum(o.modelo == m for o in ofertas)} da {m}" for m in sorted({o.modelo for o in ofertas}))
         print(f"[magalu] {orc.usadas} requisições, {len(visitados)} anúncios abertos, {len(ofertas)} ofertas"
-              + (f", {len(erros)} erros" if erros else ""))
+              + (f" ({por_modelo})" if por_modelo else "") + (f", {len(erros)} erros" if erros else ""))
         if not ofertas and erros:
             raise RuntimeError(f"Magalu: nenhuma oferta; {erros[0]}")
         return ofertas, list(cupons.values())

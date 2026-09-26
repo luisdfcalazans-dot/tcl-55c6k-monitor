@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from .. import config
-from ..filtro import eh_55c6k
+from ..filtro import modelo_do_titulo
 from ..models import Cupom, Oferta
 from ..util import get_html, get_json, iso_normaliza, loja_canonica, next_data, parse_preco
 from . import Fonte, Resultado
@@ -14,10 +14,12 @@ _HEADERS = {"Origin": "https://www.promobit.com.br", "Referer": "https://www.pro
 
 
 def _oferta_de_item(item: dict, ativo: bool) -> Oferta | None:
-    """Itens da API (snake_case) e do __NEXT_DATA__ (camelCase) têm os mesmos campos."""
+    """Itens da API (snake_case) e do __NEXT_DATA__ (camelCase) têm os mesmos campos. Só a 55C6K e a 65C6K (pelo
+    título); o id da postagem é único, então o da 65" não colide com o da 55"."""
     g = lambda a, b: item.get(a) if item.get(a) is not None else item.get(b)  # noqa: E731
     titulo = (g("offer_title", "offerTitle") or "").strip()
-    if not eh_55c6k(titulo):
+    modelo = modelo_do_titulo(titulo)
+    if not modelo:
         return None
     oid = g("offer_id", "offerId")
     slug = g("offer_slug", "offerSlug") or ""
@@ -31,6 +33,7 @@ def _oferta_de_item(item: dict, ativo: bool) -> Oferta | None:
         publicado=iso_normaliza(g("offer_published", "offerPublished")),
         ativo=ativo and status in ("", "APPROVED", "ACTIVE"),
         extra={"preco_antigo": parse_preco(g("offer_old_price", "offerOldPrice")), "status": status},
+        modelo=modelo,
     )
 
 
@@ -39,7 +42,9 @@ class PromobitBusca(Fonte):
 
     def coletar(self) -> Resultado:
         vistos: dict[str, Oferta] = {}
-        for q in config.BUSCAS:
+        # os termos das duas TVs ("tcl c6k 65" pega "65 Polegadas ... C6K" sem o código colado); cada postagem fica
+        # com o modelo do título dela, qualquer que seja a busca que a trouxe
+        for q in [t for termos in config.BUSCAS_POR_MODELO.values() for t in termos]:
             data = get_json(f"https://api.promobit.com.br/search?q={quote(q)}", headers=_HEADERS)
             for item in data.get("active_offers") or []:
                 o = _oferta_de_item(item, True)

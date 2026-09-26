@@ -1,13 +1,31 @@
-"""Aceita SÓ a TCL 55C6K de 55 polegadas. Tudo o mais é descartado aqui."""
+"""Aceita SÓ a TCL C6K de 55 polegadas (55C6K) e a de 65 polegadas (65C6K). Tudo o mais é descartado aqui.
+
+Classificador de modelo (26/09/2026, pedido de monitorar também a 65"): modelo_do_titulo() diz '55C6K', '65C6K' ou None
+para títulos (lojas, Pelando, Promobit); extrai_modelos() separa, numa mensagem livre do Telegram, o bloco de cada
+modelo. O filtro da 55C6K (eh_55c6k, extrai_55c6k) é o de sempre; o da 65C6K é o simétrico, com duas diferenças: o par
+"55C6K/65C6K" é da 55C6K (o preço dele é o da menor, "a partir de"), e vizinhos da 65" (65C7K, 65P7L, 65QM8K, 65C755...)
+e listas de tamanhos ("C6K 55 e 65 polegadas") são recusados. Quando a loja diz o tamanho na variação/ficha/EAN (Magalu,
+VTEX), quem decide o modelo é ela e o título só precisa ser de uma TV C6K (eh_tv_c6k): o anúncio de 65" da Importados
+Lili (25/09) tinha "55C6K" no título.
+"""
 
 from __future__ import annotations
 
 import re
-from typing import NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 
+from .models import MODELO_55, MODELO_65
 from .util import PISO_PRECO_TV, preco_postagem, sem_acentos, so_preco_abaixo_do_piso
 
-_TAMANHOS = r"32|40|43|50|58|65|70|75|85|98|100|115"
+_TODOS_TAMANHOS = ("32", "40", "43", "50", "55", "58", "65", "70", "75", "85", "98", "100", "115")
+
+
+def _outros_tamanhos(pol: int) -> str:
+    """Tamanhos de tela (alternativas de regex) menos o `pol`."""
+    return "|".join(t for t in _TODOS_TAMANHOS if t != str(pol))
+
+
+_TAMANHOS = _outros_tamanhos(55)  # "32|40|43|50|58|65|70|75|85|98|100|115" (os outros tamanhos, para a 55C6K)
 
 # "C6K" como token (não pega C6KS, C655, etc.)
 _RE_C6K = re.compile(r"c6k(?![a-z0-9])", re.I)
@@ -220,8 +238,8 @@ def _acessorio(t: str, t_neg: str) -> str:
     return ""
 
 
-def _motivo(t: str) -> str:
-    """t já normalizado. '' = é a 55C6K; senão o motivo da recusa."""
+def _motivo_comum(t: str) -> str:
+    """t já normalizado. '' = é uma TV TCL C6K (sem olhar o tamanho); senão o motivo da recusa."""
     if not _RE_C6K.search(t):
         return "sem C6K"
     t_neg = _RE_CONTROLE_RECURSO.sub(" ", _RE_SUPORTE_A_RECURSO.sub(" ", t))
@@ -232,6 +250,14 @@ def _motivo(t: str) -> str:
     ac = _acessorio(t, t_neg)
     if ac:
         return f"acessório: {ac.strip()}"
+    return ""
+
+
+def _motivo(t: str) -> str:
+    """t já normalizado. '' = é a 55C6K; senão o motivo da recusa."""
+    base = _motivo_comum(t)
+    if base:
+        return base
     if _RE_55C6K.search(t):
         outros = {m.group(1) for m in _RE_OUTRO_C6K.finditer(t)}
         if outros and not (len(outros) == 1 and _RE_PAR_BARRA.search(t)):
@@ -244,14 +270,86 @@ def _motivo(t: str) -> str:
     return ""
 
 
+# ---- 65C6K (26/09/2026) ----
+_TAMANHOS_65 = _outros_tamanhos(65)   # os outros tamanhos, para a 65C6K (inclui o 55)
+_RE_65 = re.compile(r"(?<!\d)65(?!\d)")
+_RE_65C6K = re.compile(r"(?<!\d)65\s*c6k(?![a-z0-9])", re.I)
+_RE_OUTRO_TAMANHO_65 = re.compile(rf"(?<!\d)({_TAMANHOS_65})\s*(?:[\"”″]|\s?pol|\s?polegadas|\s?c6k)", re.I)
+# outro tamanho colado ao modelo ("55C6K", "75 C6K"): anúncio/postagem de vários tamanhos, ou o par "55C6K/65C6K", que
+# é da 55C6K (o preço de "a partir de" é o da menor: dar 🎯 na 65" seria falso)
+_RE_OUTRO_C6K_65 = re.compile(rf"(?<!\d)({_TAMANHOS_65})\s*c6k(?![a-z0-9])", re.I)
+# lista de tamanhos sem a unidade em todos: "C6K 55 e 65 polegadas", "55/65\"", "55\" ou 65\""
+_RE_LISTA_DE_TAMANHOS = re.compile(r"(?<![\d.,])(\d{2,3})\s*(?:[\"”″]|pol\w*\.?)?\s*(?:/|,|\be\b|\bou\b)\s*"
+                                   r"(\d{2,3})\s*(?:[\"”″]|pol)")
+# vizinhos da 65C6K que aparecem nas buscas (KaBuM, ML, Magalu) e que o filtro da 55C6K não precisava listar
+_MODELOS_VIZINHOS_65 = ["p7l", "qm7k", "qm8k", "qm9k", "c755", "c855", "c69k", "t6c", "q7dpro"]
+
+
+def _lista_de_tamanhos(t: str) -> bool:
+    for m in _RE_LISTA_DE_TAMANHOS.finditer(t):
+        a, b = m.group(1), m.group(2)
+        if a != b and a in _TODOS_TAMANHOS and b in _TODOS_TAMANHOS:
+            return True
+    return False
+
+
+def _motivo_65(t: str) -> str:
+    """t já normalizado. '' = é a 65C6K; senão o motivo da recusa."""
+    base = _motivo_comum(t)
+    if base:
+        return base
+    viz = [n for n in _MODELOS_VIZINHOS_65 if n in t]
+    if viz:
+        return f"negativo: {viz[0]}"
+    if _RE_65C6K.search(t):
+        return "vários tamanhos" if _RE_OUTRO_C6K_65.search(t) else ""
+    if not _RE_65.search(t):
+        return "sem 65"
+    if _RE_OUTRO_TAMANHO_65.search(t) or _lista_de_tamanhos(t):
+        return "outro tamanho"
+    return ""
+
+
+_MOTIVOS = {MODELO_55: _motivo, MODELO_65: _motivo_65}
+
+
 def eh_55c6k(texto: str) -> bool:
     """True se o texto se refere à TCL 55C6K (55") e não a combos, outros tamanhos ou acessórios."""
     return _motivo(normaliza(texto)) == ""
 
 
-def motivo_rejeicao(texto: str) -> str:
-    """Só para depuração: explica por que um título foi descartado."""
-    return _motivo(normaliza(texto))
+def eh_65c6k(texto: str) -> bool:
+    """True se o texto se refere à TCL 65C6K (65") e não a combos, outros tamanhos, vizinhos (65C7K, 65P7L...) ou
+    acessórios. Aceita o título sem o código colado ("Smart TV TCL C6K 65 Polegadas", "TCL 65\" C6K")."""
+    return _motivo_65(normaliza(texto)) == ""
+
+
+def eh_modelo(texto: str, modelo: str) -> bool:
+    """True se o título é do `modelo` ('55C6K' | '65C6K')."""
+    f = _MOTIVOS.get(modelo)
+    return bool(f) and f(normaliza(texto)) == ""
+
+
+def modelo_do_titulo(texto: str) -> Optional[str]:
+    """'55C6K', '65C6K' ou None (não é nenhuma das duas TVs). O par "55C6K/65C6K" fica com a 55C6K, como sempre."""
+    t = normaliza(texto)
+    if _motivo(t) == "":
+        return MODELO_55
+    if _motivo_65(t) == "":
+        return MODELO_65
+    return None
+
+
+def eh_tv_c6k(texto: str) -> bool:
+    """O título é de uma TV TCL C6K, sem olhar o tamanho (a loja diz o tamanho na variação/ficha/EAN): não é peça,
+    acessório, combo, usada nem de outro modelo. "Smart TV 55 TCL ... 55C6K" na opção de 65" continua sendo TV C6K."""
+    t = normaliza(texto)
+    return _motivo_comum(t) == "" and not any(n in t for n in _MODELOS_VIZINHOS_65)
+
+
+def motivo_rejeicao(texto: str, modelo: str = MODELO_55) -> str:
+    """Só para depuração: explica por que um título foi descartado para o `modelo` (padrão: 55C6K)."""
+    return _MOTIVOS.get(modelo, _motivo)(normaliza(texto))
 
 
 # ---------------------------------------------------------------- mensagem livre (Telegram)
@@ -303,21 +401,14 @@ _UNIDADE = r"(?:\"|''|’’|pol\b|polegadas\b)"
 # links e códigos de cupom não citam produto ("tidd.ly/45ab3cd", "cupom 50OFF100")
 _RE_LINK = re.compile(r"https?://\S+|www\.\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)+/\S*")
 _RE_CUPOM_CODIGO = re.compile(r"(?:cupo(?:m|ns)|codigo|cod\.)\s*[:\-]?\s*[\"'“‘]?[a-z0-9]+")
-# menções da 55C6K: o modelo, ou o tamanho 55 (só vale numa linha que não cita outro produto)
-_RE_M55_MODELO = re.compile(r"(?<![a-z0-9])55\s?c6k(?![a-z0-9])")
-_RE_M55_TAMANHO = re.compile(rf"(?<![a-z0-9.,$])55\s*{_UNIDADE}|\b(?:tvs?|tcl)\s+(?:de\s+)?55(?![\d.,a-z%])")
-# menções de outro produto
-# código de modelo com o tamanho colado (43S5K, 65C6K, 50P7K, 55P8K, 65QM8K, 50QNED70); com espaço ("55 HDR10+")
-# não é código, nem medida ("VESA 100x100")
-_RE_OUTRO_CODIGO = re.compile(rf"(?<![a-z0-9])(?:{_TAMANHOS}|55)(?!x\d)[a-z]{{1,5}}\d{{1,3}}[a-z]{{0,3}}(?![a-z0-9])"
-                              rf"|(?<![a-z0-9])(?:{_TAMANHOS})\s+c6k(?![a-z0-9])")
+# menções do modelo procurado (o código, ou o tamanho: só numa linha que não cita outro produto) e de outro produto:
+# código de modelo com o tamanho colado (43S5K, 65C6K, 50P7K, 55P8K, 65QM8K, 50QNED70; com espaço, "55 HDR10+", não é
+# código, nem medida, "VESA 100x100") e outra tela (medida em polegadas de 20 a 119 que não seja a dele, ou "TV de
+# 43"): ficam em _Medida (_M55, _M65), uma por modelo.
 # modelo TCL sem o tamanho: série (C, P, Q, QM, S, X, T, V) + dígito + K/L/KS (C7K, P8K, QM8K, S5K, P7L) ou
 # C/P + 3 dígitos (C655, C855, P755). A C6K não conta.
 _RE_OUTRO_MODELO = re.compile(r"(?<![a-z0-9])(?!c6k(?![a-z0-9]))(?:(?:c|p|q|qm|s|x|t|v)\d(?:ks|k|l)|[cp]\d{3}|x955)"
                               r"(?![a-z0-9])")
-# outra tela: qualquer medida em polegadas de 20 a 119 que não seja 55 (TV de 43", monitor de 27"), ou "TV de 43"
-_RE_OUTRO_TAM = re.compile(rf"(?<![a-z0-9.,$])(?!55(?!\d))(?:[2-9]\d|1[01]\d)\s*{_UNIDADE}|"
-                           rf"\b(?:tvs?|televisor(?:es)?)\s+(?:(?:de|tcl)\s+)?(?:{_TAMANHOS})(?![\d.,a-z%])")
 _QUALIFICADORES = (r"tcl|de|da|do|led|qled|oled|4k|8k|uhd|fhd|full\s+hd|hd|smart|mini\s*-?led|qd-?mini|crystal|neo|"
                    r"ultra|\d{2,3}\s*(?:\"|pol\w*)")
 _MARCAS = r"samsung|lg|philips|aoc|philco|hisense|xiaomi|sony|panasonic|toshiba|multilaser|britania|roku|jvc|sharp"
@@ -373,10 +464,55 @@ _RE_OUTRO_ITEM = re.compile(
     r"sofa|racks?|estantes?|home\s+theater)\b")
 # separadores de frase numa linha, onde o corte entre dois produtos é feito
 _RE_SEP_LINHA = re.compile(r"[|•·;,(]|\s/\s|\s[-—–]\s")
-# linha de ficha técnica da própria TV: "Tela: 55\" | Modelo: 55C6K", "Tela de 55\" (modelo 55C6K)"
-_RE_LINHA_FICHA = re.compile(rf"^[^a-z0-9]*(?:tela|display|tamanho)\s*(?:de|:|-)?\s*55\s*{_UNIDADE}")
+# linha de ficha técnica da própria TV ("Tela: 55\" | Modelo: 55C6K", "Tela de 55\" (modelo 55C6K)"): em _Medida
 _RE_PECA_AVULSA = re.compile(r"original|reposicao|substitui|compativel|\bpecas?\b|avuls|troca")
 _RE_NOME_TV = re.compile(rf"(?<![a-z0-9])(?:{_NOME_TV})(?![a-z0-9])")
+
+# Dono do bloco do modelo PROCURADO na segmentação. O nome ficou "55" da época em que só havia a 55C6K (os scripts de
+# análise em tests/diff_*.py leem os pedaços): lendo a 65C6K, "55" é o bloco da 65C6K e a 55C6K é "outro" produto.
+_ALVO = "55"
+
+
+class _Medida(NamedTuple):
+    """O que muda na leitura da mensagem livre de um modelo para o outro (a mesma TV em 55" ou em 65")."""
+
+    pol: int
+    modelo: str
+    re_modelo: re.Pattern          # menção do modelo procurado ("55C6K", "55 c6k")
+    re_tamanho: re.Pattern         # o tamanho dele ('55"', "55 polegadas", "TV de 55"), só numa linha sem outro produto
+    re_outro_codigo: re.Pattern    # código de modelo com o tamanho colado (43S5K, 65C6K, 55P8K) ou "65 C6K"
+    re_outro_tam: re.Pattern       # outra tela ('43"', "TV de 43")
+    re_linha_ficha: re.Pattern     # "Tela: 55\" | Modelo: 55C6K"
+    re_modelo_titulo: re.Pattern   # o literal do modelo no título ("55C6K")
+    re_proprio_codigo: re.Pattern  # o código do próprio modelo (não é outro produto)
+    re_mesma_tv: re.Pattern        # "65C6K" lendo a 55C6K (e vice-versa): a mesma TV em outro tamanho
+    par_e_alvo: bool               # o par "55C6K/65C6K" é do bloco procurado (só na 55C6K, como sempre)
+    motivo: Callable[[str], str]   # filtro de título do modelo
+
+
+def _medida(pol: int, modelo: str, motivo: Callable[[str], str], par_e_alvo: bool) -> _Medida:
+    outros = _outros_tamanhos(pol)
+    return _Medida(
+        pol=pol, modelo=modelo,
+        re_modelo=re.compile(rf"(?<![a-z0-9]){pol}\s?c6k(?![a-z0-9])"),
+        re_tamanho=re.compile(rf"(?<![a-z0-9.,$]){pol}\s*{_UNIDADE}|\b(?:tvs?|tcl)\s+(?:de\s+)?{pol}(?![\d.,a-z%])"),
+        re_outro_codigo=re.compile(rf"(?<![a-z0-9])(?:{outros}|{pol})(?!x\d)[a-z]{{1,5}}\d{{1,3}}[a-z]{{0,3}}(?![a-z0-9])"
+                                   rf"|(?<![a-z0-9])(?:{outros})\s+c6k(?![a-z0-9])"),
+        re_outro_tam=re.compile(rf"(?<![a-z0-9.,$])(?!{pol}(?!\d))(?:[2-9]\d|1[01]\d)\s*{_UNIDADE}|"
+                                rf"\b(?:tvs?|televisor(?:es)?)\s+(?:(?:de|tcl)\s+)?(?:{outros})(?![\d.,a-z%])"),
+        re_linha_ficha=re.compile(rf"^[^a-z0-9]*(?:tela|display|tamanho)\s*(?:de|:|-)?\s*{pol}\s*{_UNIDADE}"),
+        re_modelo_titulo=re.compile(rf"(?<!\d){pol}\s*c6k(?![a-z0-9])", re.I),
+        re_proprio_codigo=re.compile(rf"{pol}\s?c6k"),
+        re_mesma_tv=re.compile(rf"(?:{outros})\s*c6k"),
+        par_e_alvo=par_e_alvo, motivo=motivo)
+
+
+_M55 = _medida(55, MODELO_55, _motivo, True)
+_M65 = _medida(65, MODELO_65, _motivo_65, False)
+_MEDIDAS = {MODELO_55: _M55, MODELO_65: _M65}
+# os nomes de antes (a 55C6K), para quem os usa
+_RE_M55_MODELO, _RE_M55_TAMANHO = _M55.re_modelo, _M55.re_tamanho
+_RE_OUTRO_CODIGO, _RE_OUTRO_TAM, _RE_LINHA_FICHA = _M55.re_outro_codigo, _M55.re_outro_tam, _M55.re_linha_ficha
 
 
 def _normaliza_com_mapa(linha: str) -> tuple[str, list[int]]:
@@ -395,19 +531,20 @@ def _apaga(s: str, r: re.Pattern) -> str:
     return r.sub(lambda m: " " * len(m.group()), s)
 
 
-def _mencoes(n: str) -> list[tuple[int, int, str, str]]:
+def _mencoes(n: str, med: _Medida = _M55) -> list[tuple[int, int, str, str]]:
     """Menções de produto numa linha normalizada: (início, fim, dono, espécie).
-    dono: '55' (a 55C6K), 'outro' (cabeçalho de outro produto) ou 'comparacao'. espécie: modelo, tamanho, marca."""
+    dono: '55' (_ALVO: o modelo procurado), 'outro' (cabeçalho de outro produto) ou 'comparacao'. espécie: modelo,
+    tamanho, marca. Lendo a 65C6K, o par "55C6K/65C6K" é da 55C6K ('outro')."""
     s = _apaga(_apaga(n, _RE_LINK), _RE_CUPOM_CODIGO)
     pares = [m.span() for m in _RE_PAR_BARRA.finditer(s)]
-    brutas: list[tuple[int, int, str, str]] = [(a, b, "55", "modelo") for a, b in pares]
-    for m in _RE_M55_MODELO.finditer(s):
+    brutas: list[tuple[int, int, str, str]] = [(a, b, _ALVO if med.par_e_alvo else "outro", "modelo") for a, b in pares]
+    for m in med.re_modelo.finditer(s):
         if not any(a <= m.start() < b for a, b in pares):
-            brutas.append((m.start(), m.end(), "55", "modelo"))
-    for r, especie in ((_RE_OUTRO_CODIGO, "modelo"), (_RE_OUTRO_MODELO, "modelo"), (_RE_OUTRO_TAM, "tamanho"),
+            brutas.append((m.start(), m.end(), _ALVO, "modelo"))
+    for r, especie in ((med.re_outro_codigo, "modelo"), (_RE_OUTRO_MODELO, "modelo"), (med.re_outro_tam, "tamanho"),
                        (_RE_OUTRA_MARCA, "marca")):
         for m in r.finditer(s):
-            if any(a <= m.start() < b for a, b in pares) or re.fullmatch(r"55\s?c6k", m.group()):
+            if any(a <= m.start() < b for a, b in pares) or med.re_proprio_codigo.fullmatch(m.group()):
                 continue
             if especie == "tamanho" and (_RE_ANTES_CONDICAO.search(s[max(0, m.start() - 40):m.start()])
                                          or _RE_DEPOIS_FAIXA.search(s[m.end():])
@@ -419,11 +556,11 @@ def _mencoes(n: str) -> list[tuple[int, int, str, str]]:
                 # de cupom sem valor, "TVs de 43\"" (as TVs em geral, no plural: condição do cupom, não outro
                 # produto; "TVs de 43\" com cupom: R$ 1.799" continua sendo outro produto com o próprio preço)
                 continue
-            if especie == "modelo" and re.fullmatch(rf"(?:{_TAMANHOS})\s*c6k", m.group()):
-                especie = "tamanho"  # 65C6K: a mesma TV em outro tamanho
+            if especie == "modelo" and med.re_mesma_tv.fullmatch(m.group()):
+                especie = "tamanho"  # 65C6K lendo a 55C6K (e vice-versa): a mesma TV em outro tamanho
             brutas.append((m.start(), m.end(), "outro", especie))
     if not any(d == "outro" for _, _, d, _ in brutas):
-        brutas += [(m.start(), m.end(), "55", "tamanho") for m in _RE_M55_TAMANHO.finditer(s)]
+        brutas += [(m.start(), m.end(), _ALVO, "tamanho") for m in med.re_tamanho.finditer(s)]
     out = []
     for a, b, dono, especie in sorted(brutas):
         if out and a < out[-1][1]:
@@ -463,23 +600,27 @@ class _Linha(NamedTuple):
     continuacao: bool               # continua a linha de cima ("ou R$ ... no Pix", "Pix: R$ ...")
 
 
-def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
-    """Leitura de cima para baixo. Para cada linha, os pedaços (dono, texto original). Donos: '55' (bloco da 55C6K),
-    'outro' (bloco de outro produto), 'disp' (depois de uma linha de disponibilidade que encerra o bloco: "Também
-    tem a de 43 polegadas"), 'fora' (comparação, aparte de disponibilidade, disponibilidade ou item com o próprio
-    preço, e a linha que continua estes dois) e 'antes' (antes do 1º cabeçalho)."""
+
+
+
+def _segmenta_linhas(linhas: list[str], med: _Medida = _M55) -> list[_Linha]:
+    """Leitura de cima para baixo. Para cada linha, os pedaços (dono, texto original). Donos: '55' (_ALVO: bloco do
+    modelo procurado, a 55C6K por padrão), 'outro' (bloco de outro produto), 'disp' (depois de uma linha de
+    disponibilidade que encerra o bloco: "Também tem a de 43 polegadas"), 'fora' (comparação, aparte de
+    disponibilidade, disponibilidade ou item com o próprio preço, e a linha que continua estes dois) e 'antes' (antes
+    do 1º cabeçalho)."""
     dono_atual = None           # dono das linhas sem menção
     dest_anterior = "antes"     # destino do fim da linha anterior (para a linha de continuação: "ou R$ ... no Pix")
-    preco_55 = False            # o bloco da 55C6K (ou o começo da mensagem) já tem preço
+    preco_alvo = False          # o bloco do modelo procurado (ou o começo da mensagem) já tem preço
     out = []
     for linha in linhas:
         n, mapa = _normaliza_com_mapa(linha)
-        mencoes = _mencoes(n)
+        mencoes = _mencoes(n, med)
         continuacao = bool(_RE_CONTINUACAO.search(n))
         disponibilidade = bool(_RE_DISPONIBILIDADE.search(n))
-        disp_na_linha_55 = any(m[2] == "55" for m in mencoes) and disponibilidade
-        if disp_na_linha_55:
-            # "Smart TV TCL 55C6K (também em 65\" e 75\")": os outros tamanhos na linha da 55C6K não são cabeçalho
+        disp_na_linha_alvo = any(m[2] == _ALVO for m in mencoes) and disponibilidade
+        if disp_na_linha_alvo:
+            # "Smart TV TCL 55C6K (também em 65\" e 75\")": os outros tamanhos na linha da TV não são cabeçalho
             mencoes = [(a, b, "comparacao" if d == "outro" and e == "tamanho" else d, e) for a, b, d, e in mencoes]
         if _RE_BRINDE.search(n):
             # "Monitor LG 27\" de brinde": o brinde é um aparte da oferta, não outro produto à venda
@@ -492,17 +633,17 @@ def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
             outro_item = bool(_RE_OUTRO_ITEM.search(n)) and not _RE_BRINDE.search(n)
             if outro_item and _tem_preco(linha):
                 pedacos, proximo = [("fora", linha)], "fora"     # "💻 Notebook Acer Aspire 5 — R$ 2.499"
-            elif outro_item and not (dono_atual == "55" and not preco_55):
+            elif outro_item and not (dono_atual == _ALVO and not preco_alvo):
                 # "📱 Galaxy S24 FE" sem preço: cabeçalho de outro produto (preço antes do nome: "💰 R$ 2.599" /
-                # "📱 Galaxy S24 FE"; ou o preço nas linhas de baixo). Entre o título da 55C6K e o preço dela continua
-                # sendo linha da 55C6K, como na main
+                # "📱 Galaxy S24 FE"; ou o preço nas linhas de baixo). Entre o título da TV e o preço dela continua
+                # sendo linha da TV, como na main
                 dono_atual = "outro"
                 pedacos = [("outro", linha)]
                 cabecalho = True
             else:
                 dest = dest_anterior if continuacao else (dono_atual or "antes")
                 pedacos = [(dest, linha)]
-        elif not any(m[2] == "55" for m in mencoes):
+        elif not any(m[2] == _ALVO for m in mencoes):
             if not cabecalhos:
                 # comparação ("R$ 700 mais barata que a 65C6K"): a linha sai, o bloco continua (inclusive na
                 # linha de continuação seguinte)
@@ -510,9 +651,10 @@ def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
             elif disponibilidade and all(m[3] == "tamanho" for m in cabecalhos):
                 if _tem_preco(linha):
                     pedacos = [("fora", linha)]          # "Também em 65\" por R$ 4.999": só ela sai
-                elif (not preco_55 and dono_atual in (None, "55")
-                      and all(t > 55 for t in _tamanhos(n, cabecalhos))):
-                    # "Também disponível em 65\" e 75\"" antes do preço: aparte, o bloco continua
+                elif (not preco_alvo and dono_atual in (None, _ALVO)
+                      and all(t > med.pol for t in _tamanhos(n, cabecalhos))):
+                    # "Também disponível em 65\" e 75\"" antes do preço: aparte, o bloco continua (o preço de uma TV
+                    # maior nunca daria 🎯 falso)
                     pedacos, proximo = [("fora", linha)], (dono_atual or "antes")
                 else:
                     dono_atual = "disp"                  # "Também tem a de 43": encerra o bloco
@@ -522,9 +664,9 @@ def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
                 pedacos = [("outro", linha)]
                 cabecalho = True
         else:
-            # linha com a 55C6K: corta nas menções de outro produto (o que vem antes fica com a 55C6K)
+            # linha com a TV procurada: corta nas menções de outro produto (o que vem antes fica com ela)
             pos = 0
-            dono = next((m[2] for m in cabecalhos), "55")
+            dono = next((m[2] for m in cabecalhos), _ALVO)
             fim_ant = 0
             for a, b, d, _ in mencoes:
                 novo = "fora" if d == "comparacao" else d
@@ -540,17 +682,17 @@ def _segmenta_linhas(linhas: list[str]) -> list[_Linha]:
             if pedacos[-1][0] == "fora":
                 # a continuação de "... | também em 43\" por R$ 1.999" é do outro tamanho; a de uma comparação, não
                 com_preco = _tem_preco(pedacos[-1][1])
-                proximo = "fora" if disp_na_linha_55 and com_preco else dono_atual
+                proximo = "fora" if disp_na_linha_alvo and com_preco else dono_atual
         dest_anterior = proximo or pedacos[-1][0]
-        if any(d in ("55", "antes") and _tem_preco(t) for d, t in pedacos):
-            preco_55 = True
+        if any(d in (_ALVO, "antes") and _tem_preco(t) for d, t in pedacos):
+            preco_alvo = True
         out.append(_Linha(pedacos, cabecalho, continuacao))
     return out
 
 
-def _segmenta(linhas: list[str]) -> list[list[tuple[str, str]]]:
+def _segmenta(linhas: list[str], med: _Medida = _M55) -> list[list[tuple[str, str]]]:
     """Os pedaços (dono, texto original) de cada linha, na leitura de cima para baixo (ver _segmenta_linhas)."""
-    return [l.pedacos for l in _segmenta_linhas(linhas)]
+    return [l.pedacos for l in _segmenta_linhas(linhas, med)]
 
 
 def _texto_do_bloco(linha: _Linha) -> str:
@@ -588,7 +730,7 @@ def _le_de_baixo(ls: list[_Linha]) -> Optional[list[list[tuple[str, str]]]]:
         return None  # preço solto depois do último cabeçalho ou entre um cabeçalho e a sequência seguinte
     novo = [list(l.pedacos) for l in ls]
     for c, r in corridas.items():
-        dono = next((d for d, _ in ls[c].pedacos if d in ("55", "outro")), None)
+        dono = next((d for d, _ in ls[c].pedacos if d in (_ALVO, "outro")), None)
         if dono is None:
             return None
         for j in r:
@@ -596,30 +738,92 @@ def _le_de_baixo(ls: list[_Linha]) -> Optional[list[list[tuple[str, str]]]]:
     return novo
 
 
-def _titulo(linhas: list[str], segs: list[list[tuple[str, str]]]) -> Optional[str]:
-    """Linha-título da 55C6K (original), ou None se nenhuma linha da mensagem é a 55C6K."""
+def _titulo(linhas: list[str], segs: list[list[tuple[str, str]]], med: _Medida = _M55) -> Optional[str]:
+    """Linha-título do modelo procurado (original), ou None se nenhuma linha da mensagem é dele."""
     norm = [normaliza(l) for l in linhas]
     for i, n in enumerate(norm):
         if not _RE_C6K.search(n):
             continue
-        parte = normaliza(" ".join(t for d, t in segs[i] if d in ("55", "antes")))
+        parte = normaliza(" ".join(t for d, t in segs[i] if d in (_ALVO, "antes")))
         if not _RE_C6K.search(parte):
             continue
         # ficha técnica: "Tela: 55\" | Modelo: 55C6K", "Tela de 55\" (modelo 55C6K)" (não a tela de reposição)
-        if _RE_LINHA_FICHA.search(n) and _RE_55C6K.search(n) and not _RE_PECA_AVULSA.search(n) and (
+        if med.re_linha_ficha.search(n) and med.re_modelo_titulo.search(n) and not _RE_PECA_AVULSA.search(n) and (
                 "modelo" in n or (i > 0 and _RE_NOME_TV.search(norm[i - 1]))):
             return f"{linhas[i - 1]} {linhas[i]}" if i > 0 and not _RE_C6K.search(norm[i - 1]) else linhas[i]
-        motivo = _motivo(parte)
+        motivo = med.motivo(parte)
         if motivo == "":
             return linhas[i]
-        if motivo == "sem 55":
-            # "Modelo C6K": o tamanho está numa linha da própria 55C6K ('Smart TV TCL 55"', 'Tela de 55"')
-            com_55 = [j for j, sj in enumerate(segs) if any(d in ("55", "antes") for d, _ in sj)
-                      and _RE_M55_TAMANHO.search(normaliza(" ".join(t for d, t in sj if d in ("55", "antes"))))]
-            if com_55:
-                j = min(com_55, key=lambda k: abs(k - i))
+        if motivo == f"sem {med.pol}":
+            # "Modelo C6K": o tamanho está numa linha da própria TV ('Smart TV TCL 55"', 'Tela de 55"')
+            com_tam = [j for j, sj in enumerate(segs) if any(d in (_ALVO, "antes") for d, _ in sj)
+                       and med.re_tamanho.search(normaliza(" ".join(t for d, t in sj if d in (_ALVO, "antes"))))]
+            if com_tam:
+                j = min(com_tam, key=lambda k: abs(k - i))
                 return " ".join(linhas[k] for k in sorted({i, j}))
     return None
+
+
+# Pedaço de título que o negrito do canal jogou numa linha própria: o tamanho ("65"), a unidade ('"', "pol",
+# "polegadas"). Volta para o fim da linha de cima: 'Smart Tv TCL' / '65' / '"' / 'C6K' vira 'Smart Tv TCL 65 "' / 'C6K'
+# (26/09: grafias da 65C6K no vrlofertas e no ofertasmundoconectado)
+_RE_FRAGMENTO = re.compile(r"^(?:\d{2,3}|[\"”″'’]{1,2}|pol(?:egadas?|\.)?)$", re.I)
+
+
+def _junta_fragmentos(linhas: list[str]) -> list[str]:
+    out: list[str] = []
+    for linha in linhas:
+        frag = _RE_FRAGMENTO.match(linha)
+        if out and frag and (not linha[0].isdigit() or linha in _TODOS_TAMANHOS):
+            out[-1] = f"{out[-1]} {linha}"
+        else:
+            out.append(linha)
+    return out
+
+
+def _extrai(texto: str, med: _Medida) -> Optional[tuple[str, str, str]]:
+    """(título, trecho, preâmbulo) do modelo de `med` numa mensagem livre (ver extrai_55c6k)."""
+    linhas = _junta_fragmentos([l.strip() for l in (texto or "").splitlines() if l.strip()])
+    if not linhas:
+        return None
+    tudo = " ".join(normaliza(l) for l in linhas)
+    if any(n in tudo for n in _NEGATIVOS_TEXTO_LIVRE):
+        return None
+    if any(_RE_ESTADO_TEXTO_LIVRE.search(normaliza(l)) for l in linhas):
+        return None  # tela trincada, para conserto, caixa aberta... (linha a linha)
+    ls = _segmenta_linhas(linhas, med)
+    segs = [l.pedacos for l in ls]
+    if any(d == "outro" for sj in segs for d, _ in sj):
+        relido = _le_de_baixo(ls)
+        if relido is not None:
+            segs = relido
+        elif (any(all(d == "antes" for d, _ in l.pedacos) and _tem_preco(_texto_do_bloco(l)) for l in ls)
+              and not all(_tem_preco(_texto_do_bloco(l)) for l in ls if l.cabecalho)):
+            # preço antes do 1º produto, mas a leitura de baixo para cima não fecha e os produtos não trazem o
+            # preço na própria linha: não dá para saber de quem é cada preço ("R$ 3.599" / 55C6K / "ou R$ 3.799"
+            # / "R$ 1.799" / 43S5K / "ou R$ 1.899" daria o 1.799 da 43S5K)
+            return None
+    titulo = _titulo(linhas, segs, med)
+    if not titulo:
+        return None
+    donos_vistos = {d for sj in segs for d, _ in sj}
+    # as linhas antes do 1º cabeçalho só são da TV procurada se a mensagem não tem outro produto
+    donos = (_ALVO,) if "outro" in donos_vistos else (_ALVO, "antes")
+    trecho, preambulo = [], []
+    for sj in segs:
+        partes = [t.strip() for d, t in sj if d in donos and t.strip()]
+        if partes:
+            trecho.append(" ".join(partes))
+        if "antes" not in donos:
+            partes = [t.strip() for d, t in sj if d == "antes" and t.strip()]
+            if partes:
+                preambulo.append(" ".join(partes))
+    trecho = "\n".join(trecho)
+    if donos_vistos & {"outro", "disp"} and not _tem_preco(trecho):
+        return None  # o preço da TV pode estar no bloco de outro produto: sem preço, nada de alerta
+    if so_preco_abaixo_do_piso(trecho, PISO_PRECO_TV):
+        return None  # "Tela de 55\" (modelo 55C6K) R$ 1.499": não é a TV
+    return titulo, trecho, "\n".join(preambulo)
 
 
 def extrai_55c6k(texto: str) -> Optional[tuple[str, str, str]]:
@@ -633,47 +837,29 @@ def extrai_55c6k(texto: str) -> Optional[tuple[str, str, str]]:
     preâmbulo: numa mensagem com outro produto, as linhas antes do 1º cabeçalho (fora do trecho); só o código de
     cupom delas vale, e só quando o trecho não tem um.
     """
-    linhas = [l.strip() for l in (texto or "").splitlines() if l.strip()]
-    if not linhas:
-        return None
-    tudo = " ".join(normaliza(l) for l in linhas)
-    if any(n in tudo for n in _NEGATIVOS_TEXTO_LIVRE):
-        return None
-    if any(_RE_ESTADO_TEXTO_LIVRE.search(normaliza(l)) for l in linhas):
-        return None  # tela trincada, para conserto, caixa aberta... (linha a linha)
-    ls = _segmenta_linhas(linhas)
-    segs = [l.pedacos for l in ls]
-    if any(d == "outro" for sj in segs for d, _ in sj):
-        relido = _le_de_baixo(ls)
-        if relido is not None:
-            segs = relido
-        elif (any(all(d == "antes" for d, _ in l.pedacos) and _tem_preco(_texto_do_bloco(l)) for l in ls)
-              and not all(_tem_preco(_texto_do_bloco(l)) for l in ls if l.cabecalho)):
-            # preço antes do 1º produto, mas a leitura de baixo para cima não fecha e os produtos não trazem o
-            # preço na própria linha: não dá para saber de quem é cada preço ("R$ 3.599" / 55C6K / "ou R$ 3.799"
-            # / "R$ 1.799" / 43S5K / "ou R$ 1.899" daria o 1.799 da 43S5K)
-            return None
-    titulo = _titulo(linhas, segs)
-    if not titulo:
-        return None
-    donos_vistos = {d for sj in segs for d, _ in sj}
-    # as linhas antes do 1º cabeçalho só são da 55C6K se a mensagem não tem outro produto
-    donos = ("55",) if "outro" in donos_vistos else ("55", "antes")
-    trecho, preambulo = [], []
-    for sj in segs:
-        partes = [t.strip() for d, t in sj if d in donos and t.strip()]
-        if partes:
-            trecho.append(" ".join(partes))
-        if "antes" not in donos:
-            partes = [t.strip() for d, t in sj if d == "antes" and t.strip()]
-            if partes:
-                preambulo.append(" ".join(partes))
-    trecho = "\n".join(trecho)
-    if donos_vistos & {"outro", "disp"} and not _tem_preco(trecho):
-        return None  # o preço da 55C6K pode estar no bloco de outro produto: sem preço, nada de alerta
-    if so_preco_abaixo_do_piso(trecho, PISO_PRECO_TV):
-        return None  # "Tela de 55\" (modelo 55C6K) R$ 1.499": não é a TV
-    return titulo, trecho, "\n".join(preambulo)
+    return _extrai(texto, _M55)
+
+
+def extrai_65c6k(texto: str) -> Optional[tuple[str, str, str]]:
+    """(título, trecho, preâmbulo) da 65C6K numa mensagem livre (a mesma leitura da 55C6K; nela a 55C6K é outro
+    produto e o par "55C6K/65C6K" fica com a 55C6K)."""
+    return _extrai(texto, _M65)
+
+
+def extrai_modelo(texto: str, modelo: str) -> Optional[tuple[str, str, str]]:
+    med = _MEDIDAS.get(modelo)
+    return _extrai(texto, med) if med else None
+
+
+def extrai_modelos(texto: str) -> dict[str, tuple[str, str, str]]:
+    """{modelo: (título, trecho, preâmbulo)} de cada TV monitorada numa mensagem livre. Uma postagem com as duas
+    (lista "55\" R$ X / 65\" R$ Y") dá dois blocos, cada preço com a sua medida."""
+    out = {}
+    for modelo, med in _MEDIDAS.items():
+        achado = _extrai(texto, med)
+        if achado:
+            out[modelo] = achado
+    return out
 
 
 def bloco_55c6k(texto: str) -> Optional[tuple[str, str]]:
