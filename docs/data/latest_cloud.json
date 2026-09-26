@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-26T14:08:25-03:00",
+ "atualizado": "2026-09-26T16:18:19-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "minimo": {
@@ -31,30 +31,6 @@
    },
    "chave": "zoom:1489104908",
    "melhor_preco": 3279.0
-  },
-  {
-   "fonte": "vtex",
-   "tipo": "loja",
-   "loja": "Loja TCL",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.lojatcl.com.br/smart-tv-tcl-55-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-55c6k/p",
-   "id": "Loja TCL-32054-1",
-   "preco": 3719.0,
-   "preco_pix": 3421.48,
-   "parcelado": "10x R$ 371,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCL - Brasil",
-   "extra": {
-    "preco_de": 3999.0,
-    "ref": "32054",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "chave": "vtex:Loja TCL-32054-1",
-   "melhor_preco": 3421.48
   },
   {
    "fonte": "zoom",
@@ -141,6 +117,8 @@
     "anuncio": "kc7h6f4k4b",
     "vendedor_id": "lojascolombooficial",
     "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
      "tamanho": "55\"",
      "avaliacoes": 3660,
      "peso_kg": 17.2,
@@ -149,7 +127,7 @@
      "vendas_vendedor": 60000,
      "nota_vendedor": 5
     },
-    "anuncio_exclusivo": false,
+    "anuncio_exclusivo": true,
     "confianca": {
      "veredito": "confiavel"
     }
@@ -261,7 +239,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-26T14:08:25-03:00",
+   "ultima_vez": "2026-09-26T16:18:19-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55
   },
@@ -576,7 +554,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-26T14:08:25-03:00",
+   "ultima_vez": "2026-09-26T16:18:19-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -602,7 +580,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-26T14:08:25-03:00",
+   "ultima_vez": "2026-09-26T16:18:19-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14
   },
@@ -628,7 +606,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-26T14:08:25-03:00",
+   "ultima_vez": "2026-09-26T16:18:19-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08
   },
@@ -654,7 +632,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-26T14:08:25-03:00",
+   "ultima_vez": "2026-09-26T16:18:19-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0
   },
@@ -1349,42 +1327,29 @@
   },
   {
    "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "MELICOMPRAAI",
-   "titulo": "VEM PRA FESTA: 22% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69837",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-31T23:59:59-03:00",
-   "publicado": "2026-09-23T09:11:16-03:00",
+   "loja": "KaBuM!",
+   "codigo": "AMDSUPER",
+   "titulo": "O cupom KaBum! oferece 10% de desconto em suas compras",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "69994",
+   "regra": "produtos KaBuM! CONSULTE O LINK PARA CONFERIR QUAIS PRODUTOS FAZEM PARTE DA OFERTA",
+   "validade": "2026-10-02T20:59:59-03:00",
+   "publicado": "2026-09-26T15:31:24-03:00",
    "especifico": false,
-   "chave": "promobit:69837"
+   "chave": "promobit:69994"
   },
   {
    "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "MELINOVALE",
-   "titulo": "AQUI TEM SURPRESA: 18% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69836",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 18% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-31T23:59:59-03:00",
-   "publicado": "2026-09-23T09:11:14-03:00",
+   "loja": "KaBuM!",
+   "codigo": "MARATHON",
+   "titulo": "Cupom KaBum! de hoje oferece 35% de desconto",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "69986",
+   "regra": "produtos KaBuM! DISPONÍVEL EXCLUSIVAMENTE PARA OS PRODUTOS LISTADOS NO LINK",
+   "validade": "2026-09-29T20:59:59-03:00",
+   "publicado": "2026-09-26T15:30:52-03:00",
    "especifico": false,
-   "chave": "promobit:69836"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "SONOML",
-   "titulo": "CONEXÃO: 10% OFF em Eletronicos no Mercado Livre (acima de R$149) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69835",
-   "regra": "produtos Mercado Livre",
-   "validade": null,
-   "publicado": "2026-09-23T09:11:10-03:00",
-   "especifico": false,
-   "chave": "promobit:69835"
+   "chave": "promobit:69986"
   },
   {
    "fonte": "promobit",
@@ -1480,6 +1445,19 @@
   {
    "fonte": "promobit",
    "loja": "Fast Shop",
+   "codigo": "WEST5",
+   "titulo": "Economize 5% em suas compras com o desconto Fast Shop",
+   "url": "https://www.promobit.com.br/cupons/loja/fastshop/",
+   "id": "69995",
+   "regra": "produtos Fast Shop TECNOLOGIA COM DESCONTO ESPECIAL, APROVEITE ANTES QUE ACABE",
+   "validade": "2026-09-30T20:59:59-03:00",
+   "publicado": "2026-09-26T15:32:24-03:00",
+   "especifico": false,
+   "chave": "promobit:69995"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Fast Shop",
    "codigo": "Grow7",
    "titulo": "7% de Desconto em itens Grow",
    "url": "https://www.promobit.com.br/cupons/loja/fastshop/",
@@ -1533,52 +1511,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:07:41-03:00",
+   "ultimo_ok": "2026-09-26T16:17:33-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:07:43-03:00",
+   "ultimo_ok": "2026-09-26T16:17:34-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:07:47-03:00",
+   "ultimo_ok": "2026-09-26T16:17:38-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:07:49-03:00",
+   "ultimo_ok": "2026-09-26T16:17:39-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:14-03:00",
+   "ultimo_ok": "2026-09-26T16:18:07-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:15-03:00",
+   "ultimo_ok": "2026-09-26T16:18:08-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:16-03:00",
+   "ultimo_ok": "2026-09-26T16:18:09-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:17-03:00",
+   "ultimo_ok": "2026-09-26T16:18:10-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:18-03:00",
+   "ultimo_ok": "2026-09-26T16:18:11-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T14:08:24-03:00",
+   "ultimo_ok": "2026-09-26T16:18:17-03:00",
    "ultimo_erro": null
   }
  },
