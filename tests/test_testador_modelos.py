@@ -807,7 +807,13 @@ def test_msg_por_modelo_com_alvo_de_cada_um():
 
 
 def test_alvos_por_modelo(monkeypatch):
-    assert tc.alvos_do_modelo("55C6K") == (config.ALVO_PIX, config.ALVO_PARCELADO)
+    # os mesmos alvos da coleta e do painel (config.alvo_pix/alvo_parcelado por modelo)
+    for k, v in (("ALVO_PIX", 2900.0), ("ALVO_PARCELADO", 3000.0), ("ALVO_PIX_65", 3300.0),
+                 ("ALVO_PARCELADO_65", 3500.0)):
+        monkeypatch.setattr(config, k, v)
+    assert tc.alvos_do_modelo("55C6K") == (2900.0, 3000.0)
     assert tc.alvos_do_modelo("65C6K") == (3300.0, 3500.0)
-    monkeypatch.setattr(config, "ALVOS_POR_MODELO", {"65C6K": {"pix": 3200, "parcelado": 3400}}, raising=False)
+    monkeypatch.setattr(config, "ALVO_PIX_65", 3200.0)
+    monkeypatch.setattr(config, "ALVO_PARCELADO_65", 3400.0)
     assert tc.alvos_do_modelo("65C6K") == (3200.0, 3400.0)
+    assert tc.alvos_do_modelo("55C6K") == (2900.0, 3000.0)

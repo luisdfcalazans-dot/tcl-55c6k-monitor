@@ -218,6 +218,8 @@ class Anuncio:
     # "catalogo_logado" (opção do catálogo do ML vista pela página logada, F5)
     origem: str = "coleta"
     modelo: str = MODELO_PADRAO         # 55C6K ou 65C6K (campo 'modelo' da coleta; sem ele, 55C6K)
+    # cupom da página do próprio anúncio (campo 'cupom' da oferta, ex. LU300 no Magalu 1P): testado primeiro nele
+    cupom: Optional[str] = None
     # reconhece as chaves antigas do estado (fim da URL) que são deste anúncio
     antiga: Optional[Callable[[str, dict], bool]] = field(default=None, repr=False, compare=False)
 
@@ -292,7 +294,8 @@ def anuncio_da_oferta(loja: LojaCarrinho, o: dict) -> Optional[Anuncio]:
     a = Anuncio(chave=ident["chave"], url=url, vendedor=(o.get("vendedor") or "").strip(), preco=min(precos),
                 preco_cartao=float(cartao) if isinstance(cartao, (int, float)) and cartao > 0 else None,
                 vendedor_id=ident.get("vendedor_id"), item_id=ident.get("item_id"), produto=ident.get("produto"),
-                catalogo=ident.get("catalogo") or "", modelo=modelo)
+                catalogo=ident.get("catalogo") or "", modelo=modelo,
+                cupom=str(o["cupom"]).strip().upper() if o.get("cupom") else None)
     alvo = a.alvo()
     a.antiga = lambda sufixo, reg: loja.eh_chave_antiga(sufixo, reg, alvo)
     return a
@@ -466,15 +469,18 @@ def registro_do_cupom(testados: dict, codigo: str, anuncio) -> Optional[dict]:
 def ordenar_fila(fila: list[str], testados: dict, chave_anuncio: str, anuncio: Optional[Anuncio] = None) -> list[str]:
     """Ordem de teste quando não dá para testar tudo numa rodada.
 
-    1) cupom de horário (…14H): a janela dele é agora ou nunca;  2) nunca testado;
-    3) 'erro' do robô;  4) recusa antiga que venceu o prazo.
+    1) cupom de horário (…14H): a janela dele é agora ou nunca;  2) nunca testado, e entre eles primeiro o cupom da
+    página do próprio anúncio (26/09: o LU300 do Magalu 1P da 65C6K ficava atrás de 20 códigos genéricos num anúncio
+    novo, com 29 pendentes e ~9 testes por rodada);  3) 'erro' do robô;  4) recusa antiga que venceu o prazo.
     """
-    def peso(c: str) -> int:
+    proprio = getattr(anuncio, "cupom", None)
+
+    def peso(c: str) -> float:
         reg = registro_do_cupom(testados, c, anuncio if anuncio is not None else chave_anuncio)
         if RE_CUPOM_DE_HORARIO.search(c.upper()):
             return 0
         if not reg:
-            return 1
+            return 0.5 if proprio and c.upper() == proprio else 1
         return 2 if status_do_registro(reg) == "erro" else 3
 
     return sorted(fila, key=peso)
@@ -547,26 +553,10 @@ def _quando_foi_aceito(r: ResultadoCupom) -> str:
     return f" (aceito em {q.astimezone(TZ_BR):%d/%m %H:%M})"
 
 
-ALVOS_65C6K = (3300.0, 3500.0)   # decisão do usuário em 26/09: Pix R$ 3.300, parcelado R$ 3.500
-
-
 def alvos_do_modelo(modelo: str) -> tuple[float, float]:
-    """(alvo Pix, alvo parcelado) do modelo. 55C6K: config.ALVO_PIX / ALVO_PARCELADO (como sempre). 65C6K: os alvos
-    por modelo da config (ALVOS_POR_MODELO ou ALVOS: {modelo: {"pix", "parcelado"} ou (pix, parcelado)}) quando ela
-    os tiver; senão R$ 3.300 / R$ 3.500."""
-    if modelo == MODELO_PADRAO:
-        return float(config.ALVO_PIX), float(config.ALVO_PARCELADO)
-    for nome in ("ALVOS_POR_MODELO", "ALVOS"):
-        tabela = getattr(config, nome, None)
-        v = tabela.get(modelo) if isinstance(tabela, dict) else None
-        try:
-            if isinstance(v, dict):
-                return float(v["pix"]), float(v["parcelado"])
-            if isinstance(v, (list, tuple)) and len(v) >= 2:
-                return float(v[0]), float(v[1])
-        except (KeyError, TypeError, ValueError):
-            pass
-    return ALVOS_65C6K if modelo == "65C6K" else (float(config.ALVO_PIX), float(config.ALVO_PARCELADO))
+    """(alvo Pix, alvo parcelado) do modelo, os mesmos da coleta e do painel: 55C6K config.ALVO_PIX / ALVO_PARCELADO
+    (R$ 2.900 / R$ 3.000); 65C6K config.ALVO_PIX_65 / ALVO_PARCELADO_65 (R$ 3.300 / R$ 3.500, decisão de 26/09)."""
+    return float(config.alvo_pix(modelo)), float(config.alvo_parcelado(modelo))
 
 
 def _modelo_do_resultado(r: ResultadoCupom) -> str:

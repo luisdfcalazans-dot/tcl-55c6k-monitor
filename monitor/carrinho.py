@@ -29,22 +29,24 @@ from pathlib import Path
 from typing import Optional
 
 from . import config
-from . import filtro
-from .filtro import eh_55c6k
+from .filtro import eh_55c6k, eh_65c6k
+from .models import MODELO_55, MODELO_65, MODELOS, MODELO_PADRAO  # noqa: F401 (MODELOS/MODELO_PADRAO: testar_cupons)
 from .util import fmt_preco, next_data, parse_preco, sem_acentos
 
 PERFIS = config.RAIZ / ".pw-profile-carrinho"
 
 # ----------------------------------------------------------------------------------------------
-# modelos (26/09): 55C6K e 65C6K
+# modelos (26/09): 55C6K e 65C6K. Nomes em monitor/models.py; registro sem o campo 'modelo' (gravado antes de
+# 26/09) é da 55C6K (MODELO_PADRAO).
 # ----------------------------------------------------------------------------------------------
 
-MODELOS = ("55C6K", "65C6K")
-MODELO_PADRAO = "55C6K"          # registro sem o campo 'modelo' (gravado antes de 26/09) é da 55C6K
-# catálogo do Mercado Livre de cada modelo (o da 65" saiu do levantamento de 26/09)
-CATALOGOS_ML = {"55C6K": config.ML_CATALOGO_ID, "65C6K": "MLB50368907"}
-_RE_TAMANHO = {"55C6K": re.compile(r"(?<!\d)55(?!\d)"), "65C6K": re.compile(r"(?<!\d)65(?!\d)")}
-_RE_55_OU_65 = re.compile(r"(?<!\d)([56])5(?!\d)")
+# catálogo do Mercado Livre de cada modelo (o mesmo da coleta: config.ML_CATALOGOS)
+CATALOGOS_ML = dict(config.ML_CATALOGOS)
+_RE_TAMANHO = {MODELO_55: re.compile(r"(?<!\d)55(?!\d)"), MODELO_65: re.compile(r"(?<!\d)65(?!\d)")}
+# os dois códigos no mesmo texto ("55C6K/65C6K", "55C6K ou 65C6K"): a coleta dá o par à 55C6K (o preço da postagem é
+# o "a partir de"), mas no carrinho um texto que serve para os dois tamanhos não é nenhum deles
+_RE_CODIGO = {MODELO_55: re.compile(r"(?<!\d)55\s*c6k(?![a-z0-9])", re.I),
+              MODELO_65: re.compile(r"(?<!\d)65\s*c6k(?![a-z0-9])", re.I)}
 
 
 def modelo_da_oferta(o) -> str:
@@ -53,25 +55,13 @@ def modelo_da_oferta(o) -> str:
     return str(m or MODELO_PADRAO).strip().upper()
 
 
-def _troca_55_65(texto: str) -> str:
-    return _RE_55_OU_65.sub(lambda m: "65" if m.group(1) == "5" else "55", texto or "")
-
-
-def eh_65c6k(texto: str) -> bool:
-    """O texto é a TCL 65C6K (65")? Usa o filtro da coleta quando ele tem a função; senão, o filtro da 55C6K com
-    55 e 65 trocados (as mesmas travas: acessório, combo, estado, vizinhos C7K/P7L/QM8K, C6KS, vários tamanhos)."""
-    f = getattr(filtro, "eh_65c6k", None)
-    if callable(f):
-        return bool(f(texto))
-    return eh_55c6k(_troca_55_65(texto))
-
-
 def eh_do_modelo(texto: str, modelo: str) -> bool:
-    """O título é a TV C6K deste modelo, com o tamanho escrito (55 ou 65)."""
+    """O título é a TV C6K deste modelo, com o tamanho escrito (55 ou 65). Filtros da coleta (monitor/filtro.py):
+    acessório, combo, estado, vizinhos (65C7K, 65P7L, 65QM8K, C6KS...) e vários tamanhos ficam de fora."""
     t = texto or ""
-    if modelo == "55C6K":
+    if modelo == MODELO_55:
         ok = eh_55c6k(t)
-    elif modelo == "65C6K":
+    elif modelo == MODELO_65:
         ok = eh_65c6k(t)
     else:
         return False
@@ -80,7 +70,10 @@ def eh_do_modelo(texto: str, modelo: str) -> bool:
 
 def modelo_do_titulo(texto: str) -> Optional[str]:
     """55C6K, 65C6K ou None (outro produto, ou texto que serve para os dois tamanhos: na dúvida, nenhum)."""
-    achados = [m for m in MODELOS if eh_do_modelo(texto, m)]
+    t = texto or ""
+    if all(r.search(t) for r in _RE_CODIGO.values()):
+        return None
+    achados = [m for m in MODELOS if eh_do_modelo(t, m)]
     return achados[0] if len(achados) == 1 else None
 
 # mensagens que são do robô (campo não achado, exceção, total ilegível), não resposta da loja
@@ -200,7 +193,12 @@ _MAGALU_1P = {"magalu", "magazineluiza"}
 
 
 def norm_vendedor(s) -> str:
-    return re.sub(r"[^a-z0-9]", "", sem_acentos(str(s or "")).lower())
+    """Nome/id do vendedor comparável, sem o ruído que a Amazon cola no nome ("Amazon.com.br Política de devolução",
+    "Vendido por Amazon.com.br"): o 1P da Amazon (A1ZZFT5FULY4LN, 26/09) tem esse nome na coleta e "Amazon.com.br"
+    na página do anúncio."""
+    t = sem_acentos(str(s or "")).lower()
+    t = re.sub(r"politica de devolucao|^\s*(?:enviado e )?vendido por\s+", "", t)
+    return re.sub(r"[^a-z0-9]", "", t)
 
 
 def mesmo_vendedor(a_id, a_nome, b_id, b_nome) -> Optional[bool]:
