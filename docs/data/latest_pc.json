@@ -1,8 +1,18 @@
 {
  "modo": "pc",
- "atualizado": "2026-09-26T16:53:04-03:00",
+ "atualizado": "2026-09-26T17:15:44-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
+ "alvos": {
+  "55C6K": {
+   "pix": 2900.0,
+   "parcelado": 3000.0
+  },
+  "65C6K": {
+   "pix": 3300.0,
+   "parcelado": 3500.0
+  }
+ },
  "minimo": {
   "preco": 3191.05,
   "loja": "Amazon",
@@ -10,37 +20,18 @@
   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A3POF6EIWE8R8",
   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K"
  },
+ "minimo_65C6K": {
+  "preco": 4151.51,
+  "loja": "Mercado Livre",
+  "quando": "2026-09-26T17:15:44-03:00",
+  "url": "https://www.mercadolivre.com.br/p/MLB50368907?pdp_filters=item_id%3AMLB5446673958",
+  "titulo": "Smart Tv Tcl 65 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 65c6k",
+  "vendedor": "Mercado Livre",
+  "vendedor_id": "480263032",
+  "chave": "mercadolivre:MLB5446673958",
+  "modelo": "65C6K"
+ },
  "ofertas_loja": [
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF",
-   "id": "B0F7JZMVKF-amazoncombrpolticadedevoluo",
-   "preco": null,
-   "preco_pix": 3491.03,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Amazon.com.br Política de devolução",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": null,
-    "destaque": true,
-    "ficha": {
-     "enviado_por": "Amazon.com.br",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "chave": "amazon:B0F7JZMVKF-amazoncombrpolticadedevoluo",
-   "melhor_preco": 3491.03
-  },
   {
    "fonte": "amazon",
    "tipo": "loja",
@@ -54,17 +45,22 @@
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": null,
+   "vendedor": "Amazon.com.br",
    "extra": {
     "anuncio": "B0F7JZMVKF",
     "asin": "B0F7JZMVKF",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "disponibilidade": "em estoque",
     "destaque": true,
+    "ficha": {
+     "enviado_por": "Amazon.com.br",
+     "full": true
+    },
     "confianca": {
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-A1ZZFT5FULY4LN",
    "melhor_preco": 3491.03
   },
@@ -94,6 +90,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "mercadolivre:MLB5417889802",
    "melhor_preco": 3491.03
   },
@@ -126,6 +123,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-A3R1Z59ZORN2J9",
    "melhor_preco": 3533.05
   },
@@ -165,6 +163,7 @@
      "codigos": []
     }
    },
+   "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-A3POF6EIWE8R8",
    "melhor_preco": 3571.05
   },
@@ -191,6 +190,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "mercadolivre:oogle-tv-127220v-55c6k/up/MLBU3165217359",
    "melhor_preco": 3599.0
   },
@@ -216,6 +216,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "casasbahia:55069456-10037",
    "melhor_preco": 3599.08
   },
@@ -248,6 +249,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
    "melhor_preco": 3699.34
   },
@@ -282,6 +284,7 @@
      "codigos": []
     }
    },
+   "modelo": "55C6K",
    "chave": "mercadolivre:MLB6713012362",
    "melhor_preco": 3989.0
   },
@@ -308,6 +311,7 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "mercadolivre:k-wifi-bluetooth-55c6k/up/MLBU3921703471",
    "melhor_preco": 3989.0
   },
@@ -335,8 +339,39 @@
      "codigos": []
     }
    },
+   "modelo": "55C6K",
    "chave": "aliexpress:1005009459962683",
    "melhor_preco": 3999.0
+  },
+  {
+   "fonte": "mercadolivre",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Smart Tv Tcl 65 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 65c6k",
+   "url": "https://www.mercadolivre.com.br/p/MLB50368907?pdp_filters=item_id%3AMLB5446673958",
+   "id": "MLB5446673958",
+   "preco": 4151.51,
+   "preco_pix": null,
+   "parcelado": "10x R$ 446,40 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Mercado Livre",
+   "extra": {
+    "opcao_ml": "BEST_PRICE",
+    "anuncio": "MLB5446673958",
+    "item_id": "MLB5446673958",
+    "catalogo": "MLB50368907",
+    "opcoes_no_catalogo": 9,
+    "vendedor_id": "480263032",
+    "vendas_vendedor": 1000000,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "mercadolivre:MLB5446673958",
+   "melhor_preco": 4151.51
   },
   {
    "fonte": "amazon",
@@ -367,8 +402,190 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-A30OZFNW1RCCSM",
    "melhor_preco": 4208.14
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A1ZZFT5FULY4LN",
+   "id": "B0F7K7B2PD-A1ZZFT5FULY4LN",
+   "preco": 4624.22,
+   "preco_pix": 4219.07,
+   "parcelado": "12x R$ 385,37 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Amazon.com.br",
+   "extra": {
+    "anuncio": "B0F7K7B2PD",
+    "asin": "B0F7K7B2PD",
+    "vendedor_id": "A1ZZFT5FULY4LN",
+    "disponibilidade": "em estoque",
+    "destaque": true,
+    "ficha": {
+     "enviado_por": "Amazon.com.br",
+     "full": true
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "amazon:B0F7K7B2PD-A1ZZFT5FULY4LN",
+   "melhor_preco": 4219.07
+  },
+  {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV TCL 65 Polegadas 65C6K QD-Mini LED 4K UHD Google TV 144Hz HDR10+",
+   "url": "https://www.casasbahia.com.br/smart-tv-65-tcl-65c6k-4k-qd-mini-led-144hz-com-sistema-operacional-google-tv/p/55069453",
+   "id": "55069453-10037",
+   "preco": 4687.87,
+   "preco_pix": 4219.08,
+   "parcelado": "10x R$ 468,79 sem juros (cartão Casas Bahia)",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Casas Bahia",
+   "extra": {
+    "anuncio": "55069453",
+    "sku": "55069453",
+    "vendedor_id": "10037",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "casasbahia:55069453-10037",
+   "melhor_preco": 4219.08
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=ACUNARZFR75ET",
+   "id": "B0F7K7B2PD-ACUNARZFR75ET",
+   "preco": null,
+   "preco_pix": 4331.09,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu.",
+   "extra": {
+    "anuncio": "B0F7K7B2PD",
+    "asin": "B0F7K7B2PD",
+    "vendedor_id": "ACUNARZFR75ET",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 3258,
+     "positivas_pct": 60,
+     "enviado_por": "Magalu.",
+     "full": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "amazon:B0F7K7B2PD-ACUNARZFR75ET",
+   "melhor_preco": 4331.09
+  },
+  {
+   "fonte": "mercadolivre",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Tcl 4k Qd-mini Led Tv 65 C6k Google Tv",
+   "url": "https://www.mercadolivre.com.br/tcl-4k-qdmini-led-tv-65-c6k-google-tv/up/MLBU3187349883",
+   "id": "ed-tv-65-c6k-google-tv/up/MLBU3187349883",
+   "preco": 4463.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 446,40 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Mercado Livre",
+   "extra": {
+    "item_id": null,
+    "anuncio": "ed-tv-65-c6k-google-tv/up/MLBU3187349883",
+    "vendedor_id": null,
+    "vendedor_conferido": false,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "mercadolivre:ed-tv-65-c6k-google-tv/up/MLBU3187349883",
+   "melhor_preco": 4463.0
+  },
+  {
+   "fonte": "aliexpress",
+   "tipo": "loja",
+   "loja": "AliExpress",
+   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB R$ 4.659 R$ 4.899 4.8 2.000+ vendido(s) Top vendas",
+   "url": "https://pt.aliexpress.com/item/1005009036343124.html",
+   "id": "1005009036343124",
+   "preco": 4659.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "aliexpress:1005009036343124",
+   "melhor_preco": 4659.0
+  },
+  {
+   "fonte": "mercadolivre",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Smart Tv Tcl 65 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 65c6k",
+   "url": "https://www.mercadolivre.com.br/p/MLB50368907?pdp_filters=item_id%3AMLB6713050924",
+   "id": "MLB6713050924",
+   "preco": 6499.0,
+   "preco_pix": 4939.0,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "opcao_ml": "OFFICIAL_STORE",
+    "anuncio": "MLB6713050924",
+    "item_id": "MLB6713050924",
+    "catalogo": "MLB50368907",
+    "opcoes_no_catalogo": 9,
+    "vendedor_id": null,
+    "parcelado_descartado": "10x R$ 493,90 sem juros",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "mercadolivre:MLB6713050924",
+   "melhor_preco": 4939.0
   },
   {
    "fonte": "casasbahia",
@@ -392,11 +609,313 @@
      "veredito": "confiavel"
     }
    },
+   "modelo": "55C6K",
    "chave": "casasbahia:1582483296-115221",
    "melhor_preco": 5312.75
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A30OZFNW1RCCSM",
+   "id": "B0F7K7B2PD-A30OZFNW1RCCSM",
+   "preco": 5382.56,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo S/A",
+   "extra": {
+    "anuncio": "B0F7K7B2PD",
+    "asin": "B0F7K7B2PD",
+    "vendedor_id": "A30OZFNW1RCCSM",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 700,
+     "positivas_pct": 70,
+     "enviado_por": "Lojas Colombo S/A",
+     "full": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "amazon:B0F7K7B2PD-A30OZFNW1RCCSM",
+   "melhor_preco": 5382.56
+  },
+  {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.casasbahia.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/1582860724",
+   "id": "1582860724-destaque",
+   "preco": 6795.5,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "1582860724",
+    "sku": "1582860724",
+    "vendedor_id": null,
+    "origem": "busca",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "casasbahia:1582860724-destaque",
+   "melhor_preco": 6795.5
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A28W2XGABGHXAH",
+   "id": "B0F7K7B2PD-A28W2XGABGHXAH",
+   "preco": 7214.9,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Leonfer Shop",
+   "extra": {
+    "anuncio": "B0F7K7B2PD",
+    "asin": "B0F7K7B2PD",
+    "vendedor_id": "A28W2XGABGHXAH",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 495,
+     "positivas_pct": 78,
+     "enviado_por": "Leonfer Shop",
+     "full": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "amazon:B0F7K7B2PD-A28W2XGABGHXAH",
+   "melhor_preco": 7214.9
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV",
+   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-google-tv-b633",
+   "id": "823e2314-b26b-4640-9268-10d84740cd36",
+   "preco": 3581.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "118°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:823e2314-b26b-4640-9268-10d84740cd36",
+   "melhor_preco": 3581.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz",
+   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-5498",
+   "id": "59057492-7ac4-4ecc-abd2-a0f61c82eb91",
+   "preco": 3229.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "611°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:59057492-7ac4-4ecc-abd2-a0f61c82eb91",
+   "melhor_preco": 3229.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Smart TV 65 TCL 65C6K 4K 144Hz Google TV",
+   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-144hz-google-tv-bc45",
+   "id": "6e63a033-93ff-4f60-8626-22da5e809f43",
+   "preco": 3395.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "411°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:6e63a033-93ff-4f60-8626-22da5e809f43",
+   "melhor_preco": 3395.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Smart TV 65” TCL 65C6K 4K QD-Mini Led 144Hz com Sistema Operacional Google TV",
+   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-qd-mini-led-144hz-com-sistema-operacional-google-tv-829d",
+   "id": "33e44122-f76b-4f5b-b7af-d3f4856c65f1",
+   "preco": 3514.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "983°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:33e44122-f76b-4f5b-b7af-d3f4856c65f1",
+   "melhor_preco": 3514.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-65c6k-4e65",
+   "id": "633a9135-e86c-4790-8f2a-0c65b177be6e",
+   "preco": 3409.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "97°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:633a9135-e86c-4790-8f2a-0c65b177be6e",
+   "melhor_preco": 3409.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-qled-mini-led-4k-wifi-bluetooth-0c50",
+   "id": "77c4745b-4850-4f78-8800-e707847e216e",
+   "preco": 3409.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "428°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:77c4745b-4850-4f78-8800-e707847e216e",
+   "melhor_preco": 3409.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-qled-mini-led-4k-wifi-bluetooth-58be",
+   "id": "882d170a-08e5-4517-adf0-b019113db009",
+   "preco": 3459.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "676°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:882d170a-08e5-4517-adf0-b019113db009",
+   "melhor_preco": 3459.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-09-26T17:15:44-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Smart TV 65 TCL 65C6K 4K 144Hz Google TV",
+   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-144hz-google-tv-46bf",
+   "id": "ff5596ef-8e6f-46c5-883e-d455e2c032c0",
+   "preco": 3599.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "402°"
+   },
+   "modelo": "65C6K",
+   "chave": "pelando:ff5596ef-8e6f-46c5-883e-d455e2c032c0",
+   "melhor_preco": 3599.0,
+   "ultima_vez": "2026-09-26T17:15:44-03:00"
+  },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
    "preco_alertado": null,
@@ -418,9 +937,10 @@
    },
    "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-09-26T16:53:04-03:00",
+   "ultima_vez": "2026-09-26T17:15:44-03:00",
    "ultimo_preco": 2799.0,
-   "menor_preco": 2799.0
+   "menor_preco": 2799.0,
+   "modelo": "55C6K"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -443,9 +963,10 @@
    },
    "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-09-26T16:53:04-03:00",
+   "ultima_vez": "2026-09-26T17:15:44-03:00",
    "ultimo_preco": 2872.0,
-   "menor_preco": 2872.0
+   "menor_preco": 2872.0,
+   "modelo": "55C6K"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -468,9 +989,10 @@
    },
    "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
    "melhor_preco": 3010.0,
-   "ultima_vez": "2026-09-26T16:53:04-03:00",
+   "ultima_vez": "2026-09-26T17:15:44-03:00",
    "ultimo_preco": 3010.0,
-   "menor_preco": 3010.0
+   "menor_preco": 3010.0,
+   "modelo": "55C6K"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -493,9 +1015,10 @@
    },
    "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
    "melhor_preco": 2957.0,
-   "ultima_vez": "2026-09-26T16:53:04-03:00",
+   "ultima_vez": "2026-09-26T17:15:44-03:00",
    "ultimo_preco": 2957.0,
-   "menor_preco": 2957.0
+   "menor_preco": 2957.0,
+   "modelo": "55C6K"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -518,9 +1041,10 @@
    },
    "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
    "melhor_preco": 2969.0,
-   "ultima_vez": "2026-09-26T16:53:04-03:00",
+   "ultima_vez": "2026-09-26T17:15:44-03:00",
    "ultimo_preco": 2969.0,
-   "menor_preco": 2969.0
+   "menor_preco": 2969.0,
+   "modelo": "55C6K"
   }
  ],
  "cupons": [
@@ -533,8 +1057,9 @@
    "id": "bb275ca4-9df6-4bbe-8d1b-12b8daf3e0ca",
    "regra": "Cupom válido no app em lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-26T08:50:31-03:00",
+   "publicado": "2026-09-26T09:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:bb275ca4-9df6-4bbe-8d1b-12b8daf3e0ca"
   },
   {
@@ -546,8 +1071,9 @@
    "id": "e70af7e5-03f9-4f75-a4a5-a7f2a3d954e7",
    "regra": "Apenas lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-26T08:50:31-03:00",
+   "publicado": "2026-09-26T09:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:e70af7e5-03f9-4f75-a4a5-a7f2a3d954e7"
   },
   {
@@ -559,8 +1085,9 @@
    "id": "46d17e9b-4180-45fe-b3e1-82a5a60f09b0",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por lojas parceiras.",
    "validade": null,
-   "publicado": "2026-09-25T16:50:31-03:00",
+   "publicado": "2026-09-25T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:46d17e9b-4180-45fe-b3e1-82a5a60f09b0"
   },
   {
@@ -572,8 +1099,9 @@
    "id": "b111e880-7617-4776-8711-e7f3fe0ca4e4",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por lojas parceiras.",
    "validade": null,
-   "publicado": "2026-09-25T16:50:31-03:00",
+   "publicado": "2026-09-25T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:b111e880-7617-4776-8711-e7f3fe0ca4e4"
   },
   {
@@ -585,8 +1113,9 @@
    "id": "4bf7a959-09b2-493e-b35e-16a0e4660a8d",
    "regra": "Cupom Válido no APP para itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-25T16:50:31-03:00",
+   "publicado": "2026-09-25T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:4bf7a959-09b2-493e-b35e-16a0e4660a8d"
   },
   {
@@ -598,8 +1127,9 @@
    "id": "11221d2c-ab15-4bc1-9a81-fdcbc2aeac2c",
    "regra": "Cupom Válido no APP para itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-25T16:50:31-03:00",
+   "publicado": "2026-09-25T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:11221d2c-ab15-4bc1-9a81-fdcbc2aeac2c"
   },
   {
@@ -611,8 +1141,9 @@
    "id": "e4b83538-e52d-42a8-847e-dd90fe2270ae",
    "regra": "Cupom Válido no APP para itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-25T16:50:31-03:00",
+   "publicado": "2026-09-25T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:e4b83538-e52d-42a8-847e-dd90fe2270ae"
   },
   {
@@ -624,8 +1155,9 @@
    "id": "fc1e13f1-e6b7-46b0-8332-6c77e509fcec",
    "regra": "Cupom válido para itens vendidos pela Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:fc1e13f1-e6b7-46b0-8332-6c77e509fcec"
   },
   {
@@ -637,8 +1169,9 @@
    "id": "a69bf73b-f1f4-4cde-9508-ce1ae421d888",
    "regra": "Cupom válido para itens vendidos pela Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:a69bf73b-f1f4-4cde-9508-ce1ae421d888"
   },
   {
@@ -650,8 +1183,9 @@
    "id": "4bcb9f49-9ef4-4554-bf60-8de3f38565e9",
    "regra": "Cupom Magazine Luiza Para itens vendidos pela Magazine Luzia",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:4bcb9f49-9ef4-4554-bf60-8de3f38565e9"
   },
   {
@@ -663,8 +1197,9 @@
    "id": "17cd12f4-668b-4beb-aace-e4738bb0267e",
    "regra": "Valido no APP da Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:17cd12f4-668b-4beb-aace-e4738bb0267e"
   },
   {
@@ -676,8 +1211,9 @@
    "id": "5c976429-c034-4c59-a3a4-929096d2d669",
    "regra": "Algumas tvs com R$ 100 OFF",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:5c976429-c034-4c59-a3a4-929096d2d669"
   },
   {
@@ -689,8 +1225,9 @@
    "id": "4305b680-214a-4565-bc8c-ba099068c3ec",
    "regra": "pedido mínimo R$ 79 em Lojas Oficiais",
    "validade": null,
-   "publicado": "2026-09-26T11:50:31-03:00",
+   "publicado": "2026-09-26T12:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:4305b680-214a-4565-bc8c-ba099068c3ec"
   },
   {
@@ -702,8 +1239,9 @@
    "id": "6af8b3ad-1282-4ad5-814a-339c4fef2767",
    "regra": "Cupom Mercado Livre 30% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-18T16:50:31-03:00",
+   "publicado": "2026-09-18T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:6af8b3ad-1282-4ad5-814a-339c4fef2767"
   },
   {
@@ -715,8 +1253,9 @@
    "id": "d04e05eb-7b76-41f6-910c-fd3825f5a0e7",
    "regra": "Cupom Mercado Livre 22% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-18T16:50:31-03:00",
+   "publicado": "2026-09-18T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:d04e05eb-7b76-41f6-910c-fd3825f5a0e7"
   },
   {
@@ -728,8 +1267,9 @@
    "id": "d304aa87-1d08-4f2b-bba5-c6f02ef43dd5",
    "regra": "Cupom Mercado Livre 30% OFF acima de R$ 1 (lim. R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-18T16:50:31-03:00",
+   "publicado": "2026-09-18T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:d304aa87-1d08-4f2b-bba5-c6f02ef43dd5"
   },
   {
@@ -741,8 +1281,9 @@
    "id": "5f3de95d-fe45-4679-b94d-4d9a5c12f744",
    "regra": "Cupom Mercado Livre 25% OFF acima de R$ 149 (limi R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:5f3de95d-fe45-4679-b94d-4d9a5c12f744"
   },
   {
@@ -754,8 +1295,9 @@
    "id": "93f889b1-beb8-4aa2-98f2-25fb67167659",
    "regra": "Cupom Mercado Livre 20% OFF acima de R$ 1 (limi R$ 500 OFF)",
    "validade": null,
-   "publicado": "2026-09-15T16:50:31-03:00",
+   "publicado": "2026-09-15T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:93f889b1-beb8-4aa2-98f2-25fb67167659"
   },
   {
@@ -767,8 +1309,9 @@
    "id": "f0a397be-e5db-4a19-bbf1-987d2f34441e",
    "regra": "Vendas Oficiais: 21.09.2026 às 00h01 até 23.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-21T16:50:31-03:00",
+   "publicado": "2026-09-21T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:f0a397be-e5db-4a19-bbf1-987d2f34441e"
   },
   {
@@ -780,8 +1323,9 @@
    "id": "193a79d6-4710-4ad6-8745-e8d4aef723da",
    "regra": "Cupom Aliexpress R$ 55 OFF acima de R$ 550",
    "validade": null,
-   "publicado": "2026-09-21T16:50:31-03:00",
+   "publicado": "2026-09-21T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:193a79d6-4710-4ad6-8745-e8d4aef723da"
   },
   {
@@ -793,8 +1337,9 @@
    "id": "c488c313-b2eb-46fe-8a3f-6f594a725ef1",
    "regra": "Cupom Aliexpress R$ 83 OFF acima de R$ 770",
    "validade": null,
-   "publicado": "2026-09-21T16:50:31-03:00",
+   "publicado": "2026-09-21T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:c488c313-b2eb-46fe-8a3f-6f594a725ef1"
   },
   {
@@ -806,8 +1351,9 @@
    "id": "e2d5e8d1-3fd0-4a25-848f-616d6fba1fc5",
    "regra": "Vendas Oficiais: 21.09.2026 às 00h01 até 23.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-21T16:50:31-03:00",
+   "publicado": "2026-09-21T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:e2d5e8d1-3fd0-4a25-848f-616d6fba1fc5"
   },
   {
@@ -819,8 +1365,9 @@
    "id": "3422c818-31b4-47ec-a03a-baeba59483ca",
    "regra": "Cupom Aliexpress R$ 165 OFF acima de R$ 1500",
    "validade": null,
-   "publicado": "2026-09-21T16:50:31-03:00",
+   "publicado": "2026-09-21T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:3422c818-31b4-47ec-a03a-baeba59483ca"
   },
   {
@@ -832,8 +1379,9 @@
    "id": "82f3cb51-42ac-44d9-86b6-b22f0759caf1",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:82f3cb51-42ac-44d9-86b6-b22f0759caf1"
   },
   {
@@ -845,8 +1393,9 @@
    "id": "2ec3516d-a25b-4afb-b4cd-97aa83ef5cdb",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:2ec3516d-a25b-4afb-b4cd-97aa83ef5cdb"
   },
   {
@@ -858,8 +1407,9 @@
    "id": "e81c611f-e0df-4241-b6a6-3a4e23dd4fd6",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:e81c611f-e0df-4241-b6a6-3a4e23dd4fd6"
   },
   {
@@ -871,8 +1421,9 @@
    "id": "6dbbec31-d5f8-405a-b87e-12453cabaf22",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:6dbbec31-d5f8-405a-b87e-12453cabaf22"
   },
   {
@@ -884,8 +1435,9 @@
    "id": "8681527f-8ca9-4f72-8b0b-0798e7d64460",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:8681527f-8ca9-4f72-8b0b-0798e7d64460"
   },
   {
@@ -897,8 +1449,9 @@
    "id": "1948a4a0-c564-4e4d-acaa-819d60bb7ca3",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:1948a4a0-c564-4e4d-acaa-819d60bb7ca3"
   },
   {
@@ -910,8 +1463,9 @@
    "id": "4e965f63-b66c-40e1-bec7-c99b163e8ae5",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:4e965f63-b66c-40e1-bec7-c99b163e8ae5"
   },
   {
@@ -923,50 +1477,51 @@
    "id": "c7d42290-8ee1-450f-97f3-87c494d311e4",
    "regra": "Vendas Oficiais: 14.09.2026 às 00h01 até 20.09.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-09-14T16:50:31-03:00",
+   "publicado": "2026-09-14T17:12:40-03:00",
    "especifico": false,
+   "modelo": null,
    "chave": "pelando:c7d42290-8ee1-450f-97f3-87c494d311e4"
   }
  ],
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:50:57-03:00",
+   "ultimo_ok": "2026-09-26T17:13:13-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:51:32-03:00",
+   "ultimo_ok": "2026-09-26T17:14:08-03:00",
    "ultimo_erro": null
   },
   "mercadolivre": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:51:59-03:00",
+   "ultimo_ok": "2026-09-26T17:14:49-03:00",
    "ultimo_erro": null
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:52:19-03:00",
+   "ultimo_ok": "2026-09-26T17:15:20-03:00",
    "ultimo_erro": null
   },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:50:30-03:00",
+   "ultimo_ok": "2026-09-26T17:12:39-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:50:31-03:00",
+   "ultimo_ok": "2026-09-26T17:12:40-03:00",
    "ultimo_erro": null
   },
   "shopee": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:52:19-03:00",
+   "ultimo_ok": "2026-09-26T17:15:21-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-26T16:52:20-03:00",
+   "ultimo_ok": "2026-09-26T17:15:21-03:00",
    "ultimo_erro": null
   }
  },
