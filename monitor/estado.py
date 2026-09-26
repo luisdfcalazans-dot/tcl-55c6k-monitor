@@ -14,7 +14,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 from . import config
-from .confianca import fora_de_preco, motivo_bloqueio, reprovados_auto_do_estado, reprovados_para_painel
+from .confianca import (
+    fora_de_preco, identidade_em_duvida, motivo_bloqueio, reprovados_auto_do_estado, reprovados_para_painel,
+)
 from .models import Cupom, Oferta
 from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
 
@@ -207,9 +209,10 @@ class Estado:
             print(f"[confiança] state_{self.modo}: mínimo de vendedor/anúncio reprovado ({_preco_do_minimo(m)}) "
                   f"refeito: {_preco_do_minimo(novo)}")
 
-    def _minimo_do_historico(self, diretas: set[str]) -> dict | None:
+    def _minimo_do_historico(self, diretas: set[str], bloqueado: Callable[[Any], bool] | None = None) -> dict | None:
         """O menor preço do histórico deste modo que conta (sem reprovado e sem agregador de loja com fonte direta),
-        com o horário da linha. None sem histórico legível."""
+        com o horário da linha. None sem histórico legível. `bloqueado`: o que não conta (padrão: _bloqueado)."""
+        bloqueado = bloqueado or self._bloqueado
         try:
             with self.arq_hist.open(encoding="utf-8", newline="") as f:
                 linhas = list(csv.DictReader(f))
@@ -229,7 +232,7 @@ class Estado:
                     v = 0.0
                 if v > 0:
                     precos.append(v)
-            if not precos or (melhor is not None and min(precos) >= melhor[0]) or self._bloqueado(r):
+            if not precos or (melhor is not None and min(precos) >= melhor[0]) or bloqueado(r):
                 continue
             melhor = (min(precos), r)
         if melhor is None:
@@ -519,6 +522,10 @@ class Estado:
 
     def atualiza_minimo(self, o: Oferta, diretas: set[str] | None = None) -> bool:
         """`diretas`: lojas com fonte direta conhecidas (lojas_diretas_conhecidas). Ver conta_como_preco."""
+        if fora_de_preco(o):
+            if identidade_em_duvida(o):
+                self._tira_do_minimo(o, diretas)
+            return False
         p = o.melhor_preco
         if not p or not conta_como_preco(o, diretas):
             return False
@@ -533,6 +540,29 @@ class Estado:
                                     "chave": o.chave}
             return m is not None  # na primeira vez não é "novo mínimo", é o primeiro
         return False
+
+    def _tira_do_minimo(self, o: Oferta, diretas: set[str] | None) -> None:
+        """A oferta que é o 'minimo' ficou suspeita nesta rodada por sinal de identidade (o anúncio passou a ter a
+        homologação de outro produto, a loja não vende TV...): o mínimo é refeito sem ela, pelo histórico e pelos
+        registros (revisão de 26/09: o expurgo ao carregar só tira mínimo de reprovado, e suspeito não é reprovado).
+        Suspeita só pelo preço de agora não apaga o preço que o anúncio mostrou quando passou nas checagens."""
+        m = self.dados.get("minimo")
+        if not _preco_do_minimo(m) or not isinstance(m, dict):
+            return
+        ident = _identidade_de_oferta(o)
+        if m.get("chave") != o.chave and (ident is None or _identidade_de_oferta({**m, "tipo": "loja"}) != ident):
+            return
+
+        def fora(r: Any) -> bool:
+            return self._bloqueado(r) or (isinstance(r, dict) and r.get("chave") == o.chave) \
+                or (ident is not None and _identidade_de_oferta(r) == ident)
+
+        if diretas is None:
+            diretas = self.lojas_diretas_conhecidas()
+        novo = self._minimo_do_historico(diretas, fora) or _minimo_dos_registros(self.dados["ofertas"], diretas, fora)
+        self.dados["minimo"] = novo
+        print(f"[confiança] state_{self.modo}: mínimo de oferta que ficou suspeita ({_preco_do_minimo(m)}) refeito: "
+              f"{_preco_do_minimo(novo)}")
 
     # ---- saúde das fontes ----
     def fonte_ok(self, nome: str) -> None:

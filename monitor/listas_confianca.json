@@ -8,7 +8,9 @@
   "o id do vendedor só casa pelo id (o nome de exibição é escolhido pelo vendedor); o nome vale só para oferta sem id.",
   "O repositório é público: texto NEUTRO e factual. Uma empresa listada em reprovados pode ser vítima (conta",
   "invadida), não autora. Reprovados automáticos ficam em docs/data/state_<modo>.json; para liberar um vendedor",
-  "suspeito ou reprovado automaticamente, ponha-o em confiaveis (a lista curada vence, inclusive no painel)."
+  "suspeito ou reprovado automaticamente, ponha-o em confiaveis (a lista curada vence, inclusive no painel).",
+  "Com erro de sintaxe neste arquivo, valem só as entradas de reserva do código (monitor/confianca.py, RESERVA_LISTAS)",
+  "e o monitor avisa no Telegram: confira o JSON antes de enviar."
  ],
  "confiaveis": {
   "Magazine Luiza": [
@@ -34,7 +36,9 @@
     "desde": "2026-09-19"},
    {"ids": ["A3R1Z59ZORN2J9"], "nomes": ["TCLSEMP."], "motivo": "loja oficial do fabricante (TCL SEMP)",
     "desde": "2026-09-22"},
-   {"nomes": ["Fast Shop Loja Oficial"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-13"}
+   {"ids": ["A122ZHUG7SODV0"], "nomes": ["Fast Shop Loja Oficial"],
+    "motivo": "varejista grande (loja própria na VTEX); id do vendedor da página do B0F7JZMVKF de 13/09",
+    "desde": "2026-09-13"}
   ],
   "Mercado Livre": [
    {"ids": ["480263032"], "nomes": ["Mercado Livre"], "motivo": "a própria loja (1P)", "desde": "2026-09-18"},

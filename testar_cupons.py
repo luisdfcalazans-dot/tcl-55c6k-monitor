@@ -245,7 +245,7 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[Anuncio]]:
     barata), do mais barato ao mais caro. Sem teto fixo: o limite é por rodada (loja.max_anuncios)."""
     import os
 
-    from monitor.confianca import pode_ir_ao_carrinho, reprovados_auto_dos_arquivos
+    from monitor.confianca import cupom_barrado, pode_ir_ao_carrinho, reprovados_auto_dos_arquivos
 
     cods: dict[str, str] = {}
     anuncios: dict[str, Anuncio] = {}
@@ -256,6 +256,10 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[Anuncio]]:
     for d in latests:
         for c in d.get("cupons") or []:
             if loja_canonica(c.get("loja", "")) == loja.loja_canonica and c.get("codigo"):
+                motivo = cupom_barrado(c, todas, auto)
+                if motivo:  # cupom da página de anúncio reprovado/suspeito (latest gravado antes do filtro)
+                    print(f"[{loja.nome}] ignoro o cupom {c['codigo']}: {motivo[:160]}")
+                    continue
                 cods.setdefault(c["codigo"].strip().upper(), c.get("fonte", ""))
         for p in d.get("posts") or []:
             if loja_canonica(p.get("loja", "")) == loja.loja_canonica and p.get("cupom"):

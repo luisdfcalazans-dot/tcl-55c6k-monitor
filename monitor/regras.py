@@ -864,7 +864,7 @@ def _esc(s: Optional[str]) -> str:
     return html.escape(s or "", quote=False)
 
 
-def _linha_preco(o: Oferta) -> str:
+def _linha_preco(o: Oferta, com_cupom: bool = True) -> str:
     partes = []
     if o.preco:
         partes.append(f"<b>{fmt_preco(o.preco)}</b>")
@@ -872,7 +872,7 @@ def _linha_preco(o: Oferta) -> str:
         partes.append(f"Pix {fmt_preco(o.preco_pix)}")
     if o.parcelado:
         partes.append(_esc(o.parcelado))
-    if o.cupom:
+    if o.cupom and com_cupom:
         partes.append(f"cupom <code>{_esc(o.cupom)}</code>")
     return " · ".join(partes) if partes else "preço não informado"
 
@@ -901,7 +901,14 @@ def mensagem_suspeito(o: Oferta) -> str:
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
     if (o.extra.get("confianca") or {}).get("agregador"):
         quem += " — linha de agregador, vendedor não identificado"
-    linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b>", _esc(o.titulo[:140]), _linha_preco(o), "Sinais:"]
+    linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b>"]
+    # a razão social vai só nesta mensagem (privada), para a pessoa conferir; o sinal gravado no latest/state (públicos)
+    # diz só o ramo (a empresa pode ser vítima de conta invadida)
+    razao = str((o.extra.get("ficha") or {}).get("razao_social") or "").strip()
+    if razao:
+        linhas.append(f"razão social: {_esc(razao[:80])}")
+    # sem o cupom do anúncio: o aviso não divulga o cupom da página barrada
+    linhas += [_esc(o.titulo[:140]), _linha_preco(o, com_cupom=False), "Sinais:"]
     linhas += [f"• {_esc(s)}" for s in confianca.sinais_de(o)] or ["• (sem detalhe)"]
     if (o.extra.get("confianca") or {}).get("reprovado_auto"):
         destino = ("e o vendedor fica reprovado nas próximas coletas (se for engano, ponha-o em confiaveis no "
@@ -913,6 +920,12 @@ def mensagem_suspeito(o: Oferta) -> str:
                   "compre sem conferir o vendedor; pagamento só pelo site, nunca por WhatsApp/Pix direto.")
     linhas.append(o.url)
     return "\n".join(linhas)
+
+
+def _reprovados_auto(estado: Optional[Estado]) -> list[dict]:
+    """Reprovados automáticos dos dois modos (monitor/confianca.py); vazio sem estado."""
+    ler = getattr(estado, "reprovados_auto", None)
+    return ler() if callable(ler) else []
 
 
 def menor_preco_confiavel(ofertas: list[Oferta]) -> Optional[float]:
@@ -1008,6 +1021,7 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     estado.migra_alertas_de_cupom(lambda reg: _alertado_no_codigo_antigo(reg, preco_antigo))
     # códigos que outro anúncio declara serem de outra categoria (ex.: DESCONTOEMCASA "em Casa e Decor")
     restritos = restricao_do_codigo(cupons, estado.cupons_vistos())
+    auto = _reprovados_auto(estado)
     novos: list[tuple[Cupom, str]] = []
     codigos_vistos: set[str] = set()
     # cupom da página do produto primeiro (se o mesmo código vier também como cupom do site, fica a linha do produto),
@@ -1018,6 +1032,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         lc = loja_canonica(c.loja)
         if lc not in lojas_com_tv and not c.especifico:
             continue
+        if confianca.cupom_barrado(c, ofertas, auto):
+            continue  # cupom da página de anúncio reprovado/suspeito: o link levaria ao anúncio barrado
         ok, _motivo = cupom_compativel(c, preco_por_loja.get(lc))
         if not ok:
             continue
@@ -1111,11 +1127,14 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Option
     else:
         preco_por_loja, lojas_com_tv = _precos_da_tv(ofertas, lojas_diretas(ofertas))
     restritos = restricao_do_codigo(cupons, estado.cupons_vistos() if estado else [])
+    auto = _reprovados_auto(estado)
     out: list[Cupom] = []
     vistos: set[str] = set()
     for c in cupons:
         lc = loja_canonica(c.loja)
         if lc not in lojas_com_tv and not c.especifico:
+            continue
+        if confianca.cupom_barrado(c, ofertas, auto):
             continue
         if not cupom_compativel(c, preco_por_loja.get(lc))[0]:
             continue

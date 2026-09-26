@@ -490,3 +490,19 @@ def test_confianca_nome_com_ruido_repetido_casa_como_no_python(tmp_path):
     pc["confianca"] = {"reprovados": [{"loja": "Amazon", "ids": [], "nomes": ["lojax"], "anuncios": []}]}
     out = roda_painel(tmp_path, cloud, pc)
     assert "Loja X" not in out["tabela"] and out["melhor"] == brl(3561.55)
+
+
+# ---- 3ª passada (2ª revisão de 26/09): rótulo neutro no painel público ----
+
+def test_confianca_selo_do_suspeito_tem_rotulo_neutro(tmp_path):
+    """O painel é público e a empresa do anúncio pode ser vítima (conta invadida): o selo diz 'sinais de risco', não
+    'suspeito', e os sinais ficam no title."""
+    sus = oferta("magalu", "Magazine Luiza", 3000.0, 2500.0, vendedor="Loja X", oid="kx-lojax",
+                 extra={"vendedor_id": "lojax", "confianca": {
+                     "veredito": "suspeito", "sinais": ["certificado Anatel 09573-24-00953 não é o da 55C6K"]}})
+    p1 = oferta("magalu", "Magazine Luiza", 3749.0, 3561.55, vendedor="Magalu", url=URL_MAGALU,
+                extra={"confianca": {"veredito": "confiavel"}})
+    out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, [sus, p1]), latest("pc", PC_AT, []))
+    (linha,) = [l for l in linhas(out["tabela"]) if "Loja X" in l["html"]]
+    assert ">sinais de risco</span>" in linha["html"] and ">suspeito</span>" not in linha["html"]
+    assert "09573-24-00953" in linha["html"]

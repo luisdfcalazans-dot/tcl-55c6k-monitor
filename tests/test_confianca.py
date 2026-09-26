@@ -22,8 +22,8 @@ import pytest
 
 from monitor import config, confianca
 from monitor.estado import Estado
-from monitor.models import Oferta
-from monitor.regras import CAB_SUSPEITO, gerar_alertas, resumo_diario, sanear
+from monitor.models import Cupom, Oferta
+from monitor.regras import CAB_SUSPEITO, cupons_aplicaveis, gerar_alertas, mensagem_suspeito, resumo_diario, sanear
 from monitor.sources import amazon, kabum, magalu, vtex
 from monitor.util import agora_iso, next_data
 
@@ -65,6 +65,11 @@ def magalu_1p() -> Oferta:
 
 def vendedor_limpo(pix: str = "2890.00", cartao: str = "3099.00") -> Oferta:
     """Vendedor desconhecido de verdade limpo: a página do 1P (ficha certa, Anatel da C6K) com outro lojista."""
+    (o,) = magalu.parse_produto_todas(_html_vendedor_limpo(pix, cartao))[0]
+    return o
+
+
+def _html_vendedor_limpo(pix: str = "2890.00", cartao: str = "3099.00") -> str:
     p = _produto(P1P)
     sel = {"id": "lojaboaeletro", "sku": "1", "description": "Loja Boa Eletro", "category": "3p",
            "deliveryId": "magazineluiza", "tags": [],
@@ -77,8 +82,7 @@ def vendedor_limpo(pix: str = "2890.00", cartao: str = "3099.00") -> Oferta:
               "url": p["url"].replace("240162700", "kb0aeletro1"), "id": "kb0aeletro0", "variationId": "kb0aeletro1"})
     p["variations"] = [{**v, "id": "kb0aeletro1", "path": v["path"].replace("240162700", "kb0aeletro1")}
                        for v in p["variations"] if v.get("id") == "240162700"]
-    (o,) = magalu.parse_produto_todas(_html_produto(p))[0]
-    return o
+    return _html_produto(p)
 
 
 def catalogo_html(total: int, cats: list[tuple[str, str, int]]) -> str:
@@ -120,21 +124,27 @@ def sem_lili_na_lista(monkeypatch):
     return listas
 
 
-def rodada(modo, ofertas, rede=None, bootstrap=False):
-    """A sequência do run.py: descarta reprovados -> sanear -> veredito -> alertas -> estado -> histórico -> latest."""
+def rodada(modo, ofertas, rede=None, bootstrap=False, cupons=()):
+    """A sequência do run.py: descarta reprovados -> sanear -> veredito -> cupons de anúncio barrado -> alertas ->
+    estado -> histórico -> latest."""
     est = Estado(modo)
     est.bootstrap = bootstrap
+    coletadas = list(ofertas)
     ofertas = confianca.descarta_reprovados(est, ofertas)
     ofertas, _av = sanear(ofertas)
     confianca.avaliar(est, ofertas, rede=rede is not None, obter=rede, pausa_s=0)
+    cupons = confianca.descarta_cupons_barrados(est, list(cupons), coletadas)
     est.migra_chaves_de_oferta(ofertas)
-    msgs, alertados = gerar_alertas(est, ofertas, [])
+    msgs, alertados = gerar_alertas(est, ofertas, cupons)
+    aplicaveis = cupons_aplicaveis(ofertas, cupons, est)
     diretas = est.lojas_diretas_conhecidas(ofertas)
     for o in ofertas:
         est.registra_oferta(o, alertados.get(o.chave))
         est.atualiza_minimo(o, diretas)
+    for c in cupons:
+        est.registra_cupom(c)
     est.anexa_historico([o for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco])
-    est.escreve_latest(ofertas, [])
+    est.escreve_latest(ofertas, aplicaveis)
     est.salva()
     return est, ofertas, msgs
 
@@ -237,7 +247,7 @@ def test_lili_real_vira_suspeito_so_pelas_checagens(dados, sem_lili_na_lista):
     assert c["veredito"] == confianca.SUSPEITO
     texto = " | ".join(c["sinais"])
     for trecho in ("33% menor", "“preço cheio” R$ 3.894,05 igual", "09573-24-00953", "'Vários'", "sem avaliações",
-                   "peso na ficha 0,1 kg", "Brinquedos"):
+                   "peso na ficha 0,1 kg", "outro ramo (brinquedos)"):
         assert trecho in texto, trecho
     assert rede.pedidas == []  # sinais fortes já com o que a coleta tem: nenhuma requisição extra
     # UMA mensagem de aviso, sem 🎯/🏆/🔻
@@ -393,8 +403,13 @@ def test_anuncio_e_catalogo_checados_nao_sao_pedidos_de_novo_no_mesmo_dia(dados)
         o = vendedor_limpo(pix="3200.00", cartao="3399.00")
         o.extra.pop("ficha")
         confianca.avaliar(est, [o, magalu_1p()], rede=True, obter=rede, pausa_s=0)
-        assert confianca.veredito_de(o) == confianca.SEM_RISCO
+        # a página do anúncio não trouxe a ficha e o preço está abaixo da única confiável (3.894,05): não passa como
+        # "checagens ok" (revisão 2 de 26/09), mas também não vira reprovado
+        assert confianca.veredito_de(o) == confianca.SUSPEITO
+        assert any("não deu para checar a ficha do anúncio" in s for s in confianca.sinais_de(o)), \
+            confianca.sinais_de(o)
     assert len(rede.pedidas) == 2  # 1ª rodada: anúncio + catálogo; 2ª: nada (aberto há pouco / catálogo guardado)
+    assert est.dados["confianca"]["reprovados_auto"] == {}
 
 
 def test_bloqueio_403_encerra_as_checagens_de_rede(dados):
@@ -413,7 +428,12 @@ def test_bloqueio_403_encerra_as_checagens_de_rede(dados):
     est = Estado("cloud")
     confianca.avaliar(est, novos + [magalu_1p()], rede=True, obter=bloqueia, pausa_s=0)
     assert len(pedidas) == 1
-    assert all(confianca.veredito_de(o) == confianca.SEM_RISCO for o in novos)
+    # sem o catálogo e abaixo da confiável mais barata: fora de preço nesta rodada (revisão 2 de 26/09)
+    for o in novos:
+        assert confianca.veredito_de(o) == confianca.SUSPEITO
+        assert any("não deu para checar o catálogo da loja do vendedor (a loja bloqueou" in s
+                   for s in confianca.sinais_de(o)), confianca.sinais_de(o)
+    assert est.dados["confianca"]["reprovados_auto"] == {}
 
 
 # ------------------------------------------------------------------------------------------------
@@ -554,7 +574,18 @@ def _seller(sid: str, nome: str, razao: str = "ABC Comercio Ltda", desde: str = 
 def _anuncio_proprio(sid: str, nome: str, pix: str, cartao: str, preco_de: str | None = None, reviews: int = 0,
                      razao: str = "ABC Comercio Ltda", pid: str = "kx9novo001") -> Oferta:
     """Anúncio próprio de um vendedor no Magalu com a ficha certa copiada do 1P (Anatel da C6K, modelo 55C6K)."""
+    (o,) = magalu.parse_produto_todas(_html_anuncio_proprio(sid, nome, pix, cartao, preco_de, reviews, razao, pid))[0]
+    return o
+
+
+def _html_anuncio_proprio(sid: str, nome: str, pix: str, cartao: str, preco_de: str | None = None, reviews: int = 0,
+                          razao: str = "ABC Comercio Ltda", pid: str = "kx9novo001",
+                          ficha_de: str | None = None) -> str:
+    """Página do anúncio próprio; ficha_de: a página de onde vem a ficha técnica e o peso (padrão: a do 1P)."""
     p = _produto(P1P)
+    if ficha_de is not None:
+        base = _produto(ficha_de)
+        p["factsheet"], p["dimensions"] = base.get("factsheet"), base.get("dimensions")
     sel = _seller(sid, nome, razao)
     p.update({"seller": sel,
               "offers": [{"sku": "1", "price": {"paymentMethodDescription": "no Pix", "bestPrice": pix,
@@ -565,8 +596,7 @@ def _anuncio_proprio(sid: str, nome: str, pix: str, cartao: str, preco_de: str |
               "url": p["url"].replace("240162700", pid), "id": pid[:-1] + "0", "variationId": pid})
     p["variations"] = [{**v, "id": pid, "path": v["path"].replace("240162700", pid)}
                        for v in p["variations"] if v.get("id") == "240162700"]
-    (o,) = magalu.parse_produto_todas(_html_produto(p))[0]
-    return o
+    return _html_produto(p)
 
 
 def _catalogo_com_tv() -> str:
@@ -905,4 +935,272 @@ def test_checagem_de_rede_nao_insiste_depois_do_403_da_coleta_do_magalu(dados, m
     rede = Rede()
     confianca.avaliar(Estado("cloud"), [o, magalu_1p()], rede=True, obter=rede, pausa_s=0)
     assert rede.pedidas == []
-    assert confianca.veredito_de(o) == confianca.SEM_RISCO
+    # sem ficha e sem catálogo, abaixo da confiável mais barata: não passa como "checagens ok (preço)"
+    assert confianca.veredito_de(o) == confianca.SUSPEITO
+    assert any("não deu para checar a ficha do anúncio nem o catálogo" in s for s in confianca.sinais_de(o))
+
+
+# ================================================================================================
+# 3ª passada (2ª revisão de 26/09): a ficha lida pela checagem fica no state; vendedor novo do Magalu que não deu para
+# checar (403, limite da rodada, página ilegível) e está abaixo da confiável mais barata fica fora de preço; mínimo de
+# oferta que ficou suspeita é refeito; cupom da página de anúncio barrado; Fast Shop na Amazon pelo id; Anatel com mais
+# de um número; lista curada quebrada; texto público neutro.
+# ================================================================================================
+
+def _so_da_busca(html: str) -> Oferta:
+    """A oferta como a busca do Magalu a traz: sem ficha técnica e sem a lista de vendedores do anúncio."""
+    (o,) = magalu.parse_produto_todas(html)[0]
+    o.extra["ficha"] = {}
+    o.extra["anuncio_exclusivo"] = False
+    return o
+
+
+def _html_eletro_z(pix: str = "2850.00", cartao: str = "2990.00") -> str:
+    """Conta invadida de uma loja de eletro (o catálogo dela TEM TV) com a ficha do anúncio da Lili: Anatel de celular,
+    modelo 'Vários', peso 0,1 kg e 0 avaliações. 2.850 é 92% da confiável mais barata: o preço sozinho não assusta."""
+    return _html_anuncio_proprio("eletroz", "Eletro Z", pix, cartao, reviews=0, pid="kz1golpe01", ficha_de=LILI55,
+                                 razao="Eletro Z Comercio de Eletronicos Ltda")
+
+
+def _minimo_das_confiaveis() -> float:
+    rodada("cloud", _confiaveis_reais())
+    return Estado("cloud").dados["minimo"]["preco"]
+
+
+def _carrinho_do_latest(pasta: Path, vendedor: str) -> bool:
+    lt = json.loads((pasta / "latest_cloud.json").read_text(encoding="utf-8"))
+    reg = next(r for r in lt["ofertas_loja"] if r.get("vendedor") == vendedor)
+    return confianca.pode_ir_ao_carrinho(reg, lt["ofertas_loja"], ())[0]
+
+
+# ---- MÉDIA: a ficha lida pela checagem de rede fica no state e vale quando a coleta vem sem ficha ----
+
+def test_ficha_lida_pela_checagem_vale_nas_rodadas_seguintes_quando_a_coleta_vem_sem_ficha(dados):
+    minimo_antes = _minimo_das_confiaveis()
+    html = _html_eletro_z()
+    rede = Rede({"/p/kz1golpe01/": html, "/lojista/eletroz/": _catalogo_com_tv()})
+    avisos = []
+    for _ in range(3):
+        est, ofs, msgs = rodada("cloud", [_so_da_busca(html)] + _confiaveis_reais(), rede=rede)
+        c = next(x for x in ofs if x.vendedor == "Eletro Z").extra["confianca"]
+        assert c["veredito"] == confianca.SUSPEITO, c
+        assert any("09573-24-00953" in s for s in c["sinais"]), c["sinais"]
+        assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Eletro Z"))
+        assert est.dados["minimo"]["preco"] == minimo_antes
+        assert not _no_historico(dados, "Eletro Z")
+        assert _carrinho_do_latest(dados, "Eletro Z") is False
+        avisos.append(len(_msgs_de(msgs, "Eletro Z")))
+    assert avisos == [1, 0, 0]
+    assert len(rede.pedidas) == 2          # anúncio e catálogo só na 1ª rodada; depois, o que ficou no state
+    assert est.dados["confianca"]["reprovados_auto"] == {}   # um sinal de identidade sozinho não reprova de vez
+
+
+def test_vendedor_novo_do_magalu_sem_checagem_por_403_fica_fora_de_preco_e_do_carrinho(dados, monkeypatch):
+    minimo_antes = _minimo_das_confiaveis()
+    monkeypatch.setattr(magalu, "BLOQUEADO_EM", time.time())   # a coleta do Magalu levou 403 depois da busca
+    rede = Rede()
+    est, ofs, msgs = rodada("cloud", [_so_da_busca(_html_eletro_z())] + _confiaveis_reais(), rede=rede)
+    assert rede.pedidas == []
+    c = next(x for x in ofs if x.vendedor == "Eletro Z").extra["confianca"]
+    assert c["veredito"] == confianca.SUSPEITO, c
+    assert any("não deu para checar" in s for s in c["sinais"]), c["sinais"]
+    (m,) = _msgs_de(msgs, "Eletro Z")
+    assert m.startswith(CAB_SUSPEITO) and _sem_etiqueta_de_preco([m])
+    assert est.dados["minimo"]["preco"] == minimo_antes
+    assert not _no_historico(dados, "Eletro Z")
+    assert _carrinho_do_latest(dados, "Eletro Z") is False
+    assert est.dados["confianca"]["reprovados_auto"] == {}   # sem checagem não é prova: reavaliado na próxima rodada
+
+
+def test_vendedor_limpo_sem_checagem_por_403_sai_com_alerta_quando_a_checagem_volta(dados, monkeypatch):
+    minimo_antes = _minimo_das_confiaveis()
+    html = _html_vendedor_limpo(pix="2890.00", cartao="3099.00")
+    monkeypatch.setattr(magalu, "BLOQUEADO_EM", time.time())
+    _est, ofs, msgs = rodada("cloud", [_so_da_busca(html)] + _confiaveis_reais(), rede=Rede())
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Loja Boa Eletro")) == confianca.SUSPEITO
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Loja Boa Eletro"))
+    # o bloqueio passou: a checagem abre o anúncio e o catálogo, e o alerta de preço sai com a linha 🔎
+    monkeypatch.setattr(magalu, "BLOQUEADO_EM", None)
+    rede = Rede({"/p/kb0aeletro1/": html, "/lojista/lojaboaeletro/": _catalogo_com_tv()})
+    est, ofs, msgs = rodada("cloud", [_so_da_busca(html)] + _confiaveis_reais(), rede=rede)
+    c = next(x for x in ofs if x.vendedor == "Loja Boa Eletro").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO, c
+    (m,) = _msgs_de(msgs, "Loja Boa Eletro")
+    assert "🎯" in m and "🏆" in m and "🔎 vendedor novo: checagens ok" in m and CAB_SUSPEITO not in m
+    assert est.dados["minimo"]["preco"] == 2890.00 < minimo_antes
+
+
+def test_vendedor_novo_caro_sem_checagem_nao_vira_suspeito(dados, monkeypatch):
+    """Acima da confiável mais barata não há o que segurar: sem checagem, segue sem risco aparente."""
+    rodada("cloud", _confiaveis_reais())
+    monkeypatch.setattr(magalu, "BLOQUEADO_EM", time.time())
+    _est, ofs, _msgs = rodada("cloud", [_so_da_busca(_html_vendedor_limpo(pix="3300.00", cartao="3450.00"))]
+                              + _confiaveis_reais(), rede=Rede())
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Loja Boa Eletro")) == confianca.SEM_RISCO
+
+
+def test_minimo_de_oferta_que_ficou_suspeita_e_refeito_sem_ela(dados):
+    minimo_antes = _minimo_das_confiaveis()
+    est, _o, _m = rodada("cloud", [vendedor_limpo(pix="2890.00", cartao="3099.00")] + _confiaveis_reais(),
+                         rede=Rede({"/lojista/lojaboaeletro/": _catalogo_com_tv()}))
+    assert est.dados["minimo"]["preco"] == 2890.00
+    # o anúncio muda (conta invadida): a ficha passa a ter a homologação de outro produto
+    o = vendedor_limpo(pix="2890.00", cartao="3099.00")
+    o.extra["ficha"]["anatel"] = "09573-24-00953"
+    est2, ofs2, _m2 = rodada("cloud", [o] + _confiaveis_reais(), rede=Rede())
+    assert confianca.veredito_de(next(x for x in ofs2 if x.vendedor == "Loja Boa Eletro")) == confianca.SUSPEITO
+    assert est2.dados["minimo"]["preco"] == minimo_antes
+    assert est2.dados["minimo"].get("vendedor") != "Loja Boa Eletro"
+    assert Estado("cloud").minimo_geral()["preco"] == minimo_antes
+
+
+# ---- BAIXA: cupom da página de anúncio reprovado ou suspeito ----
+
+def _pagina_com_cupom(html: str, codigo: str) -> str:
+    p = _produto(html)
+    p["seller"]["tags"] = (p["seller"].get("tags") or []) + [
+        {"type": "coupon", "code": codigo, "message": "R$ 150 OFF na TV", "startDate": "2026-09-25T00:00:00",
+         "endDate": "2026-10-01T23:59:59"}]
+    return _html_produto(p)
+
+
+def _codigos(cupons) -> list[str]:
+    return sorted(c.codigo if isinstance(c, Cupom) else c["codigo"] for c in cupons)
+
+
+@pytest.mark.parametrize("com_lista", [True, False])
+def test_cupom_da_pagina_de_anuncio_barrado_nao_vai_ao_alerta_nem_ao_painel(dados, monkeypatch, com_lista):
+    if not com_lista:   # sem a lista curada: a Lili vira suspeita pelas checagens na mesma rodada
+        listas = copy.deepcopy(confianca.listas())
+        listas["reprovados"].pop("Magazine Luiza", None)
+        monkeypatch.setattr(confianca, "listas", lambda: listas)
+    rodada("cloud", _confiaveis_reais())
+    ofs_l, cps_l, _v = magalu.parse_produto_todas(_pagina_com_cupom(LILI55, "LILI150"))
+    ofs_p, cps_p, _v = magalu.parse_produto_todas(_pagina_com_cupom(P1P, "TVMAGALU150"))
+    assert _codigos(cps_l) == ["LILI150"] and "TVMAGALU150" in _codigos(cps_p)   # a página real do 1P tem o LU300
+    est, _ofs, msgs = rodada("cloud", ofs_l + ofs_p + _confiaveis_reais()[1:], rede=Rede(), cupons=cps_l + cps_p)
+    assert not any("LILI150" in m for m in msgs)
+    assert any("TVMAGALU150" in m and m.startswith("🎟️") for m in msgs)
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert _codigos(lt["cupons"]) == _codigos(cps_p)
+    assert not any("LILI150" in k for k in est.dados["cupons"])
+    # chamadas diretas (sem o filtro do run.py) também não mostram o cupom do anúncio barrado
+    todas = ofs_l + ofs_p
+    confianca.avaliar(Estado("cloud"), todas, rede=False)
+    assert "LILI150" not in _codigos(cupons_aplicaveis(todas, cps_l + cps_p, Estado("cloud")))
+
+
+def test_cupom_do_1p_continua_com_vendedor_suspeito_na_lista_de_vendedores_do_mesmo_anuncio(dados):
+    p = _produto(_pagina_com_cupom(P1P, "TVMAGALU150"))
+    sel = _seller("lojagolpe", "Loja Golpe", razao="Comercial de Brinquedos Ltda")
+    p["offers"].append({"sku": "9", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "2400.00",
+                                              "fullPrice": "3894.05", "price": "3894.05"}, "seller": sel})
+    ofs, cps, _v = magalu.parse_produto_todas(_html_produto(p))
+    rodada("cloud", _confiaveis_reais())
+    rede = Rede({"/lojista/lojagolpe/": catalogo_html(800, [("ET", "Tv e Vídeo", 2), ("BR", "Brinquedos", 798)]),
+                 "/p/240162700/": P1P})
+    _est, ofs2, msgs = rodada("cloud", ofs + _confiaveis_reais()[1:], rede=rede, cupons=cps)
+    assert confianca.veredito_de(next(o for o in ofs2 if o.vendedor == "Loja Golpe")) == confianca.SUSPEITO
+    assert any("TVMAGALU150" in m for m in msgs)
+
+
+def test_testador_nao_pega_cupom_da_pagina_de_anuncio_barrado(dados, monkeypatch):
+    tc = _importa_testar_cupons()
+    from monitor.carrinho import Magalu
+
+    monkeypatch.delenv("CUPONS_EXTRA", raising=False)
+    p1 = magalu_1p()
+    p1.extra["confianca"] = {"veredito": confianca.CONFIAVEL}
+    cup_lili = Cupom("magalu", "Magazine Luiza", "LILI150", "R$ 150 OFF na TV", URL_LILI, "LILI150-2026-10-01",
+                     especifico=True)
+    cup_1p = Cupom("magalu", "Magazine Luiza", "TVMAGALU150", "R$ 150 OFF", URL_1P, "TVMAGALU150-2026-10-01",
+                   especifico=True)
+    lt = {"modo": "cloud", "ofertas_loja": [p1.to_dict(), lili().to_dict()],
+          "cupons": [cup_lili.to_dict(), cup_1p.to_dict()], "posts": []}
+    (dados / "latest_cloud.json").write_text(json.dumps(lt, ensure_ascii=False), encoding="utf-8")
+    cods, _anuncios = tc.codigos_conhecidos(Magalu())
+    assert "TVMAGALU150" in cods and "LILI150" not in cods
+
+
+# ---- BAIXA: Fast Shop na Amazon pelo id real do vendedor ----
+
+def test_fast_shop_na_amazon_pelo_id_real_e_confiavel():
+    # merchantId da "Fast Shop Loja Oficial" na página do B0F7JZMVKF (captura de 13/09, painel de ofertas)
+    o = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A122ZHUG7SODV0",
+               "B0F7JZMVKF-A122ZHUG7SODV0", preco=2699.0, vendedor="Fast Shop Loja Oficial",
+               extra={"vendedor_id": "A122ZHUG7SODV0"})
+    assert confianca.classifica_por_lista(o, ())[0] == confianca.CONFIAVEL
+    outro = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=AQUALQUER",
+                   "B0F7JZMVKF-AQUALQUER", preco=2699.0, vendedor="Fast Shop Loja Oficial",
+                   extra={"vendedor_id": "AQUALQUER"})
+    assert confianca.classifica_por_lista(outro, ())[0] is None
+
+
+# ---- BAIXA: Anatel com mais de um número no campo ou sem o zero à esquerda ----
+
+@pytest.mark.parametrize("campo,diferente", [
+    ("00738-24-06714 | 04921-23-02345", False),     # TV e controle no mesmo campo (o _ficha_tecnica junta com ' | ')
+    ("0738-24-06714", False),                       # sem o zero à esquerda
+    ("007382406714", False),
+    ("Anatel 00738-24-06714 (TV); 04921-23-02345 (controle)", False),
+    ("09573-24-00953", True),                       # o do anúncio de 25/09 (celular)
+    ("09573-24-00953 | 04921-23-02345", True),
+])
+def test_anatel_da_c6k_no_campo_vale_mesmo_com_outros_numeros(campo, diferente):
+    ref = confianca.referencias(_confiaveis_reais())
+    o = Oferta("magalu", "loja", "Magazine Luiza", "TCL 55C6K", URL_1P + "?seller_id=lojax", "240162800-lojax",
+               preco=3500.0, vendedor="Loja X",
+               extra={"vendedor_id": "lojax", "ficha": {"anatel": campo, "modelo": "55C6K", "avaliacoes": 12}})
+    sinais, feitas = confianca.sinais_da_oferta(o, ref)
+    assert "Anatel" in feitas
+    assert any(s.codigo == "anatel_diferente" for s in sinais) is diferente, sinais
+
+
+# ---- BAIXA: lista curada com erro de sintaxe não derruba o bloqueio curado e avisa ----
+
+def test_lista_quebrada_usa_a_reserva_do_codigo_e_avisa_uma_vez(dados, tmp_path):
+    quebrada = tmp_path / "listas_quebrada.json"
+    quebrada.write_text(confianca.ARQ_LISTAS.read_text(encoding="utf-8").replace('"reprovados": {', '"reprovados": {,'),
+                        encoding="utf-8")
+    original = confianca.ARQ_LISTAS
+    try:
+        confianca.ARQ_LISTAS = quebrada
+        confianca.recarrega_listas()
+        assert confianca.erro_das_listas()
+        assert confianca.motivo_bloqueio(lili(), ())                         # a Lili continua barrada
+        assert confianca.classifica_por_lista(magalu_1p(), ())[0] == confianca.CONFIAVEL
+        est = Estado("cloud")
+        aviso = confianca.aviso_de_lista_quebrada(est)
+        assert aviso and "listas_confianca.json" in aviso
+        assert confianca.aviso_de_lista_quebrada(est) is None               # não repete a cada rodada
+    finally:
+        confianca.ARQ_LISTAS = original
+        confianca.recarrega_listas()
+    assert confianca.erro_das_listas() is None
+    assert confianca.aviso_de_lista_quebrada(Estado("cloud")) is None
+
+
+def test_reserva_do_codigo_esta_na_lista_curada():
+    """A reserva é cópia de entradas do listas_confianca.json (nada que o arquivo não tenha)."""
+    for tipo, lojas in confianca.RESERVA_LISTAS.items():
+        for loja, entradas in lojas.items():
+            do_arquivo = confianca.listas()[tipo].get(loja) or []
+            for e in entradas:
+                assert any(all(set(e.get(k) or []) <= set(a.get(k) or []) for k in ("ids", "nomes", "anuncios"))
+                           for a in do_arquivo), (loja, e)
+
+
+# ---- BAIXA: texto público neutro (sinal sem a razão social; ela fica só na mensagem privada) ----
+
+def test_sinal_de_outro_ramo_nao_leva_a_razao_social_para_os_arquivos_publicos(dados, sem_lili_na_lista):
+    est, ofs, msgs = rodada("cloud", [lili(), magalu_1p()], rede=Rede())
+    li = next(o for o in ofs if o.vendedor == "Importados Lili")
+    sinal = next(s for s in li.extra["confianca"]["sinais"] if "outro ramo" in s)
+    assert "Lili" not in sinal and "brinquedos" in sinal
+    assert "Comercial De Brinquedos Lili Ltda" not in json.dumps(est.dados["confianca"], ensure_ascii=False)
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    reg = next(r for r in lt["ofertas_loja"] if r["vendedor"] == "Importados Lili")
+    assert "Comercial De Brinquedos Lili Ltda" not in json.dumps(reg["extra"]["confianca"], ensure_ascii=False)
+    # a mensagem do Telegram (privada) mostra a razão social para a pessoa conferir
+    (m,) = [m for m in msgs if m.startswith(CAB_SUSPEITO)]
+    assert "Comercial De Brinquedos Lili Ltda" in m

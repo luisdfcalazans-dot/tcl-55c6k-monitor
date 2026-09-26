@@ -107,6 +107,10 @@ def main() -> int:
     # confiança (monitor/confianca.py): vendedor/anúncio reprovado (lista curada ou reprovado automático) sai de cara,
     # sem alerta, mínimo, histórico, painel nem carrinho
     from monitor import confianca
+    aviso_listas = confianca.aviso_de_lista_quebrada(estado)  # listas_confianca.json com erro: vale a reserva do código
+    if aviso_listas:
+        avisos.append(aviso_listas)
+    coletadas = list(ofertas)
     ofertas = confianca.descarta_reprovados(estado, ofertas)  # type: ignore[arg-type]
 
     ofertas, avisos_sanidade = sanear(ofertas)  # type: ignore[arg-type]
@@ -120,6 +124,9 @@ def main() -> int:
     if contagem:
         print(f"[confiança] {', '.join(f'{v}: {n}' for v, n in sorted(contagem.items()))} "
               f"({time.time() - t_conf:.1f}s)")
+    # cupom da página de anúncio reprovado/suspeito (no Magalu, o do vendedor do buy box, com o link do anúncio) não vai
+    # ao alerta, ao painel nem ao testador
+    cupons = confianca.descarta_cupons_barrados(estado, cupons, coletadas)  # type: ignore[arg-type]
 
     # chave de oferta que mudou de formato (a coleta passou a pôr o vendedor nela) leva o histórico junto:
     # sem isto a rodada não manda 🔻 e pode repetir 🎯 no mesmo anúncio

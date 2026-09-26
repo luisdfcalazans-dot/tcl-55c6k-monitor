@@ -485,7 +485,13 @@ class Magalu(Fonte):
                     continue
                 ofs, cps, variacoes = parse_produto_todas(html)
                 pedido = _seller_da_url(url)
+                buybox = ofs[0] if ofs and not ofs[0].extra.get("so_lista_de_vendedores") else None
+                dono = buybox.extra.get("vendedor_id") if buybox else None
                 for c in cps:
+                    if pedido and dono == pedido:
+                        # o cupom é do vendedor do buy box desta página: o link leva a ele (a confiança casa o cupom
+                        # com a oferta desse vendedor; ver confianca.cupom_barrado)
+                        c.url = com_vendedor(c.url, pedido)
                     cupons.setdefault(c.chave, c)
                 for o in ofs:
                     if pedido and o.extra.get("vendedor_id") == pedido and not _seller_da_url(o.url):
@@ -519,6 +525,7 @@ class Magalu(Fonte):
                     det.extra["anuncio_exclusivo"] = False  # veio da lista de vendedores do anúncio de outro
                     _guarda(por_id, det)
                     for c in cps:
+                        c.url = com_vendedor(c.url, sid)  # cupom deste vendedor, não do buy box padrão do anúncio
                         cupons.setdefault(c.chave, c)
 
         visitar(list(candidatos.items()))

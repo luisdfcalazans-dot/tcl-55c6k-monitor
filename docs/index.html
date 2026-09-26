@@ -152,7 +152,7 @@ const veredito = o => o?.extra?.confianca?.veredito || '';
 const suspeito = o => veredito(o) === 'suspeito';
 const selo = o => {
   const c = o?.extra?.confianca || {}, sinais = (c.sinais || []).join('; ');
-  if (c.veredito === 'suspeito') return `<span class="chip bad selo" title="${esc(sinais)}">suspeito</span>`;
+  if (c.veredito === 'suspeito') return `<span class="chip bad selo" title="${esc(sinais)}">sinais de risco</span>`;
   if (c.veredito === 'sem_risco_aparente') return `<span class="chip warn selo" title="${esc(`checagens: ${(c.checagens || []).join(', ') || '—'}${sinais ? ' · atenção: ' + sinais : ''}`)}">vendedor novo</span>`;
   return '';
 };

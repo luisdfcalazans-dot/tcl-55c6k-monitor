@@ -16,6 +16,10 @@ Um veredito por oferta de loja:
   sozinho é reavaliado a cada rodada e o vendedor pode ser liberado pela lista de confiáveis;
 - "sem_risco_aparente": desconhecido que passou nas checagens -> alerta normal + linha "🔎 vendedor novo".
 Linha de agregador (Zoom) de loja sem fonte direta também passa pela checagem de preço (não há vendedor a checar).
+Vendedor novo do Magalu que ficou sem a ficha ou o catálogo (403, limite da rodada, página ilegível) e está abaixo da
+loja confiável mais barata também é suspeito nesta rodada ("não deu para checar"), sem virar reprovado. A ficha lida
+(coleta ou checagem) fica no state e vale nas rodadas em que a coleta só traz a busca. O cupom da página de um anúncio
+barrado não vai a alerta, painel nem testador (cupom_barrado).
 
 As checagens usam o que a coleta já tem (preços da rodada, ficha técnica, avaliações, dados do vendedor). Só para
 vendedor NOVO com preço atraente, e só onde a loja deixa (Magalu), 1-2 requisições: a página da loja do vendedor
@@ -23,11 +27,14 @@ vendedor NOVO com preço atraente, e só onde a loja deixa (Magalu), 1-2 requisi
 
 Texto neutro de propósito: o repositório é público e uma empresa listada pode ser vítima (conta invadida), não autora.
 Esta é a API única de confiança: motivo_bloqueio(), classifica_por_lista(), avaliar(), veredito_de(),
-pode_ir_ao_carrinho().
+pode_ir_ao_carrinho(), cupom_barrado(). Com o listas_confianca.json ilegível valem as entradas de RESERVA_LISTAS e o
+run.py avisa no Telegram (aviso_de_lista_quebrada).
 """
 
 from __future__ import annotations
 
+import copy
+import html
 import json
 import re
 import time
@@ -63,6 +70,8 @@ TTL_VEREDITO_DIAS = 3        # veredito "sem_risco_aparente" guardado no state
 TTL_CATALOGO_DIAS = 7        # catálogo do vendedor (página da loja dele) guardado no state
 TTL_CATALOGO_ERRO_H = 6      # falha ao ler o catálogo: não tenta de novo antes disso
 TTL_FICHA_H = 24             # anúncio do Magalu aberto pela checagem: não reabre antes disso
+TTL_FICHA_DIAS = 7           # ficha lida (coleta ou checagem) que ainda vale quando a coleta vem sem ela (só a busca)
+AVISO_LISTA_QUEBRADA_H = 6   # o aviso de listas_confianca.json quebrado se repete no máximo a cada tanto
 MAX_VENDEDORES_COM_REDE = 2  # vendedores novos com requisição extra por rodada
 REFERENCIA_OUTRO_MODO_H = 12  # ofertas confiáveis do outro modo que ainda servem de referência de preço
 FRACOS_PARA_SUSPEITO = 4     # sem sinal forte, só muitos sinais fracos juntos tornam o anúncio suspeito
@@ -74,6 +83,13 @@ MIN_TVS_LOJA_DE_TV = 30      # loja com tantos anúncios de TV vende TV (o sinal
 # sinais fortes de IDENTIDADE (o anúncio/vendedor não é o que diz ser): só com um deles, e mais outro forte, o suspeito
 # vira reprovado automático. Preço (muito abaixo, "preço cheio" copiado) sozinho nunca reprova de vez.
 SINAIS_DE_IDENTIDADE = frozenset({"anatel_diferente", "tamanho_diferente", "catalogo_sem_tv"})
+# sinal forte que segura o preço nesta rodada mas não é prova de nada: nunca conta para o reprovado automático
+SINAIS_SEM_PROVA = frozenset({"nao_checado"})
+
+# campos da ficha do anúncio guardados no state (confianca.fichas) para as rodadas em que a coleta vem sem ficha. A
+# razão social fica de fora: o state é público e ela só serve ao sinal fraco de "outro ramo"
+CAMPOS_FICHA = ("anatel", "modelo", "tamanho", "peso_kg", "avaliacoes", "full", "vendedor_desde", "vendas_vendedor",
+                "avaliacoes_vendedor", "nota_vendedor")
 
 # lojas em que Oferta.preco pode ser o preço "de" (riscado) e não o do cartão desta oferta: no ML, a opção com desconto
 # guarda o original em .preco. Nelas não há como saber se o desconto é "só no Pix/1x".
@@ -230,22 +246,93 @@ def fora_de_preco(o: Any) -> bool:
     return veredito_de(o) in VEREDITOS_FORA
 
 
+def identidade_em_duvida(o: Any) -> bool:
+    """Reprovado, ou suspeito por sinal de IDENTIDADE (Anatel/tamanho de outro produto, loja sem TV): o anúncio não é
+    o que diz ser, então nem os preços que ele mostrou antes valem. Suspeito só pelo preço de agora, não."""
+    c = _extra(o).get("confianca")
+    if not isinstance(c, dict):
+        return False
+    return c.get("veredito") == REPROVADO or (c.get("veredito") == SUSPEITO
+                                              and bool(set(c.get("codigos") or []) & SINAIS_DE_IDENTIDADE))
+
+
 # ------------------------------------------------------------------------------------------------
 # listas curadas (monitor/listas_confianca.json) e reprovados automáticos (state)
 # ------------------------------------------------------------------------------------------------
 
+# Reserva no código (revisão de 26/09): o listas_confianca.json é editado à mão; com um erro de sintaxe, as duas listas
+# sumiriam e o bloqueio curado junto. Com o arquivo ilegível valem estas entradas (cópia de entradas do arquivo, o que
+# tests/test_confianca.py confere) e o monitor avisa no Telegram (aviso_de_lista_quebrada).
+RESERVA_LISTAS: dict = {
+    "confiaveis": {
+        "Magazine Luiza": [{"ids": ["magazineluiza"], "nomes": ["Magalu", "Magazine Luiza"],
+                            "motivo": "a própria loja (reserva do código)"}],
+        "Amazon": [{"ids": ["A1ZZFT5FULY4LN"], "nomes": ["Amazon.com.br", "Amazon"],
+                    "motivo": "a própria loja (reserva do código)"}],
+        "Mercado Livre": [{"ids": ["480263032"], "nomes": ["Mercado Livre"],
+                           "motivo": "a própria loja (reserva do código)"}],
+        "Casas Bahia": [{"ids": ["10037"], "nomes": ["Casas Bahia"], "motivo": "a própria loja (reserva do código)"}],
+        "KaBuM!": [{"nomes": ["KaBuM!", "KaBuM"], "motivo": "a própria loja (reserva do código)"}],
+        "Fast Shop": [{"nomes": ["Fast Shop"], "motivo": "a própria loja (reserva do código)"}],
+        "Loja TCL": [{"nomes": ["TCL - Brasil", "Loja TCL"],
+                      "motivo": "loja oficial do fabricante (reserva do código)"}],
+        "Webcontinental": [{"nomes": ["Webcontinental"], "motivo": "a própria loja (reserva do código)"}],
+    },
+    "reprovados": {
+        "Magazine Luiza": [{"ids": ["importadoslili"], "nomes": ["Importados Lili"],
+                            "anuncios": ["kc3ca4k960", "kd12g2e47k"],
+                            "motivo": "anúncio da TV com sinais de risco em 25/09/2026 (reserva do código; a empresa "
+                                      "pode ser vítima de conta invadida)", "desde": "2026-09-25"}],
+    },
+}
+
+
 @lru_cache(maxsize=1)
 def listas() -> dict:
+    """{'confiaveis', 'reprovados', 'erro'}. Arquivo ilegível ou fora do formato: a reserva do código, com 'erro'."""
     try:
         d = json.loads(ARQ_LISTAS.read_text(encoding="utf-8"))
-    except (OSError, ValueError) as e:  # lista quebrada não pode derrubar a coleta: fica sem lista (e avisa)
-        print(f"[confiança] não li {ARQ_LISTAS.name}: {type(e).__name__}: {e}")
-        d = {}
-    return {"confiaveis": d.get("confiaveis") or {}, "reprovados": d.get("reprovados") or {}}
+        if not isinstance(d, dict):
+            raise ValueError("o arquivo tem de ser um objeto JSON")
+        for tipo in ("confiaveis", "reprovados"):
+            if not isinstance(d.get(tipo), dict):
+                raise ValueError(f"'{tipo}' tem de ser um objeto {{loja: [entradas]}}")
+            for loja, entradas in d[tipo].items():
+                if not isinstance(entradas, list) or not all(isinstance(e, dict) for e in entradas):
+                    raise ValueError(f"{tipo}['{loja}'] tem de ser uma lista de objetos")
+        return {"confiaveis": d["confiaveis"], "reprovados": d["reprovados"], "erro": None}
+    except (OSError, ValueError) as e:  # lista quebrada não pode derrubar a coleta nem soltar o bloqueio curado
+        erro = f"{type(e).__name__}: {e}"[:300]
+        print(f"[confiança] não li {ARQ_LISTAS.name} ({erro}): usando a reserva do código")
+        return {**copy.deepcopy(RESERVA_LISTAS), "erro": erro}
 
 
 def recarrega_listas() -> None:
     listas.cache_clear()
+
+
+def erro_das_listas() -> Optional[str]:
+    """O erro de leitura do listas_confianca.json (None quando leu)."""
+    return listas().get("erro")
+
+
+def aviso_de_lista_quebrada(estado: Any) -> Optional[str]:
+    """Mensagem do Telegram quando o listas_confianca.json não carregou (no máximo a cada AVISO_LISTA_QUEBRADA_H)."""
+    from .util import agora_iso
+
+    b = bloco_do_estado(estado)
+    erro = erro_das_listas()
+    if not erro:
+        b.pop("lista_quebrada_avisada", None)
+        return None
+    idade = _idade_dias(b.get("lista_quebrada_avisada"))
+    if idade is not None and idade * 24 < AVISO_LISTA_QUEBRADA_H:
+        return None
+    b["lista_quebrada_avisada"] = agora_iso()
+    return ("⚠️ <b>monitor/listas_confianca.json não carregou</b>\n"
+            f"<code>{html.escape(erro)}</code>\n"
+            "Até corrigir o arquivo valem só as entradas de reserva do código (as próprias lojas como confiáveis e o "
+            "bloqueio curado de 25/09); os outros vendedores passam pelas checagens como vendedor novo.")
 
 
 def _entradas(tipo: str, loja: str) -> list[dict]:
@@ -450,6 +537,27 @@ def _anatel_fmt(d: str) -> str:
     return f"{d[:5]}-{d[5:7]}-{d[7:]}" if len(d) == 12 else d
 
 
+def _numeros_anatel(campo: Any) -> list[str]:
+    """Os números de homologação do campo Anatel da ficha (12 dígitos, com o zero à esquerda que falte). O campo pode
+    trazer mais de um (TV e controle remoto, que a ficha junta com ' | ')."""
+    out = []
+    for t in re.findall(r"\d[\d.\-]*\d", str(campo or "")):
+        d = _digitos(t)
+        if 9 <= len(d) <= 12:
+            out.append(d.zfill(12))
+    return out
+
+
+def anatel_confere(campo: Any) -> Optional[bool]:
+    """A homologação da 55C6K está no campo Anatel da ficha? None sem número legível. Outros números no mesmo campo
+    (controle, módulo) e a falta do zero à esquerda não contam contra (revisão de 26/09)."""
+    alvo = _digitos(ANATEL_55C6K)
+    todos = _digitos(campo)
+    if len(todos) < 8:
+        return None
+    return alvo in todos or alvo in _numeros_anatel(campo)
+
+
 def _pct(x: float) -> str:
     return f"{round(x * 100):d}%"
 
@@ -512,12 +620,13 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
             s.append(Sinal("desconto_so_no_pix", False, f"desconto de {_pct(desc)} só no Pix/1x"))
 
     # 2) ficha técnica do anúncio
-    anatel = _digitos(ficha.get("anatel"))
-    if anatel:
+    if _digitos(ficha.get("anatel")):
         feitas.append("Anatel")
-        if len(anatel) >= 8 and anatel != _digitos(ANATEL_55C6K):
+        if anatel_confere(ficha.get("anatel")) is False:
+            numeros = _numeros_anatel(ficha.get("anatel")) or [_digitos(ficha.get("anatel"))]
             s.append(Sinal("anatel_diferente", True,
-                           f"certificado Anatel {_anatel_fmt(anatel)} não é o da 55C6K ({ANATEL_55C6K})"))
+                           f"certificado Anatel {', '.join(_anatel_fmt(n) for n in numeros[:3])} não é o da 55C6K "
+                           f"({ANATEL_55C6K})"))
     modelo = str(ficha.get("modelo") or "").strip()
     if modelo:
         feitas.append("modelo")
@@ -551,8 +660,12 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
     razao = str(ficha.get("razao_social") or "").strip()
     if razao:
         feitas.append("razão social")
-        if _RE_OUTRO_RAMO.search(_ascii(razao)):
-            s.append(Sinal("razao_social_de_outro_ramo", False, f"razão social de outro ramo ('{razao[:60]}')"))
+        m = _RE_OUTRO_RAMO.search(_ascii(razao))
+        if m:
+            # só o ramo, sem o nome da empresa: o sinal vai para o latest/state públicos e a empresa pode ser vítima
+            ramo = re.match(r"[a-z]+", _ascii(razao)[m.start():])
+            s.append(Sinal("razao_social_de_outro_ramo", False,
+                           f"razão social de outro ramo ({ramo.group() if ramo else 'não é de eletro'})"))
     desde = ficha.get("vendedor_desde")
     idade = _idade_dias(desde)
     if idade is not None:
@@ -597,8 +710,39 @@ def reprova(sinais: list[Sinal]) -> bool:
     sinais fortes, um deles de IDENTIDADE (Anatel/tamanho de outro produto, loja sem TV no catálogo). Sinal de preço
     sozinho nunca reprova de vez: uma promoção de verdade de vendedor desconhecido limpo fica suspeita, é reavaliada a
     cada rodada e pode ser liberada pondo o vendedor em confiáveis."""
-    fortes = [x for x in sinais if x.forte]
+    fortes = [x for x in sinais if x.forte and x.codigo not in SINAIS_SEM_PROVA]
     return len(fortes) >= 2 and any(x.codigo in SINAIS_DE_IDENTIDADE for x in fortes)
+
+
+def _tem_identidade(ficha: Any) -> bool:
+    """A ficha traz o que identifica o anúncio (homologação Anatel ou avaliações da página)? A da busca do Magalu
+    não traz."""
+    return isinstance(ficha, dict) and ("anatel" in ficha or "avaliacoes" in ficha)
+
+
+def _sinal_sem_checagem(o: Any, ref: Referencias, cat: Optional[dict], porque: str) -> Optional[Sinal]:
+    """Vendedor novo numa loja com checagem de rede (Magalu) que ficou sem a ficha do anúncio ou sem o catálogo da loja
+    (403, limite da rodada, página ilegível) e está ABAIXO da loja confiável mais barata (sem referência: no alvo):
+    sinal forte que segura 🎯/🏆/🔻, mínimo e carrinho nesta rodada, sem ser prova (reavaliado na próxima; revisão de
+    26/09: o anúncio só da busca, depois de um 403, passava como "checagens ok (preço)")."""
+    p = melhor_preco(o)
+    if not p:
+        return None
+    if ref.menor is not None and p >= ref.menor[0]:
+        return None
+    if ref.menor is None and p > config.ALVO_PARCELADO:
+        return None
+    faltou = []
+    if not _tem_identidade(_extra(o).get("ficha")):
+        faltou.append("a ficha do anúncio")
+    if not cat or cat.get("erro"):
+        faltou.append("o catálogo da loja do vendedor")
+    if not faltou:
+        return None
+    onde = (f"abaixo da loja confiável mais barata ({_fmt(ref.menor[0])}, {ref.menor[1]})" if ref.menor
+            else "no alvo, sem loja confiável para comparar")
+    return Sinal("nao_checado", True, f"não deu para checar {' nem '.join(faltou)} ({porque}) e o preço {_fmt(p)} "
+                                      f"está {onde}; nova tentativa na próxima rodada")
 
 
 # ------------------------------------------------------------------------------------------------
@@ -727,6 +871,21 @@ def _do_cache(estado: Any, secao: str, chave: str) -> Optional[dict]:
     regs += [(b.get(secao) or {}).get(chave) for b in _blocos_de_outros_modos(estado) if isinstance(b.get(secao), dict)]
     validos = [r for r in regs if isinstance(r, dict) and r.get("quando")]
     return max(validos, key=lambda r: r["quando"]) if validos else None
+
+
+def _chave_ficha(o: Any, chave: str) -> str:
+    """Chave do cache da ficha: o vendedor e o anúncio da URL (a busca e a página do anúncio dão a mesma)."""
+    m = _RE_ANUNCIO_URL.search(str(_campo(o, "url") or ""))
+    anuncio = _norm(_extra(o).get("anuncio")) or (_norm(m.group(1)) if m else "")
+    return f"{chave}|{anuncio or '-'}"
+
+
+def _ficha_em_cache(reg: Optional[dict]) -> Optional[dict]:
+    """A ficha guardada, se ainda vale (TTL_FICHA_DIAS)."""
+    if not isinstance(reg, dict) or not isinstance(reg.get("ficha"), dict) or not reg["ficha"]:
+        return None
+    idade = _idade_dias(reg.get("ficha_em"))
+    return reg["ficha"] if idade is not None and idade < TTL_FICHA_DIAS else None
 
 
 def _catalogo_em_cache(estado: Any, chave: str) -> Optional[dict]:
@@ -863,6 +1022,16 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Re
         chave = chave_vendedor(o)
         loja = _loja(o)
         vid = vendedor_id(o)
+        ficha = o.extra.get("ficha") if isinstance(o.extra.get("ficha"), dict) else {}
+        # a ficha lida numa rodada anterior (coleta ou checagem) vale quando esta coleta só trouxe a busca (revisão de
+        # 26/09: sem isto, o anúncio com Anatel de outro produto virava "sem risco" na rodada seguinte)
+        chave_ficha = _chave_ficha(o, chave) if chave else None
+        reg_ficha = _do_cache(estado, "fichas", chave_ficha) if chave_ficha else None
+        fresca = _tem_identidade(ficha)
+        guardada = None if fresca else _ficha_em_cache(reg_ficha)
+        if guardada:
+            o.extra["ficha"] = ficha = {**guardada, **ficha}
+        abriu: Optional[bool] = None
         cat = _catalogo_em_cache(estado, chave) if chave else None
         sinais, feitas = sinais_da_oferta(o, ref, cat if cat and not cat.get("erro") else None)
         checagem = CHECAGENS_DE_REDE.get(loja)
@@ -874,21 +1043,20 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Re
                 and _atraente(o, ref, sinais):
             ler_catalogo, ler_ficha, _bloqueou = checagem
             gastou = False
-            ficha = o.extra.get("ficha") if isinstance(o.extra.get("ficha"), dict) else {}
-            anuncio = _anuncio_proprio(o) or chave
-            ja_abriu = _do_cache(estado, "fichas", f"{chave}|{anuncio}")
-            idade_ficha = _idade_dias(ja_abriu.get("quando")) if ja_abriu else None
-            aberto_ha_pouco = idade_ficha is not None and idade_ficha * 24 < TTL_FICHA_H
-            if "anatel" not in ficha and "avaliacoes" not in ficha and not aberto_ha_pouco:
+            idade_aberto = _idade_dias((reg_ficha or {}).get("aberto_em"))
+            aberto_ha_pouco = idade_aberto is not None and idade_aberto * 24 < TTL_FICHA_H
+            if not _tem_identidade(ficha) and not aberto_ha_pouco:
                 gastou = True
                 try:
                     nova = ler_ficha(o, vid, pedir)
+                    abriu = bool(nova)
                     if nova:
-                        o.extra["ficha"] = {**ficha, **nova}
-                    bloco["fichas"][f"{chave}|{anuncio}"] = {"quando": agora, "ok": bool(nova)}
+                        o.extra["ficha"] = ficha = {**ficha, **nova}
+                        fresca = fresca or _tem_identidade(nova)
                 except _Bloqueio:
                     bloqueado = True
                 except Exception as e:  # noqa: BLE001 - checagem extra: falha não derruba a rodada
+                    abriu = False
                     print(f"[confiança] não abri o anúncio de {_quem(o)}: {type(e).__name__}: {str(e)[:100]}")
             if cat is None and not bloqueado:
                 gastou = True
@@ -906,10 +1074,23 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Re
             if gastou:
                 usadas += 1
                 sinais, feitas = sinais_da_oferta(o, ref, cat if cat and not cat.get("erro") else None)
+        # sem sinal forte, mas sem a ficha ou o catálogo e abaixo da confiável mais barata: não passa como
+        # "checagens ok"
+        if checagem and not any(x.forte for x in sinais):
+            porque = ("a loja bloqueou as consultas (403/429)" if bloqueado else
+                      "checagem de rede desligada" if not rede else
+                      "limite de checagens da rodada" if usadas >= MAX_VENDEDORES_COM_REDE else
+                      "a página não trouxe os dados")
+            falta = _sinal_sem_checagem(o, ref, cat, porque)
+            if falta:
+                sinais.append(falta)
         veredito = decide(sinais)
-        info = {"veredito": veredito, "checagens": feitas, "sinais": [x.texto for x in sinais]}
+        info = {"veredito": veredito, "checagens": feitas, "sinais": [x.texto for x in sinais],
+                "codigos": [x.codigo for x in sinais]}
         if cat and not cat.get("erro"):
             info["catalogo"] = {k: cat.get(k) for k in ("total", "tv")}
+        if guardada:
+            info["ficha_guardada"] = True
         if veredito == SUSPEITO and reprova(sinais) and chave:
             info["reprovado_auto"] = True
         o.extra["confianca"] = info
@@ -918,6 +1099,15 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Re
               f"{_quem(o)} ({o.id}) {_fmt(melhor_preco(o) or 0)}"
               + (f" — {'; '.join(info['sinais'])[:300]}" if info["sinais"] else "")
               + (f" [checagens: {', '.join(feitas)}]" if feitas else ""))
+        if chave_ficha and (fresca or abriu is not None):
+            reg = dict(bloco["fichas"].get(chave_ficha) or reg_ficha or {})
+            if fresca:
+                reg["ficha"] = {k: ficha[k] for k in CAMPOS_FICHA if k in ficha}
+                reg["ficha_em"] = agora
+            if abriu is not None:
+                reg["aberto_em"], reg["ok"] = agora, abriu
+            reg["quando"] = agora
+            bloco["fichas"][chave_ficha] = reg
         if chave:
             reg = {"loja": loja, "vendedor": o.vendedor, "vendedor_id": vid or None, "veredito": veredito,
                    "sinais": info["sinais"], "quando": agora, "chave_oferta": o.chave, "preco": melhor_preco(o)}
@@ -933,7 +1123,7 @@ def _limpa_caches(bloco: dict) -> None:
     for k in [k for k, r in bloco["vendedores"].items()
               if not isinstance(r, dict) or (_idade_dias(r.get("quando")) or 0) > TTL_VEREDITO_DIAS]:
         del bloco["vendedores"][k]
-    for secao, ttl in (("catalogos", TTL_CATALOGO_DIAS), ("fichas", 1.0)):
+    for secao, ttl in (("catalogos", TTL_CATALOGO_DIAS), ("fichas", TTL_FICHA_DIAS)):
         for k in [k for k, r in bloco[secao].items()
                   if not isinstance(r, dict) or (_idade_dias(r.get("quando")) or 0) > ttl]:
             del bloco[secao][k]
@@ -956,6 +1146,56 @@ def _reprova_automatico(bloco: dict, o: Any, sinais: list[str], quando: str) -> 
         "motivo": f"anúncio da TV com sinais de risco em {_data_br(quando)}: " + "; ".join(sinais),
         "desde": quando, "origem": "automatico", "chave_oferta": o.chave, "preco": melhor_preco(o),
     }
+
+
+def _pagina_e_vendedor(url: Any) -> tuple[str, str]:
+    """(caminho da URL sem query, vendedor da URL): a oferta do vendedor da página e o cupom dela têm os dois iguais."""
+    u = str(url or "").strip()
+    m = _RE_VID_URL.search(u)
+    return u.lower().split("#", 1)[0].split("?", 1)[0].rstrip("/"), (_norm(m.group(1)) if m else "")
+
+
+def cupom_barrado(c: Any, ofertas: Iterable[Any] = (), auto: Optional[Iterable[dict]] = None) -> Optional[str]:
+    """Motivo quando o cupom é da página de um anúncio barrado (reprovado ou suspeito); None se não é.
+
+    No Magalu o cupom do anúncio (seller.tags) é do vendedor do buy box da página e vem com o link dela: o alerta, o
+    painel e o testador levariam a pessoa ao anúncio barrado (revisão de 26/09). Cupom do site ou de postagem (sem
+    anúncio) passa. `ofertas`: as da rodada, inclusive as descartadas por reprovado (run.py passa as coletadas)."""
+    if not _campo(c, "especifico"):
+        return None
+    loja = _loja(c)
+    pista = {"loja": loja, "url": _campo(c, "url"), "tipo": "cupom"}
+    if not anuncios_da_oferta(pista):
+        return None
+    lista = list(auto) if auto is not None else None
+    motivo = motivo_bloqueio(pista, lista)
+    if motivo:
+        return motivo
+    pagina = _pagina_e_vendedor(_campo(c, "url"))
+    for o in ofertas:
+        if _loja(o) != loja or str(_campo(o, "tipo") or "") != "loja" or _pagina_e_vendedor(_campo(o, "url")) != pagina:
+            continue
+        v = veredito_de(o)
+        if v in VEREDITOS_FORA:
+            return f"cupom da página de anúncio {v}"
+        m = motivo_bloqueio(o, lista)
+        if m:
+            return m
+    return None
+
+
+def descarta_cupons_barrados(estado: Any, cupons: list, ofertas: Iterable[Any]) -> list:
+    """Tira da rodada o cupom da página de anúncio reprovado/suspeito (ver cupom_barrado). Só log."""
+    auto = reprovados_auto_do_estado(estado)
+    ofertas = list(ofertas)
+    out = []
+    for c in cupons:
+        motivo = cupom_barrado(c, ofertas, auto)
+        if motivo:
+            print(f"[confiança] cupom {c.codigo} descartado (página de anúncio barrado): {motivo[:140]}")
+        else:
+            out.append(c)
+    return out
 
 
 def deve_avisar(estado: Any, o: Any) -> bool:
