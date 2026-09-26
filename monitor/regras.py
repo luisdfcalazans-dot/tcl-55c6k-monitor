@@ -1369,7 +1369,9 @@ def mensagem_bootstrap(ofertas: list[Oferta], cupons: list[Cupom], modo: str,
                 continue
             linhas.append(f"📺 <b>{rotulo_modelo(modelo)}</b>")
         for o in lojas[:8]:
-            linhas.append(f"• {_esc(o.loja)}: <b>{fmt_preco(o.melhor_preco)}</b>" + (f" · {_esc(o.parcelado)}" if o.parcelado else ""))
+            # o vendedor quando não é a própria loja (a Webcontinental tem Casas Bahia, Ponto e Colombo na 65")
+            quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
+            linhas.append(f"• {_esc(quem)}: <b>{fmt_preco(o.melhor_preco)}</b>" + (f" · {_esc(o.parcelado)}" if o.parcelado else ""))
     posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in blocos]
     linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só chegam novidades.")
     return "\n".join(linhas)

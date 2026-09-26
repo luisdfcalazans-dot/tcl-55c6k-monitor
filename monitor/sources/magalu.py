@@ -399,6 +399,16 @@ def anuncios_do_estado(dias: float = 14.0, arquivo=None) -> list[str]:
     return [u for _, u in regs]
 
 
+def _guarda_cupom(cupons: dict[str, Cupom], c: Cupom) -> None:
+    """O mesmo cupom de anúncio (código e validade) nas páginas das duas TVs vale para as duas: fica um só, sem modelo
+    (26/09: o LU300 do Magalu 1P aparece na página da 55" e na da 65")."""
+    for x in cupons.values():
+        if x.codigo == c.codigo and (x.validade or "") == (c.validade or "") and x.modelo != c.modelo:
+            x.modelo = None
+            return
+    cupons.setdefault(c.chave, c)
+
+
 def _seller_da_url(url: str) -> str:
     m = re.search(r"[?&]seller_id=([^&#]+)", url or "")
     return m.group(1) if m else ""
@@ -537,7 +547,7 @@ class Magalu(Fonte):
                         # o cupom é do vendedor do buy box desta página: o link leva a ele (a confiança casa o cupom
                         # com a oferta desse vendedor; ver confianca.cupom_barrado)
                         c.url = com_vendedor(c.url, pedido)
-                    cupons.setdefault(c.chave, c)
+                    _guarda_cupom(cupons, c)
                 for o in ofs:
                     if pedido and o.extra.get("vendedor_id") == pedido and not _seller_da_url(o.url):
                         # página aberta com ?seller_id (anúncio do estado ou do EXTRA): o link guarda o vendedor,
@@ -571,7 +581,7 @@ class Magalu(Fonte):
                     _guarda(por_id, det)
                     for c in cps:
                         c.url = com_vendedor(c.url, sid)  # cupom deste vendedor, não do buy box padrão do anúncio
-                        cupons.setdefault(c.chave, c)
+                        _guarda_cupom(cupons, c)
 
         visitar(list(candidatos.items()))
         completar_vendedores()
