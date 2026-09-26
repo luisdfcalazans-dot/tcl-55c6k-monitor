@@ -245,10 +245,15 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[Anuncio]]:
     barata), do mais barato ao mais caro. Sem teto fixo: o limite é por rodada (loja.max_anuncios)."""
     import os
 
+    from monitor.confianca import pode_ir_ao_carrinho, reprovados_auto_dos_arquivos
+
     cods: dict[str, str] = {}
     anuncios: dict[str, Anuncio] = {}
-    for arq in ("latest_cloud.json", "latest_pc.json"):
-        d = _json(config.DIR_DADOS / arq)
+    latests = [_json(config.DIR_DADOS / arq) for arq in ("latest_cloud.json", "latest_pc.json")]
+    # referência de preço para o registro sem veredito (gravado antes da checagem de confiança existir)
+    todas = [o for d in latests for o in d.get("ofertas_loja") or [] if isinstance(o, dict)]
+    auto = reprovados_auto_dos_arquivos()
+    for d in latests:
         for c in d.get("cupons") or []:
             if loja_canonica(c.get("loja", "")) == loja.loja_canonica and c.get("codigo"):
                 cods.setdefault(c["codigo"].strip().upper(), c.get("fonte", ""))
@@ -258,13 +263,14 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[Anuncio]]:
         for o in d.get("ofertas_loja") or []:
             if loja_canonica(o.get("loja", "")) != loja.loja_canonica:
                 continue
+            # só anúncio confiável ou sem risco aparente vai ao carrinho da pessoa; suspeito/reprovado nunca (nem o
+            # cupom da página dele entra na fila)
+            ok, motivo = pode_ir_ao_carrinho(o, todas, auto)
+            if not ok:
+                print(f"[{loja.nome}] ignoro {o.get('vendedor')} ({o.get('id')}): {motivo[:200]}")
+                continue
             if o.get("cupom"):
                 cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
-            from monitor.confianca import motivo_bloqueio
-            motivo = motivo_bloqueio(o)
-            if motivo:  # nunca pôr no carrinho da pessoa anúncio com sinal de fraude
-                print(f"[{loja.nome}] ignoro {o.get('vendedor')} ({o.get('id')}): {motivo}")
-                continue
             a = anuncio_da_oferta(loja, o)
             if a is None:
                 continue

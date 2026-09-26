@@ -95,6 +95,76 @@ def _e_55(p: dict) -> bool:
     return True
 
 
+def _ficha_tecnica(p: dict) -> dict[str, str]:
+    """Ficha técnica do anúncio (product.factsheet) achatada: {nome do campo sem acento, minúsculo: valor}."""
+    from ..util import sem_acentos
+
+    out: dict[str, str] = {}
+
+    def visita(no: dict) -> None:
+        for e in no.get("elements") or []:
+            if not isinstance(e, dict):
+                continue
+            if e.get("keyName") and e.get("elements"):
+                vals = [str(x.get("value")) for x in e["elements"]
+                        if isinstance(x, dict) and not x.get("isHtml") and x.get("value") not in (None, "")]
+                if vals:
+                    out.setdefault(sem_acentos(str(e["keyName"])).lower().strip(), " | ".join(vals)[:120])
+            visita(e)
+
+    for secao in p.get("factsheet") or []:
+        if isinstance(secao, dict):
+            visita(secao)
+    return out
+
+
+def _dados_do_vendedor(seller: dict) -> dict:
+    """Razão social, desde quando vende, vendas e nota do vendedor (seller.details), para a checagem de confiança."""
+    det = (seller or {}).get("details") or {}
+    if not isinstance(det, dict):
+        return {}
+    out: dict = {}
+    if det.get("legalName"):
+        out["razao_social"] = str(det["legalName"])[:80]
+    if det.get("sellerSince"):
+        out["vendedor_desde"] = str(det["sellerSince"])[:10]
+    for campo, chave in (("totalSales", "vendas_vendedor"), ("score", "nota_vendedor")):
+        if isinstance(det.get(campo), (int, float)):
+            out[chave] = det[campo]
+    return out
+
+
+def _ficha(p: dict) -> dict:
+    """O que a página (ou a busca) já traz para checar a legitimidade do anúncio sem requisição extra: homologação
+    Anatel, modelo e tamanho da ficha, avaliações, peso e os dados do vendedor. Ver monitor/confianca.py (caso de
+    25/09/2026: Anatel de celular, modelo 'Vários', 0 avaliações, peso 0,1 kg, loja de outro ramo)."""
+    f: dict = {}
+    ft = _ficha_tecnica(p)
+    for k, v in ft.items():
+        if "anatel" in k and "anatel" not in f:
+            f["anatel"] = v
+    modelo = ft.get("modelo") or ft.get("referencia")
+    if modelo:
+        f["modelo"] = modelo
+    tam = ft.get("polegadas") or ft.get("tamanho da tela") or ft.get("tamanho")
+    if not tam:
+        for a in p.get("attributes") or []:
+            if isinstance(a, dict) and _variacao_de_tamanho({"label": a.get("label"), "type": a.get("type"),
+                                                             "value": a.get("current")}) and a.get("current"):
+                tam = str(a["current"])
+                break
+    if tam:
+        f["tamanho"] = tam
+    rating = p.get("rating")
+    if isinstance(rating, dict) and isinstance(rating.get("count"), (int, float)):
+        f["avaliacoes"] = int(rating["count"])
+    dims = p.get("dimensions")
+    if isinstance(dims, dict) and isinstance(dims.get("weight"), (int, float)) and dims["weight"] > 0:
+        f["peso_kg"] = dims["weight"]
+    f.update(_dados_do_vendedor(p.get("seller") or {}))
+    return f
+
+
 def _oferta(p: dict) -> Oferta | None:
     """Oferta do vendedor do buy box (o que a página/busca mostra com preço, Pix e parcelado)."""
     titulo = p.get("title") or ""
@@ -113,7 +183,7 @@ def _oferta(p: dict) -> Oferta | None:
         preco=cartao, preco_pix=pix if pix and cartao and pix < cartao else (pix if not cartao else None),
         parcelado=_parcelado(inst), vendedor=vendedor,
         extra={"preco_de": parse_preco(price.get("price")), "1p": seller.get("category") == "1p",
-               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None},
+               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None, "ficha": _ficha(p)},
     )
 
 
@@ -145,7 +215,9 @@ def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
         url=url, id=f"{p.get('id')}-{sid}", preco=cartao, preco_pix=pix,
         vendedor=sel.get("description") or sid,
         extra={"preco_de": parse_preco(price.get("price")), "1p": sel.get("category") == "1p",
-               "anuncio": id_anuncio(url), "vendedor_id": sid, "so_lista_de_vendedores": True},
+               "anuncio": id_anuncio(url), "vendedor_id": sid, "so_lista_de_vendedores": True,
+               # a ficha da página é do anúncio do buy box: deste vendedor só os dados dele
+               "ficha": _dados_do_vendedor(sel)},
     )
 
 

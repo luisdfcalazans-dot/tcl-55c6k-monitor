@@ -171,14 +171,44 @@ def parse_ofertas(html: str, asin: str, titulo: str = "") -> list[Oferta]:
             vendedor = re.sub(r"^\s*Vendido por\s*", "", txt).strip()[:60] or None
         pix = any("pix" in s.lower() and ("vista" in s.lower() or "no pix" in s.lower())
                   for s in b.find_all(string=True) if s and "pix" in s.lower())
+        mais = {"destaque": b.get("id") == "aod-pinned-offer"}
+        ficha = _ficha_do_bloco(b)
+        if ficha:
+            mais["ficha"] = ficha
         o = Oferta(
             fonte="amazon", tipo="loja", loja="Amazon", titulo=titulo or f"TCL 55C6K ({asin})",
             url=url_vendedor(asin, vendedor_id), id=_id_oferta(asin, vendedor_id, vendedor),
             preco=None if pix else preco, preco_pix=preco if pix else None, vendedor=vendedor,
-            extra=_extra(asin, vendedor_id, destaque=b.get("id") == "aod-pinned-offer"),
+            extra=_extra(asin, vendedor_id, **mais),
         )
         out.setdefault(o.id, o)
     return list(out.values())
+
+
+_RE_AVALIACOES_VENDEDOR = re.compile(r"\((\d{1,3}(?:\.\d{3})*|\d+)\s+avalia", re.I)
+_RE_POSITIVAS = re.compile(r"(\d{1,3})\s*%\s+positiv", re.I)
+_RE_ENVIADO = re.compile(r"^\s*Enviado\s+(?:pela|pelo|por)\s+", re.I)
+
+
+def _ficha_do_bloco(b) -> dict:
+    """Do bloco do painel de ofertas: avaliações do vendedor e quem envia ("Enviado pela Amazon" = Full), para a
+    checagem de confiança de vendedor desconhecido (monitor/confianca.py). Nada de requisição extra: a página do
+    vendedor (sp?seller=) e a vitrine (s?me=) dão 503 por HTTP."""
+    f: dict = {}
+    r = b.select_one("#aod-offer-seller-rating")
+    txt = r.get_text(" ", strip=True) if r else ""
+    m = _RE_AVALIACOES_VENDEDOR.search(txt)
+    if m:
+        f["avaliacoes_vendedor"] = int(m.group(1).replace(".", ""))
+    m = _RE_POSITIVAS.search(txt)
+    if m:
+        f["positivas_pct"] = int(m.group(1))
+    s = b.select_one("#aod-offer-shipsFrom")
+    enviado = _RE_ENVIADO.sub("", s.get_text(" ", strip=True)).strip() if s else ""
+    if enviado:
+        f["enviado_por"] = enviado[:60]
+        f["full"] = enviado.lower().startswith("amazon")
+    return f
 
 
 def parse_busca(html: str) -> list[Oferta]:
@@ -322,4 +352,7 @@ class Amazon(Fonte):
             por_id.pop(o.id, None)
         if not dest.vendedor and iguais:
             dest.vendedor = iguais[0].vendedor
+        ficha = next((o.extra["ficha"] for o in iguais if o.extra.get("ficha")), None)
+        if ficha and not dest.extra.get("ficha"):
+            dest.extra["ficha"] = ficha  # avaliações/envio do vendedor só vêm no painel
         por_id[dest.id] = dest

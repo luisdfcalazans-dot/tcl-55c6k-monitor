@@ -21,6 +21,19 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 
 Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO`.
 
+### Confiança nos vendedores (antes de qualquer alerta de preço)
+
+Cada anúncio de loja recebe um veredito (`monitor/confianca.py`), sem atrasar os vendedores conhecidos:
+
+| Veredito | O que acontece |
+|---|---|
+| **confiável** (lista `monitor/listas_confianca.json`) | alerta na hora, sem checagem nenhuma |
+| **reprovado** (lista curada ou reprovado automático) | descartado de cara: sem alerta, mínimo, histórico, painel nem carrinho |
+| **suspeito** (vendedor desconhecido com sinais fortes) | uma mensagem ⚠️ "Anúncio suspeito — possível golpe" com os sinais; nunca conta como preço; o vendedor vira reprovado automático |
+| **sem risco aparente** (desconhecido que passou) | alerta normal + linha 🔎 com o que foi checado |
+
+Sinais: preço muito abaixo da loja confiável mais barata, "preço cheio" copiado de outra loja com desconto enorme só no Pix/1x, homologação Anatel diferente da 55C6K (`00738-24-06714`), modelo genérico, tamanho errado, anúncio sem avaliações, peso de mentira, vendedor novo/de outro ramo e, no Magalu, o catálogo da loja do vendedor (1 requisição, guardada por 7 dias). Para liberar um vendedor reprovado automaticamente, ponha-o em `confiaveis` (a lista curada vence). O texto das listas é neutro: uma empresa listada pode ser vítima (conta invadida), não autora.
+
 ## Configurar (uma vez)
 
 ### 1. Bot do Telegram (2 min)
@@ -68,6 +81,8 @@ monitor/config.py        URLs, alvos, canais, lojas
 monitor/filtro.py        aceita só 55C6K (rejeita 65/75/85C6K, combos, acessórios, usados)
 monitor/sources/*.py     um coletor por fonte
 monitor/regras.py        o que vira alerta
+monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
+monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
 docs/index.html          painel (GitHub Pages)
 tests/                   testes com HTML/JSON reais salvos

@@ -965,6 +965,8 @@ class MercadoLivre(Fonte):
             x.extra.update({"anuncio": item or config.ML_CATALOGO_ID, "item_id": item,
                             "catalogo": config.ML_CATALOGO_ID, "opcoes_no_catalogo": n_opcoes,
                             "vendedor_id": vend.get("vendedor_id") if item and item == vend.get("item_id") else None})
+            if item and item == vend.get("item_id") and vend.get("vendas") is not None:
+                x.extra["vendas_vendedor"] = vend["vendas"]  # checagem de confiança (monitor/confianca.py)
         return ofertas
 
     def _conferir_fora_do_catalogo(self, fora: list[Oferta], catalogo: list[Oferta], cargas: int) -> list[Oferta]:
