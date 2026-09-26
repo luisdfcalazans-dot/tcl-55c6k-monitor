@@ -131,9 +131,12 @@ class ResultadoCupom:
 
     @property
     def status(self) -> str:
-        """'aceito', 'recusado' (a loja disse não) ou 'erro' (falha do robô, que não vale como recusa)."""
+        """'aceito' (o preço da TV caiu), 'so_frete' (a loja aceitou, mas só o frete mudou: não é desconto na TV),
+        'recusado' (a loja disse não) ou 'erro' (falha do robô ou preço ilegível, que não vale como recusa)."""
         if self.aceito:
             return "aceito"
+        if self.extra.get("so_frete"):
+            return "so_frete"
         if self.extra.get("falha") or falha_da_ferramenta(self.mensagem):
             return "erro"
         return "recusado"
@@ -171,6 +174,71 @@ class ResultadoCupom:
         return f"{n}x de R$ {certo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " sem juros"
 
 
+# ----------------------------------------------------------------------------------------------
+# o que o cupom fez (L2, 26/09): no ML, "MELIPROMOBIT" saiu "aceito" com o total ILEGÍVEL ("TV —") e outros dois com a
+# TV no mesmo preço, porque qualquer linha "Desconto" do resumo (o do Pix, o "de produtos") contava como cupom.
+# Agora só o preço da TV medido antes e depois decide.
+# ----------------------------------------------------------------------------------------------
+
+TOLERANCIA_PRECO = 1.0   # R$: diferença menor que isto é arredondamento da loja, não desconto
+
+
+def _tv_do_total(total: Optional[float], frete: Optional[float], quantidade: int) -> Optional[float]:
+    return None if total is None else round((total - (frete or 0)) / max(1, quantidade), 2)
+
+
+def medir_cupom(antes: ResultadoCupom, depois: ResultadoCupom, mensagem: str = "") -> ResultadoCupom:
+    """Decide, em `depois`, o que o cupom fez, comparando o carrinho ANTES e DEPOIS dele:
+
+    - a loja respondeu com uma recusa (`mensagem`): recusado;
+    - o preço da TV não dá para ler antes E depois na mesma base (cartão com cartão, Pix com Pix): 'erro' (o teste
+      não mediu nada e volta na próxima rodada), nunca 'aceito', nem com uma linha de desconto no resumo;
+    - o preço da TV (total menos frete, por unidade) caiu: aceito;
+    - só o frete caiu e a TV custa o mesmo: 'so_frete' (extra['so_frete']), que NUNCA é desconto na TV;
+    - o resumo mostra um cupom mas o preço da TV não caiu: 'erro' (leitura no meio da atualização; testa de novo);
+    - nada mudou: recusado ('sem mudança no preço da TV').
+    O frete que não deu para ler de um lado vale o do outro (aí a queda do total fica com a TV)."""
+    depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao, "antes_frete": antes.frete}
+    depois.aceito = False
+    if mensagem:
+        depois.mensagem = mensagem
+        return depois
+
+    def falha(motivo: str) -> ResultadoCupom:
+        depois.mensagem = motivo
+        depois.extra["falha"] = True
+        return depois
+
+    if max(1, antes.quantidade) != max(1, depois.quantidade):
+        return falha(f"não consegui medir: a quantidade no carrinho mudou ({antes.quantidade} -> {depois.quantidade})")
+    fa, fd = antes.frete, depois.frete
+    fa = fd if fa is None else fa
+    fd = fa if fd is None else fd
+    q = max(1, depois.quantidade)
+    pares = []
+    if antes.total_cartao is not None and depois.total_cartao is not None:
+        pares.append((_tv_do_total(antes.total_cartao, fa, q), _tv_do_total(depois.total_cartao, fd, q)))
+    if antes.pix_real and depois.pix_real and antes.total_pix is not None and depois.total_pix is not None:
+        pares.append((_tv_do_total(antes.total_pix, fa, q), _tv_do_total(depois.total_pix, fd, q)))
+    if not pares:
+        return falha("não consegui ler o preço da TV no carrinho antes e depois do cupom")
+    queda_tv = max(a - d for a, d in pares)
+    tv_igual = all(abs(a - d) <= TOLERANCIA_PRECO for a, d in pares)
+    queda_frete = (antes.frete - depois.frete) if antes.frete is not None and depois.frete is not None else 0.0
+    if queda_tv > TOLERANCIA_PRECO:
+        depois.aceito = True
+        depois.mensagem = ""
+    elif tv_igual and queda_frete > 0.5:
+        depois.extra["so_frete"] = True
+        tv = pares[-1][1]    # o Pix quando a loja mostra (a mesma base da mensagem), senão o cartão
+        depois.mensagem = f"só frete: frete {fmt_preco(antes.frete)} → {fmt_preco(depois.frete)}; a TV continua {fmt_preco(tv)}"
+    elif depois.desconto:
+        return falha(f"não consegui ver o preço da TV cair (o resumo mostra cupom de {fmt_preco(depois.desconto)})")
+    else:
+        depois.mensagem = "sem mudança no preço da TV"
+    return depois
+
+
 class PrecisaLogin(Exception):
     """A loja pediu login: a sessão salva expirou ou nunca foi feita."""
 
@@ -194,22 +262,29 @@ _MAGALU_1P = {"magalu", "magazineluiza"}
 
 def norm_vendedor(s) -> str:
     """Nome/id do vendedor comparável, sem o ruído que a Amazon cola no nome ("Amazon.com.br Política de devolução",
-    "Vendido por Amazon.com.br"): o 1P da Amazon (A1ZZFT5FULY4LN, 26/09) tem esse nome na coleta e "Amazon.com.br"
-    na página do anúncio."""
+    "Vendido por Amazon.com.br", "Enviado de e vendido por Amazon.com.br"): o 1P da Amazon (A1ZZFT5FULY4LN, 26/09) tem
+    esse nome na coleta e "Amazon.com.br" na página do anúncio."""
     t = sem_acentos(str(s or "")).lower()
-    t = re.sub(r"politica de devolucao|^\s*(?:enviado e )?vendido por\s+", "", t)
+    t = re.sub(r"politica de devolucao|^\s*(?:enviado (?:de )?e )?vendido por\s+", "", t)
     return re.sub(r"[^a-z0-9]", "", t)
 
 
+# a própria Amazon (1P): o merchantID A1ZZFT5FULY4LN ou o nome "Amazon.com.br" (L3, 26/09: a página do anúncio 1P não
+# tem link de perfil do vendedor, só o merchantID escondido; a coleta grava o id e o nome)
+_AMAZON_1P = {norm_vendedor(config.AMAZON_1P_ID), "amazoncombr"}
+
+
 def mesmo_vendedor(a_id, a_nome, b_id, b_nome) -> Optional[bool]:
-    """True/False comparando id e nome dos dois lados; None quando um dos lados não diz nada."""
+    """True/False comparando id e nome dos dois lados; None quando um dos lados não diz nada. O próprio Magalu
+    ('magazineluiza' / 'Magalu') e a própria Amazon (A1ZZFT5FULY4LN / 'Amazon.com.br') valem pelo id OU pelo nome."""
     lado_a = {norm_vendedor(x) for x in (a_id, a_nome)} - {""}
     lado_b = {norm_vendedor(x) for x in (b_id, b_nome)} - {""}
     if not lado_a or not lado_b:
         return None
     for lado in (lado_a, lado_b):
-        if lado & _MAGALU_1P:
-            lado |= _MAGALU_1P
+        for primeira_parte in (_MAGALU_1P, _AMAZON_1P):
+            if lado & primeira_parte:
+                lado |= primeira_parte
     return bool(lado_a & lado_b)
 
 
@@ -957,21 +1032,17 @@ class Magalu(LojaCarrinho):
         page.wait_for_timeout(1500)
         depois = self.ler_totais(page)
         depois.codigo = codigo
-        caiu = (antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1) or \
-               (antes.total_pix and depois.total_pix and depois.total_pix < antes.total_pix - 1)
-        depois.aceito = (not mensagem) and (bool(depois.desconto) or bool(caiu))
-        falha = False
-        if not mensagem and not depois.aceito:
-            if _sem_total(antes) or _sem_total(depois):
-                mensagem, falha = "não consegui ler o total da sacola", True
-            else:
+        if not mensagem and (_sem_total(antes) or _sem_total(depois)):
+            depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao, "falha": True}
+            depois.aceito, depois.mensagem = False, "não consegui ler o total da sacola"
+        else:
+            # L2 (26/09): só o preço da TV medido antes e depois decide (linha de desconto sozinha não é aceite)
+            medir_cupom(antes, depois, mensagem)
+            if depois.status == "recusado" and not mensagem:
                 t = _texto(page)
                 i_res = t.find("Produtos (")
-                mensagem = "sem mudança no total: " + re.sub(r"\s+", " ", t[i_res:i_res + 160]).strip() if i_res >= 0 else "sem mudança no total"
-        depois.mensagem = mensagem
-        depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
-        if falha:
-            depois.extra["falha"] = True
+                depois.mensagem = ("sem mudança no total: " + re.sub(r"\s+", " ", t[i_res:i_res + 160]).strip()
+                                   if i_res >= 0 else "sem mudança no total")
         self._fechar_dialogo(page)
         return depois
 
@@ -1059,6 +1130,164 @@ _JS_ML_LINHAS = """() => {
             texto: (bloco.innerText || '').slice(0, %d), excluir: !!botao, qtd: qtd};
   });
 }""" % (_ML_MAX_TEXTO_LINHA, _ML_MAX_TEXTO_LINHA + 1)
+
+
+# ----------------------------------------------------------------------------------------------
+# resumo do carrinho do ML (L1, 26/09). O innerText põe o rótulo numa linha e o valor em pedaços nas seguintes
+# ('-' / 'R$' / '235' / ',' / '01'). Com as duas TVs o resumo real ficou assim:
+#   Resumo da compra | Produtos (2) | R$ 8.298 | Desconto de produtos | - R$ 235,01 | Frete | R$ 632 (riscado) |
+#   R$ 203,99 | Inserir código do cupom | Desconto no Pix | - R$ 420,45 | Total | R$ 8.930 (riscado) | R$ 7.846,53 |
+#   no Pix | Economize R$ 1.083,47 | Continuar (2)
+# O valor riscado (preço antigo) vem ANTES do atual no mesmo rótulo: vale o ÚLTIMO. O total "no Pix" é o do Pix; o do
+# cartão é produtos - descontos (menos o do Pix) + frete (e bate com Pix + desconto do Pix). Abaixo do resumo vêm as
+# RECOMENDAÇÕES (racks, suportes, com preços): nunca são linha do carrinho nem preço.
+# ----------------------------------------------------------------------------------------------
+
+_RE_ML_FIM_DO_RESUMO = re.compile(
+    r"^(?:continuar\b|recomenda[çc][õo]es|produtos que te interessaram|voc[êe] tamb[ée]m pode gostar|quem viu|"
+    r"mais informa[çc][õo]es|inspirado)", re.I)
+_RE_ML_RECOMENDACOES = re.compile(
+    r"^(?:recomenda[çc][õo]es|produtos que te interessaram|voc[êe] tamb[ée]m pode gostar|quem viu|inspirado)", re.I)
+_RE_ML_NUMERO = re.compile(r"(-)?\s*(?:R\$\s?)?(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{2}))?")
+_RE_ML_ROTULO_COM_VALOR = re.compile(r"^(.*?\S)\s*:?\s+((?:-\s*)?R\$\s?[\d.]+(?:,\d{2})?|gr[áa]tis)$", re.I)
+_ML_MAX_LINHAS_RESUMO = 120
+
+
+def _pedaco_de_valor(l: str) -> bool:
+    """Linha que é só um pedaço de valor em R$ ('-', 'R$', '8.930', ',', '53', 'Grátis', '-R$ 100')."""
+    return l in ("-", "R$", ",") or bool(re.fullmatch(r"gr[áa]tis", l, re.I) or _RE_ML_NUMERO.fullmatch(l))
+
+
+def _valores_ml(linhas: list[str], k: int) -> tuple[list[float], int]:
+    """Valores em R$ a partir da linha k, até a primeira linha que não é pedaço de valor: (valores na ordem da
+    página, com sinal; índice da linha seguinte). 'Grátis' vale 0,0."""
+    vals: list[float] = []
+    sinal = 1
+    j = k
+    while j < len(linhas):
+        l = linhas[j]
+        if not l or l == "R$":
+            j += 1
+            continue
+        if l == "-":
+            sinal, j = -1, j + 1
+            continue
+        if re.fullmatch(r"gr[áa]tis", l, re.I):
+            vals.append(0.0)
+            sinal, j = 1, j + 1
+            continue
+        m = _RE_ML_NUMERO.fullmatch(l)
+        if not m:
+            break
+        j += 1
+        centavos = m.group(3)
+        if centavos is None and j + 1 < len(linhas) and linhas[j] == "," and re.fullmatch(r"\d{2}", linhas[j + 1]):
+            centavos, j = linhas[j + 1], j + 2
+        v = int(m.group(2).replace(".", "")) + (int(centavos) / 100 if centavos else 0)
+        vals.append(round(-v if (m.group(1) or sinal < 0) else v, 2))
+        sinal = 1
+    return vals, j
+
+
+def _linhas_do_resumo_ml(linhas: list[str]) -> list[tuple[str, list[float]]]:
+    """[(rótulo, valores)] na ordem da página. Rótulo sem valor ('Inserir código do cupom', 'no Pix') vem com []."""
+    out: list[tuple[str, list[float]]] = []
+    k = 0
+    while k < len(linhas):
+        l = linhas[k]
+        if not l:
+            k += 1
+            continue
+        if _pedaco_de_valor(l):
+            vals, k = _valores_ml(linhas, k)      # valor sem rótulo: continua o rótulo anterior
+            if out:
+                out[-1][1].extend(vals)
+            continue
+        m = _RE_ML_ROTULO_COM_VALOR.match(l)
+        rotulo, na_linha = (m.group(1), _valores_ml([m.group(2).strip()], 0)[0]) if m else (l, [])
+        vals, j = _valores_ml(linhas, k + 1)
+        out.append((rotulo.strip(), na_linha + vals))
+        k = max(j, k + 1)
+    return out
+
+
+def ler_resumo_ml(texto: str) -> ResultadoCupom:
+    """Resumo do carrinho do ML a partir do innerText da página (layout de 26/09 e o antigo, com 1 ou 2 TVs).
+
+    Só lê do 'Resumo da compra' até o 'Continuar' (ou o começo das recomendações). Sem o 'Resumo da compra', lê o
+    texto até as recomendações. `desconto` é só o de CUPOM (linha com 'cupom', menos 'Inserir código do cupom'); os
+    descontos 'de produtos' e 'no Pix' vão em extra. Layout antigo ('Total' sem 'no Pix'): o total é o do cartão e
+    total_pix é cópia dele (pix_real=False)."""
+    linhas = [l.strip() for l in (texto or "").splitlines()]
+    i_rec = next((k for k, l in enumerate(linhas) if _RE_ML_RECOMENDACOES.match(l)), len(linhas))
+    i_resumo = next((k for k, l in enumerate(linhas) if l.lower().startswith("resumo da compra")), None)
+    if i_resumo is not None:
+        # do "Resumo da compra" até o "Continuar" ou o começo de um bloco de recomendações (esteja onde estiver)
+        fim = next((k for k in range(i_resumo + 1, min(len(linhas), i_resumo + _ML_MAX_LINHAS_RESUMO))
+                    if _RE_ML_FIM_DO_RESUMO.match(linhas[k])), min(len(linhas), i_resumo + _ML_MAX_LINHAS_RESUMO))
+        fatia = linhas[i_resumo + 1: fim]
+    else:
+        fatia = linhas[:i_rec]
+    r = ResultadoCupom(codigo="", aceito=False)
+    frete = total = None
+    riscados: dict = {}
+    desc = {"pix": 0.0, "frete": 0.0, "cupom": 0.0, "produtos": 0.0, "outros": 0.0}
+    tem_desc_pix = no_pix = False
+    rows = _linhas_do_resumo_ml(fatia)
+    for k, (rot, vals) in enumerate(rows):
+        baixo = sem_acentos(rot).lower()
+        ultimo = vals[-1] if vals else None
+        m = _RE_ML_QTD.match(rot)
+        if (m or re.fullmatch(r"produto", rot, re.I)) and r.produtos is None:
+            r.quantidade = max(1, int(m.group(1))) if m else 1   # com 1 unidade o resumo pode dizer só 'Produto'
+            r.produtos = abs(ultimo) if ultimo is not None else None
+        elif re.fullmatch(r"frete:?(?: gratis)?", baixo) and frete is None:
+            frete = abs(ultimo) if ultimo is not None else (0.0 if "gratis" in baixo else None)
+            if len(vals) > 1:
+                riscados["frete"] = abs(vals[0])
+        elif re.fullmatch(r"total:?(?: no pix)?", baixo) and total is None:
+            total = abs(ultimo) if ultimo is not None else None
+            if len(vals) > 1:
+                riscados["total"] = abs(vals[0])
+            seguinte = sem_acentos(rows[k + 1][0] if k + 1 < len(rows) else "").lower()
+            no_pix = "pix" in baixo or bool(re.match(r"(?:a vista\s+)?no pix\b", seguinte))
+        elif vals and "inserir" not in baixo and ("desconto" in baixo or "cupom" in baixo or ultimo < 0):
+            v = abs(ultimo)
+            qual = next((q for q, chave in (("pix", "pix"), ("frete", "frete"), ("cupom", "cupom"),
+                                            ("produtos", "produto")) if chave in baixo), "outros")
+            desc[qual] += v
+            tem_desc_pix = tem_desc_pix or qual == "pix"
+    frete_efetivo = None if frete is None else round(max(0.0, frete - desc["frete"]), 2)
+    r.frete = frete_efetivo
+    r.desconto = round(desc["cupom"], 2) or None
+    r.extra = {"desconto_produtos": round(desc["produtos"], 2), "desconto_pix": round(desc["pix"], 2),
+               **({"outros_descontos": round(desc["outros"], 2)} if desc["outros"] else {}),
+               **({"riscados": riscados} if riscados else {})}
+    if no_pix or tem_desc_pix:
+        # layout de 26/09: o Total (o último valor, o que não está riscado) é o do Pix; o do cartão sai das linhas
+        # (e confere com Pix + desconto do Pix)
+        pelas_linhas = None
+        if r.produtos is not None:
+            pelas_linhas = round(r.produtos - desc["produtos"] - desc["cupom"] - desc["outros"]
+                                 + (frete_efetivo or 0), 2)
+        pix_mais_desconto = round(total + desc["pix"], 2) if total is not None and tem_desc_pix else None
+        cartao = pelas_linhas if pelas_linhas is not None else pix_mais_desconto
+        if pelas_linhas is not None and pix_mais_desconto is not None and \
+                abs(pelas_linhas - pix_mais_desconto) > TOLERANCIA_PRECO:
+            # alguma linha do resumo não foi entendida: vale o que a loja mostra no fim (Pix + desconto do Pix)
+            r.extra["cartao_pelas_linhas"] = pelas_linhas
+            cartao = pix_mais_desconto
+        r.total_pix = total
+        r.total_cartao = cartao
+        r.pix_real = True
+    else:
+        # layout antigo: o ML só mostrava o desconto do Pix no pagamento; este "Pix" é o total do CARTÃO
+        r.total_cartao = total
+        r.total_pix, r.pix_real = total, False
+    # parcelado: só no resumo e nas linhas das TVs (o "em 10x de R$ 211,20 sem juros" de um rack recomendado não é)
+    m = _RE_PARCELA.search("\n".join(fatia)) or _RE_PARCELA.search("\n".join(linhas[:min(i_rec, i_resumo or i_rec)]))
+    r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
+    return r
 
 
 def item_ml_da_url(url: str) -> Optional[str]:
@@ -1702,51 +1931,10 @@ class MercadoLivre(LojaCarrinho):
         return conferidos
 
     def ler_totais(self, page) -> ResultadoCupom:
-        """O resumo do ML põe rótulo e valor em linhas separadas ('Produtos (2)' / 'R$' / '8.338')."""
-        linhas = [l.strip() for l in _texto(page).splitlines()]
-        r = ResultadoCupom(codigo="", aceito=False)
-
-        def valor_apos(k: int) -> Optional[float]:
-            for j in range(k + 1, min(len(linhas), k + 5)):
-                l = linhas[j]
-                if not l:
-                    continue
-                if re.fullmatch(r"gr[áa]tis", l, re.I):
-                    return 0.0
-                if l == "R$" or l == "-":
-                    continue
-                m = re.fullmatch(r"-?\s*(?:R\$\s?)?([\d.]+)", l)
-                if m:
-                    inteiro = parse_preco(m.group(1))
-                    centavos = 0.0
-                    if j + 2 < len(linhas) and linhas[j + 1] == "," and re.fullmatch(r"\d{2}", linhas[j + 2]):
-                        centavos = int(linhas[j + 2]) / 100
-                    return round((inteiro or 0) + centavos, 2) or None
-                return None
-            return None
-
-        i_resumo = next((k for k, l in enumerate(linhas) if l.startswith("Resumo da compra")), None)
-        fatia = range(i_resumo, min(len(linhas), i_resumo + 24)) if i_resumo is not None else range(len(linhas))
-        for k in fatia:
-            rot = linhas[k]
-            m = _RE_ML_QTD.match(rot)
-            if m and r.produtos is None:
-                r.quantidade = max(1, int(m.group(1)))
-                r.produtos = valor_apos(k)
-            elif re.fullmatch(r"Produto", rot, re.I) and r.produtos is None:
-                r.quantidade = 1  # com 1 unidade o resumo diz só 'Produto', sem o número
-                r.produtos = valor_apos(k)
-            elif re.fullmatch(r"Frete", rot, re.I) and r.frete is None:
-                r.frete = valor_apos(k)
-            elif re.fullmatch(r"Total", rot, re.I) and r.total_cartao is None:
-                r.total_cartao = valor_apos(k)
-            elif re.search(r"(cupom|desconto)", rot, re.I) and "Inserir" not in rot and r.desconto is None:
-                r.desconto = valor_apos(k)
-        # o ML só mostra o desconto do Pix no pagamento: este "Pix" é o total do CARTÃO (pix_real=False)
-        r.total_pix, r.pix_real = r.total_cartao, False
-        m = _RE_PARCELA.search("\n".join(linhas))
-        r.parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None
-        return r
+        """O resumo do ML põe rótulo e valor em linhas separadas ('Produtos (2)' / 'R$' / '8.338'): ver ler_resumo_ml
+        (26/09: a janela fixa de 24 linhas depois de 'Resumo da compra' deixava o 'Total' de fora quando o resumo
+        ganhou 'Desconto de produtos', e o teste do cupom saía com o preço ilegível)."""
+        return ler_resumo_ml(_texto(page))
 
     def ajustar_quantidade(self, page, alvo: int = 1) -> bool:
         """Deixa o carrinho com `alvo` unidades da TV, clicando no menos do seletor de quantidade.
@@ -1808,14 +1996,16 @@ class MercadoLivre(LojaCarrinho):
         _espera(page)
         depois = self.ler_totais(page)
         depois.codigo = codigo
-        caiu = bool(antes.total_cartao and depois.total_cartao and depois.total_cartao < antes.total_cartao - 1)
-        depois.aceito = (not mensagem) and (bool(depois.desconto) or caiu)
-        falha = not mensagem and not depois.aceito and (_sem_total(antes) or _sem_total(depois))
-        depois.mensagem = mensagem or ("" if depois.aceito else
-                                       "não consegui ler o total do carrinho" if falha else "sem mudança no total")
-        depois.extra = {"antes_pix": antes.total_pix, "antes_cartao": antes.total_cartao}
-        if falha:
+        # L2 (26/09): só o preço da TV medido antes e depois decide. O resumo novo sempre tem "Desconto no Pix" (e, às
+        # vezes, "Desconto de produtos"), que antes contavam como cupom: tudo saía "aceito", até com o total ilegível
+        medir_cupom(antes, depois, mensagem)
+        if not mensagem and antes.desconto:
+            # o carrinho já estava com um cupom: o "antes" não é o preço cheio e a comparação não mede este código
+            depois.aceito = False
+            depois.extra.pop("so_frete", None)
             depois.extra["falha"] = True
+            depois.mensagem = (f"não consegui medir: o carrinho já estava com um cupom de {fmt_preco(antes.desconto)} "
+                               "antes do teste")
         return depois
 
     def remover(self, page) -> None:
@@ -1875,15 +2065,52 @@ class Amazon(LojaCarrinho):
         return base
 
     @staticmethod
-    def vendedor_da_pagina(html: str, texto: str = "") -> tuple[Optional[str], Optional[str]]:
-        """(id, nome) do vendedor da oferta em destaque: link #sellerProfileTriggerId (…seller=ACUNARZFR75ET…,
-        texto "Magalu.") ou, sem ele (vendido pela própria Amazon), a frase "Vendido por X"."""
+    def _merchant_id(html: str) -> Optional[str]:
+        """O campo escondido merchantID do formulário de compra da oferta em destaque (o de id="merchantID"; sem ele, o
+        primeiro name="merchantID")."""
+        for padrao in (r'<input\b[^>]*\bid=["\']merchantID["\'][^>]*>', r'<input\b[^>]*\bname=["\']merchantID["\'][^>]*>'):
+            m = re.search(padrao, html or "", re.I)
+            if m:
+                mv = re.search(r'\bvalue=["\']\s*([A-Z0-9]{8,20})\s*["\']', m.group(0))
+                if mv:
+                    return mv.group(1)
+        return None
+
+    @staticmethod
+    def _nome_no_html(html: str) -> Optional[str]:
+        """O nome de quem vende no bloco da oferta em destaque, sem o link de perfil (a própria Amazon): o texto de
+        #merchantInfoFeature_feature_div (offer-display-feature-text-message) ou de #merchant-info."""
+        h = html or ""
+        m = re.search(r'id=["\']merchantInfoFeature_feature_div["\'].{0,4000}?offer-display-feature-text-message'
+                      r'[^>]*>\s*(?:<[^>]+>\s*)*([^<]{2,80}?)\s*<', h, re.S)
+        if not m:
+            m = re.search(r'id=["\']merchant-info["\'][^>]*>(.{0,600}?)</div>', h, re.S)
+            if m:
+                txt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", m.group(1))).strip()
+                mt = re.search(r"vendido por\s+(.{2,60})", txt, re.I)
+                return mt.group(1).strip() if mt else None
+        return m.group(1).strip() if m else None
+
+    @classmethod
+    def vendedor_da_pagina(cls, html: str, texto: str = "") -> tuple[Optional[str], Optional[str]]:
+        """(id, nome) do vendedor da oferta em destaque:
+        1) link #sellerProfileTriggerId (…seller=ACUNARZFR75ET…, texto "Magalu."): outro vendedor, pelo id dele;
+        2) sem o link (vendido pela própria Amazon, L3 de 26/09: "a página mostrou o vendedor ?"), o campo escondido
+           merchantID (A1ZZFT5FULY4LN é a própria Amazon, "Amazon.com.br");
+        3) o nome no bloco da oferta ou a frase "Vendido por X" do texto; "Amazon.com.br" sem id é a própria Amazon."""
         m = re.search(r'<a\b([^>]*\bid="sellerProfileTriggerId"[^>]*)>\s*([^<]*?)\s*</a>', html or "")
         if m:
             ms = re.search(r"[?&;]seller=([A-Z0-9]+)", m.group(1))
             return (ms.group(1) if ms else None), (m.group(2).strip() or None)
-        mt = re.search(r"Vendido por\s*\n?\s*([^\n]+)", texto or "", re.I)
-        return None, (mt.group(1).strip()[:60] if mt else None)
+        vid = cls._merchant_id(html)
+        nome = cls._nome_no_html(html)
+        if not nome:
+            mt = re.search(r"Vendido por\s*\n?\s*([^\n]+)", texto or "", re.I)
+            nome = mt.group(1).strip()[:60] if mt else None
+        eh_1p = (vid == config.AMAZON_1P_ID) or (not vid and norm_vendedor(nome) == "amazoncombr")
+        if eh_1p:
+            return config.AMAZON_1P_ID, (nome or "Amazon.com.br")
+        return vid, nome
 
     def garantir_item(self, page, url_produto: str, alvo: Optional[dict] = None) -> bool:
         """Abre a página do anúncio (com smid=<vendedor> quando a coleta sabe) e confere o vendedor.
@@ -1931,7 +2158,7 @@ class Amazon(LojaCarrinho):
         r.pix_real = pix is not None  # sem Pix na página, total_pix é o preço do CARTÃO
         r.total_cartao = cartao
         r.produtos = cartao or pix
-        r.frete = 0.0
+        r.frete = None   # a página do produto não diz o frete até o endereço (L4: frete desconhecido, não "grátis")
         if parcelado is None and not pix:
             m = re.search(r"(\d{1,2})x de R\$\s?([\d.]+,\d{2})\s*sem juros", t.replace("\xa0", " "))
             parcelado = f"{m.group(1)}x R$ {m.group(2)} sem juros" if m else None

@@ -106,8 +106,9 @@ class PaginaAmazon:
 def test_amazon_vendedor_da_pagina_real():
     html = FIXTURE_AMAZON.read_text(encoding="utf-8")
     assert Amazon.vendedor_da_pagina(html) == ("ACUNARZFR75ET", "Magalu.")
+    # L3 (26/09): "Vendido por Amazon.com.br" sem link de vendedor é a própria Amazon, com o id dela
     assert Amazon.vendedor_da_pagina("", "Enviado por\nAmazon.com.br\nVendido por\nAmazon.com.br\n") == \
-        (None, "Amazon.com.br")
+        ("A1ZZFT5FULY4LN", "Amazon.com.br")
 
 
 def test_amazon_confere_o_vendedor_do_anuncio():
