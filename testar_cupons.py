@@ -260,6 +260,11 @@ def codigos_conhecidos(loja: LojaCarrinho) -> tuple[list[str], list[Anuncio]]:
                 continue
             if o.get("cupom"):
                 cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
+            from monitor.confianca import motivo_bloqueio
+            motivo = motivo_bloqueio(o)
+            if motivo:  # nunca pôr no carrinho da pessoa anúncio com sinal de fraude
+                print(f"[{loja.nome}] ignoro {o.get('vendedor')} ({o.get('id')}): {motivo}")
+                continue
             a = anuncio_da_oferta(loja, o)
             if a is None:
                 continue

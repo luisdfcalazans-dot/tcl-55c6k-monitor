@@ -104,6 +104,17 @@ def main() -> int:
         unicos.setdefault(c.chave, c)
     cupons = list(unicos.values())  # type: ignore[assignment]
 
+    # vendedor/anúncio bloqueado (sinais de fraude) não vira alerta, mínimo, histórico nem painel
+    from monitor.confianca import motivo_bloqueio
+    liberadas = []
+    for o in ofertas:
+        motivo = motivo_bloqueio(o)
+        if motivo:
+            print(f"[confiança] descartado {o.loja}/{o.vendedor} ({o.id}): {motivo}")
+        else:
+            liberadas.append(o)
+    ofertas = liberadas  # type: ignore[assignment]
+
     ofertas, avisos_sanidade = sanear(ofertas)  # type: ignore[arg-type]
     for a in avisos_sanidade:
         print(f"[sanidade] {a}")
