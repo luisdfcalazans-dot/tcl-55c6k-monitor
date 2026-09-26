@@ -463,3 +463,30 @@ def test_confianca_suspeito_riscado_no_fim_e_vendedor_novo_com_selo(tmp_path):
     boa = [l for l in ls if "Loja Boa Eletro" in l["html"]][0]
     assert "vendedor novo" in boa["html"] and "chip warn selo" in boa["html"]
     assert "selo" not in [l for l in ls if "vendido por Magalu" in l["html"]][0]["html"]
+
+
+# ---- 2ª passada (revisão de 26/09) ----
+
+def test_confianca_reprovado_automatico_com_anuncio_nao_esconde_outro_vendedor_do_mesmo_anuncio(tmp_path):
+    """Reprovado automático antigo com o /p/ do buy box (240162700, do Magalu 1P): a linha do 1P, a do CSV e a série
+    do gráfico continuam. Anúncio de reprovado automático só vale para linha sem vendedor ou do próprio vendedor."""
+    cloud = latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    cloud["confianca"] = {"reprovados": [
+        *REPROVADOS,
+        {"loja": "Magazine Luiza", "ids": ["lojagolpe"], "nomes": ["lojagolpe"], "anuncios": ["240162700"],
+         "origem": "automatico"}]}
+    out = roda_painel(tmp_path, cloud, latest("pc", PC_AT, ofertas_pc_hoje()))
+    assert "vendido por Magalu" in out["tabela"]
+    assert out["melhor"] == brl(3561.55) and out["melhor_s"].startswith("Magazine Luiza")
+    assert out["serie"]["Magazine Luiza"] == {"2026-09-17": 3561.55, "2026-09-18": 3561.55}
+
+
+def test_confianca_nome_com_ruido_repetido_casa_como_no_python(tmp_path):
+    """nomeNorm do painel tira TODAS as ocorrências do ruído, como nome_normalizado() do Python."""
+    sus = oferta("amazon", "Amazon", 2500.0, vendedor="Loja X Política de devolução Política de devolução",
+                 oid="amz-lojax", url=URL_AMAZON)
+    cloud = latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU)
+    pc = latest("pc", PC_AT, [*ofertas_pc_hoje(), sus], MIN_AMAZON)
+    pc["confianca"] = {"reprovados": [{"loja": "Amazon", "ids": [], "nomes": ["lojax"], "anuncios": []}]}
+    out = roda_painel(tmp_path, cloud, pc)
+    assert "Loja X" not in out["tabela"] and out["melhor"] == brl(3561.55)

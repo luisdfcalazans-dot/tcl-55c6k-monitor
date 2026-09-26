@@ -3,11 +3,12 @@
   "Listas curadas de confiança dos vendedores da TV (lidas por monitor/confianca.py).",
   "confiaveis: vendedor conhecido; o alerta sai na hora, sem checagem nenhuma.",
   "reprovados: descartado de cara (sem alerta, mínimo, histórico, painel nem carrinho).",
-  "Cada entrada: ids (id do vendedor na loja; quando existe, é ele que decide), nomes (nome como a loja mostra),",
-  "anuncios (ids de anúncio, só em reprovados), motivo e desde. Por loja (nome canônico de config.LOJAS_CANONICAS).",
+  "Cada entrada: ids (id do vendedor na loja), nomes (nome como a loja mostra), anuncios (ids de anúncio, só em",
+  "reprovados), motivo e desde. Por loja (nome canônico de config.LOJAS_CANONICAS). Em confiaveis, oferta que traz",
+  "o id do vendedor só casa pelo id (o nome de exibição é escolhido pelo vendedor); o nome vale só para oferta sem id.",
   "O repositório é público: texto NEUTRO e factual. Uma empresa listada em reprovados pode ser vítima (conta",
-  "invadida), não autora. Reprovados automáticos (anúncio suspeito) ficam em docs/data/state_<modo>.json;",
-  "para liberar um vendedor reprovado automaticamente, ponha-o em confiaveis (a lista curada vence)."
+  "invadida), não autora. Reprovados automáticos ficam em docs/data/state_<modo>.json; para liberar um vendedor",
+  "suspeito ou reprovado automaticamente, ponha-o em confiaveis (a lista curada vence, inclusive no painel)."
  ],
  "confiaveis": {
   "Magazine Luiza": [
@@ -16,12 +17,13 @@
    {"ids": ["lojascolombooficial"], "nomes": ["Lojas Colombo Oficial"],
     "motivo": "varejista grande de eletro; vende a 55C6K também na Amazon, Casas Bahia e KaBuM (visto desde 13/09)",
     "desde": "2026-09-13"},
-   {"nomes": ["Fast Shop"],
+   {"ids": ["fastshop2"], "nomes": ["Fast Shop"],
     "motivo": "varejista grande (loja própria na VTEX); visto como vendedor no Magalu, KaBuM, Amazon e Webcontinental",
     "desde": "2026-09-13"},
    {"ids": ["lojawebcontinentalmarketplace"], "nomes": ["Webcontinental Marketplace"],
     "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-14"},
-   {"nomes": ["Loja TCL Semp", "TCL Semp"], "motivo": "loja oficial do fabricante (TCL SEMP)", "desde": "2026-09-13"}
+   {"ids": ["lojatclsemp"], "nomes": ["Loja TCL Semp", "TCL Semp"], "motivo": "loja oficial do fabricante (TCL SEMP)",
+    "desde": "2026-09-13"}
   ],
   "Amazon": [
    {"ids": ["A1ZZFT5FULY4LN"], "nomes": ["Amazon.com.br", "Amazon"], "motivo": "a própria loja (1P)",

@@ -118,6 +118,9 @@ def _ficha_tecnica(p: dict) -> dict[str, str]:
     return out
 
 
+_RE_ANATEL_DE_ACESSORIO = re.compile(r"controle|remoto|modulo|bateria|carregador|acessori|wi-?fi|bluetooth|fonte")
+
+
 def _dados_do_vendedor(seller: dict) -> dict:
     """Razão social, desde quando vende, vendas e nota do vendedor (seller.details), para a checagem de confiança."""
     det = (seller or {}).get("details") or {}
@@ -140,9 +143,11 @@ def _ficha(p: dict) -> dict:
     25/09/2026: Anatel de celular, modelo 'Vários', 0 avaliações, peso 0,1 kg, loja de outro ramo)."""
     f: dict = {}
     ft = _ficha_tecnica(p)
-    for k, v in ft.items():
-        if "anatel" in k and "anatel" not in f:
-            f["anatel"] = v
+    # a homologação da TV, não a de um acessório (controle remoto, módulo Wi-Fi...) que a ficha às vezes lista antes
+    chaves = [k for k in ft if "anatel" in k]
+    da_tv = [k for k in chaves if not _RE_ANATEL_DE_ACESSORIO.search(k)]
+    if chaves:
+        f["anatel"] = ft[(da_tv or chaves)[0]]
     modelo = ft.get("modelo") or ft.get("referencia")
     if modelo:
         f["modelo"] = modelo
@@ -183,8 +188,18 @@ def _oferta(p: dict) -> Oferta | None:
         preco=cartao, preco_pix=pix if pix and cartao and pix < cartao else (pix if not cartao else None),
         parcelado=_parcelado(inst), vendedor=vendedor,
         extra={"preco_de": parse_preco(price.get("price")), "1p": seller.get("category") == "1p",
-               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None, "ficha": _ficha(p)},
+               "anuncio": id_anuncio(url), "vendedor_id": seller.get("id") or None, "ficha": _ficha(p),
+               "anuncio_exclusivo": _anuncio_exclusivo(p)},
     )
+
+
+def _anuncio_exclusivo(p: dict) -> bool:
+    """O anúncio (/p/<id>/) é só do vendedor do buy box? Só quando a página traz a lista de vendedores (product.offers)
+    e nela não há outro. A busca não traz a lista: aí não se sabe (False). A confiança só guarda o id do anúncio de um
+    reprovado automático quando ele é exclusivo; senão bloquearia os outros vendedores do mesmo anúncio."""
+    sid = (p.get("seller") or {}).get("id")
+    ofs = [of for of in p.get("offers") or [] if isinstance(of, dict)]
+    return bool(sid and ofs) and all((of.get("seller") or {}).get("id") == sid for of in ofs)
 
 
 def _oferta_vendedor(p: dict, of: dict) -> Oferta | None:
@@ -356,6 +371,15 @@ def _guarda(por_id: dict[str, Oferta], o: Oferta) -> None:
         por_id[o.id] = o
 
 
+# quando a coleta levou 403/429 (time.time()): a checagem de confiança (monitor/confianca.py) não insiste logo depois
+BLOQUEADO_EM: float | None = None
+JANELA_BLOQUEIO_S = 15 * 60
+
+
+def bloqueio_recente(janela_s: float = JANELA_BLOQUEIO_S) -> bool:
+    return BLOQUEADO_EM is not None and time.time() - BLOQUEADO_EM < janela_s
+
+
 class _Orcamento:
     """Conta as requisições da rodada e faz a pausa entre elas (educação com o site)."""
 
@@ -372,6 +396,7 @@ class _Orcamento:
 
         403/429 (bloqueio ou excesso de requisições): o orçamento da rodada acaba na hora e o erro sobe.
         Insistir só piora o bloqueio."""
+        global BLOQUEADO_EM
         if self.sobra <= 0:
             return None
         if self.usadas:
@@ -385,6 +410,7 @@ class _Orcamento:
                 return None
             if status in (403, 429):
                 self.bloqueado = True
+                BLOQUEADO_EM = time.time()
             raise
 
 
@@ -490,6 +516,7 @@ class Magalu(Fonte):
                 if det and det.extra.get("vendedor_id") == sid:
                     det.url = com_vendedor(det.url, sid)
                     det.id = o.id
+                    det.extra["anuncio_exclusivo"] = False  # veio da lista de vendedores do anúncio de outro
                     _guarda(por_id, det)
                     for c in cps:
                         cupons.setdefault(c.chave, c)

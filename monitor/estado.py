@@ -158,8 +158,9 @@ class Estado:
             "criado_em": None,
             # 'loja|CÓDIGO' -> alertas de cupom enviados (chave, fonte, título, regra, especifico, quando)
             "cupons_alertados": {},
-            # confiança nos vendedores (monitor/confianca.py): vereditos, catálogos lidos, reprovados automáticos
-            "confianca": {"vendedores": {}, "catalogos": {}, "reprovados_auto": {}, "fichas": {}},
+            # confiança nos vendedores (monitor/confianca.py): vereditos, catálogos lidos, reprovados automáticos e
+            # avisos de suspeito já enviados (para não repetir a cada rodada)
+            "confianca": {"vendedores": {}, "catalogos": {}, "reprovados_auto": {}, "fichas": {}, "avisos": {}},
         }
         carregado: dict[str, Any] = {}
         if self.arq_estado.exists():

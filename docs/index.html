@@ -132,7 +132,7 @@ const menorPreco = r => Math.min(...[r.preco_pix, r.preco].filter(Boolean).map(N
 // de confiáveis ganha um selo com o que foi checado.
 const idNorm = s => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const nomeNorm = s => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
-  .replace(/a classificacao do vendedor.*$/, '').replace(/politica de devolucao|^\s*vendido por\s+/, '').replace(/[^a-z0-9]/g, '');
+  .replace(/a classificacao do vendedor.*$/, '').replace(/politica de devolucao|^\s*vendido por\s+/g, '').replace(/[^a-z0-9]/g, '');
 const RE_VID = /[?&](?:seller_id|smid|idLojista)=([^&#]+)/i, RE_ANUNCIO = /\/p\/([0-9a-z]{6,})(?:\/|$|\?|#)/i;
 const pistas = o => {
   const ehMagalu = normLoja(o?.loja) === 'magazine luiza', id = String(o?.id || '');
@@ -142,9 +142,12 @@ const pistas = o => {
     ehMagalu && id.includes('-') ? id.split('-')[0] : ''].map(idNorm).filter(Boolean));
   return {vid, nome: nomeNorm(o?.vendedor), anuncios};
 };
+// O anúncio de um reprovado AUTOMÁTICO só esconde linha que não diz quem vende: outro vendedor no mesmo anúncio (ex.:
+// o Magalu 1P no /p/ em que o reprovado aparecia na lista de vendedores) continua. Anúncio da lista curada vale sempre.
 const reprovadoPor = lista => o => { if (!o) return false; const p = pistas(o);
   return lista.some(e => normLoja(e.loja) === normLoja(o.loja) && ((p.vid && (e.ids || []).includes(p.vid))
-    || (p.nome && (e.nomes || []).includes(p.nome)) || (e.anuncios || []).some(a => p.anuncios.has(a)))); };
+    || (p.nome && (e.nomes || []).includes(p.nome))
+    || ((e.anuncios || []).some(a => p.anuncios.has(a)) && (e.origem !== 'automatico' || (!p.vid && !p.nome))))); };
 const veredito = o => o?.extra?.confianca?.veredito || '';
 const suspeito = o => veredito(o) === 'suspeito';
 const selo = o => {

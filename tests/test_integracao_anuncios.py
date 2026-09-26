@@ -141,11 +141,17 @@ def _coleta_ml(monkeypatch, tmp_path, busca: str, item_avulso: str | None = None
     return ps.MercadoLivre().coletar()[0]
 
 
-def test_ml_da_coleta_ao_testador_pelo_item_do_vendedor(dados, monkeypatch, tmp_path):
+def _ml_item_vendedor_bom() -> str:
     bom = ML_ITEM_NOVO.replace('"text": "0", "accessibility_text": "0 Vendas"',
                                '"text": "+5 mil", "accessibility_text": "mais de 5 mil Vendas"')
     assert bom != ML_ITEM_NOVO
-    dados("pc", _coleta_ml(monkeypatch, tmp_path, ML_BUSCA, bom))
+    return bom
+
+
+def test_ml_da_coleta_ao_testador_pelo_item_do_vendedor(dados, monkeypatch, tmp_path):
+    # R$ 3.199 no anúncio avulso (85% do catálogo, R$ 3.749): vendedor fora da lista, sem sinal de risco. A R$ 2.769 da
+    # fixture (26% abaixo) ele fica suspeito e não vai ao carrinho (teste abaixo; monitor/confianca.py)
+    dados("pc", _coleta_ml(monkeypatch, tmp_path, ML_BUSCA.replace("2.769", "3.199"), _ml_item_vendedor_bom()))
     _, anuncios = tc.codigos_conhecidos(MercadoLivre())
     assert [a.chave for a in anuncios] == ["MLB7523184294", "MLB7574364080"]
     avulso, cat = anuncios
@@ -156,6 +162,14 @@ def test_ml_da_coleta_ao_testador_pelo_item_do_vendedor(dados, monkeypatch, tmp_
     assert avulso.item_id == "MLB7523184294" and avulso.catalogo == ""
     assert item_ml_da_url(avulso.url) == "MLB7523184294"
     assert set(avulso.alvo(a.item_id for a in anuncios)["ids_tv"]) == {"MLB7523184294", "MLB7574364080"}
+
+
+def test_ml_anuncio_muito_abaixo_do_catalogo_de_vendedor_fora_da_lista_nao_vai_para_o_carrinho(dados, monkeypatch,
+                                                                                                 tmp_path):
+    """Registro do latest sem veredito (como o testador lê): 26% abaixo do vendedor confiável é suspeito."""
+    dados("pc", _coleta_ml(monkeypatch, tmp_path, ML_BUSCA, _ml_item_vendedor_bom()))
+    _, anuncios = tc.codigos_conhecidos(MercadoLivre())
+    assert [a.chave for a in anuncios] == ["MLB7574364080"]
 
 
 def test_ml_anuncio_sem_vendedor_conferido_nao_vai_para_o_carrinho(dados, monkeypatch, tmp_path):

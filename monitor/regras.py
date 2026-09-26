@@ -895,13 +895,22 @@ CAB_SUSPEITO = "⚠️ <b>Anúncio suspeito — possível golpe</b>"
 
 
 def mensagem_suspeito(o: Oferta) -> str:
-    """UMA mensagem para anúncio de vendedor desconhecido com sinais fortes de golpe (monitor/confianca.py): loja,
-    vendedor, preço e os sinais concretos. Sem 🎯/🏆/🔻: não é alerta de promoção."""
+    """Mensagem para anúncio de vendedor não confiável com sinais de golpe (monitor/confianca.py): loja, vendedor,
+    preço e os sinais concretos. Sem 🎯/🏆/🔻: não é alerta de promoção. Sai uma vez (e de novo só se o preço cair
+    mais; ver confianca.deve_avisar)."""
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
+    if (o.extra.get("confianca") or {}).get("agregador"):
+        quem += " — linha de agregador, vendedor não identificado"
     linhas = [CAB_SUSPEITO, f"<b>{_esc(quem)}</b>", _esc(o.titulo[:140]), _linha_preco(o), "Sinais:"]
     linhas += [f"• {_esc(s)}" for s in confianca.sinais_de(o)] or ["• (sem detalhe)"]
-    linhas.append("Não conta como preço (mínimo, histórico, painel, resumo) e o vendedor fica reprovado nas próximas "
-                  "coletas. Não compre sem conferir o vendedor; pagamento só pelo site, nunca por WhatsApp/Pix direto.")
+    if (o.extra.get("confianca") or {}).get("reprovado_auto"):
+        destino = ("e o vendedor fica reprovado nas próximas coletas (se for engano, ponha-o em confiaveis no "
+                   "monitor/listas_confianca.json)")
+    else:
+        destino = ("enquanto os sinais durarem (se o vendedor for de confiança, ponha-o em confiaveis no "
+                   "monitor/listas_confianca.json e o alerta de preço sai na rodada seguinte)")
+    linhas.append(f"Não conta como preço (mínimo, histórico, painel, resumo) nem vai ao carrinho, {destino}. Não "
+                  "compre sem conferir o vendedor; pagamento só pelo site, nunca por WhatsApp/Pix direto.")
     linhas.append(o.url)
     return "\n".join(linhas)
 
@@ -934,9 +943,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     for o in lojas:
         p = o.melhor_preco
         if confianca.veredito_de(o) == confianca.SUSPEITO:
-            # vendedor desconhecido com sinais fortes de golpe: uma mensagem de aviso, sem 🎯/🏆/🔻, e não conta como
-            # preço (mínimo, histórico, painel, resumo)
-            if o.ativo and p and not estado.bootstrap:
+            # vendedor não confiável com sinais de golpe: uma mensagem de aviso (sem repetir a cada rodada), sem
+            # 🎯/🏆/🔻, e não conta como preço (mínimo, histórico, painel, resumo, carrinho)
+            if o.ativo and p and not estado.bootstrap and confianca.deve_avisar(estado, o):
                 msgs.append(mensagem_suspeito(o))
             continue
         # inativa, sem preço, ou agregador (Zoom) de loja com fonte direta conhecida: não gera alerta de preço
@@ -986,7 +995,7 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
             continue
         et = ["📣 Promoção postada"]
         muito_abaixo = bool(ref_confiavel and o.melhor_preco
-                            and o.melhor_preco < ref_confiavel * confianca.FRACAO_MUITO_ABAIXO)
+                            and o.melhor_preco <= ref_confiavel * confianca.FRACAO_MUITO_ABAIXO)
         if o.melhor_preco and o.melhor_preco <= config.ALVO_PIX and not muito_abaixo:
             et.append("🎯")
         msgs.append(_msg_oferta(et, o, nota="⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None))

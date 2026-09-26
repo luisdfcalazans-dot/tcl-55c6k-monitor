@@ -9,9 +9,13 @@ monitor alertou (abaixo do alvo) e o anúncio virou o "menor já visto" do paine
 Um veredito por oferta de loja:
 - "confiavel": vendedor da lista curada (monitor/listas_confianca.json) -> alerta na hora, sem checagem nenhuma;
 - "reprovado": lista curada ou reprovado automático (state) -> descartado de cara (só log);
-- "suspeito": vendedor desconhecido com sinais fortes -> UMA mensagem "possível golpe"; nunca conta para mínimo,
-  histórico, painel ou resumo, e o vendedor vira reprovado automático (as próximas coletas o descartam na hora);
+- "suspeito": vendedor não confiável com QUALQUER sinal forte (preço até 80% da loja confiável mais barata já basta)
+  ou muitos sinais fracos -> uma mensagem "possível golpe" (repetida só se o preço cair mais); nunca conta para
+  mínimo, histórico, painel, resumo ou carrinho. Só vira reprovado automático (descartado de cara nas próximas
+  coletas) com 2+ sinais fortes, um deles de identidade (Anatel/tamanho errados, loja sem TV no catálogo): preço baixo
+  sozinho é reavaliado a cada rodada e o vendedor pode ser liberado pela lista de confiáveis;
 - "sem_risco_aparente": desconhecido que passou nas checagens -> alerta normal + linha "🔎 vendedor novo".
+Linha de agregador (Zoom) de loja sem fonte direta também passa pela checagem de preço (não há vendedor a checar).
 
 As checagens usam o que a coleta já tem (preços da rodada, ficha técnica, avaliações, dados do vendedor). Só para
 vendedor NOVO com preço atraente, e só onde a loja deixa (Magalu), 1-2 requisições: a página da loja do vendedor
@@ -46,7 +50,7 @@ VEREDITOS_FORA = frozenset({SUSPEITO, REPROVADO})
 # homologação Anatel da TCL C6K (página do Magalu 1P; o anúncio de 25/09 tinha 09573-24-00953, de um celular)
 ANATEL_55C6K = "00738-24-06714"
 
-FRACAO_MUITO_ABAIXO = 0.80   # preço abaixo de 80% da loja confiável mais barata da rodada = sinal forte
+FRACAO_MUITO_ABAIXO = 0.80   # preço até 80% da loja confiável mais barata da rodada = sinal forte (sozinho: suspeito)
 DESCONTO_SO_PIX = 0.25       # desconto só no Pix/1x acima disto (lojas reais dão 5-15%)
 IGUAL_REAIS = 1.00           # "preço cheio" a até R$ 1 de um preço de loja confiável = copiado
 PESO_MINIMO_KG = 3.0         # a 55C6K pesa 11,6 kg (17,2 kg com embalagem): ficha com menos que isso é de mentira
@@ -61,21 +65,37 @@ TTL_CATALOGO_ERRO_H = 6      # falha ao ler o catálogo: não tenta de novo ante
 TTL_FICHA_H = 24             # anúncio do Magalu aberto pela checagem: não reabre antes disso
 MAX_VENDEDORES_COM_REDE = 2  # vendedores novos com requisição extra por rodada
 REFERENCIA_OUTRO_MODO_H = 12  # ofertas confiáveis do outro modo que ainda servem de referência de preço
+FRACOS_PARA_SUSPEITO = 4     # sem sinal forte, só muitos sinais fracos juntos tornam o anúncio suspeito
+QUEDA_NOVO_AVISO = 0.02      # o aviso de suspeito só se repete quando o preço cai isto desde o último aviso
+TTL_AVISO_DIAS = 7           # aviso de suspeito que não aparece mais há tanto tempo sai do state
+MAX_TVS_DO_INVASOR = 5       # anúncios de TV que um invasor cria na conta não fazem dela uma loja de TV
+MIN_TVS_LOJA_DE_TV = 30      # loja com tantos anúncios de TV vende TV (o sinal de catálogo nunca dispara)
+
+# sinais fortes de IDENTIDADE (o anúncio/vendedor não é o que diz ser): só com um deles, e mais outro forte, o suspeito
+# vira reprovado automático. Preço (muito abaixo, "preço cheio" copiado) sozinho nunca reprova de vez.
+SINAIS_DE_IDENTIDADE = frozenset({"anatel_diferente", "tamanho_diferente", "catalogo_sem_tv"})
+
+# lojas em que Oferta.preco pode ser o preço "de" (riscado) e não o do cartão desta oferta: no ML, a opção com desconto
+# guarda o original em .preco. Nelas não há como saber se o desconto é "só no Pix/1x".
+LOJAS_PRECO_PODE_SER_RISCADO = {"Mercado Livre"}
 
 # lojas em que o anúncio é do vendedor (o id do anúncio identifica o vendedor): no Magalu o /p/<id>/ e no ML o
 # item_id. Na Amazon e na Casas Bahia o mesmo ASIN/sku é de todos os vendedores, e o catálogo do ML (MLB48808732) de
 # todas as opções: esses nunca podem ir para a lista de reprovados
 LOJAS_ANUNCIO_POR_VENDEDOR = {"Magazine Luiza", "Mercado Livre"}
 
-# categorias do Magalu (filtro "Categoria" da página da loja do vendedor)
+# categorias do Magalu (filtro "Categoria" da página da loja do vendedor). "Eletro de TV" é a linha de quem vende TV
+# (TV e Vídeo, Eletrodomésticos, Eletroportáteis, Ar e Ventilação, Áudio); celular, informática, games e câmeras não
+# contam: loja de capinha/cabo não vira loja de TV (revisão de 26/09)
 _CAT_TV = {"ET"}
-_CAT_ELETRONICOS = {"ET", "ED", "IN", "TE", "EA", "GA", "CF", "AR"}
+_CAT_ELETRONICOS = {"ET", "ED", "EP", "AR", "EA"}
 
 _MODELO_GENERICO = re.compile(r"^(?:varios|diversos|outros?|generico|n/?a|nao se aplica|nao informado|-+|\.+)$")
+# só no começo da palavra: "otica" não casa com "Robotica", nem "festa" com "Manifesta"
 _RE_OUTRO_RAMO = re.compile(
-    r"brinqued|cosmetic|perfum|papelari|livrari|confec|vestuari|calcad|roupa|moda\b|farmac|drogari|aliment|"
-    r"bebida|\bpet\b|petshop|veterin|joia|bijut|otica|floricult|padari|acougue|restaurant|academia|salao|"
-    r"autopec|auto pec|tecido|armarinho|artesanat|festa|papel")
+    r"\b(?:brinqued|cosmetic|perfum|papelari|livrari|confec|vestuari|calcad|roupa|moda\b|farmac|drogari|aliment|"
+    r"bebida|pet\b|petshop|veterin|joia|bijut|otica|floricult|padari|acougue|restaurant|academia|salao|"
+    r"autopec|auto pec|tecido|armarinho|artesanat|festa|papel)")
 
 
 class Sinal(NamedTuple):
@@ -168,32 +188,36 @@ def anuncios_da_oferta(o: Any) -> set[str]:
 
 
 def _anuncio_proprio(o: Any) -> str:
-    """O anúncio que identifica o VENDEDOR (só nas lojas em que cada vendedor tem o seu): no Magalu o /p/<id>/, no
-    ML o item_id (nunca o catálogo, que é de todas as opções)."""
+    """O anúncio que é SÓ deste vendedor, ou vazio. Nunca o anúncio do buy box de outro vendedor (revisão de 26/09: o
+    vendedor da lista product.offers do Magalu vem com o /p/<id>/ do anúncio do Magalu 1P; reprovar esse id bloquearia
+    o 1P e todo vendedor limpo do mesmo anúncio).
+    - Magalu: o /p/<id>/ quando a coleta viu que a lista de vendedores do anúncio só tem ele (extra.anuncio_exclusivo);
+    - ML: o item_id quando a coleta o ligou a este vendedor (vendedor_id só vem quando o item é dele), nunca o catálogo.
+    Amazon/Casas Bahia: o ASIN/sku é de todos os vendedores."""
     loja = _loja(o)
     ex = _extra(o)
     if loja == "Magazine Luiza":
-        if ex.get("anuncio"):
-            return _norm(ex["anuncio"])
-        m = _RE_ANUNCIO_URL.search(str(_campo(o, "url") or ""))
-        return _norm(m.group(1)) if m else ""
+        return _norm(ex.get("anuncio")) if ex.get("anuncio_exclusivo") and vendedor_id(o) else ""
     if loja == "Mercado Livre":
         item = _norm(ex.get("item_id"))
-        return item if item and item != _norm(config.ML_CATALOGO_ID) else ""
+        return item if item and item != _norm(config.ML_CATALOGO_ID) and _norm(ex.get("vendedor_id")) else ""
     return ""
 
 
 def chave_vendedor(o: Any) -> Optional[str]:
-    """'<loja>|<id do vendedor>' (ou nome, ou anúncio): a chave do cache de vereditos e dos reprovados automáticos."""
+    """'<loja>|<id do vendedor>' (ou '<loja>|nome:<nome>'): a chave do cache de vereditos e dos reprovados automáticos.
+    None quando a oferta não diz quem vende (o anúncio sozinho não identifica o vendedor)."""
     loja = _loja(o)
     vid = vendedor_id(o)
     if vid:
         return f"{loja}|{vid}"
     nome = nome_normalizado(_campo(o, "vendedor"))
-    if nome:
-        return f"{loja}|nome:{nome}"
-    anuncio = _anuncio_proprio(o)
-    return f"{loja}|anuncio:{anuncio}" if anuncio else None
+    return f"{loja}|nome:{nome}" if nome else None
+
+
+def chave_aviso(o: Any) -> str:
+    """Chave do aviso de suspeito no state: o vendedor ou, sem ele, a própria oferta."""
+    return chave_vendedor(o) or f"{_loja(o)}|oferta:{_campo(o, 'chave') or _campo(o, 'id') or _campo(o, 'url')}"
 
 
 def veredito_de(o: Any) -> Optional[str]:
@@ -228,20 +252,25 @@ def _entradas(tipo: str, loja: str) -> list[dict]:
     return [e for e in (listas()[tipo].get(loja) or []) if isinstance(e, dict)]
 
 
-def _casa(e: dict, vid: str, nome: str, anuncios: set[str], estrito: bool) -> bool:
+def _casa(e: dict, vid: str, nome: str, anuncios: set[str], estrito: bool, automatico: bool = False) -> bool:
     """A entrada é deste vendedor/anúncio?
 
-    estrito (confiáveis): quando a entrada e a oferta têm id do vendedor, só o id decide (nome igual com id diferente
-    é outro vendedor). Não estrito (reprovados): qualquer pista basta (id, nome ou anúncio)."""
+    estrito (confiáveis): quando a oferta traz o id do vendedor, só o id decide. O nome de exibição é escolhido pelo
+    vendedor (na Amazon qualquer um pode se chamar "Fast Shop Loja Oficial"): nome só vale para oferta sem id.
+    Não estrito (reprovados): id ou nome do vendedor; o anúncio da lista curada vale para qualquer oferta nele. O
+    anúncio de um reprovado AUTOMÁTICO só vale para oferta que não diz quem vende (postagem, linha antiga): oferta de
+    outro vendedor no mesmo anúncio não é dele."""
     ids = {_norm(i) for i in e.get("ids") or [] if _norm(i)}
     nomes = {nome_normalizado(n) for n in e.get("nomes") or [] if nome_normalizado(n)}
-    if anuncios & {_norm(a) for a in e.get("anuncios") or [] if _norm(a)}:
-        return True
     if estrito:
-        if ids and vid:
+        if vid:
             return vid in ids
         return bool(nome) and nome in nomes
-    return (bool(vid) and vid in ids) or (bool(nome) and nome in nomes)
+    if (bool(vid) and vid in ids) or (bool(nome) and nome in nomes):
+        return True
+    if anuncios & {_norm(a) for a in e.get("anuncios") or [] if _norm(a)}:
+        return not automatico or (not vid and not nome)
+    return False
 
 
 def _pistas(o: Any) -> tuple[str, str, str, set[str]]:
@@ -264,9 +293,18 @@ def _entrada_reprovada(o: Any, auto: Iterable[dict] = ()) -> Optional[dict]:
     if entrada_confiavel(o):   # a lista curada vence o reprovado automático
         return None
     for e in auto:
-        if isinstance(e, dict) and _loja(e) == loja and _casa(e, vid, nome, anuncios, estrito=False):
+        if isinstance(e, dict) and _loja(e) == loja and _casa(e, vid, nome, anuncios, estrito=False, automatico=True):
             return e
     return None
+
+
+def liberado_pela_lista(e: dict) -> bool:
+    """O reprovado automático `e` agora é de vendedor da lista de confiáveis (o usuário liberou um falso positivo)."""
+    ids = [i for i in e.get("ids") or [] if _norm(i)]
+    pistas: list[dict] = [{"loja": e.get("loja"), "vendedor": None, "extra": {"vendedor_id": i}} for i in ids]
+    if not ids:
+        pistas += [{"loja": e.get("loja"), "vendedor": n} for n in e.get("nomes") or [] if nome_normalizado(n)]
+    return any(entrada_confiavel(p) for p in pistas)
 
 
 _cache_auto: dict[str, tuple[tuple, list[dict]]] = {}
@@ -295,7 +333,7 @@ def reprovados_auto_dos_arquivos(pasta: Optional[Path] = None) -> list[dict]:
             lista = []
         _cache_auto[str(arq)] = (marca, lista)
         out += lista
-    return out
+    return [r for r in out if not liberado_pela_lista(r)]
 
 
 def motivo_bloqueio(o: Any, auto: Optional[Iterable[dict]] = None) -> Optional[str]:
@@ -323,7 +361,11 @@ def classifica_por_lista(o: Any, auto: Optional[Iterable[dict]] = None) -> tuple
 
 
 def reprovados_para_painel(auto: Iterable[dict] = ()) -> list[dict]:
-    """Lista compacta (nomes já normalizados) para o painel filtrar linhas antigas de latest/histórico."""
+    """Lista compacta (nomes já normalizados) para o painel filtrar linhas antigas de latest/histórico.
+
+    Reprovado automático: sai quando o vendedor foi posto em confiáveis (o painel não conhece a lista de confiáveis),
+    não leva nome igual ao de um confiável da loja (nome de exibição é escolhido pelo vendedor) e vai marcado
+    'automatico' (o anúncio dele só esconde linha sem vendedor; ver _casa)."""
     out = []
     for loja, entradas in listas()["reprovados"].items():
         for e in entradas:
@@ -331,11 +373,15 @@ def reprovados_para_painel(auto: Iterable[dict] = ()) -> list[dict]:
                         "nomes": sorted({nome_normalizado(n) for n in e.get("nomes") or [] if nome_normalizado(n)}),
                         "anuncios": sorted({_norm(a) for a in e.get("anuncios") or [] if _norm(a)})})
     for e in auto:
-        if not isinstance(e, dict):
+        if not isinstance(e, dict) or liberado_pela_lista(e):
             continue
-        out.append({"loja": _loja(e), "ids": sorted({_norm(i) for i in e.get("ids") or [] if _norm(i)}),
-                    "nomes": sorted({nome_normalizado(n) for n in e.get("nomes") or [] if nome_normalizado(n)}),
-                    "anuncios": sorted({_norm(a) for a in e.get("anuncios") or [] if _norm(a)})})
+        loja = _loja(e)
+        de_confiavel = {nome_normalizado(n) for c in _entradas("confiaveis", loja) for n in c.get("nomes") or []}
+        out.append({"loja": loja, "ids": sorted({_norm(i) for i in e.get("ids") or [] if _norm(i)}),
+                    "nomes": sorted({nome_normalizado(n) for n in e.get("nomes") or [] if nome_normalizado(n)}
+                                    - de_confiavel),
+                    "anuncios": sorted({_norm(a) for a in e.get("anuncios") or [] if _norm(a)}),
+                    "origem": "automatico"})
     return out
 
 
@@ -431,40 +477,39 @@ def _tamanho_na_ficha(ficha: dict) -> Optional[int]:
     return int(m.group(1)) if m else None
 
 
-def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None) -> tuple[list[Sinal], list[str]]:
-    """(sinais de risco, checagens feitas) de uma oferta de vendedor desconhecido. Só usa dado já em mãos."""
+def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
+                     so_preco: bool = False) -> tuple[list[Sinal], list[str]]:
+    """(sinais de risco, checagens feitas) de uma oferta de vendedor desconhecido. Só usa dado já em mãos.
+    so_preco: só a comparação com as lojas confiáveis (linha de agregador: não há vendedor nem ficha a checar)."""
     s: list[Sinal] = []
     feitas: list[str] = []
     ex = _extra(o)
     ficha = ex.get("ficha") if isinstance(ex.get("ficha"), dict) else {}
     melhor = melhor_preco(o)
-    cartao = _num(_campo(o, "preco"))
+    # "preço cheio" é só o preço do cartão DESTA oferta. O preço "de" (ListPrice do Magalu/VTEX) e o riscado do ML
+    # (que o coletor grava em .preco) não contam: "de R$ 4.099 por R$ 2.700" vale para qualquer pagamento, e 4.099
+    # costuma ser o preço de lista de todo mundo (revisão de 26/09)
+    cartao = None if _loja(o) in LOJAS_PRECO_PODE_SER_RISCADO else _num(_campo(o, "preco"))
 
     # 1) preço: muito abaixo da loja confiável mais barata; "preço cheio" copiado com desconto enorme só no Pix/1x
     if melhor and ref.menor:
         feitas.append("preço")
         r = melhor / ref.menor[0]
-        if r < FRACAO_MUITO_ABAIXO:
+        if r <= FRACAO_MUITO_ABAIXO:
             s.append(Sinal("preco_muito_abaixo", True,
                            f"preço {_fmt(melhor)} é {_pct(1 - r)} menor que o da loja confiável mais barata "
                            f"({_fmt(ref.menor[0])}, {ref.menor[1]})"))
-    if melhor:
-        cheios = sorted({v for v in (cartao, _num(ex.get("preco_de"))) if v and v > melhor + 0.5})
-        copiado = None
-        for c in cheios:
-            desc = 1 - melhor / c
-            if desc <= DESCONTO_SO_PIX:
-                continue
-            igual = next((q for v, q in ref.precos if abs(v - c) <= IGUAL_REAIS), None)
-            if igual:
-                copiado = (c, desc, igual)
-                break
-        if copiado:
+    if so_preco:
+        return s, feitas
+    if melhor and cartao and cartao > melhor + 0.5 and 1 - melhor / cartao > DESCONTO_SO_PIX:
+        desc = 1 - melhor / cartao
+        igual = next((q for v, q in ref.precos if abs(v - cartao) <= IGUAL_REAIS), None)
+        if igual:
             s.append(Sinal("preco_cheio_copiado", True,
-                           f"“preço cheio” {_fmt(copiado[0])} igual ao de {copiado[2]}, com {_pct(copiado[1])} de "
-                           f"desconto só no Pix/1x"))
-        elif cartao and cartao > melhor and 1 - melhor / cartao > DESCONTO_SO_PIX:
-            s.append(Sinal("desconto_so_no_pix", False, f"desconto de {_pct(1 - melhor / cartao)} só no Pix/1x"))
+                           f"“preço cheio” {_fmt(cartao)} igual ao de {igual}, com {_pct(desc)} de desconto só no "
+                           f"Pix/1x"))
+        else:
+            s.append(Sinal("desconto_so_no_pix", False, f"desconto de {_pct(desc)} só no Pix/1x"))
 
     # 2) ficha técnica do anúncio
     anatel = _digitos(ficha.get("anatel"))
@@ -529,7 +574,9 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None) 
     if catalogo and catalogo.get("total"):
         feitas.append("catálogo da loja")
         total, tv, eletro = int(catalogo["total"]), int(catalogo.get("tv") or 0), int(catalogo.get("eletronicos") or 0)
-        if total >= 30 and tv / total < 0.02 and eletro / total < 0.10:
+        # poucas TVs: até as que o próprio invasor anunciou (loja pequena passa de 2% com 4 anúncios) ou menos de 2%
+        poucas_tvs = tv < MIN_TVS_LOJA_DE_TV and (tv <= MAX_TVS_DO_INVASOR or tv / total < 0.02)
+        if total >= 30 and poucas_tvs and eletro / total < 0.10:
             principais = ", ".join((catalogo.get("principais") or [])[:3])
             s.append(Sinal("catalogo_sem_tv", True,
                            f"a loja do vendedor tem {total:,} itens e só {tv} de TV ({tv / total * 100:.1f}%)".replace(",", ".")
@@ -538,10 +585,20 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None) 
 
 
 def decide(sinais: list[Sinal]) -> str:
-    """Suspeito: 2 sinais fortes, ou 1 forte com pelo menos 2 fracos. O resto passa (com os sinais anotados)."""
+    """Suspeito: QUALQUER sinal forte (preço até 80% da loja confiável mais barata já basta, revisão de 26/09) ou
+    FRACOS_PARA_SUSPEITO sinais fracos juntos. O resto passa, com os sinais fracos anotados na linha 🔎."""
     fortes = sum(1 for x in sinais if x.forte)
-    pontos = sum(2 if x.forte else 1 for x in sinais)
-    return SUSPEITO if fortes >= 2 or (fortes >= 1 and pontos >= 4) else SEM_RISCO
+    fracos = len(sinais) - fortes
+    return SUSPEITO if fortes >= 1 or fracos >= FRACOS_PARA_SUSPEITO else SEM_RISCO
+
+
+def reprova(sinais: list[Sinal]) -> bool:
+    """O suspeito vira reprovado automático (descartado de cara nas próximas coletas, sem nova checagem)? Só com 2+
+    sinais fortes, um deles de IDENTIDADE (Anatel/tamanho de outro produto, loja sem TV no catálogo). Sinal de preço
+    sozinho nunca reprova de vez: uma promoção de verdade de vendedor desconhecido limpo fica suspeita, é reavaliada a
+    cada rodada e pode ser liberada pondo o vendedor em confiáveis."""
+    fortes = [x for x in sinais if x.forte]
+    return len(fortes) >= 2 and any(x.codigo in SINAIS_DE_IDENTIDADE for x in fortes)
 
 
 # ------------------------------------------------------------------------------------------------
@@ -612,9 +669,18 @@ def _ficha_magalu(o: Any, vid: str, obter: Callable[[str], str]) -> Optional[dic
     return None
 
 
-# loja -> (lê o catálogo do vendedor, completa a ficha do anúncio). A Amazon responde 503 a HTTP na página do vendedor
-# e o ML exige conta: nelas a checagem fica com o que a coleta já traz (avaliações/vendas do vendedor).
-CHECAGENS_DE_REDE: dict[str, tuple[Callable, Callable]] = {"Magazine Luiza": (_catalogo_magalu, _ficha_magalu)}
+def _magalu_bloqueou_ha_pouco() -> bool:
+    """A coleta do Magalu desta execução (ou de há pouco) levou 403/429: não insistir com a checagem."""
+    from .sources import magalu
+
+    return magalu.bloqueio_recente()
+
+
+# loja -> (lê o catálogo do vendedor, completa a ficha do anúncio, a loja bloqueou há pouco?). A Amazon responde 503
+# a HTTP na página do vendedor e o ML exige conta: nelas a checagem fica com o que a coleta já traz (avaliações/vendas
+# do vendedor).
+CHECAGENS_DE_REDE: dict[str, tuple[Callable, Callable, Callable[[], bool]]] = {
+    "Magazine Luiza": (_catalogo_magalu, _ficha_magalu, _magalu_bloqueou_ha_pouco)}
 
 
 # ------------------------------------------------------------------------------------------------
@@ -623,7 +689,7 @@ CHECAGENS_DE_REDE: dict[str, tuple[Callable, Callable]] = {"Magazine Luiza": (_c
 
 def bloco_do_estado(estado: Any) -> dict:
     b = estado.dados.setdefault("confianca", {})
-    for k in ("vendedores", "catalogos", "reprovados_auto", "fichas"):
+    for k in ("vendedores", "catalogos", "reprovados_auto", "fichas", "avisos"):
         if not isinstance(b.get(k), dict):
             b[k] = {}
     return b
@@ -640,12 +706,20 @@ def _blocos_de_outros_modos(estado: Any) -> list[dict]:
 
 
 def reprovados_auto_do_estado(estado: Any) -> list[dict]:
-    """Reprovados automáticos deste modo (em memória, inclusive os desta rodada) e do outro (state, só leitura)."""
+    """Reprovados automáticos deste modo (em memória, inclusive os desta rodada) e do outro (state, só leitura), menos
+    os que o usuário liberou pondo o vendedor na lista de confiáveis."""
     regs = list(bloco_do_estado(estado)["reprovados_auto"].values())
     for b in _blocos_de_outros_modos(estado):
         r = b.get("reprovados_auto")
         regs += list(r.values()) if isinstance(r, dict) else []
-    return [r for r in regs if isinstance(r, dict)]
+    return [r for r in regs if isinstance(r, dict) and not liberado_pela_lista(r)]
+
+
+def _tira_liberados(bloco: dict) -> None:
+    """Reprovado automático cujo vendedor entrou na lista de confiáveis sai do state deste modo."""
+    for k in [k for k, r in bloco["reprovados_auto"].items() if isinstance(r, dict) and liberado_pela_lista(r)]:
+        print(f"[confiança] {k} liberado pela lista de confiáveis: sai dos reprovados automáticos")
+        del bloco["reprovados_auto"][k]
 
 
 def _do_cache(estado: Any, secao: str, chave: str) -> Optional[dict]:
@@ -703,14 +777,36 @@ def _atraente(o: Any, ref: Referencias, sinais: list[Sinal]) -> bool:
     return any(x.forte for x in sinais)
 
 
+def _diretas(estado: Any, ofertas: list) -> set[str]:
+    """Lojas com fonte direta (a linha do agregador delas não é preço; ver estado.conta_como_preco)."""
+    try:
+        return set(estado.lojas_diretas_conhecidas(ofertas))
+    except Exception:  # noqa: BLE001 - sem saber, trata toda loja do agregador como coberta (não checa nem conta)
+        return {_loja(o) for o in ofertas}
+
+
+def _avalia_agregadas(agregadas: list, ref: Referencias, contagem: dict) -> None:
+    """Linha de agregador (Zoom) de loja sem fonte direta: não há vendedor nem ficha, só a comparação de preço com as
+    lojas confiáveis. Muito abaixo -> suspeita (fora de alerta de preço, mínimo e painel); senão, a linha 🔎."""
+    for o in agregadas:
+        sinais, feitas = sinais_da_oferta(o, ref, so_preco=True)
+        veredito = decide(sinais)
+        o.extra["confianca"] = {"veredito": veredito, "checagens": feitas, "sinais": [x.texto for x in sinais],
+                                "agregador": True}
+        contagem[veredito] = contagem.get(veredito, 0) + 1
+        print(f"[confiança] {veredito}: agregador {o.fonte}/{_loja(o)} ({o.id}) {_fmt(melhor_preco(o) or 0)}"
+              + (f" — {'; '.join(x.texto for x in sinais)[:200]}" if sinais else ""))
+
+
 def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Callable[[str], str]] = None,
             pausa_s: Optional[float] = None) -> dict:
     """Dá o veredito de cada oferta de loja (extra['confianca']) e guarda o que precisa no state.
 
     Confiável (lista) não passa por checagem nenhuma. Desconhecido: sinais com o que a coleta já tem; com `rede`,
     até MAX_VENDEDORES_COM_REDE vendedores novos de preço atraente ganham 1-2 requisições (o anúncio, se a coleta não
-    o abriu, e o catálogo do vendedor), com a pausa da coleta entre elas e guardadas no state. Suspeito vira reprovado
-    automático. Devolve {veredito: quantidade}."""
+    o abriu, e o catálogo do vendedor), com a pausa da coleta entre elas e guardadas no state. Suspeito com sinais de
+    identidade vira reprovado automático (ver reprova()). Agregador de loja sem fonte direta: só a checagem de preço.
+    Devolve {veredito: quantidade}."""
     obter_base = obter or _obter_padrao
     espera = config.MAGALU_PAUSA_S if pausa_s is None else pausa_s
     pedidos = [0]
@@ -722,14 +818,24 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
         return obter_base(url)
 
     bloco = bloco_do_estado(estado)
+    _tira_liberados(bloco)
     auto = reprovados_auto_do_estado(estado)
     from .util import agora_iso
 
     agora = agora_iso()
     contagem: dict[str, int] = {}
     desconhecidas = []
+    agregadas = []
+    diretas: Optional[set[str]] = None
     for o in ofertas:
-        if o.tipo != "loja" or _e_agregador(o):
+        if o.tipo != "loja":
+            continue
+        if _e_agregador(o):
+            if o.ativo and melhor_preco(o):
+                if diretas is None:
+                    diretas = _diretas(estado, ofertas)
+                if _loja(o) not in diretas:
+                    agregadas.append(o)
             continue
         v, _motivo = classifica_por_lista(o, auto)
         if v == CONFIAVEL:
@@ -740,10 +846,17 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
             contagem[REPROVADO] = contagem.get(REPROVADO, 0) + 1
         elif o.ativo and melhor_preco(o):  # esgotada/sem preço não alerta nem conta: nada a checar
             desconhecidas.append(o)
-    if not desconhecidas:
-        return contagem
+    if desconhecidas or agregadas:
+        ref = referencias(ofertas, _extras_de_referencia(estado))
+        if agregadas and ref.menor:  # sem nenhuma loja confiável de referência não há o que comparar
+            _avalia_agregadas(agregadas, ref, contagem)
+        _avalia_desconhecidas(estado, bloco, desconhecidas, ref, contagem, agora, rede, pedir)
+    _limpa_caches(bloco)
+    return contagem
 
-    ref = referencias(ofertas, _extras_de_referencia(estado))
+
+def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, ref: Referencias, contagem: dict, agora: str,
+                          rede: bool, pedir: Callable[[str], str]) -> None:
     usadas = 0
     bloqueado = False
     for o in sorted(desconhecidas, key=lambda x: melhor_preco(x) or 9e9):
@@ -752,11 +865,14 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
         vid = vendedor_id(o)
         cat = _catalogo_em_cache(estado, chave) if chave else None
         sinais, feitas = sinais_da_oferta(o, ref, cat if cat and not cat.get("erro") else None)
-        veredito = decide(sinais)
         checagem = CHECAGENS_DE_REDE.get(loja)
-        if rede and checagem and vid and not bloqueado and veredito != SUSPEITO and usadas < MAX_VENDEDORES_COM_REDE \
+        if rede and checagem and vid and not bloqueado and checagem[2]():
+            bloqueado = True
+            print(f"[confiança] a coleta de {loja} levou 403/429 há pouco: sem checagem de rede nesta rodada")
+        # a checagem de rede traz provas (catálogo, ficha) para quem ainda não tem o bastante para ser reprovado
+        if rede and checagem and vid and not bloqueado and not reprova(sinais) and usadas < MAX_VENDEDORES_COM_REDE \
                 and _atraente(o, ref, sinais):
-            ler_catalogo, ler_ficha = checagem
+            ler_catalogo, ler_ficha, _bloqueou = checagem
             gastou = False
             ficha = o.extra.get("ficha") if isinstance(o.extra.get("ficha"), dict) else {}
             anuncio = _anuncio_proprio(o) or chave
@@ -790,13 +906,16 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
             if gastou:
                 usadas += 1
                 sinais, feitas = sinais_da_oferta(o, ref, cat if cat and not cat.get("erro") else None)
-                veredito = decide(sinais)
+        veredito = decide(sinais)
         info = {"veredito": veredito, "checagens": feitas, "sinais": [x.texto for x in sinais]}
         if cat and not cat.get("erro"):
             info["catalogo"] = {k: cat.get(k) for k in ("total", "tv")}
+        if veredito == SUSPEITO and reprova(sinais) and chave:
+            info["reprovado_auto"] = True
         o.extra["confianca"] = info
         contagem[veredito] = contagem.get(veredito, 0) + 1
-        print(f"[confiança] {veredito}: {_quem(o)} ({o.id}) {_fmt(melhor_preco(o) or 0)}"
+        print(f"[confiança] {veredito}{' (reprovado automático)' if info.get('reprovado_auto') else ''}: "
+              f"{_quem(o)} ({o.id}) {_fmt(melhor_preco(o) or 0)}"
               + (f" — {'; '.join(info['sinais'])[:300]}" if info["sinais"] else "")
               + (f" [checagens: {', '.join(feitas)}]" if feitas else ""))
         if chave:
@@ -805,8 +924,11 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
             antes = bloco["vendedores"].get(chave)
             reg["primeira_vez"] = (antes or {}).get("primeira_vez") or agora
             bloco["vendedores"][chave] = reg
-        if veredito == SUSPEITO:
+        if info.get("reprovado_auto"):
             _reprova_automatico(bloco, o, info["sinais"], agora)
+
+
+def _limpa_caches(bloco: dict) -> None:
     # veredito "sem risco" velho sai do cache (o vendedor volta a ser checado do zero)
     for k in [k for k, r in bloco["vendedores"].items()
               if not isinstance(r, dict) or (_idade_dias(r.get("quando")) or 0) > TTL_VEREDITO_DIAS]:
@@ -815,14 +937,17 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
         for k in [k for k, r in bloco[secao].items()
                   if not isinstance(r, dict) or (_idade_dias(r.get("quando")) or 0) > ttl]:
             del bloco[secao][k]
-    return contagem
+    for k in [k for k, r in bloco["avisos"].items()
+              if not isinstance(r, dict) or (_idade_dias(r.get("visto")) or 0) > TTL_AVISO_DIAS]:
+        del bloco["avisos"][k]
 
 
 def _reprova_automatico(bloco: dict, o: Any, sinais: list[str], quando: str) -> None:
-    """Suspeito vira reprovado automático (as próximas coletas o descartam de cara)."""
+    """Suspeito com sinais de identidade vira reprovado automático (as próximas coletas o descartam de cara). A chave é
+    o VENDEDOR; o anúncio só vai junto quando é só dele (_anuncio_proprio)."""
     chave = chave_vendedor(o)
     if not chave:
-        return  # sem id, nome nem anúncio próprio (ex.: 'destaque' da busca da Amazon): nada que identifique
+        return  # sem id nem nome (ex.: 'destaque' da busca da Amazon, opção do ML sem vendedor): nada que identifique
     vid = vendedor_id(o)
     anuncio = _anuncio_proprio(o)
     bloco["reprovados_auto"][chave] = {
@@ -833,17 +958,42 @@ def _reprova_automatico(bloco: dict, o: Any, sinais: list[str], quando: str) -> 
     }
 
 
+def deve_avisar(estado: Any, o: Any) -> bool:
+    """O aviso ⚠️ deste anúncio suspeito sai agora? Na primeira vez e quando o preço cai QUEDA_NOVO_AVISO ou mais desde
+    o último aviso. Nas outras rodadas (a nuvem coleta a cada 15 min) o suspeito continua fora de tudo, sem repetir a
+    mensagem. Guarda em state['confianca']['avisos'] (por vendedor ou, sem ele, pela oferta)."""
+    from .util import agora_iso
+
+    p = melhor_preco(o)
+    if not p:
+        return False
+    avisos = bloco_do_estado(estado)["avisos"]
+    chave = chave_aviso(o)
+    agora = agora_iso()
+    antes = avisos.get(chave)
+    ultimo = _num(antes.get("preco")) if isinstance(antes, dict) else None
+    if ultimo and p > ultimo * (1 - QUEDA_NOVO_AVISO):
+        antes["visto"] = agora
+        return False
+    avisos[chave] = {"preco": p, "avisado_em": agora, "visto": agora, "loja": _loja(o),
+                     "vendedor": _campo(o, "vendedor")}
+    return True
+
+
 # ------------------------------------------------------------------------------------------------
 # textos das mensagens e o carrinho
 # ------------------------------------------------------------------------------------------------
 
 def linha_vendedor_novo(o: Any) -> Optional[str]:
-    """Linha extra do alerta de vendedor desconhecido que passou nas checagens (texto puro, sem HTML)."""
+    """Linha extra do alerta de vendedor desconhecido (ou linha de agregador) que passou nas checagens (texto puro)."""
     c = _extra(o).get("confianca")
     if not isinstance(c, dict) or c.get("veredito") != SEM_RISCO:
         return None
     feitas = c.get("checagens") or []
-    quem = "vendedor novo" if _campo(o, "vendedor") else "vendedor não identificado"
+    if c.get("agregador"):
+        quem = "linha de agregador (vendedor não identificado)"
+    else:
+        quem = "vendedor novo" if _campo(o, "vendedor") else "vendedor não identificado"
     linha = f"🔎 {quem}: " + (f"checagens ok ({', '.join(feitas)})" if feitas else "sem dados para checar")
     if c.get("sinais"):
         linha += " · atenção: " + "; ".join(c["sinais"])
@@ -870,9 +1020,7 @@ def pode_ir_ao_carrinho(o: Any, todas: Iterable[Any] = (), auto: Optional[Iterab
         return True, v
     if entrada_confiavel(o):
         return True, CONFIAVEL
-    if _e_agregador(o):
-        return True, "agregador"
-    sinais, _feitas = sinais_da_oferta(o, referencias(todas))
+    sinais, _feitas = sinais_da_oferta(o, referencias(todas), so_preco=_e_agregador(o))
     if decide(sinais) == SUSPEITO:
         return False, "anúncio suspeito: " + "; ".join(x.texto for x in sinais)
     return True, SEM_RISCO

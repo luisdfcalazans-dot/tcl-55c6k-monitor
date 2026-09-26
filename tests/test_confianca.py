@@ -350,15 +350,17 @@ def test_promocao_real_de_vendedor_desconhecido_limpo_alerta_com_linha_de_checag
     assert "🔎 vendedor novo: checagens ok (" in m and "catálogo da loja" in m
     assert "atenção" not in m  # 7% abaixo da confiável mais barata (Fast Shop 3.099,00): nada a apontar
     assert est.dados["minimo"]["preco"] == 2890.00
-    # a próxima rodada usa o catálogo guardado (nenhuma requisição); preço 23% abaixo da confiável mais barata vira
-    # uma nota na linha 🔎, sem bloquear o alerta (promoção de verdade não pode ser perdida)
+    # a próxima rodada usa o catálogo guardado (nenhuma requisição). Preço 23% abaixo da confiável mais barata, de
+    # vendedor fora da lista, já basta para segurar o alerta de preço (revisão de 26/09): sai o aviso ⚠️ com o sinal,
+    # sem 🎯, e o vendedor NÃO vira reprovado (é reavaliado a cada rodada; a lista de confiáveis libera)
     rede2 = Rede()
-    _est, _ofs, msgs2 = rodada("cloud", [vendedor_limpo(pix="2400.00", cartao="3099.00")] + _confiaveis_reais(),
+    est2, _ofs, msgs2 = rodada("cloud", [vendedor_limpo(pix="2400.00", cartao="3099.00")] + _confiaveis_reais(),
                                rede=rede2)
     assert rede2.pedidas == []
     (m2,) = [m for m in msgs2 if "Loja Boa Eletro" in m]
-    assert "🎯" in m2 and "🔎 vendedor novo: checagens ok (" in m2
-    assert "atenção: preço R$ 2.400,00 é 23% menor que o da loja confiável mais barata (R$ 3.099,00, Fast Shop)" in m2
+    assert m2.startswith(CAB_SUSPEITO) and "🎯" not in m2 and "🔎" not in m2
+    assert "preço R$ 2.400,00 é 23% menor que o da loja confiável mais barata (R$ 3.099,00, Fast Shop)" in m2
+    assert est2.dados["minimo"]["preco"] == 2890.00 and est2.dados["confianca"]["reprovados_auto"] == {}
 
 
 def test_vendedor_desconhecido_caro_nao_gasta_requisicao(dados):
@@ -372,7 +374,7 @@ def test_vendedor_desconhecido_caro_nao_gasta_requisicao(dados):
 def test_no_maximo_dois_vendedores_novos_com_rede_por_rodada(dados):
     novos = []
     for i in range(4):
-        o = vendedor_limpo(pix=f"{3000 + i}.00", cartao="3199.00")
+        o = vendedor_limpo(pix=f"{3200 + i}.00", cartao="3399.00")
         o.extra["vendedor_id"] = f"loja{i}"
         o.vendedor = f"Loja {i}"
         o.id = f"kb0aeletro0-loja{i}"
@@ -388,7 +390,7 @@ def test_anuncio_e_catalogo_checados_nao_sao_pedidos_de_novo_no_mesmo_dia(dados)
                  "/p/kb0aeletro1/": "<html>página sem dados</html>"})
     est = Estado("cloud")
     for _ in range(2):
-        o = vendedor_limpo(pix="3000.00", cartao="3199.00")
+        o = vendedor_limpo(pix="3200.00", cartao="3399.00")
         o.extra.pop("ficha")
         confianca.avaliar(est, [o, magalu_1p()], rede=True, obter=rede, pausa_s=0)
         assert confianca.veredito_de(o) == confianca.SEM_RISCO
@@ -398,7 +400,7 @@ def test_anuncio_e_catalogo_checados_nao_sao_pedidos_de_novo_no_mesmo_dia(dados)
 def test_bloqueio_403_encerra_as_checagens_de_rede(dados):
     novos = []
     for i in range(2):
-        o = vendedor_limpo(pix=f"{3000 + i}.00", cartao="3199.00")
+        o = vendedor_limpo(pix=f"{3200 + i}.00", cartao="3399.00")
         o.extra["vendedor_id"] = f"loja{i}"
         o.vendedor, o.id = f"Loja {i}", f"kb0aeletro0-loja{i}"
         novos.append(o)
@@ -535,3 +537,372 @@ def test_postagem_com_link_do_anuncio_reprovado_nem_entra(dados):
                   publicado=agora_iso())
     _est, ofs, msgs = rodada("cloud", [magalu_1p(), post])
     assert [o.id for o in ofs if o.tipo == "post"] == [] and msgs == []
+
+
+# ================================================================================================
+# 2ª passada (revisão de 26/09): variações do golpe, reprovado automático só pelo VENDEDOR, liberação pela lista
+# chegando ao painel, preço "de"/riscado, agregador, aviso repetido, confiável só por nome e heurísticas frágeis.
+# Referência: nas confiáveis reais a mais barata é a Fast Shop (VTEX) a R$ 3.099,00; 80% disso = R$ 2.479,20.
+# ================================================================================================
+
+def _seller(sid: str, nome: str, razao: str = "ABC Comercio Ltda", desde: str = "2019-01-01", vendas: int = 8000) -> dict:
+    return {"id": sid, "sku": "1", "description": nome, "category": "3p", "deliveryId": "magazineluiza", "tags": [],
+            "details": {"id": sid, "legalName": razao, "score": 4.6, "sellerSince": desde + "T00:00:00.000+00:00",
+                        "totalSales": vendas}}
+
+
+def _anuncio_proprio(sid: str, nome: str, pix: str, cartao: str, preco_de: str | None = None, reviews: int = 0,
+                     razao: str = "ABC Comercio Ltda", pid: str = "kx9novo001") -> Oferta:
+    """Anúncio próprio de um vendedor no Magalu com a ficha certa copiada do 1P (Anatel da C6K, modelo 55C6K)."""
+    p = _produto(P1P)
+    sel = _seller(sid, nome, razao)
+    p.update({"seller": sel,
+              "offers": [{"sku": "1", "price": {"paymentMethodDescription": "no Pix", "bestPrice": pix,
+                                                  "fullPrice": None, "price": preco_de or cartao}, "seller": sel}],
+              "price": {"paymentMethodDescription": "no Pix", "price": preco_de or cartao, "fullPrice": cartao,
+                        "bestPrice": pix},
+              "rating": {"count": reviews, "score": 0}, "path": p["path"].replace("240162700", pid),
+              "url": p["url"].replace("240162700", pid), "id": pid[:-1] + "0", "variationId": pid})
+    p["variations"] = [{**v, "id": pid, "path": v["path"].replace("240162700", pid)}
+                       for v in p["variations"] if v.get("id") == "240162700"]
+    (o,) = magalu.parse_produto_todas(_html_produto(p))[0]
+    return o
+
+
+def _catalogo_com_tv() -> str:
+    return catalogo_html(900, [("ET", "Tv e Vídeo", 140), ("IN", "Informática", 300), ("ED", "Eletrodomésticos", 200)])
+
+
+def _msgs_de(msgs, trecho):
+    return [m for m in msgs if trecho in m]
+
+
+def _sem_etiqueta_de_preco(msgs):
+    return not any(e in m for m in msgs for e in ("🎯", "🏆", "🔻"))
+
+
+def _no_historico(pasta: Path, vendedor: str, modo: str = "cloud") -> bool:
+    arq = pasta / f"historico_{modo}.csv"
+    if not arq.exists():
+        return False
+    with arq.open(encoding="utf-8") as f:
+        return any(r["vendedor"] == vendedor for r in csv.DictReader(f))
+
+
+def _com_confiavel(monkeypatch, loja: str, entrada: dict) -> None:
+    novas = copy.deepcopy(confianca.listas())
+    novas["confiaveis"].setdefault(loja, []).append({"motivo": "teste", "desde": "2026-09-26", **entrada})
+    monkeypatch.setattr(confianca, "listas", lambda: novas)
+
+
+# ---- ALTA 1: preço muito abaixo da confiável mais barata, de vendedor não confiável, já basta para segurar tudo ----
+
+def test_preco_muito_abaixo_de_nao_confiavel_segura_tudo_sem_reprovar_e_libera_pela_lista(dados, monkeypatch):
+    rodada("cloud", _confiaveis_reais())
+    minimo_antes = Estado("cloud").dados["minimo"]["preco"]
+    rede = Rede({"/lojista/lojaboaeletro/": _catalogo_com_tv()})
+    est, ofs, msgs = rodada("cloud", [vendedor_limpo(pix="2450.00", cartao="2580.00")] + _confiaveis_reais(), rede=rede)
+    o = next(x for x in ofs if x.vendedor == "Loja Boa Eletro")
+    c = o.extra["confianca"]
+    assert c["veredito"] == confianca.SUSPEITO, c
+    assert any("21% menor" in s for s in c["sinais"]), c["sinais"]
+    (m,) = _msgs_de(msgs, "Loja Boa Eletro")
+    assert m.startswith(CAB_SUSPEITO) and "R$ 2.450,00" in m
+    assert "fica reprovado" not in m and "listas_confianca.json" in m   # não é reprovado: dá para liberar
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Loja Boa Eletro"))
+    assert est.dados["minimo"]["preco"] == minimo_antes
+    assert not _no_historico(dados, "Loja Boa Eletro")
+    assert est.dados["confianca"]["reprovados_auto"] == {}             # um sinal de preço sozinho não reprova
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    reg = next(r for r in lt["ofertas_loja"] if r.get("vendedor") == "Loja Boa Eletro")
+    assert confianca.pode_ir_ao_carrinho(reg, lt["ofertas_loja"], ())[0] is False
+    assert not any("lojaboaeletro" in e["ids"] for e in lt["confianca"]["reprovados"])
+    # rodada seguinte: reavaliado (não é descartado), continua suspeito e o aviso NÃO se repete
+    _est, ofs2, msgs2 = rodada("cloud", [vendedor_limpo(pix="2450.00", cartao="2580.00")] + _confiaveis_reais(),
+                               rede=Rede())
+    assert confianca.veredito_de(next(x for x in ofs2 if x.vendedor == "Loja Boa Eletro")) == confianca.SUSPEITO
+    assert _msgs_de(msgs2, "Loja Boa Eletro") == []
+    # o preço caiu mais 2% ou mais: novo aviso
+    _est, _ofs3, msgs3 = rodada("cloud", [vendedor_limpo(pix="2390.00", cartao="2580.00")] + _confiaveis_reais(),
+                                rede=Rede())
+    assert [m.split("\n")[0] for m in _msgs_de(msgs3, "Loja Boa Eletro")] == [CAB_SUSPEITO]
+    # o usuário põe o vendedor em 'confiaveis': na próxima rodada o alerta de preço sai na hora
+    _com_confiavel(monkeypatch, "Magazine Luiza", {"ids": ["lojaboaeletro"], "nomes": ["Loja Boa Eletro"]})
+    est4, ofs4, msgs4 = rodada("cloud", [vendedor_limpo(pix="2390.00", cartao="2580.00")] + _confiaveis_reais(),
+                               rede=Rede())
+    assert confianca.veredito_de(next(x for x in ofs4 if x.vendedor == "Loja Boa Eletro")) == confianca.CONFIAVEL
+    (m4,) = _msgs_de(msgs4, "Loja Boa Eletro")
+    assert "🎯" in m4 and "🏆" in m4 and CAB_SUSPEITO not in m4 and "🔎" not in m4
+    assert est4.dados["minimo"]["preco"] == 2390.00
+
+
+def _cenario_magalu(oferta, catalogo_html_):
+    rodada("cloud", _confiaveis_reais())
+    minimo_antes = Estado("cloud").dados["minimo"]["preco"]
+    vid = oferta.extra["vendedor_id"]
+    rede = Rede({f"/lojista/{vid}/": catalogo_html_})
+    est, ofs, msgs = rodada("cloud", [oferta] + _confiaveis_reais(), rede=rede)
+    return est, next(x for x in ofs if x.vendedor == oferta.vendedor), msgs, minimo_antes
+
+
+@pytest.mark.parametrize("sid,nome,pix,cartao,catalogo", [
+    # loja de presentes/brinquedos sem TV no catálogo, anúncio com 0 avaliações, preço só 10% abaixo
+    ("lojaxbrinq", "Loja X Presentes", "2790.00", "2950.00",
+     catalogo_html(800, [("ET", "Tv e Vídeo", 4), ("BR", "Brinquedos", 500), ("UD", "Utilidades Domésticas", 296)])),
+    # loja de capinhas/cabos: celular e informática não são "eletro de TV"
+    ("capinhasbr", "Capinhas BR", "2750.00", "2890.00",
+     catalogo_html(1500, [("ET", "Tv e Vídeo", 3), ("TE", "Celulares e Smartphones", 900), ("IN", "Informática", 400),
+                          ("UD", "Utilidades Domésticas", 197)])),
+    # loja pequena em que os anúncios de TV do próprio invasor passam de 2% do catálogo
+    ("brinqpeq", "Brinquedos Pequena", "2609.01", "2750.00",
+     catalogo_html(150, [("ET", "Tv e Vídeo", 4), ("BR", "Brinquedos", 146)])),
+])
+def test_variacoes_do_golpe_no_magalu_viram_suspeito(dados, sid, nome, pix, cartao, catalogo):
+    o = _anuncio_proprio(sid, nome, pix, cartao, reviews=0)
+    est, o, msgs, minimo_antes = _cenario_magalu(o, catalogo)
+    c = o.extra["confianca"]
+    assert c["veredito"] == confianca.SUSPEITO, c
+    assert any("de TV" in s for s in c["sinais"]), c["sinais"]
+    assert [m.split("\n")[0] for m in _msgs_de(msgs, nome)] == [CAB_SUSPEITO]
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, nome))
+    assert est.dados["minimo"]["preco"] == minimo_antes
+    assert not _no_historico(dados, nome)
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    reg = next(r for r in lt["ofertas_loja"] if r.get("vendedor") == nome)
+    assert confianca.pode_ir_ao_carrinho(reg, lt["ofertas_loja"], ())[0] is False
+
+
+def test_amazon_conta_boa_de_outro_ramo_24pct_abaixo_vira_suspeito(dados):
+    rodada("pc", _confiaveis_reais())
+    minimo_antes = Estado("pc").dados["minimo"]["preco"]
+    o = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=AHACKED1",
+               "B0F7JZMVKF-AHACKED1", preco_pix=2350.00, vendedor="Casa & Lazer Utilidades",
+               extra={"vendedor_id": "AHACKED1", "asin": "B0F7JZMVKF",
+                      "ficha": {"avaliacoes_vendedor": 5200, "positivas_pct": 95, "enviado_por": "Casa & Lazer",
+                                "full": False}})
+    est, ofs, msgs = rodada("pc", [o] + _confiaveis_reais())
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Casa & Lazer Utilidades")) == confianca.SUSPEITO
+    assert [m.split("\n")[0] for m in _msgs_de(msgs, "Casa &amp; Lazer")] == [CAB_SUSPEITO]
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Casa &amp; Lazer"))
+    assert est.dados["minimo"]["preco"] == minimo_antes
+
+
+def test_casas_bahia_marketplace_muito_abaixo_vira_suspeito(dados):
+    rodada("pc", _confiaveis_reais())
+    minimo_antes = Estado("pc").dados["minimo"]["preco"]
+    o = Oferta("casasbahia", "loja", "Casas Bahia", "TCL 55C6K", config.URL_CASASBAHIA_PRODUTO + "?idLojista=99999",
+               "55069456-99999", preco=2599.00, preco_pix=2450.00, vendedor="Mega Utilidades",
+               extra={"vendedor_id": "99999", "anuncio": "55069456"})
+    est, ofs, msgs = rodada("pc", [o] + _confiaveis_reais())
+    assert confianca.veredito_de(next(x for x in ofs if x.vendedor == "Mega Utilidades")) == confianca.SUSPEITO
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Mega Utilidades"))
+    assert est.dados["minimo"]["preco"] == minimo_antes
+
+
+def test_decide_qualquer_sinal_forte_e_suspeito_e_so_identidade_mais_outro_forte_reprova():
+    forte_preco = confianca.Sinal("preco_muito_abaixo", True, "p")
+    copiado = confianca.Sinal("preco_cheio_copiado", True, "c")
+    anatel = confianca.Sinal("anatel_diferente", True, "a")
+    fraco = confianca.Sinal("sem_avaliacoes", False, "f")
+    assert confianca.decide([forte_preco]) == confianca.SUSPEITO
+    assert confianca.decide([anatel]) == confianca.SUSPEITO
+    assert confianca.decide([fraco, fraco]) == confianca.SEM_RISCO
+    assert not confianca.reprova([forte_preco])
+    assert not confianca.reprova([forte_preco, copiado, fraco, fraco])   # só preço: nunca reprovado permanente
+    assert not confianca.reprova([anatel])
+    assert confianca.reprova([forte_preco, anatel])
+
+
+# ---- ALTA 2: o reprovado automático vai pelo VENDEDOR, nunca pelo anúncio de outro vendedor ----
+
+def test_reprovado_automatico_nao_guarda_o_anuncio_do_buy_box_de_outro_vendedor(dados):
+    p = _produto(P1P)
+    sel = _seller("lojagolpe", "Loja Golpe", razao="Comercial de Brinquedos Ltda")
+    p["offers"].append({"sku": "9", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "2400.00",
+                                              "fullPrice": "3894.05", "price": "3894.05"}, "seller": sel})
+    ofs = magalu.parse_produto_todas(_html_produto(p))[0]
+    golpe = next(o for o in ofs if o.vendedor == "Loja Golpe")
+    assert golpe.extra["anuncio"] == "240162700"
+    rede = Rede({"/lojista/lojagolpe/": catalogo_html(800, [("ET", "Tv e Vídeo", 2), ("BR", "Brinquedos", 798)]),
+                 "/p/240162700/": P1P})
+    est, _ofs, _msgs = rodada("cloud", ofs + _confiaveis_reais()[1:], rede=rede)
+    auto = est.dados["confianca"]["reprovados_auto"]
+    assert list(auto) == ["Magazine Luiza|lojagolpe"], auto
+    assert auto["Magazine Luiza|lojagolpe"]["ids"] == ["lojagolpe"]
+    assert auto["Magazine Luiza|lojagolpe"]["anuncios"] == []           # o 240162700 é do Magalu 1P
+    # rodada 2: um vendedor limpo no MESMO anúncio e o próprio 1P continuam; a Loja Golpe some de cara
+    p2 = _produto(P1P)
+    sel2 = _seller("lojaboa2", "Loja Boa 2", razao="Boa Eletro Ltda")
+    p2["offers"] += [{"sku": "8", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "3300.00",
+                                            "fullPrice": "3450.00", "price": "3450.00"}, "seller": sel2},
+                     {"sku": "9", "price": {"paymentMethodDescription": "no Pix", "bestPrice": "2400.00",
+                                            "fullPrice": "3894.05", "price": "3894.05"}, "seller": sel}]
+    _est2, ofs2, _msgs2 = rodada("cloud", magalu.parse_produto_todas(_html_produto(p2))[0] + _confiaveis_reais()[1:],
+                                 rede=Rede({"/lojista/lojaboa2/": _catalogo_com_tv()}))
+    assert sorted(o.vendedor for o in ofs2 if o.loja == "Magazine Luiza") == \
+        sorted(["Magalu", "Loja Boa 2", "Lojas Colombo Oficial"])
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert not any("240162700" in e.get("anuncios", []) for e in lt["confianca"]["reprovados"])
+
+
+def test_reprovado_automatico_guarda_o_anuncio_quando_ele_e_so_do_vendedor(dados, sem_lili_na_lista):
+    est, _ofs, _msgs = rodada("cloud", [lili(), magalu_1p()], rede=Rede())
+    assert est.dados["confianca"]["reprovados_auto"]["Magazine Luiza|importadoslili"]["anuncios"] == ["kc3ca4k960"]
+
+
+def test_anuncio_do_reprovado_automatico_nao_pega_outro_vendedor_conhecido():
+    auto = [{"loja": "Magazine Luiza", "ids": ["lojagolpe"], "nomes": ["Loja Golpe"], "anuncios": ["240162700"],
+             "origem": "automatico"}]
+    base = dict(fonte="magalu", tipo="loja", loja="Magazine Luiza", titulo="Smart TV 55 TCL 55C6K")
+    outro = Oferta(**base, url=URL_1P + "?seller_id=lojaboa2", id="240162800-lojaboa2", vendedor="Loja Boa 2",
+                   extra={"vendedor_id": "lojaboa2", "anuncio": "240162700"})
+    assert confianca.motivo_bloqueio(outro, auto) is None
+    linha_1p = {"loja": "Magazine Luiza", "vendedor": "Magalu", "url": URL_1P, "tipo": "loja"}   # linha do CSV
+    assert confianca.motivo_bloqueio(linha_1p, auto) is None
+    post = {"loja": "Magazine Luiza", "url": URL_1P, "tipo": "post"}            # sem vendedor: o anúncio vale
+    assert confianca.motivo_bloqueio(post, auto)
+    assert confianca.motivo_bloqueio(Oferta(**base, url=URL_1P + "?seller_id=lojagolpe", id="x"), auto)
+
+
+def test_opcao_do_ml_sem_vendedor_nao_vira_reprovado_pelo_item(dados):
+    rodada("pc", _confiaveis_reais())
+    o = Oferta("mercadolivre", "loja", "Mercado Livre", "TCL 55C6K", config.URL_ML_CATALOGO, "MLB6713012362",
+               preco=2400.00, extra={"item_id": "MLB6713012362", "anuncio": "MLB6713012362"})
+    est, ofs, _msgs = rodada("pc", [o] + _confiaveis_reais())
+    assert confianca.veredito_de(next(x for x in ofs if x.id == "MLB6713012362")) == confianca.SUSPEITO
+    assert est.dados["confianca"]["reprovados_auto"] == {}
+
+
+# ---- MÉDIA 1: liberar pela lista de confiáveis chega ao painel ----
+
+def test_liberar_reprovado_automatico_pela_lista_chega_ao_latest(dados, sem_lili_na_lista, monkeypatch):
+    rodada("cloud", [lili(), magalu_1p()], rede=Rede())
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert any("importadoslili" in e["ids"] for e in lt["confianca"]["reprovados"])
+    novas = copy.deepcopy(sem_lili_na_lista)
+    novas["confiaveis"]["Magazine Luiza"].append({"ids": ["importadoslili"], "motivo": "teste", "desde": "2026-09-26"})
+    monkeypatch.setattr(confianca, "listas", lambda: novas)
+    est, _ofs, _msgs = rodada("cloud", [magalu_1p()], rede=Rede())
+    lt = json.loads((dados / "latest_cloud.json").read_text(encoding="utf-8"))
+    assert not any("importadoslili" in e["ids"] for e in lt["confianca"]["reprovados"]), lt["confianca"]
+    assert est.dados["confianca"]["reprovados_auto"] == {}
+    assert confianca.reprovados_auto_dos_arquivos() == []
+
+
+# ---- MÉDIA 2: preço "de" e preço riscado não são "preço cheio só no Pix" ----
+
+def test_preco_de_igual_ao_de_loja_confiavel_nao_e_preco_cheio_copiado(dados):
+    rodada("cloud", _confiaveis_reais())
+    # vendedor limpo: "de R$ 4.099 (= cartão do Magalu 1P) por R$ 2.842 no cartão / R$ 2.800 no Pix" (90% da Fast Shop)
+    o = _anuncio_proprio("eletrobom", "Eletro Bom", "2800.00", "2842.00", preco_de="4099.00", reviews=57,
+                         razao="Eletro Bom Comercio de Eletronicos Ltda")
+    assert o.extra["preco_de"] == 4099.00
+    _est, ofs, msgs = rodada("cloud", [o] + _confiaveis_reais(), rede=Rede({"/lojista/eletrobom/": _catalogo_com_tv()}))
+    c = next(x for x in ofs if x.vendedor == "Eletro Bom").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO, c
+    assert not any("preço cheio" in s or "só no Pix" in s for s in c["sinais"]), c["sinais"]
+    (m,) = _msgs_de(msgs, "Eletro Bom")
+    assert "🎯" in m and "🔎 vendedor novo: checagens ok" in m
+
+
+def test_preco_riscado_do_ml_nao_e_desconto_so_no_pix(dados):
+    rodada("pc", _confiaveis_reais())
+    o = Oferta("mercadolivre", "loja", "Mercado Livre", "TCL 55C6K", config.URL_ML_CATALOGO, "MLB9999999999",
+               preco=4099.00, preco_pix=2790.00, vendedor="ELETRO CENTER",
+               extra={"vendedor_id": "123456", "item_id": "MLB9999999999", "vendas_vendedor": 15000})
+    _est, ofs, _msgs = rodada("pc", [o] + _confiaveis_reais())
+    c = next(x for x in ofs if x.vendedor == "ELETRO CENTER").extra["confianca"]
+    assert c["veredito"] == confianca.SEM_RISCO, c
+    assert not any("preço cheio" in s or "só no Pix" in s for s in c["sinais"]), c["sinais"]
+
+
+def test_desconto_so_no_pix_ainda_vale_quando_o_cartao_e_da_mesma_oferta():
+    ref = confianca.referencias(_confiaveis_reais())
+    sinais, _f = confianca.sinais_da_oferta(lili(), ref)
+    assert any(s.codigo == "preco_cheio_copiado" for s in sinais)   # cartão 3.894,05 = Pix do Magalu 1P
+
+
+# ---- MÉDIA 3: linha de agregador (Zoom) de loja sem fonte direta também passa pela checagem de preço ----
+
+def _zoom(loja, preco, oid):
+    return Oferta("zoom", "loja", loja, "Smart TV TCL 55C6K", f"https://www.zoom.com.br/tv/x?highlightedItemId={oid}",
+                  oid, preco=preco, extra={"agregador": True})
+
+
+def test_linha_do_agregador_muito_abaixo_vira_suspeita_e_a_normal_leva_a_linha_de_checagem(dados):
+    rodada("cloud", _confiaveis_reais())
+    minimo_antes = Estado("cloud").dados["minimo"]["preco"]
+    est, ofs, msgs = rodada("cloud", [_zoom("Carrefour", 2400.0, "1"), _zoom("Extra", 2890.0, "2"),
+                                      _zoom("Amazon", 2300.0, "3")] + _confiaveis_reais())
+    car = next(x for x in ofs if x.loja == "Carrefour")
+    assert confianca.veredito_de(car) == confianca.SUSPEITO
+    assert [m.split("\n")[0] for m in _msgs_de(msgs, "Carrefour")] == [CAB_SUSPEITO]
+    assert _sem_etiqueta_de_preco(_msgs_de(msgs, "Carrefour"))
+    assert minimo_antes > 2890.0 and est.dados["minimo"]["preco"] == 2890.0   # o da linha limpa do Extra, não 2.400
+    ext = next(x for x in ofs if x.loja == "Extra")
+    assert confianca.veredito_de(ext) == confianca.SEM_RISCO
+    (m,) = _msgs_de(msgs, "Extra")
+    assert "🎯" in m and "🔎 linha de agregador" in m
+    # agregador de loja com fonte direta (Amazon) não é preço: nem veredito nem aviso
+    amz = next(x for x in ofs if x.fonte == "zoom" and x.loja == "Amazon")
+    assert confianca.veredito_de(amz) is None and _msgs_de(msgs, "2.300,00") == []
+
+
+# ---- BAIXA 1: suspeito sem nada que identifique o vendedor não repete o aviso a cada rodada ----
+
+def test_suspeito_sem_vendedor_avisa_uma_vez(dados):
+    rodada("cloud", _confiaveis_reais())
+    base = [o for o in _confiaveis_reais() if o.loja != "KaBuM!"]
+    avisos = []
+    for _ in range(3):
+        o = Oferta("kabum", "loja", "KaBuM!", "TCL 55C6K", config.URL_KABUM_PRODUTO, "911482", preco=3894.05,
+                   preco_pix=2400.00, vendedor=None)
+        _est, _ofs, msgs = rodada("cloud", [o] + base)
+        avisos.append(sum(1 for m in msgs if m.startswith(CAB_SUSPEITO)))
+    assert avisos == [1, 0, 0]
+
+
+# ---- BAIXA 2: nome de loja confiável com outro id de vendedor não é confiável ----
+
+def test_nome_de_confiavel_sem_id_na_lista_nao_vale_para_oferta_com_outro_id():
+    o = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=AQUALQUER", "x",
+               preco_pix=2500, vendedor="Fast Shop Loja Oficial", extra={"vendedor_id": "AQUALQUER"})
+    assert confianca.classifica_por_lista(o, ())[0] is None
+    sem_id = Oferta("amazon", "loja", "Amazon", "TCL 55C6K", "https://www.amazon.com.br/dp/B0F7JZMVKF", "B0F7JZMVKF",
+                    preco=3900, vendedor="Fast Shop Loja Oficial")
+    assert confianca.classifica_por_lista(sem_id, ())[0] == confianca.CONFIAVEL
+    # os registros reais do Magalu (id do vendedor no fim do id da oferta) continuam confiáveis
+    for oid, vend in (("kb7d86eh39-fastshop2", "Fast Shop"), ("ch3bg8ac9d-lojatclsemp", "Loja TCL Semp")):
+        r = {"loja": "Magazine Luiza", "vendedor": vend, "id": oid,
+             "url": f"https://www.magazineluiza.com.br/x/p/{oid[:10]}/et/elit/"}
+        assert confianca.classifica_por_lista(r, ())[0] == confianca.CONFIAVEL, oid
+
+
+# ---- BAIXA 3: heurísticas frágeis ----
+
+def test_razao_social_de_outro_ramo_nao_casa_pedaco_de_palavra():
+    for razao in ("XYZ Robotica e Eletronicos Ltda", "Manifesta Comercio Ltda", "Acomoda Moveis Ltda",
+                  "Superfesta Eletro Ltda"):
+        assert not confianca._RE_OUTRO_RAMO.search(confianca._ascii(razao)), razao
+    for razao in ("Comercial De Brinquedos Lili Ltda", "Papelaria Central", "Moda Bela Ltda", "Pet Shop Amigo",
+                  "Artigos de Festa Alegria"):
+        assert confianca._RE_OUTRO_RAMO.search(confianca._ascii(razao)), razao
+
+
+def test_anatel_da_ficha_e_o_da_tv_e_nao_o_do_controle():
+    p = _produto(P1P)
+    p["factsheet"] = [{"elements": [
+        {"keyName": "Certificado Anatel do controle remoto", "elements": [{"value": "01234-22-01234"}]},
+        {"keyName": "Certificado homologado pela Anatel número", "elements": [{"value": "00738-24-06714"}]}]}]
+    (o,) = magalu.parse_produto_todas(_html_produto(p))[0]
+    assert o.extra["ficha"]["anatel"] == "00738-24-06714"
+
+
+def test_checagem_de_rede_nao_insiste_depois_do_403_da_coleta_do_magalu(dados, monkeypatch):
+    monkeypatch.setattr(magalu, "BLOQUEADO_EM", time.time())
+    o = vendedor_limpo(pix="3200.00", cartao="3399.00")
+    o.extra.pop("ficha")
+    rede = Rede()
+    confianca.avaliar(Estado("cloud"), [o, magalu_1p()], rede=True, obter=rede, pausa_s=0)
+    assert rede.pedidas == []
+    assert confianca.veredito_de(o) == confianca.SEM_RISCO
