@@ -210,7 +210,9 @@ def test_nf6_titulo_com_suporte_a_recurso():
 def test_nf6_filtro_continua_barrando():
     assert telegram_public.parse_canal(canal("Controle comando de voz para TV TCL 55C6K", "R$ 149,99"), "c") == []
     assert telegram_public.parse_canal(canal("Smart TV TCL 55C6K", "TV reembalada, R$ 2.999"), "c") == []
-    assert telegram_public.parse_canal(canal("Smart TV TCL 65C6K", "R$ 4.999"), "c") == []
+    # a 65C6K não vira oferta da 55C6K; desde 26/09 ela é a outra TV monitorada, com o próprio modelo e id
+    (o65,) = telegram_public.parse_canal(canal("Smart TV TCL 65C6K", "R$ 4.999"), "c")
+    assert (o65.modelo, o65.preco, o65.id) == ("65C6K", 4999.0, "canal/1#65C6K")
     # tamanho na linha de cima do modelo: janela curta
     assert linha_55c6k("Smart TV TCL 55 polegadas QD-Mini LED\n4K C6K Google TV\nR$ 3.599 no Pix")
 

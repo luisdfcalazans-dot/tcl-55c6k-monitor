@@ -8,10 +8,14 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 from .. import config
-from ..filtro import eh_55c6k
+from ..filtro import modelo_do_titulo
 from ..models import Cupom, Oferta
 from ..util import get_html, loja_canonica, parse_preco, tempo_relativo_para_iso
 from . import Fonte, Resultado
+
+# discussão (/t/...: "65c6k por R$3.999 em 15x sem juros é bom negócio?") usa o mesmo cartão das ofertas, mas não é
+# oferta: viraria um "📣 postagem nova" com o preço de quem perguntou (levantamento de 26/09)
+_RE_DISCUSSAO = re.compile(r"^(?:https?://[^/]+)?/t/", re.I)
 
 
 def parse_busca(html: str) -> list[Oferta]:
@@ -20,7 +24,10 @@ def parse_busca(html: str) -> list[Oferta]:
     for a in soup.select("h3 a[data-deal-id]"):
         did = a.get("data-deal-id")
         titulo = a.get_text(" ", strip=True)
-        if not did or not eh_55c6k(titulo):
+        if _RE_DISCUSSAO.match(a.get("href") or ""):
+            continue
+        modelo = modelo_do_titulo(titulo)
+        if not did or not modelo:
             continue
         card = a.find_parent("li") or a.find_parent("article") or a.parent.parent
         inativo = (a.get("data-inactive") == "true") or bool(card.select_one('[class*="inactive-label"]'))
@@ -39,7 +46,7 @@ def parse_busca(html: str) -> list[Oferta]:
             fonte="pelando", tipo="post", loja=loja_canonica(loja), titulo=titulo,
             url=a.get("href") or f"https://www.pelando.com.br/d/{did}", id=did,
             preco=preco, publicado=publicado, ativo=not inativo,
-            extra={"temperatura": temp.get_text(strip=True) if temp else None},
+            extra={"temperatura": temp.get_text(strip=True) if temp else None}, modelo=modelo,
         )
     return list(out.values())
 
@@ -50,7 +57,8 @@ class PelandoBusca(Fonte):
 
     def coletar(self) -> Resultado:
         vistos: dict[str, Oferta] = {}
-        for q in config.BUSCAS[:2]:
+        # as duas primeiras buscas de cada TV ("55c6k", "tcl 55c6k", "65c6k", "tcl 65c6k")
+        for q in [t for termos in config.BUSCAS_POR_MODELO.values() for t in termos[:2]]:
             html = get_html(f"https://www.pelando.com.br/busca/{quote(q)}")
             for o in parse_busca(html):
                 vistos.setdefault(o.chave, o)

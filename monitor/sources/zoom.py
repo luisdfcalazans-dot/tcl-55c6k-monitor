@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 
 from .. import config
-from ..models import Oferta
+from ..models import MODELO_PADRAO, Oferta
 from ..util import fmt_preco, get_html, jsonld_produtos, loja_canonica, next_data, parse_preco
 from . import Fonte, Resultado
 
@@ -53,8 +53,10 @@ def _precos_do_estado(st: dict, preco_jsonld: float) -> tuple[float, float | Non
     return preco, pix, parcelado
 
 
-def parse_produto(html: str) -> list[Oferta]:
+def parse_produto(html: str, modelo: str = MODELO_PADRAO, url_produto: str | None = None) -> list[Oferta]:
+    """Ofertas da página de produto do Zoom (uma página por modelo: config.URLS_ZOOM)."""
     out: list[Oferta] = []
+    url_produto = url_produto or config.URLS_ZOOM.get(modelo, config.URL_ZOOM)
     estado = _estado_ofertas(html)
     for prod in jsonld_produtos(html):
         offers = prod.get("offers")
@@ -75,8 +77,8 @@ def parse_produto(html: str) -> list[Oferta]:
                 preco, pix, parcelado = _precos_do_estado(estado[oid], preco)
             out.append(Oferta(
                 fonte="zoom", tipo="loja", loja=loja_canonica(str(loja)), titulo=of.get("name") or prod.get("name") or "",
-                url=of.get("url") or config.URL_ZOOM, id=oid, preco=preco, preco_pix=pix, parcelado=parcelado,
-                extra={"agregador": True},
+                url=of.get("url") or url_produto, id=oid, preco=preco, preco_pix=pix, parcelado=parcelado,
+                extra={"agregador": True}, modelo=modelo,
             ))
     m = _RE_MEDIA.search(html)
     if m and out:
@@ -86,8 +88,27 @@ def parse_produto(html: str) -> list[Oferta]:
 
 
 class Zoom(Fonte):
+    """Uma página de produto por modelo. A da 65C6K tem slug próprio (…-qd-mini-led-65-…): com o slug da 55" trocado,
+    o Zoom responde 200 com uma página de BUSCA, sem JSON-LD, e o parser devolveria nada sem erro — por isso o aviso no
+    log quando a página de um modelo vem vazia."""
+
     nome = "zoom"
 
     def coletar(self) -> Resultado:
-        html = get_html(config.URL_ZOOM)
-        return parse_produto(html), []
+        out: dict[str, Oferta] = {}
+        for modelo, url in config.URLS_ZOOM.items():
+            try:
+                html = get_html(url)
+            except Exception as e:  # noqa: BLE001
+                if modelo == MODELO_PADRAO:
+                    raise  # a página da 55C6K falhando, a fonte falha como antes
+                print(f"[zoom] página da {modelo} falhou: {type(e).__name__}: {str(e)[:120]}")
+                continue
+            ofs = parse_produto(html, modelo, url)
+            if not ofs:
+                print(f"[zoom] a página da {modelo} veio sem ofertas (slug mudou? {url})")
+            for o in ofs:
+                if o.id in {x.id for x in out.values() if x.modelo != modelo}:
+                    o.id = f"{o.id}-{modelo}"   # o mesmo id de oferta nas duas páginas: cada modelo com o seu
+                out.setdefault(o.chave, o)
+        return list(out.values()), []
