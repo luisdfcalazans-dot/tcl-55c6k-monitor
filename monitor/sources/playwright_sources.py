@@ -288,6 +288,16 @@ _RE_CB_CARTAO = re.compile(r"^[^\n]*?R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2})[^\n]*cart
 _RE_CB_PIX = re.compile(r"R\$\s?([\d.]+,\d{2})\s*(?:no|à vista no|via)?\s*pix", re.I)
 
 
+def _cb_bloqueio(html: str, texto: str) -> bool:
+    """Página de bloqueio do Akamai na Casas Bahia: a antiga ("Access Denied", "Reference #") e a de 26/09 ("Ops! Algo
+    deu errado." com "Reference ID", folha de estilo /customdeny/), que a coleta gravava como item esgotado."""
+    if "Access Denied" in html[:3000] or "Reference #" in texto[:500]:
+        return True
+    if "/customdeny/" in html[:5000]:
+        return True
+    return "Algo deu errado" in texto[:300] and "Reference ID" in texto
+
+
 def _cb_parcelado_embutido(pp: dict) -> str | None:
     """Parcelamento sem juros da lista embutida (ProductPrice.installmentOptions). Nunca usa opção com juros.
 
@@ -444,7 +454,7 @@ class CasasBahia(Fonte):
 
     @staticmethod
     def _bloqueou(html: str, texto: str) -> bool:
-        return "Access Denied" in html[:3000] or "Reference #" in texto[:500]
+        return _cb_bloqueio(html, texto)
 
     def coletar(self) -> Resultado:
         out: dict[str, Oferta] = {}
@@ -516,7 +526,7 @@ class CasasBahia(Fonte):
     def _do_produto(html: str, texto: str, url: str, sku: str, modelo: str = MODELO_PADRAO) -> list[Oferta]:
         """Ofertas de uma página de item do `modelo`: a do buy box (com cartão x Pix e parcelado) e uma por outro
         vendedor. Página de outro sku ou de outro produto/modelo não vira preço."""
-        if "Access Denied" in html[:3000] or "Reference #" in texto[:500]:
+        if _cb_bloqueio(html, texto):
             return []
         pagina_sku = _cb_sku_da_pagina(html)
         if pagina_sku and pagina_sku != str(sku):
@@ -524,6 +534,11 @@ class CasasBahia(Fonte):
         m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
         titulo = limpa_html(m.group(1)) if m else ""
         if titulo and not eh_modelo(titulo, modelo):
+            return []
+        if not titulo and "application/ld+json" not in html and '"ProductPrice":' not in html:
+            # a página não trouxe nada do produto (nem título, nem JSON-LD, nem o estado embutido): é falha de carga,
+            # não item esgotado (revisão de 26/09: gravar "esgotado" tirava o item do painel e da comparação 55x65)
+            print(f"[casasbahia] a página do item {sku} veio sem o produto; não gravo nada dele nesta rodada")
             return []
         vendedores = _cb_vendedores(html)
         eleito = next((v for v in vendedores if v["eleito"]), None)

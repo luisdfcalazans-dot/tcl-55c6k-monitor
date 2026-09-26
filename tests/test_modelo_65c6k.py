@@ -373,6 +373,60 @@ def test_casasbahia_coleta_o_sku_da_65(monkeypatch):
     assert ps._oferta_jsonld(paginas["/p/55069453"], "casasbahia", "Casas Bahia", "u", "55069453", "65C6K")
 
 
+# página de bloqueio do Akamai da Casas Bahia (formato visto em 26/09; sem o IP que a página real mostra): "Ops! Algo
+# deu errado." com "Reference ID". A coleta a gravava como item ESGOTADO (sem h1 nem JSON-LD), e o painel passava a
+# comparar a 65" com o marketplace (+89%).
+BLOQUEIO_CB = ('<!DOCTYPE html><html lang="pt-br"><head><link rel="stylesheet" type="text/css" '
+               'href="https://novavp-a.akamaihd.net/customdeny/casasbahia.com.br/style.css"></head>'
+               '<body class="page-not-found"><div class="info"><h2>Ops! Algo deu errado.</h2>'
+               '<p>Que tal tentar de novo seguindo essas dicas?</p><p><b>Alguns detalhes do erro:</b></p>'
+               '<ul><li><b>Reference ID:</b>0.00000000.0000000000.0000000</li></ul></div></body></html>')
+TEXTO_BLOQUEIO_CB = ("Ops! Algo deu errado.\n\nQue tal tentar de novo seguindo essas dicas?\n\nAlguns detalhes do erro:"
+                     "\n\nReference ID:0.00000000.0000000000.0000000")
+
+
+def _abrir_cb(monkeypatch, paginas: dict, chamadas: list):
+    def abrir(url, *a, **k):
+        chamadas.append(url)
+        for trecho, pag in paginas.items():
+            if trecho in url:
+                return (pag if isinstance(pag, tuple) else (pag, "")) + ([],)
+        return "<html></html>", "", []   # buscas vazias
+
+    monkeypatch.setattr(ps, "_abrir", abrir)
+
+
+def test_casasbahia_pagina_de_bloqueio_no_item_da_65_nao_vira_esgotado(monkeypatch):
+    chamadas: list = []
+    _abrir_cb(monkeypatch, {"/p/55069456": _pagina_cb("55069456", T55_CB, 3599.09, 3998.99),
+                            "/p/55069453": (BLOQUEIO_CB, TEXTO_BLOQUEIO_CB)}, chamadas)
+    ofertas, _ = ps.CasasBahia().coletar()
+    assert [o.id for o in ofertas] == ["55069456-10037"], "nada da 65C6K: nem preço, nem 'esgotado'"
+    assert ps.CasasBahia._do_produto(BLOQUEIO_CB, TEXTO_BLOQUEIO_CB, "u", "55069453", "65C6K") == []
+
+
+def test_casasbahia_pagina_de_bloqueio_no_item_da_55_derruba_a_fonte(monkeypatch):
+    # como o "Access Denied" antigo: bloqueio no primeiro item derruba a fonte (falha contada, aviso na 3ª)
+    _abrir_cb(monkeypatch, {"/p/55069456": (BLOQUEIO_CB, TEXTO_BLOQUEIO_CB)}, [])
+    with pytest.raises(RuntimeError, match="bloqueou"):
+        ps.CasasBahia().coletar()
+
+
+def test_casasbahia_pagina_sem_produto_e_falha_de_carga_nao_esgotado(monkeypatch):
+    # página que carregou sem h1, sem JSON-LD e sem o estado embutido: não se sabe nada do item -> sem oferta
+    vazia = '<html><body><div id="__next"></div></body></html>'
+    assert ps.CasasBahia._do_produto(vazia, "", "u", "55069453", "65C6K") == []
+    chamadas: list = []
+    _abrir_cb(monkeypatch, {"/p/55069456": _pagina_cb("55069456", T55_CB, 3599.09, 3998.99),
+                            "/p/55069453": vazia}, chamadas)
+    ofertas, _ = ps.CasasBahia().coletar()
+    assert [o.id for o in ofertas] == ["55069456-10037"]
+    # esgotado de verdade (JSON-LD OutOfStock) continua esgotado
+    esgotada = _pagina_cb("55069453", T65_CB, 4219.08, 4687.87).replace("InStock", "OutOfStock")
+    (o,) = ps.CasasBahia._do_produto(esgotada, "", "u", "55069453", "65C6K")[:1]
+    assert o.ativo is False
+
+
 T65_ML = "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K Wifi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K"
 T55_ML = "Smart Tv Tcl 55 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 55c6k"
 
