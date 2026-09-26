@@ -13,6 +13,12 @@ anúncio chega aqui como um dicionário `alvo` (ver `LojaCarrinho.identidade`): 
 vendedor, id do vendedor, item do ML. `garantir_item(page, url, alvo)` deixa no carrinho exatamente
 AQUELE anúncio e AQUELE vendedor, com 1 unidade, e só troca o que já estava lá quando o carrinho tem só a
 TV. Com qualquer outro produto no carrinho, levanta CarrinhoOcupado e a loja fica para a próxima rodada.
+
+Dois modelos (26/09): a 55C6K e a 65C6K. O carrinho da pessoa termina a rodada com UMA TV de cada modelo
+(1 unidade cada) e nunca com outro produto. Para medir um cupom de um modelo, `garantir_item` isola aquele
+anúncio no carrinho (o cupom vale para o pedido inteiro): a linha do outro modelo só sai se o testador
+conhece um anúncio dele para devolver depois (`alvo["restauraveis"]`); senão, CarrinhoOcupado. No fim,
+`garantir_itens(page, alvos)` deixa exatamente um anúncio de cada modelo.
 """
 
 from __future__ import annotations
@@ -23,10 +29,59 @@ from pathlib import Path
 from typing import Optional
 
 from . import config
+from . import filtro
 from .filtro import eh_55c6k
 from .util import fmt_preco, next_data, parse_preco, sem_acentos
 
 PERFIS = config.RAIZ / ".pw-profile-carrinho"
+
+# ----------------------------------------------------------------------------------------------
+# modelos (26/09): 55C6K e 65C6K
+# ----------------------------------------------------------------------------------------------
+
+MODELOS = ("55C6K", "65C6K")
+MODELO_PADRAO = "55C6K"          # registro sem o campo 'modelo' (gravado antes de 26/09) é da 55C6K
+# catálogo do Mercado Livre de cada modelo (o da 65" saiu do levantamento de 26/09)
+CATALOGOS_ML = {"55C6K": config.ML_CATALOGO_ID, "65C6K": "MLB50368907"}
+_RE_TAMANHO = {"55C6K": re.compile(r"(?<!\d)55(?!\d)"), "65C6K": re.compile(r"(?<!\d)65(?!\d)")}
+_RE_55_OU_65 = re.compile(r"(?<!\d)([56])5(?!\d)")
+
+
+def modelo_da_oferta(o) -> str:
+    """Modelo de uma oferta/registro (campo 'modelo'); sem o campo, 55C6K (contrato de 26/09)."""
+    m = o.get("modelo") if isinstance(o, dict) else getattr(o, "modelo", None)
+    return str(m or MODELO_PADRAO).strip().upper()
+
+
+def _troca_55_65(texto: str) -> str:
+    return _RE_55_OU_65.sub(lambda m: "65" if m.group(1) == "5" else "55", texto or "")
+
+
+def eh_65c6k(texto: str) -> bool:
+    """O texto é a TCL 65C6K (65")? Usa o filtro da coleta quando ele tem a função; senão, o filtro da 55C6K com
+    55 e 65 trocados (as mesmas travas: acessório, combo, estado, vizinhos C7K/P7L/QM8K, C6KS, vários tamanhos)."""
+    f = getattr(filtro, "eh_65c6k", None)
+    if callable(f):
+        return bool(f(texto))
+    return eh_55c6k(_troca_55_65(texto))
+
+
+def eh_do_modelo(texto: str, modelo: str) -> bool:
+    """O título é a TV C6K deste modelo, com o tamanho escrito (55 ou 65)."""
+    t = texto or ""
+    if modelo == "55C6K":
+        ok = eh_55c6k(t)
+    elif modelo == "65C6K":
+        ok = eh_65c6k(t)
+    else:
+        return False
+    return ok and bool(_RE_TAMANHO[modelo].search(t))
+
+
+def modelo_do_titulo(texto: str) -> Optional[str]:
+    """55C6K, 65C6K ou None (outro produto, ou texto que serve para os dois tamanhos: na dúvida, nenhum)."""
+    achados = [m for m in MODELOS if eh_do_modelo(texto, m)]
+    return achados[0] if len(achados) == 1 else None
 
 # mensagens que são do robô (campo não achado, exceção, total ilegível), não resposta da loja
 _RE_FALHA = re.compile(r"^erro\b|campo de cupom n[ãa]o encontrado|n[ãa]o consegui|n[ãa]o conferid", re.I)
@@ -42,7 +97,7 @@ def falha_da_ferramenta(mensagem: str) -> bool:
 # TV. Conta só quando a palavra do serviço vem ANTES do nome da TV: a linha da própria TV pode oferecer o serviço
 # depois do título ("Smart TV ... 55C6K\nAdicionar garantia estendida").
 _RE_SERVICO = re.compile(r"\b(?:garantia|seguro|prote[çc][ãa]o|instala[çc][ãa]o|servi[çc]os?|assist[êe]ncia)\b", re.I)
-_RE_NOME_TV = re.compile(r"smart\s*tv|\btv\b|televis|55\s*c6k|\btcl\b", re.I)
+_RE_NOME_TV = re.compile(r"smart\s*tv|\btv\b|televis|[56]5\s*c6k|\btcl\b", re.I)
 
 
 def eh_servico(texto: str) -> bool:
@@ -51,9 +106,16 @@ def eh_servico(texto: str) -> bool:
     return bool(_RE_SERVICO.search(t[: m.start()] if m else t))
 
 
-def eh_linha_da_tv(texto: str) -> bool:
-    """Linha/item do carrinho que é a própria TV 55C6K (não um serviço com o nome dela)."""
-    return eh_55c6k(texto) and not eh_servico(texto)
+def modelo_da_linha(texto: str) -> Optional[str]:
+    """Modelo da linha/item do carrinho que é a própria TV (55C6K ou 65C6K); None para serviço com o nome dela,
+    outro produto ou texto que não dá para dizer."""
+    return None if eh_servico(texto) else modelo_do_titulo(texto)
+
+
+def eh_linha_da_tv(texto: str, modelo: Optional[str] = None) -> bool:
+    """Linha/item do carrinho que é a própria TV (de `modelo`, ou de qualquer um dos dois), não um serviço."""
+    m = modelo_da_linha(texto)
+    return m is not None and (modelo is None or m == modelo)
 
 
 @dataclass
@@ -163,6 +225,29 @@ class LojaCarrinho:
     so_leitura = False        # True quando a loja não aceita código digitado (só lê preço/cupom da página)
     max_anuncios = 1          # quantos anúncios diferentes visitar por rodada (antirrobô)
     item_alvo: Optional[str] = None  # id do anúncio que garantir_item conferiu no carrinho (quando a URL não diz)
+    # 22/09 (F3): quantas linhas/itens que JÁ estavam no carrinho o robô tirou desde comecar_rodada(). O aviso de
+    # "a sacola pode ter ficado vazia" só vale quando isto passou de zero e a TV não voltou a ser conferida.
+    remocoes = 0
+    # 26/09: o modelo de cada linha tirada (na ordem), para o testador saber qual TV saiu do carrinho e tem de voltar
+    # ("?" quando não deu para dizer). Nunca alterado no lugar: comecar_rodada cria uma lista nova.
+    removidos: list = []
+    # o carrinho pode ter ficado com mais de uma TV do mesmo modelo (ou mais de 1 unidade): a pessoa precisa saber
+    tvs_a_mais = False
+    # 22/09 (F5): opções de compra do catálogo que a página LOGADA mostrou nesta rodada, por item (só ML).
+    # Nunca alterado no lugar: cada rodada/leitura cria um dicionário novo.
+    opcoes_vistas: dict = {}
+
+    def comecar_rodada(self) -> None:
+        """Zera o que o adaptador anota durante uma rodada da loja (chamado pelo testador antes de começar)."""
+        self.remocoes = 0
+        self.removidos = []
+        self.tvs_a_mais = False
+        self.opcoes_vistas = {}
+
+    def _tirou(self, modelo: Optional[str]) -> None:
+        """Conta uma linha/item que JÁ estava no carrinho e o robô tirou (F3) e guarda o modelo dela."""
+        self.remocoes += 1
+        self.removidos = [*self.removidos, modelo or "?"]
 
     def perfil(self) -> Path:
         return PERFIS / self.nome
@@ -191,6 +276,11 @@ class LojaCarrinho:
         raise NotImplementedError
 
     def garantir_item(self, page, url_produto: str, alvo: Optional[dict] = None) -> bool:  # pragma: no cover
+        raise NotImplementedError
+
+    def garantir_itens(self, page, alvos: list[dict]) -> set:  # pragma: no cover
+        """Passo final com os dois modelos: deixa no carrinho exatamente estes anúncios (um por modelo), 1 unidade
+        cada, sem tocar em linha de modelo que não está em `alvos`. Devolve as chaves conferidas no carrinho."""
         raise NotImplementedError
 
     def ler_totais(self, page) -> ResultadoCupom:  # pragma: no cover
@@ -348,16 +438,17 @@ class Magalu(LojaCarrinho):
             titulo = re.sub(r"<[^>]+>|\s+", " ", mt.group(1)).strip() if mt else None
         return {"vendedor_id": vid, "vendedor": vnome, "titulo": titulo, "sinais": sinais}
 
-    def _abrir_pagina_do_anuncio(self, page, url_produto: str, vend_id, vend_nome) -> bool:
-        """Abre a página do anúncio e confere que ela é a 55C6K e está com o vendedor pedido.
+    def _abrir_pagina_do_anuncio(self, page, url_produto: str, vend_id, vend_nome, modelo: str = MODELO_PADRAO) -> bool:
+        """Abre a página do anúncio e confere que ela é a TV do modelo pedido e está com o vendedor pedido.
 
         Chamado ANTES de mexer na sacola: se a página não oferece esse vendedor, nada muda no carrinho."""
         page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
         info = self.info_da_pagina(page.content(), _texto(page), getattr(page, "url", "") or "")
         rotulo = self._id_anuncio(url_produto)
-        if info["titulo"] and not eh_55c6k(info["titulo"]):
-            print(f"[magalu] a página do anúncio {rotulo} não é a TV 55C6K ({info['titulo'][:60]}); não adiciono")
+        if info["titulo"] and not (eh_55c6k(info["titulo"]) if modelo == MODELO_PADRAO
+                                   else eh_do_modelo(info["titulo"], modelo)):
+            print(f"[magalu] a página do anúncio {rotulo} não é a TV {modelo} ({info['titulo'][:60]}); não adiciono")
             return False
         if not (vend_id or vend_nome):
             return True
@@ -436,22 +527,47 @@ class Magalu(LojaCarrinho):
         return itens[0]["id"] if len(itens) == 1 else "?"
 
     @staticmethod
-    def _so_tvs(itens: Optional[list[dict]]) -> bool:
-        """True só quando a sacola foi lida e TODO item dela é a 55C6K (garantia/seguro da TV não é a TV)."""
-        return itens is not None and all(eh_linha_da_tv(i.get("titulo") or "") for i in itens)
+    def modelo_do_item(item: dict, ids_modelo: Optional[dict] = None) -> Optional[str]:
+        """Modelo de um item da sacola: pelo id do /p/ de um anúncio conhecido (o tamanho vem da variação que a coleta
+        leu, não do título) ou, sem isso, pelo título. Serviço com o nome da TV (garantia, seguro) não é a TV."""
+        titulo = item.get("titulo") or ""
+        if eh_servico(titulo):
+            return None
+        return (ids_modelo or {}).get(str(item.get("id") or "")) or modelo_da_linha(titulo)
+
+    @classmethod
+    def _so_tvs(cls, itens: Optional[list[dict]], ids_modelo: Optional[dict] = None) -> bool:
+        """True só quando a sacola foi lida e TODO item dela é uma das TVs (55C6K ou 65C6K); garantia/seguro da TV
+        não é a TV."""
+        return itens is not None and all(cls.modelo_do_item(i, ids_modelo) for i in itens)
+
+    @classmethod
+    def _modelos_na_sacola(cls, itens: Optional[list[dict]], ids_modelo: Optional[dict] = None) -> set:
+        return {cls.modelo_do_item(i, ids_modelo) for i in (itens or [])} - {None}
 
     # confirmação do "Excluir". Ancorada: solta, "sim" casa com "Produtos similares" e "excluir" com
     # qualquer frase que cite a palavra — e a sacola tem um carrossel de recomendados embaixo do resumo.
     _RE_CONFIRMA_EXCLUIR = re.compile(r"^(excluir|confirmar|sim)\b", re.I)
 
-    def esvaziar(self, page) -> None:
-        """Remove itens da sacola SOMENTE se todos forem a 55C6K.
+    def esvaziar(self, page, ids_modelo: Optional[dict] = None) -> None:
+        """Remove itens da sacola SOMENTE se todos forem uma das TVs (55C6K ou 65C6K).
 
         A sacola é a do usuário: se houver qualquer outro produto (ou se não der para ler o que há),
         não mexemos em nada. Quem chama trata isso como "não deu para trocar o anúncio".
+        Cada clique em "Excluir" conta em `remocoes` (F3) e guarda o modelo em `removidos`: o aviso de sacola
+        vazia (ou de TV que saiu e não voltou) depende disso.
+
+        Por que o Magalu esvazia a sacola em vez de tirar um item só: na sacola, os itens só têm identidade na
+        resposta GetPreBasketQuery (id do /p/ + vendedor); o HTML não tem link /p/<id> nem nada que ligue um
+        botão "Excluir" ao item (bug de 17/09). Com dois itens na sacola, não dá para garantir qual "Excluir" é de
+        qual item (e o mesmo /p/ de outro vendedor pode até somar unidades). Por isso aqui continua: conferir
+        página e vendedor ANTES, esvaziar só sacola que tem apenas as TVs, e pôr o(s) anúncio(s); se não
+        entrarem, o testador tenta devolver o mais barato de cada modelo e, como houve remoção, avisa.
         """
-        if not self._so_tvs(self.itens_da_sacola(page)):
+        itens = self.itens_da_sacola(page)
+        if not self._so_tvs(itens, ids_modelo):
             return
+        modelos = [self.modelo_do_item(i, ids_modelo) for i in itens or []]
         for _ in range(6):
             if "sacola está vazia" in _texto(page):
                 return
@@ -464,6 +580,8 @@ class Magalu(LojaCarrinho):
                 bt.click(timeout=8000)
             except Exception:
                 return
+            # o "Excluir" clicado é sempre o primeiro da sacola: o modelo é o do item na mesma posição
+            self._tirou(modelos.pop(0) if modelos else None)
             page.wait_for_timeout(2500)
             # a confirmação é do diálogo que o "Excluir" abriu; fora dele sobra a página inteira
             conf = (self._dialogo(page) or page).get_by_role(
@@ -490,17 +608,24 @@ class Magalu(LojaCarrinho):
         return sem_vendedor_ok if igual is None else igual
 
     def garantir_item(self, page, url_produto: str, alvo: Optional[dict] = None) -> bool:
-        """Deixa na sacola exatamente o anúncio pedido, do vendedor pedido, com 1 unidade.
+        """Deixa na sacola exatamente o anúncio pedido, do vendedor pedido, com 1 unidade (o anúncio fica sozinho
+        para o cupom ser medido só nele: o cupom vale para o pedido inteiro).
 
-        - sacola com outro produto (não a TV): CarrinhoOcupado, não mexe em nada;
-        - antes de esvaziar, abre a página do anúncio e confere o vendedor (o Magalu troca de vendedor sem
+        - sacola com outro produto (não uma das TVs): CarrinhoOcupado, não mexe em nada;
+        - sacola com a TV do OUTRO modelo que o testador não sabe devolver depois (`alvo["restauraveis"]` não tem o
+          modelo dela): CarrinhoOcupado, não mexe em nada;
+        - antes de esvaziar, abre a página do anúncio e confere modelo e vendedor (o Magalu troca de vendedor sem
           avisar quando o pedido não vende o produto): se não for o pedido, pula o anúncio sem mexer;
-        - só esvazia a sacola quando ela tem só a 55C6K; depois adiciona e confere id + vendedor.
+        - só esvazia a sacola quando ela tem só as TVs; depois adiciona e confere id + vendedor.
         O Magalu engasga quando recebe muitas operações de sacola seguidas, então tentamos
         mais de uma vez, com pausa, antes de desistir do anúncio.
         """
         info = alvo or {}
+        modelo = info.get("modelo") or MODELO_PADRAO
+        ids_modelo = dict(info.get("ids_modelo") or {})
+        restauraveis = set(info.get("restauraveis") or ()) | {modelo}
         alvo_id = self._id_anuncio(url_produto)
+        ids_modelo.setdefault(alvo_id, modelo)
         vend_id = info.get("vendedor_id") or self._seller_da_url(url_produto)
         vend_nome = info.get("vendedor")
         confere = bool(vend_id or vend_nome)
@@ -510,25 +635,29 @@ class Magalu(LojaCarrinho):
                 return False  # não deu para ler a sacola: não mexe em nada
             if self._so_o_alvo(itens, alvo_id, vend_id, vend_nome, sem_vendedor_ok=False):
                 return True
-            if itens and not self._so_tvs(itens):
+            if itens and not self._so_tvs(itens, ids_modelo):
                 raise CarrinhoOcupado("a sacola do Magalu tem produtos que não são a TV; não mexo nela")
+            sem_volta = self._modelos_na_sacola(itens, ids_modelo) - restauraveis
+            if sem_volta:
+                raise CarrinhoOcupado(f"a sacola do Magalu tem a {', '.join(sorted(sem_volta))} e não conheço anúncio "
+                                      "dela para devolver depois do teste; não mexo nela")
             if confere and self._so_o_alvo(itens, alvo_id) and \
                     mesmo_vendedor(itens[0].get("vendedor_id"), itens[0].get("vendedor"), vend_id, vend_nome) is None:
                 # a sacola não disse o vendedor: confere pela página (sem mexer na sacola) e volta para a
                 # sacola, que é onde os testes leem o total
-                if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome):
+                if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome, modelo):
                     return False
                 return self._so_o_alvo(self.itens_da_sacola(page), alvo_id)
-            if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome):
+            if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome, modelo):
                 return False
             if itens:
-                self.esvaziar(page)
+                self.esvaziar(page, ids_modelo)
                 page.wait_for_timeout(2000)
                 if self.itens_da_sacola(page) != []:
                     # não esvaziou (ou não deu para ler): pôr outra TV só somaria unidades
                     page.wait_for_timeout(4000 * (tentativa + 1))
                     continue
-                if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome):
+                if not self._abrir_pagina_do_anuncio(page, url_produto, vend_id, vend_nome, modelo):
                     return False
             botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
             if botao.count():
@@ -547,6 +676,119 @@ class Magalu(LojaCarrinho):
                 return False
             page.wait_for_timeout(4000 * (tentativa + 1))  # deixa a loja respirar
         return False
+
+    # --- passo final com os dois modelos (26/09): uma TV de cada modelo, 1 unidade cada ---
+
+    def _pedido(self, alvo: dict) -> dict:
+        url = alvo.get("url") or ""
+        return {"chave": alvo.get("chave") or url, "id": self._id_anuncio(url), "url": url,
+                "vend_id": alvo.get("vendedor_id") or self._seller_da_url(url), "vend_nome": alvo.get("vendedor"),
+                "modelo": alvo.get("modelo") or MODELO_PADRAO}
+
+    @staticmethod
+    def _casa(item: dict, ped: dict, sem_vendedor_ok: bool) -> bool:
+        """O item da sacola é o anúncio pedido, do vendedor pedido, com 1 unidade?"""
+        if str(item.get("id")) != ped["id"] or (item.get("quantidade") or 1) != 1:
+            return False
+        if not (ped["vend_id"] or ped["vend_nome"]):
+            return True
+        igual = mesmo_vendedor(item.get("vendedor_id"), item.get("vendedor"), ped["vend_id"], ped["vend_nome"])
+        return sem_vendedor_ok if igual is None else igual
+
+    def _casados(self, itens: list[dict], pedidos: list[dict], sem_vendedor_ok: bool) -> tuple[dict, list[int]]:
+        """({chave do pedido: posição do item na sacola}, posições dos itens que não são pedido nenhum)."""
+        casados: dict = {}
+        for ped in pedidos:
+            k = next((k for k, it in enumerate(itens) if k not in casados.values()
+                      and self._casa(it, ped, sem_vendedor_ok)), None)
+            if k is not None:
+                casados[ped["chave"]] = k
+        return casados, [k for k in range(len(itens)) if k not in casados.values()]
+
+    def _situacao_final(self, itens: list[dict], pedidos: list[dict], ids_modelo: dict) -> set:
+        """Chaves dos pedidos que estão na sacola como devem (1 unidade, e a única linha do modelo); marca
+        `tvs_a_mais` quando algum modelo ficou com mais de uma linha ou mais de 1 unidade."""
+        casados, _ = self._casados(itens, pedidos, sem_vendedor_ok=True)
+        linhas: dict = {}
+        for it in itens:
+            m = self.modelo_do_item(it, ids_modelo)
+            linhas[m] = linhas.get(m, 0) + int(it.get("quantidade") or 1)
+        if any(n > 1 for m, n in linhas.items() if m):
+            self.tvs_a_mais = True
+            print("[magalu] ⚠ a sacola ficou com mais de uma unidade de um dos modelos")
+        return {ped["chave"] for ped in pedidos if ped["chave"] in casados and linhas.get(ped["modelo"]) == 1}
+
+    def garantir_itens(self, page, alvos: list[dict]) -> set:
+        """Deixa na sacola exatamente estes anúncios (um de cada modelo), 1 unidade cada.
+
+        - sacola com produto que não é uma das TVs: CarrinhoOcupado;
+        - item de um modelo que não está em `alvos` fica como está (nunca é tirado); se para trocar o anúncio de um
+          modelo fosse preciso esvaziar a sacola (o Magalu não liga o "Excluir" ao item) e ela tem esse item, não mexe;
+        - só falta pôr: abre a página de cada anúncio que falta (confere modelo e vendedor) e adiciona, sem tirar nada;
+        - há item errado de um dos modelos: confere ANTES a página de TODOS os anúncios pedidos (uma que não confira
+          e a sacola fica como está), esvazia (só TVs) e põe todos de novo.
+        Devolve as chaves dos anúncios conferidos na sacola (cada um a única linha do seu modelo, 1 unidade)."""
+        pedidos = [self._pedido(a) for a in alvos]
+        ids_modelo: dict = {}
+        for a in alvos:
+            ids_modelo.update(a.get("ids_modelo") or {})
+        for ped in pedidos:
+            ids_modelo[ped["id"]] = ped["modelo"]
+        modelos = {ped["modelo"] for ped in pedidos}
+        if not pedidos or len(modelos) != len(pedidos):
+            print("[magalu] o passo final pediu dois anúncios do mesmo modelo; não mexo na sacola")
+            return set()
+        for tentativa in range(3):
+            itens = self.itens_da_sacola(page)
+            if itens is None:
+                return set()  # não deu para ler a sacola: não mexe em nada
+            if itens and not self._so_tvs(itens, ids_modelo):
+                raise CarrinhoOcupado("a sacola do Magalu tem produtos que não são a TV; não mexo nela")
+            casados, sobras = self._casados(itens, pedidos, sem_vendedor_ok=False)
+            for ped in pedidos:   # a sacola não disse o vendedor do item: confere pela página, sem mexer na sacola
+                k = next((k for k in sobras if ped["chave"] not in casados and self._casa(itens[k], ped, True)), None)
+                if k is not None and self._abrir_pagina_do_anuncio(page, ped["url"], ped["vend_id"], ped["vend_nome"],
+                                                                   ped["modelo"]):
+                    casados[ped["chave"]] = k
+                    sobras.remove(k)
+            manter = [k for k in sobras if self.modelo_do_item(itens[k], ids_modelo) not in modelos]
+            trocar = [k for k in sobras if k not in manter]
+            faltam = [ped for ped in pedidos if ped["chave"] not in casados]
+            if not trocar and not faltam:
+                return self._situacao_final(itens, pedidos, ids_modelo)
+            if trocar:
+                if manter:
+                    print("[magalu] para trocar o anúncio eu teria de esvaziar a sacola, que tem também uma TV de outro "
+                          "modelo que não é deste passo; não mexo")
+                    return self._situacao_final(itens, pedidos, ids_modelo)
+                if not all(self._abrir_pagina_do_anuncio(page, p["url"], p["vend_id"], p["vend_nome"], p["modelo"])
+                           for p in pedidos):
+                    return self._situacao_final(self.itens_da_sacola(page) or [], pedidos, ids_modelo)
+                self.esvaziar(page, ids_modelo)
+                page.wait_for_timeout(2000)
+                if self.itens_da_sacola(page) != []:
+                    page.wait_for_timeout(4000 * (tentativa + 1))   # não esvaziou: pôr mais TVs só somaria unidades
+                    continue
+                faltam = list(pedidos)
+            for ped in faltam:
+                if not self._abrir_pagina_do_anuncio(page, ped["url"], ped["vend_id"], ped["vend_nome"], ped["modelo"]):
+                    continue
+                botao = page.get_by_role("button", name=re.compile(r"adicionar à sacola|adicionar a sacola", re.I)).first
+                if botao.count():
+                    try:
+                        botao.click(timeout=12000)
+                        page.wait_for_timeout(4000)
+                    except Exception:
+                        pass
+            depois = self.itens_da_sacola(page)
+            if depois is None:
+                return set()
+            casados, sobras = self._casados(depois, pedidos, sem_vendedor_ok=True)
+            if len(casados) == len(pedidos) and all(self.modelo_do_item(depois[k], ids_modelo) not in modelos
+                                                    for k in sobras):
+                return self._situacao_final(depois, pedidos, ids_modelo)
+            page.wait_for_timeout(4000 * (tentativa + 1))  # deixa a loja respirar
+        return self._situacao_final(self.itens_da_sacola(page) or [], pedidos, ids_modelo)
 
     def ler_totais(self, page) -> ResultadoCupom:
         """Lê o resumo da sacola por linhas, ancorado em 'Total:'.
@@ -775,31 +1017,48 @@ _SEL_ML_MENOS = "[data-andes-input-stepper-control-type=decrement]"
 _RE_ML_ITEM_URL = re.compile(r"(?:item_id(?:%3A|:)|[?&]wid=)(MLB\d{6,})", re.I)
 _RE_ML_PRODUTO_URL = re.compile(r"produto\.mercadolivre\.com\.br/MLB-?(\d{6,})", re.I)
 _RE_ML_CATALOGO_URL = re.compile(r"/p/(MLB\d+)", re.I)
-_RE_EXCLUIR = re.compile(r"^\s*Excluir\s*$", re.I)
+# controle que tira a linha do carrinho, pelo texto OU pelo aria-label/title (G2, 22/09: no carrinho real o botão
+# era só um ícone com aria-label "Remover produto", sem o texto "Excluir", e o robô desistia antes de clicar)
+_RE_REMOVER = re.compile(r"^\s*(?:excluir|remover(?:\s+produto)?)\s*$", re.I)
+_RE_EXCLUIR = _RE_REMOVER   # nome antigo, usado por scripts de leitura
 # cada linha do carrinho (uma por seletor de quantidade): sobe do seletor até o bloco da linha, que é o
-# primeiro que tem UM botão "Excluir" (ou, sem ele, o primeiro que tem link). Nunca sobe para um bloco que
-# tenha outra linha, o "Resumo da compra" ou texto demais (recomendações com a própria 55C6K poderiam fazer um
-# produto qualquer parecer a TV). Marca o bloco com data-tv55-linha=<k> para o clique em "Excluir" ser
-# dentro DAQUELA linha.
+# primeiro que tem UM controle de tirar ("Excluir", "Remover produto", "Remover", por texto, aria-label ou title)
+# ou, sem ele, o primeiro que tem link. Nunca sobe para um bloco que tenha outra linha, o "Resumo da compra" ou
+# texto demais (recomendações com a própria TV poderiam fazer um produto qualquer parecer a TV). Marca o bloco com
+# data-tv55-linha=<k> e o controle de tirar com data-tv55-excluir=<k>: o clique é nesse controle, DAQUELA linha.
+# qtd: o número do campo do seletor de quantidade (None quando não dá para ler).
 _ML_MAX_TEXTO_LINHA = 2000
 _JS_ML_LINHAS = """() => {
   const sel = '[data-andes-input-stepper-control-type=decrement]';
-  const ehExcluir = b => /^\\s*excluir\\s*$/i.test((b.innerText || b.getAttribute('aria-label') || '').trim());
+  const rx = /^\\s*(?:excluir|remover(?:\\s+produto)?)\\s*$/i;
+  const ehRemover = b => [b.innerText, b.getAttribute('aria-label'), b.getAttribute('title')]
+                           .some(x => rx.test((x || '').trim()));
   const grande = el => el.querySelectorAll(sel).length > 1 || (el.innerText || '').length > %d
                        || /Resumo da compra/i.test(el.innerText || '');
   document.querySelectorAll('[data-tv55-linha]').forEach(e => e.removeAttribute('data-tv55-linha'));
+  document.querySelectorAll('[data-tv55-excluir]').forEach(e => e.removeAttribute('data-tv55-excluir'));
+  const campoQtd = 'input:not([type=checkbox]):not([type=radio]):not([type=hidden])';
   return [...document.querySelectorAll(sel)].map((s, k) => {
-    let el = s.parentElement, linha = null, comLink = null;
+    let caixa = s.parentElement, campo = null;
+    for (let i = 0; i < 3 && caixa && !campo; i++, caixa = caixa.parentElement) {
+      if (caixa.querySelectorAll(sel).length > 1) break;
+      campo = caixa.querySelector(campoQtd);
+    }
+    const q = String((campo && (campo.value || campo.getAttribute('value'))) || '').match(/^\\s*(\\d+)\\s*$/);
+    const qtd = q ? parseInt(q[1], 10) : null;
+    let el = s.parentElement, linha = null, comLink = null, botao = null;
     for (let i = 0; i < 12 && el && el !== document.body; i++, el = el.parentElement) {
       if (grande(el)) break;
       if (!comLink && el.querySelector('a[href]')) comLink = el;
-      if ([...el.querySelectorAll('button, a, [role=button]')].filter(ehExcluir).length === 1) { linha = el; break; }
+      const bs = [...el.querySelectorAll('button, a, [role=button]')].filter(ehRemover);
+      if (bs.length === 1) { linha = el; botao = bs[0]; break; }
     }
     const bloco = linha || comLink;
-    if (!bloco) return {links: [], texto: '', excluir: false};
+    if (!bloco) return {links: [], texto: '', excluir: false, qtd: qtd};
     bloco.setAttribute('data-tv55-linha', String(k));
+    if (botao) botao.setAttribute('data-tv55-excluir', String(k));
     return {links: [...bloco.querySelectorAll('a[href]')].map(a => a.href),
-            texto: (bloco.innerText || '').slice(0, %d), excluir: !!linha};
+            texto: (bloco.innerText || '').slice(0, %d), excluir: !!botao, qtd: qtd};
   });
 }""" % (_ML_MAX_TEXTO_LINHA, _ML_MAX_TEXTO_LINHA + 1)
 
@@ -940,54 +1199,78 @@ class MercadoLivre(LojaCarrinho):
 
     @staticmethod
     def _linha(l) -> dict:
-        """Linha do carrinho como veio do JS ({links, texto, excluir}) ou no formato antigo (só links)."""
+        """Linha do carrinho como veio do JS ({links, texto, excluir, qtd}) ou no formato antigo (só links)."""
         if isinstance(l, dict):
+            q = l.get("qtd")
             return {"links": [str(x) for x in (l.get("links") or [])], "texto": str(l.get("texto") or ""),
-                    "excluir": bool(l.get("excluir"))}
-        return {"links": [str(x) for x in (l or [])], "texto": "", "excluir": False}
+                    "excluir": bool(l.get("excluir")), "qtd": q if isinstance(q, int) and q > 0 else None}
+        return {"links": [str(x) for x in (l or [])], "texto": "", "excluir": False, "qtd": None}
+
+    @staticmethod
+    def _modelo_do_catalogo(catalogo: str) -> Optional[str]:
+        return next((m for m, c in CATALOGOS_ML.items() if c and c.upper() == (catalogo or "").upper()), None)
 
     @classmethod
-    def classificar_linhas(cls, linhas: list, item_alvo: str, catalogo: str = "", ids_tv=()) -> list[dict]:
-        """Para cada linha: ids de item nos links, se é a 55C6K e se é o anúncio alvo.
+    def classificar_linhas(cls, linhas: list, item_alvo: Optional[str], catalogo: str = "", ids_tv=(),
+                           modelo: Optional[str] = None, ids_modelo: Optional[dict] = None) -> list[dict]:
+        """Para cada linha: ids de item nos links, se é uma das TVs (e de qual modelo) e se é o anúncio alvo.
 
-        É a TV quando o link é de um item conhecido da 55C6K (coleta ou opções do catálogo), quando o link é
-        do catálogo da TV, ou quando o texto da linha é o título da 55C6K. Sem nada disso NÃO é a TV (na
-        dúvida, o carrinho é tratado como "tem outro produto" e ninguém mexe nele). Bloco grande demais (vários
-        preços, texto longo, vários itens) não é uma linha só: também NÃO é a TV. Serviço com o nome da TV
-        (garantia estendida, seguro, instalação) NÃO é a TV, mesmo com o link do anúncio dela."""
-        catalogos = {c for c in (catalogo, catalogo_ml_da_url(config.URL_ML_CATALOGO)) if c}
-        conhecidos = set(ids_tv) | {item_alvo}
+        O modelo da linha sai, nesta ordem, do item no link (anúncio conhecido: `ids_modelo`, ou `ids_tv`/o próprio
+        alvo, que são do modelo do alvo), do link de um catálogo conhecido (55C6K ou 65C6K) ou do texto da linha
+        (título da TV com o tamanho). Sem nada disso NÃO é a TV (na dúvida, o carrinho é tratado como "tem outro
+        produto" e ninguém mexe nele). Bloco grande demais (vários preços, texto longo, vários itens) não é uma linha
+        só: também NÃO é a TV. Serviço com o nome da TV (garantia estendida, seguro, instalação) NÃO é a TV, mesmo com
+        o link do anúncio dela."""
+        modelo_alvo = modelo or cls._modelo_do_catalogo(catalogo) or MODELO_PADRAO
+        catalogos = {c.upper(): m for m, c in CATALOGOS_ML.items() if c}
+        catalogos.setdefault(catalogo_ml_da_url(config.URL_ML_CATALOGO), MODELO_PADRAO)
+        if catalogo:
+            catalogos.setdefault(catalogo.upper(), modelo_alvo)
+        conhecidos = {str(k).upper(): v for k, v in (ids_modelo or {}).items()}
+        for i in [*ids_tv, item_alvo]:
+            if i:
+                conhecidos.setdefault(str(i).upper(), modelo_alvo)
         out = []
         for l in map(cls._linha, linhas):
             juntos = " ".join(l["links"])
-            ids = set(ids_ml(juntos)) - catalogos
-            do_catalogo = any(f"/p/{c}".upper() in juntos.upper() for c in catalogos)
+            ids = set(ids_ml(juntos)) - set(catalogos)
+            cats = {m for c, m in catalogos.items() if f"/P/{c}" in juntos.upper()}
             poluido = len(l["texto"]) > _ML_MAX_TEXTO_LINHA or l["texto"].count("R$") > 8 or len(ids) > 3
-            tv = not poluido and not eh_servico(l["texto"]) and \
-                (bool(ids & conhecidos) or do_catalogo or eh_linha_da_tv(l["texto"]))
-            out.append({**l, "ids": ids, "tv": tv, "alvo": item_alvo in ids})
+            mod = None
+            if not poluido and not eh_servico(l["texto"]):
+                por_id = {conhecidos[i] for i in ids if i in conhecidos}
+                if por_id:
+                    mod = por_id.pop() if len(por_id) == 1 else None
+                elif cats:
+                    mod = cats.pop() if len(cats) == 1 else None
+                else:
+                    mod = modelo_da_linha(l["texto"])
+            out.append({**l, "ids": ids, "tv": mod is not None, "modelo": mod,
+                        "alvo": bool(item_alvo) and item_alvo in ids})
         return out
 
     @classmethod
     def situacao_do_carrinho(cls, linhas: list, totais: ResultadoCupom, texto: str, alvo: dict,
-                             ofertas: list[dict], catalogo: str = "", ids_tv=()) -> str:
+                             ofertas: list[dict], catalogo: str = "", ids_tv=(), modelo: Optional[str] = None,
+                             ids_modelo: Optional[dict] = None) -> str:
         """Confere o carrinho contra o anúncio alvo.
 
         'ok'      só o anúncio alvo (a quantidade é ajustada depois);
         'vazio'   carrinho vazio;
-        'trocar'  só anúncios da 55C6K, mas não só o alvo: pode trocar pelo alvo;
-        'outro'   tem produto que não é a 55C6K (ou uma linha que não dá para conferir): não mexe em nada;
+        'trocar'  só TVs (55C6K/65C6K), mas não só o alvo: pode trocar pelo alvo (a linha do OUTRO modelo só sai se
+                  o testador souber devolvê-la: garantir_item confere);
+        'outro'   tem produto que não é uma das TVs (ou uma linha que não dá para conferir): não mexe em nada;
         '?'       não deu para conferir qual anúncio é.
         `linhas`: uma por seletor de quantidade. Quando a linha não traz o id do anúncio, conferimos pelo
         preço de uma unidade contra os preços das opções do catálogo: o 'Parcelamento sem juros'
         (R$ 3.749) não passa por 'Melhor preço' (R$ 3.599).
         """
-        tem_tv = "55C6K" in (texto or "").upper().replace(" ", "")
+        tem_tv = bool(re.search(r"[56]5C6K", (texto or "").upper().replace(" ", "")))
         vazio = re.search(r"carrinho est[áa] vazio", texto or "", re.I)
         if not linhas and totais.produtos is None and totais.total_cartao is None and (vazio or not tem_tv):
             return "vazio"
         ids_tv = set(ids_tv) | {o["item_id"] for o in ofertas}
-        cl = cls.classificar_linhas(linhas, alvo["item_id"], catalogo, ids_tv)
+        cl = cls.classificar_linhas(linhas, alvo["item_id"], catalogo, ids_tv, modelo, ids_modelo)
         if any(not c["tv"] for c in cl):
             return "outro"  # produto que não é a TV: não mexemos no carrinho da pessoa
         if len(cl) > 1:
@@ -995,6 +1278,8 @@ class MercadoLivre(LojaCarrinho):
         outras = [o for o in ofertas if o["item_id"] != alvo["item_id"]]
         if cl:
             ids = cl[0]["ids"]
+            if cl[0]["modelo"] != (modelo or cl[0]["modelo"]):
+                return "trocar"  # a TV do outro modelo
             if ids and alvo["item_id"] not in ids:
                 return "trocar"
             if ids and not ids & {o["item_id"] for o in outras}:
@@ -1007,7 +1292,7 @@ class MercadoLivre(LojaCarrinho):
             return any(abs(unidade - p) <= max(1.0, p * 0.005) for p in o["precos"])
 
         if any(bate(o) for o in outras):
-            # outro anúncio da TV; sem a linha lida não há onde clicar em "Excluir": não mexe
+            # outro anúncio da TV; sem a linha lida não há onde clicar para tirar: não mexe
             return "trocar" if cl else "outro"
         return "ok" if bate(alvo) else "?"
 
@@ -1024,43 +1309,81 @@ class MercadoLivre(LojaCarrinho):
             re.search(r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"', html or "", re.I)
         return re.sub(r"<[^>]+>|\s+", " ", m.group(1)).strip() if m else None
 
-    def _adicionar(self, page, url_produto: str, alvo: dict, catalogo: str) -> bool:
-        """Põe no carrinho o anúncio alvo (abre o catálogo já com ele selecionado)."""
+    @staticmethod
+    def _titulo_do_modelo(titulo: str, modelo: Optional[str]) -> bool:
+        m = modelo or MODELO_PADRAO
+        return eh_55c6k(titulo) if m == MODELO_PADRAO else eh_do_modelo(titulo, m)
+
+    def _abrir_anuncio(self, page, url_produto: str, alvo: dict, catalogo: str) -> str:
+        """Abre a página do anúncio alvo (o catálogo já com ele selecionado) e devolve o HTML."""
         url = url_produto
         if catalogo:
             url = url_produto.split("#")[0].split("?")[0] + f"?pdp_filters=item_id%3A{alvo['item_id']}"
         page.goto(url, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
-        html = page.content()
+        return page.content()
+
+    def _pagina_nao_confere(self, html: str, alvo: dict, modelo: Optional[str], estrito: bool) -> Optional[str]:
+        """Motivo para NÃO pôr o anúncio a partir desta página, ou None. `estrito` (pré-checagem, G1): o título tem de
+        ser legível e a página tem de dizer qual anúncio selecionou."""
         titulo = self._titulo_da_pagina(html)
-        if titulo and not eh_55c6k(titulo):
-            print(f"[mercadolivre] a página de {alvo['item_id']} não é a TV 55C6K ({titulo[:60]}); não adiciono")
-            return False
+        if not titulo and estrito:
+            return "a página não mostrou um título legível"
+        if titulo and not self._titulo_do_modelo(titulo, modelo):
+            return f"a página de {alvo['item_id']} não é a TV {modelo or MODELO_PADRAO} ({titulo[:60]})"
         selecionada = next((o["item_id"] for o in self.ofertas_do_catalogo(html) if o["selecionada"]), None)
         if selecionada is None:
             gtm = _RE_ML_GTM.search(html or "")
             selecionada = gtm.group(1) if gtm else None
+        if selecionada is None and estrito:
+            return "não consegui ver qual anúncio a página selecionou"
         if selecionada is not None and selecionada != alvo["item_id"]:
-            print(f"[mercadolivre] a página selecionou {selecionada}, não o anúncio {alvo['item_id']}; não adiciono")
-            return False
+            return f"a página selecionou {selecionada}, não o anúncio {alvo['item_id']}"
+        return None
+
+    @staticmethod
+    def _botao_adicionar(page):
         botao = page.get_by_role("button", name=re.compile(r"adicionar ao carrinho", re.I)).first
         if not botao.count():
             botao = page.locator("a:has-text('Adicionar ao carrinho'), button:has-text('Adicionar ao carrinho')").first
-        if not botao.count():
+        return botao if botao.count() else None
+
+    def _pre_checagem(self, page, url_produto: str, alvo: dict, catalogo: str, modelo: Optional[str]) -> bool:
+        """G1 (22/09): ANTES de tirar qualquer linha do carrinho, a página do anúncio novo tem de ser a TV do modelo,
+        selecionar o item pedido e ter o botão de pôr no carrinho (sem clicar). Senão, nada sai do carrinho."""
+        html = self._abrir_anuncio(page, url_produto, alvo, catalogo)
+        motivo = self._pagina_nao_confere(html, alvo, modelo, estrito=True)
+        if motivo is None and self._botao_adicionar(page) is None:
+            motivo = "a página não tem o botão 'Adicionar ao carrinho'"
+        if motivo:
+            print(f"[mercadolivre] pré-checagem do anúncio {alvo['item_id']}: {motivo}; não tiro nada do carrinho")
+            return False
+        return True
+
+    def _adicionar(self, page, url_produto: str, alvo: dict, catalogo: str, modelo: Optional[str] = None) -> bool:
+        """Põe no carrinho o anúncio alvo (abre o catálogo já com ele selecionado)."""
+        html = self._abrir_anuncio(page, url_produto, alvo, catalogo)
+        motivo = self._pagina_nao_confere(html, alvo, modelo, estrito=False)
+        if motivo:
+            print(f"[mercadolivre] {motivo}; não adiciono")
+            return False
+        botao = self._botao_adicionar(page)
+        if botao is None:
             return False
         botao.click(timeout=10000)
         page.wait_for_timeout(4000)
         return True
 
     def _excluir_linha(self, page, k: int) -> bool:
-        """Clica em "Excluir" DENTRO da linha k (marcada por _JS_ML_LINHAS). Só é chamada para linhas da TV."""
-        bt = page.locator(f"[data-tv55-linha='{k}']").locator("button, a, [role=button]").filter(has_text=_RE_EXCLUIR).first
+        """Clica no controle de tirar DA linha k (marcado por _JS_ML_LINHAS com data-tv55-excluir, achado pelo texto ou
+        pelo aria-label/title) e confirma, se o ML perguntar. Só é chamada para linhas das TVs."""
+        bt = page.locator(f"[data-tv55-excluir='{k}']").first
         if not bt.count():
             return False
         try:
             bt.click(timeout=8000)
             page.wait_for_timeout(2000)
-            conf = page.locator("[role=dialog] button, .andes-modal button").filter(has_text=_RE_EXCLUIR).first
+            conf = page.locator("[role=dialog] button, .andes-modal button").filter(has_text=_RE_REMOVER).first
             if conf.count() and conf.is_visible():
                 conf.click(timeout=5000)
                 page.wait_for_timeout(2000)
@@ -1068,47 +1391,163 @@ class MercadoLivre(LojaCarrinho):
             return False
         return True
 
-    def _tirar_outras_tvs(self, page, alvo: dict, ofertas: list[dict], catalogo: str, ids_tv) -> bool:
-        """Tira do carrinho, uma a uma, as linhas da 55C6K que não são o anúncio alvo.
+    def _classificar(self, page, ctx: dict) -> tuple[list[dict], ResultadoCupom]:
+        """Relê o carrinho (página atual) e classifica as linhas contra o anúncio alvo de `ctx`."""
+        linhas, totais, _ = self._ler_carrinho(page)
+        conhecidos = set(ctx.get("ids_tv") or ()) | {o["item_id"] for o in ctx.get("ofertas") or ()}
+        return self.classificar_linhas(linhas, (ctx.get("alvo") or {}).get("item_id"), ctx.get("catalogo") or "",
+                                       conhecidos, ctx.get("modelo"), ctx.get("ids_modelo")), totais
 
-        Antes de cada clique relê o carrinho e confere de novo que TODAS as linhas são a TV; se aparecer
-        qualquer outra coisa, ou se a linha não sumir depois do clique, para sem mexer em mais nada."""
-        for _ in range(6):
-            linhas, totais, texto = self._ler_carrinho(page)
-            sit = self.situacao_do_carrinho(linhas, totais, texto, alvo, ofertas, catalogo, ids_tv)
-            if sit in ("vazio", "ok"):
-                return True
-            if sit != "trocar":
+    def _voltar_ao_carrinho(self, page) -> None:
+        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
+        _espera(page)
+
+    def _tirar_linha(self, page, ids: set, ctx: dict) -> bool:
+        """Tira UMA linha das TVs (a que tem estes itens no link): relê o carrinho antes de clicar, clica no controle
+        de tirar daquela linha e relê de novo para CONFERIR que ela sumiu (G3). Conta em `remocoes`/`removidos`."""
+        cl, _ = self._classificar(page, ctx)
+        ks = [k for k, c in enumerate(cl) if c["ids"] and c["ids"] == ids]
+        if len(ks) != 1 or not cl[ks[0]]["tv"] or not cl[ks[0]]["excluir"]:
+            return False
+        c = cl[ks[0]]
+        if not self._excluir_linha(page, ks[0]):
+            return False
+        self._voltar_ao_carrinho(page)
+        depois, _ = self._classificar(page, ctx)
+        if len(depois) != len(cl) - 1 or any(d["ids"] & ids for d in depois):
+            print(f"[mercadolivre] a linha {', '.join(sorted(ids))} não saiu do carrinho depois do clique")
+            return False
+        self._tirou(c["modelo"])
+        return True
+
+    def _confere_duplicadas(self, page, ctx: dict) -> None:
+        """Depois de uma troca que parou no meio: se o carrinho ficou (ou já estava) com duas linhas do mesmo modelo,
+        a pessoa precisa saber (tvs_a_mais). O robô não põe nada nessa situação."""
+        try:
+            cl, _ = self._classificar(page, ctx)
+        except Exception:  # noqa: BLE001 - só uma conferência para o aviso
+            return
+        modelos = [c["modelo"] for c in cl if c["tv"]]
+        if any(modelos.count(m) > 1 for m in set(modelos)):
+            self.tvs_a_mais = True
+            print("[mercadolivre] ⚠ o carrinho tem duas linhas do mesmo modelo e não consegui tirar uma")
+
+    def _trocar_pelo_alvo(self, page, url_produto: str, alvo: dict, ofertas: list[dict], catalogo: str,
+                          ctx: dict) -> bool:
+        """Troca a(s) TV(s) do carrinho pelo anúncio alvo: TIRA PRIMEIRO e PÕE DEPOIS (G1, 22/09), para nunca ficar
+        com duas TVs do mesmo modelo.
+
+        1) cada linha tem de ser identificável pelo anúncio (item MLB… no link) e ter o seu controle de tirar
+           (texto "Excluir", ou aria-label/title "Remover produto"/"Remover"); senão não mexe em nada;
+        2) PRÉ-CHECAGEM do anúncio novo antes de tirar qualquer coisa: a página é a TV do modelo, selecionou o item
+           pedido e tem o botão de pôr no carrinho;
+        3) tira as outras linhas uma a uma, relendo o carrinho e conferindo que cada uma sumiu; uma que não sai para a
+           troca ali, SEM pôr o anúncio novo (o passo final devolve o que faltar e, como houve remoção, avisa);
+        4) põe o anúncio novo (a página é conferida de novo antes do clique).
+        A quantidade (1 unidade) é ajustada depois, em garantir_item."""
+        cl, _ = self._classificar(page, ctx)
+        tirar = [c for c in cl if not c["alvo"]]
+        if not cl or any(not c["tv"] for c in cl) or any(not c["ids"] or not c["excluir"] for c in tirar):
+            print("[mercadolivre] não consigo identificar cada linha do carrinho pelo anúncio (ou achar o botão de "
+                  "tirar dela); não troco: o carrinho fica como está")
+            return False
+        ja_esta = any(c["alvo"] for c in cl)
+        if not ja_esta:
+            if not self._pre_checagem(page, url_produto, alvo, catalogo, ctx.get("modelo")):
                 return False
-            cl = self.classificar_linhas(linhas, alvo["item_id"], catalogo, set(ids_tv) | {o["item_id"] for o in ofertas})
-            if not cl or any(not c["tv"] for c in cl):
+            self._voltar_ao_carrinho(page)
+        for c in tirar:
+            if not self._tirar_linha(page, c["ids"], ctx):
+                print(f"[mercadolivre] não consegui tirar a linha {', '.join(sorted(c['ids']))}; paro a troca sem pôr "
+                      f"o anúncio {alvo['item_id']} (nunca duas TVs do mesmo modelo)")
+                self._confere_duplicadas(page, ctx)
                 return False
-            k = next((i for i, c in enumerate(cl) if not c["alvo"]), None)
-            if k is None or not cl[k]["excluir"]:
+        if not ja_esta:
+            if not self._adicionar(page, url_produto, alvo, catalogo, ctx.get("modelo")):
+                print(f"[mercadolivre] o anúncio {alvo['item_id']} não entrou depois de eu tirar a TV antiga")
                 return False
-            if not self._excluir_linha(page, k):
-                return False
-            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-            _espera(page)
-            if len(self._ler_carrinho(page)[0]) >= len(cl):
-                return False  # a linha não saiu: não insiste
-        return False
+            self._voltar_ao_carrinho(page)
+        return True
+
+    def _anota_opcoes(self, html: str, url_produto: str, modelo: Optional[str] = None) -> None:
+        """F5 (22/09): guarda as opções de compra do catálogo que a página LOGADA mostra.
+
+        O coletor (perfil sem login) vê só 1 das 2 opções do catálogo ("2 opções; 1 visível sem login"). A
+        página que o testador abre está logada e traz as duas: item, preço, vendedor e parcelado de cada uma
+        vão para `opcoes_vistas` (com o modelo), e o testador as oferece como anúncios nas próximas rodadas. As mesmas
+        travas da coleta: só o catálogo conhecido do modelo; a página tem de mostrar um título LEGÍVEL da TV do modelo,
+        com o tamanho (G4: sem título, nada é anotado); opção com título de outro produto sai; preço impossível para
+        esta TV sai (piso e teto de _preco_plausivel)."""
+        from .sources.playwright_sources import (_ml_alternativas, _ml_opcoes_buybox, _ml_url_item_do_catalogo,
+                                                  _ml_vendedor, _preco_plausivel, _titulo_de_outro_produto)
+
+        catalogo = catalogo_ml_da_url(url_produto)
+        modelo = modelo or self._modelo_do_catalogo(catalogo)
+        if not modelo or not catalogo or (CATALOGOS_ML.get(modelo) or "").upper() != catalogo:
+            return
+        titulo = self._titulo_da_pagina(html)
+        if not titulo or not eh_do_modelo(titulo, modelo):
+            print(f"[mercadolivre] a página do catálogo não mostrou um título legível da TV {modelo} "
+                  f"({(titulo or 'sem título')[:60]}); não anoto as opções")
+            return
+
+        def outro_produto(t: Optional[str]) -> bool:
+            if modelo == MODELO_PADRAO:
+                return _titulo_de_outro_produto(t)
+            t = (t or "").strip()   # mesma regra da coleta, com o filtro da 65C6K
+            return bool(t) and not eh_65c6k(t) and bool(
+                len(t.split()) >= 4 or re.search(r"\b(tv|televis|polegada|monitor|smart)\b", t, re.I))
+
+        opcoes = _ml_opcoes_buybox(html)
+        ja = {o["item_id"] for o in opcoes}
+        opcoes += [o for o in _ml_alternativas(html, [], catalogo) if o["item_id"] not in ja]
+        refs = [o["preco"] for o in opcoes if o.get("preco")]
+        vend = _ml_vendedor(html)
+        novas: dict[str, dict] = {}
+        for op in opcoes:
+            item = str(op.get("item_id") or "").upper()
+            if not re.fullmatch(r"MLB\d{6,}", item) or item == catalogo:
+                continue
+            if outro_produto(op.get("titulo")) or not _preco_plausivel(op.get("preco"), refs):
+                print(f"[mercadolivre] opção {item} do catálogo ({fmt_preco(op.get('preco'))}) descartada: título de "
+                      "outro produto ou preço impossível para esta TV")
+                continue
+            pix, cartao = None, op["preco"]
+            if op.get("desconto") and op.get("preco_de") and op["preco_de"] > op["preco"] + 0.005:
+                pix, cartao = op["preco"], op["preco_de"]   # "R$ 3.491,03 · 3% OFF · ou R$ 3.599": Pix e cartão
+            vendedor = op.get("vendedor") or (vend.get("vendedor") if vend.get("item_id") == item else None)
+            novas[item] = {"item_id": item, "preco": cartao, "preco_pix": pix, "vendedor": vendedor,
+                           "parcelado": op.get("parcelado"), "tipo": op.get("tipo"), "titulo": titulo,
+                           "url": _ml_url_item_do_catalogo(url_produto, item), "catalogo": catalogo, "modelo": modelo}
+        if novas:
+            self.opcoes_vistas = {**self.opcoes_vistas, **novas}
 
     def garantir_item(self, page, url_produto: str, alvo: Optional[dict] = None) -> bool:
-        """Deixa no carrinho 1 unidade do anúncio pedido, e só ele.
+        """Deixa no carrinho 1 unidade do anúncio pedido, e só ele (o cupom vale para o pedido inteiro).
 
         O anúncio é o item MLB… de `alvo["item_id"]` ou da URL (?pdp_filters=item_id%3AMLB… /
         produto.mercadolivre.com.br/MLB-…); sem item (formato antigo), vale o 'Melhor preço' do catálogo.
         - carrinho vazio: adiciona o anúncio;
-        - só anúncios da 55C6K: tira os outros e adiciona o pedido (1 unidade);
+        - só as TVs (55C6K/65C6K): pré-checa o anúncio novo, TIRA as outras linhas (conferindo cada uma) e só depois
+          PÕE o pedido (_trocar_pelo_alvo, G1); a linha do OUTRO modelo só sai se o testador conhece um anúncio dele
+          para devolver no fim (`alvo["restauraveis"]`), senão CarrinhoOcupado;
         - qualquer outro produto (ou linha que não dá para conferir): CarrinhoOcupado, não mexe em nada.
+        Anota as opções de compra do catálogo que a página logada mostra (F5, _anota_opcoes).
         """
         self.item_alvo = None
         info = alvo or {}
+        catalogo = catalogo_ml_da_url(url_produto)
+        modelo = info.get("modelo") or self._modelo_do_catalogo(catalogo) or MODELO_PADRAO
+        restauraveis = set(info.get("restauraveis") or ()) | {modelo}
+        ids_modelo = dict(info.get("ids_modelo") or {})
         pedido = (info.get("item_id") or item_ml_da_url(url_produto) or "").upper() or None
         page.goto(url_produto, wait_until="domcontentloaded", timeout=60000)
         _espera(page)
         html = page.content()
+        try:
+            self._anota_opcoes(html, url_produto, modelo)
+        except Exception as e:  # noqa: BLE001 - anotar opções é extra: nunca atrapalha o carrinho
+            print(f"[mercadolivre] não anotei as opções do catálogo: {type(e).__name__}: {str(e)[:100]}")
         ofertas = self.ofertas_do_catalogo(html)
         if pedido:
             achada = next((o for o in ofertas if o["item_id"] == pedido), None)
@@ -1124,29 +1563,40 @@ class MercadoLivre(LojaCarrinho):
             if oferta is None:
                 print("[mercadolivre] não achei o anúncio 'Melhor preço' na página do catálogo; não testo")
                 return False
-        catalogo = catalogo_ml_da_url(url_produto)
+        ids_modelo.setdefault(oferta["item_id"], modelo)
         ids_tv = set(info.get("ids_tv") or ())
-        page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-        _espera(page)
+        ctx = {"alvo": oferta, "ofertas": ofertas, "catalogo": catalogo, "ids_tv": ids_tv, "modelo": modelo,
+               "ids_modelo": ids_modelo}
+
+        def situacao() -> str:
+            linhas, totais, texto = self._ler_carrinho(page)
+            return self.situacao_do_carrinho(linhas, totais, texto, oferta, ofertas, catalogo, ids_tv, modelo,
+                                             ids_modelo)
+
+        self._voltar_ao_carrinho(page)
         if not self.logado(page):
             raise PrecisaLogin("o Mercado Livre pediu login ao abrir o carrinho")
-        situacao = self.situacao_do_carrinho(*self._ler_carrinho(page), oferta, ofertas, catalogo, ids_tv)
-        if situacao == "outro":
+        sit = situacao()
+        if sit == "outro":
             raise CarrinhoOcupado("o carrinho do Mercado Livre tem produto que não é a TV (ou um item que não "
                                   "consigo conferir); não mexo nele. Tire-o à mão para o teste voltar")
-        if situacao == "trocar":
-            if not self._tirar_outras_tvs(page, oferta, ofertas, catalogo, ids_tv):
+        if sit == "trocar":
+            cl, _ = self._classificar(page, ctx)
+            sem_volta = {c["modelo"] for c in cl if c["tv"]} - restauraveis
+            if sem_volta:
+                raise CarrinhoOcupado(f"o carrinho do Mercado Livre tem a {', '.join(sorted(sem_volta))} e não conheço "
+                                      "anúncio dela para devolver depois do teste; não mexo nele")
+            if not self._trocar_pelo_alvo(page, url_produto, oferta, ofertas, catalogo, ctx):
                 print(f"[mercadolivre] não consegui trocar a TV do carrinho pelo anúncio {oferta['item_id']}; "
                       "sem teste neste anúncio")
                 return False
-            situacao = self.situacao_do_carrinho(*self._ler_carrinho(page), oferta, ofertas, catalogo, ids_tv)
-        if situacao == "vazio":
-            if not self._adicionar(page, url_produto, oferta, catalogo):
+            sit = situacao()
+        elif sit == "vazio":
+            if not self._adicionar(page, url_produto, oferta, catalogo, modelo):
                 return False
-            page.goto(self.url_carrinho, wait_until="domcontentloaded", timeout=60000)
-            _espera(page)
-            situacao = self.situacao_do_carrinho(*self._ler_carrinho(page), oferta, ofertas, catalogo, ids_tv)
-        if situacao != "ok":
+            self._voltar_ao_carrinho(page)
+            sit = situacao()
+        if sit != "ok":
             precos = " / ".join(fmt_preco(p) for p in oferta["precos"])
             print(f"[mercadolivre] o carrinho não ficou só com o anúncio {oferta['item_id']} ({precos}): "
                   "não consegui conferir o anúncio. Sem teste neste anúncio.")
@@ -1156,6 +1606,102 @@ class MercadoLivre(LojaCarrinho):
             return False
         self.item_alvo = oferta["item_id"]
         return True
+
+    # --- passo final com os dois modelos (26/09): uma TV de cada modelo, 1 unidade cada ---
+
+    def _uma_unidade_por_linha(self, page, ctx: dict) -> bool:
+        """Com mais de uma linha, o 'menos' certo é o de DENTRO da linha que tem unidade a mais (a quantidade lida
+        no campo do seletor dela). Sem saber qual é, não clica em nada."""
+        for _ in range(6):
+            cl, totais = self._classificar(page, ctx)
+            if totais.produtos is not None and totais.quantidade <= len(cl):
+                return True
+            k = next((k for k, c in enumerate(cl) if (c.get("qtd") or 0) > 1 and c["tv"]), None)
+            if k is None:
+                return False
+            menos = page.locator(f"[data-tv55-linha='{k}'] {_SEL_ML_MENOS}")
+            if menos.count() != 1:
+                return False
+            try:
+                menos.first.click(timeout=8000)
+            except Exception:
+                return False
+            page.wait_for_timeout(2500)
+        return False
+
+    def garantir_itens(self, page, alvos: list[dict]) -> set:
+        """Deixa no carrinho exatamente estes anúncios (um de cada modelo), 1 unidade cada, pela mesma ordem da troca
+        (G1): pré-checa cada anúncio que falta, TIRA as linhas erradas de cada modelo (conferindo que sumiram) e só
+        então PÕE o que falta. Um modelo cuja pré-checagem falha, ou cuja linha errada não dá para tirar, fica como
+        está (nunca duas linhas do mesmo modelo). Linha de modelo que não está em `alvos` não é tocada; produto que
+        não é uma das TVs: CarrinhoOcupado. Devolve as chaves conferidas (única linha do modelo, 1 unidade)."""
+        self.item_alvo = None
+        ids_modelo: dict = {}
+        for a in alvos:
+            ids_modelo.update({str(k).upper(): v for k, v in (a.get("ids_modelo") or {}).items()})
+        pedidos = []
+        for a in alvos:
+            url = a.get("url") or ""
+            item = (a.get("item_id") or item_ml_da_url(url) or "").upper()
+            cat = a.get("catalogo") or catalogo_ml_da_url(url)
+            modelo = a.get("modelo") or self._modelo_do_catalogo(cat) or MODELO_PADRAO
+            if not item:
+                print(f"[mercadolivre] anúncio da {modelo} sem o item MLB…; não entra no passo final")
+                continue
+            pedidos.append({"chave": a.get("chave") or item, "item_id": item, "url": url, "catalogo": cat,
+                            "modelo": modelo})
+            ids_modelo[item] = modelo
+        if not pedidos or len({p["modelo"] for p in pedidos}) != len(pedidos):
+            return set()
+        ctx = {"alvo": {"item_id": None}, "ofertas": [], "catalogo": "", "ids_tv": set(), "modelo": None,
+               "ids_modelo": ids_modelo}
+        self._voltar_ao_carrinho(page)
+        if not self.logado(page):
+            raise PrecisaLogin("o Mercado Livre pediu login ao abrir o carrinho")
+        cl, _ = self._classificar(page, ctx)
+        if any(not c["tv"] for c in cl):
+            raise CarrinhoOcupado("o carrinho do Mercado Livre tem produto que não é a TV (ou um item que não "
+                                  "consigo conferir); não mexo nele. Tire-o à mão para o teste voltar")
+        plano = {}
+        for p in pedidos:
+            do_modelo = [c for c in cl if c["modelo"] == p["modelo"]]
+            presente = any(p["item_id"] in c["ids"] for c in do_modelo)
+            tirar = [c for c in do_modelo if p["item_id"] not in c["ids"]]
+            if any(not c["ids"] or not c["excluir"] for c in tirar):
+                print(f"[mercadolivre] não consigo identificar a linha da {p['modelo']} pelo anúncio (ou achar o botão "
+                      "de tirar dela); essa TV fica como está")
+                continue
+            if not presente and not self._pre_checagem(page, p["url"], p, p["catalogo"], p["modelo"]):
+                continue
+            plano[p["modelo"]] = (p, presente, tirar)
+        self._voltar_ao_carrinho(page)
+        for m, (p, presente, tirar) in list(plano.items()):
+            for c in tirar:
+                if not self._tirar_linha(page, c["ids"], ctx):
+                    print(f"[mercadolivre] não consegui tirar a linha {', '.join(sorted(c['ids']))} da {m}; não ponho "
+                          f"o anúncio {p['item_id']} (nunca duas TVs do mesmo modelo)")
+                    del plano[m]
+                    break
+        for m, (p, presente, tirar) in plano.items():
+            if not presente:
+                if not self._adicionar(page, p["url"], p, p["catalogo"], m):
+                    print(f"[mercadolivre] o anúncio {p['item_id']} da {m} não entrou")
+                self._voltar_ao_carrinho(page)
+        self._uma_unidade_por_linha(page, ctx)
+        cl, totais = self._classificar(page, ctx)
+        por_modelo: dict = {}
+        for c in cl:
+            por_modelo.setdefault(c["modelo"], []).append(c)
+        uma_cada = totais.produtos is not None and totais.quantidade == len(cl)
+        if any(len(v) > 1 for v in por_modelo.values()) or (totais.produtos is not None and totais.quantidade > len(cl)):
+            self.tvs_a_mais = True
+            print("[mercadolivre] ⚠ o carrinho ficou com mais de uma TV (ou unidade) do mesmo modelo")
+        conferidos = {p["chave"] for p in pedidos
+                      if len(por_modelo.get(p["modelo"], [])) == 1 and p["item_id"] in por_modelo[p["modelo"]][0]["ids"]
+                      and (uma_cada or por_modelo[p["modelo"]][0].get("qtd") == 1)}
+        if len(conferidos) == 1 and len(cl) == 1:
+            self.item_alvo = next(p["item_id"] for p in pedidos if p["chave"] in conferidos)
+        return conferidos
 
     def ler_totais(self, page) -> ResultadoCupom:
         """O resumo do ML põe rótulo e valor em linhas separadas ('Produtos (2)' / 'R$' / '8.338')."""

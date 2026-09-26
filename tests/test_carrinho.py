@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from monitor.carrinho import CarrinhoOcupado, Magalu, MercadoLivre, ResultadoCupom, _SEL_ML_MENOS, ids_ml
+from monitor.carrinho import CarrinhoOcupado, Magalu, MercadoLivre, ResultadoCupom, _SEL_ML_MENOS, ids_ml, item_ml_da_url
 from monitor.util import TZ_BR
 
 
@@ -226,7 +226,11 @@ def test_situacao_ml_linhas_com_texto():
     assert sit([{"links": ["https://x/MLB-111111111"], "texto": ""}, tv_alvo], ids_tv={"MLB111111111"}) == "trocar", \
         "item conhecido da 55C6K (coleta) conta como TV mesmo sem texto"
     tv65 = {"links": ["https://x/MLB-333333333"], "texto": "Smart TV TCL 65C6K 65 polegadas QD-Mini LED"}
-    assert sit([tv65, tv_alvo]) == "outro", "a 65C6K não é a TV do usuário"
+    # 26/09: a 65C6K também é TV do usuário (uma de cada modelo no carrinho); tirá-la para o teste depende de o
+    # testador saber devolvê-la (garantir_item confere alvo["restauraveis"])
+    assert sit([tv65, tv_alvo]) == "trocar"
+    vizinha = {"links": ["https://x/MLB-555555555"], "texto": "Smart TV TCL 65C7K 65 polegadas QD-Mini LED"}
+    assert sit([vizinha, tv_alvo]) == "outro", "a 65C7K (vizinha) é outro produto"
     # carrinho com UM produto qualquer: se o bloco lido passou da linha e pegou recomendações (com a própria
     # 55C6K e o link do catálogo), não pode virar "é a TV" (o robô excluiria o produto da pessoa)
     recomendacoes = "\n".join(f"{TITULO}\nR$ 3.749\n10x R$ 374,90" for _ in range(5))
@@ -271,12 +275,16 @@ class PaginaML:
     """Catálogo + carrinho do ML. Cada linha do carrinho: {'id', 'preco', 'qtd', 'titulo'?}.
 
     com_id_no_link: o link da linha traz o item (senão só o catálogo); com_texto: o bloco da linha traz o
-    título; com_excluir: a linha tem o botão "Excluir"."""
+    título; com_excluir: a linha tem o controle de tirar; excluir_por_aria: esse controle é um ÍCONE sem texto, com
+    aria-label "Remover produto" (como o carrinho real de 22/09), e não o botão "Excluir"; com_titulo: a página do
+    catálogo tem o título (h1.ui-pdp-title), como a página real; com_qtd: o JS lê a quantidade de cada linha."""
 
     def __init__(self, carrinho: list[dict], com_id_no_link: bool = True, com_texto: bool = True,
-                 com_excluir: bool = True):
+                 com_excluir: bool = True, excluir_por_aria: bool = False, com_titulo: bool = True,
+                 com_qtd: bool = False):
         self.carrinho = [dict(l) for l in carrinho]
         self.com_id, self.com_texto, self.com_excluir = com_id_no_link, com_texto, com_excluir
+        self.excluir_por_aria, self.com_titulo, self.com_qtd = excluir_por_aria, com_titulo, com_qtd
         self.url = ""
         self.visitas: list[str] = []
         self.cliques: list[str] = []
@@ -298,32 +306,43 @@ class PaginaML:
         if "/p/" not in self.url:
             return "<html></html>"
         sel = re.search(r"item_id(?:%3A|:)(MLB\d+)", self.url)
-        return _html_catalogo(sel.group(1) if sel else ALVO)
+        titulo = f'<h1 class="ui-pdp-title">{TITULO}</h1>' if self.com_titulo else ""
+        return titulo + _html_catalogo(sel.group(1) if sel else ALVO)
+
+    def _texto_da_linha(self, l: dict) -> str:
+        if not self.com_texto:
+            return ""
+        # o ícone de tirar não tem texto: o innerText da linha não traz "Excluir"
+        return l.get("titulo", TITULO) + ("\nSalvar" if self.excluir_por_aria else "\nExcluir\nSalvar")
 
     def evaluate(self, js):
         if "stepper" in js:  # uma entrada por linha do carrinho
             if not self._no_carrinho():
                 return []
+            # o JS real acha o controle pelo texto OU pelo aria-label/title (G2): o ícone "Remover produto" conta
             return [{"links": [f"https://produto.mercadolivre.com.br/MLB-{l['id'][3:]}-tv" if self.com_id else URL_CATALOGO],
-                     "texto": (l.get("titulo", TITULO) + "\nExcluir\nSalvar") if self.com_texto else "",
-                     "excluir": self.com_excluir}
+                     "texto": self._texto_da_linha(l), "excluir": self.com_excluir,
+                     **({"qtd": l["qtd"]} if self.com_qtd else {})}
                     for l in self.carrinho]
         if self._no_carrinho():
             return _texto_carrinho(self.carrinho)
         return TITULO + "\nMelhor preço\nComprar agora\nAdicionar ao carrinho"
 
-    def _menos(self):
+    def _menos(self, k=0):
         self.cliques.append("menos")
-        self.carrinho[0]["qtd"] -= 1
+        self.carrinho[k]["qtd"] -= 1
 
     def _excluir(self, k):
         self.cliques.append("excluir")
         del self.carrinho[k]
 
+    def _item_da_url(self):
+        sel = re.search(r"item_id%3A(MLB\d+)", self.url) or re.search(r"MLB-(\d+)", self.url)
+        return (sel.group(1) if sel.group(1).startswith("MLB") else "MLB" + sel.group(1)) if sel else ALVO
+
     def _adicionar(self):
         self.cliques.append("adicionar")
-        sel = re.search(r"item_id%3A(MLB\d+)", self.url) or re.search(r"MLB-(\d+)", self.url)
-        item = (sel.group(1) if sel.group(1).startswith("MLB") else "MLB" + sel.group(1)) if sel else ALVO
+        item = self._item_da_url()
         preco = 3599 if item == ALVO else 3749  # sem filtro, a página abre no 'Melhor preço' (selected)
         for l in self.carrinho:
             if l["id"] == item:
@@ -334,10 +353,14 @@ class PaginaML:
     def locator(self, sel):
         if sel == _SEL_ML_MENOS:
             return _Loc(len(self.carrinho) if self._no_carrinho() else 0, self._menos)
-        m = re.fullmatch(r"\[data-tv55-linha='(\d+)'\]", sel)
+        m = re.fullmatch(r"\[data-tv55-excluir='(\d+)'\]", sel)
         if m and self._no_carrinho() and int(m.group(1)) < len(self.carrinho):
             k = int(m.group(1))
-            return _Loc(1, filhos=lambda s: _Loc(1 if self.com_excluir else 0, lambda: self._excluir(k)))
+            return _Loc(1 if self.com_excluir else 0, lambda: self._excluir(k))
+        m = re.fullmatch(r"\[data-tv55-linha='(\d+)'\] " + re.escape(_SEL_ML_MENOS), sel)
+        if m and self._no_carrinho() and int(m.group(1)) < len(self.carrinho):
+            k = int(m.group(1))
+            return _Loc(1, lambda: self._menos(k))
         return _Loc(0)
 
     def get_by_role(self, role, name=None, **k):
@@ -349,13 +372,16 @@ class PaginaML:
 def test_ml_troca_o_anuncio_parcelado_pelo_alvo_quando_so_tem_tv():
     # 18/09: carrinho com o 'Parcelamento sem juros' (R$ 3.749). Desde 19/09, com só a TV no carrinho, o
     # robô troca pelo anúncio pedido (aqui o 'Melhor preço', formato antigo sem item na URL), 1 unidade.
-    for com_id in (True, False):
-        ml = MercadoLivre()
-        p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}], com_id_no_link=com_id)
-        assert ml.garantir_item(p, URL_CATALOGO) is True
-        assert p.cliques == ["excluir", "adicionar"]
-        assert p.carrinho == [{"id": ALVO, "preco": 3599, "qtd": 1}]
-        assert ml.item_alvo == ALVO
+    # G1 (22/09): pré-checa o anúncio novo, TIRA o antigo (conferindo que saiu) e só depois PÕE o novo.
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO) is True
+    assert p.cliques == ["excluir", "adicionar"]
+    assert p.carrinho == [{"id": ALVO, "preco": 3599, "qtd": 1}]
+    assert ml.item_alvo == ALVO
+    assert ml.remocoes == 1, "tirou uma linha que a pessoa tinha (a TV antiga)"
+    assert ml.removidos == ["55C6K"]
 
 
 def test_ml_sem_botao_excluir_nao_troca():
@@ -363,6 +389,175 @@ def test_ml_sem_botao_excluir_nao_troca():
     p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}], com_excluir=False)
     assert ml.garantir_item(p, URL_CATALOGO) is False
     assert p.cliques == [] and ml.item_alvo is None
+    assert ml.remocoes == 0 and p.carrinho == [{"id": PARCELADO, "preco": 3749, "qtd": 1}]
+
+
+# --- G1 (22/09): trocar de anúncio TIRANDO primeiro e PONDO depois, com pré-checagem do anúncio novo ---
+# (a F2, que punha antes de tirar, deixava duas TVs no carrinho quando o "Excluir" existia mas não funcionava)
+
+def test_ml_troca_sem_o_anuncio_no_link_da_linha_nao_mexe():
+    # sem o item no link da linha, não dá para saber qual linha tirar
+    ml = MercadoLivre()
+    p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}], com_id_no_link=False)
+    assert ml.garantir_item(p, URL_CATALOGO) is False
+    assert p.cliques == [] and p.carrinho == [{"id": PARCELADO, "preco": 3749, "qtd": 1}]
+    assert ml.remocoes == 0
+
+
+class _PaginaQueNaoSeleciona(PaginaML):
+    """A página do catálogo abre sempre no 'Parcelamento sem juros', mesmo com ?pdp_filters do anúncio pedido."""
+
+    def content(self):
+        return (f'<h1 class="ui-pdp-title">{TITULO}</h1>' + _html_catalogo(PARCELADO)) if "/p/" in self.url \
+            else "<html></html>"
+
+
+def test_ml_troca_com_pre_checagem_que_falha_nao_tira_nada():
+    ml = MercadoLivre()
+    p = _PaginaQueNaoSeleciona([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO, {"item_id": ALVO}) is False
+    assert p.cliques == [], "a página não selecionou o anúncio pedido: nada sai do carrinho"
+    assert p.carrinho == [{"id": PARCELADO, "preco": 3749, "qtd": 1}]
+    assert ml.remocoes == 0
+
+
+def test_ml_pre_checagem_exige_titulo_legivel_e_botao():
+    ml = MercadoLivre()
+    p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}], com_titulo=False)
+    assert ml.garantir_item(p, URL_CATALOGO, {"item_id": ALVO}) is False
+    assert p.cliques == [] and len(p.carrinho) == 1, "sem título legível da TV: não tira nada"
+
+    class SemBotao(PaginaML):
+        def get_by_role(self, role, name=None, **k):
+            return _Loc(0)
+
+    p = SemBotao([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO, {"item_id": ALVO}) is False
+    assert p.cliques == [] and len(p.carrinho) == 1, "sem o botão de pôr no carrinho: não tira nada"
+
+    class PaginaDe65(PaginaML):
+        def content(self):
+            return super().content().replace(TITULO, "Smart TV TCL 65C6K 65 Polegadas QD-Mini LED")
+
+    p = PaginaDe65([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO, {"item_id": ALVO, "modelo": "55C6K"}) is False
+    assert p.cliques == [], "página de outro modelo: não tira nada"
+
+
+def test_ml_troca_que_nao_consegue_tirar_a_tv_antiga_nao_poe_a_nova():
+    class ExcluirDaAntigaNaoFunciona(PaginaML):
+        def _excluir(self, k):
+            self.cliques.append("excluir")
+            if self.carrinho[k]["id"] != PARCELADO:   # o "Excluir" da linha antiga não faz nada
+                del self.carrinho[k]
+
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = ExcluirDaAntigaNaoFunciona([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO) is False
+    assert p.cliques == ["excluir"], "a linha antiga não saiu: o anúncio novo não é posto"
+    assert p.carrinho == [{"id": PARCELADO, "preco": 3749, "qtd": 1}], "nunca duas TVs"
+    assert ml.remocoes == 0 and ml.tvs_a_mais is False
+
+
+def test_ml_troca_que_poe_duas_unidades_deixa_uma():
+    class AdicionaDuas(PaginaML):
+        def _adicionar(self):
+            super()._adicionar()
+            self.carrinho[-1]["qtd"] = 2
+
+    ml = MercadoLivre()
+    p = AdicionaDuas([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO) is True
+    assert p.cliques == ["excluir", "adicionar", "menos"]
+    assert p.carrinho == [{"id": ALVO, "preco": 3599, "qtd": 1}], "nunca 2 unidades"
+    assert ml.remocoes == 1
+
+
+def test_ml_troca_com_excluir_sem_efeito_nunca_deixa_duas_tvs():
+    # R3/R4 da revisão de 22/09: com a F2, um "Excluir" sem efeito deixava 2 TVs (e 3 na rodada seguinte)
+    class NenhumExcluirFunciona(PaginaML):
+        def _excluir(self, k):
+            self.cliques.append("excluir")
+
+    ml = MercadoLivre()
+    p = NenhumExcluirFunciona([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO) is False
+    assert p.carrinho == [{"id": PARCELADO, "preco": 3749, "qtd": 1}] and ml.tvs_a_mais is False
+    assert "adicionar" not in p.cliques
+
+
+def test_ml_troca_com_o_alvo_ja_no_carrinho_so_tira_a_outra():
+    ml = MercadoLivre()
+    p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}, {"id": ALVO, "preco": 3599, "qtd": 1}])
+    assert ml.garantir_item(p, URL_CATALOGO) is True
+    assert p.cliques == ["excluir"] and p.carrinho == [{"id": ALVO, "preco": 3599, "qtd": 1}]
+    assert ml.remocoes == 1
+
+
+def test_ml_botao_de_tirar_so_por_aria_label():
+    # 22/09 11:01 (leitura do carrinho real): a linha tinha só um ícone com aria-label "Remover produto", sem o texto
+    # "Excluir"; o robô marcava excluir=False e desistia. O controle agora é achado pelo aria-label/title (G2).
+    from monitor.carrinho import _JS_ML_LINHAS, _RE_REMOVER
+
+    for rotulo in ("Excluir", "Remover produto", "Remover", " remover produto "):
+        assert _RE_REMOVER.search(rotulo), rotulo
+    for outro in ("Remover garantia", "Excluir todos", "Salvar", "Remover cupom"):
+        assert not _RE_REMOVER.search(outro), outro
+    assert "aria-label" in _JS_ML_LINHAS and "title" in _JS_ML_LINHAS and "data-tv55-excluir" in _JS_ML_LINHAS
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = PaginaML([{"id": PARCELADO, "preco": 3749, "qtd": 1}], excluir_por_aria=True)
+    assert ml.garantir_item(p, URL_CATALOGO) is True
+    assert p.cliques == ["excluir", "adicionar"] and p.carrinho == [{"id": ALVO, "preco": 3599, "qtd": 1}]
+
+
+# --- F5 (22/09): opções do catálogo que a página LOGADA mostra ---
+
+class _PaginaMLComTitulo(PaginaML):
+    titulo = TITULO
+
+    def content(self):
+        html = super().content()
+        if "/p/" in self.url:
+            html = f'<h1 class="ui-pdp-title">{self.titulo}</h1>' + html
+        return html
+
+
+def test_ml_anota_as_opcoes_do_catalogo_vistas_logado():
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = _PaginaMLComTitulo([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    url = f"{URL_CATALOGO}?pdp_filters=item_id%3A{PARCELADO}"
+    assert ml.garantir_item(p, url, {"item_id": PARCELADO}) is True
+    vistas = ml.opcoes_vistas
+    assert set(vistas) == {PARCELADO, ALVO}, "as duas opções do buy box, não só a que a página abriu"
+    parc = vistas[PARCELADO]
+    assert (parc["preco"], parc["vendedor"], parc["parcelado"]) == (3749.0, "Loja oficial Magalu", "10x R$ 374,90 sem juros")
+    assert vistas[ALVO]["preco"] == 3491.03
+    assert item_ml_da_url(vistas[ALVO]["url"]) == ALVO and "MLB48808732" in vistas[ALVO]["url"]
+    assert vistas[ALVO]["titulo"] == TITULO
+    ml.comecar_rodada()
+    assert ml.opcoes_vistas == {} and ml.remocoes == 0
+
+
+def test_ml_nao_anota_opcoes_de_pagina_que_nao_e_a_55c6k():
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = _PaginaMLComTitulo([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    p.titulo = "Smart TV TCL 65C6K 65 Polegadas QD-Mini LED"
+    ml.garantir_item(p, f"{URL_CATALOGO}?pdp_filters=item_id%3A{PARCELADO}", {"item_id": PARCELADO})
+    assert ml.opcoes_vistas == {}
+
+
+def test_ml_nao_anota_opcao_com_preco_impossivel():
+    ml = MercadoLivre()
+    ml.comecar_rodada()
+    p = _PaginaMLComTitulo([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    barata = HTML_CATALOGO.replace('"value":3491.03,"original_value":3599', '"value":349.1,"original_value":359')
+    p.content = lambda: (f'<h1 class="ui-pdp-title">{TITULO}</h1>' + barata) if "/p/" in p.url else "<html></html>"
+    ml.garantir_item(p, f"{URL_CATALOGO}?pdp_filters=item_id%3A{PARCELADO}", {"item_id": PARCELADO})
+    assert set(ml.opcoes_vistas) == {PARCELADO}, "R$ 349,10 não é preço desta TV"
 
 
 def test_ml_linha_ilegivel_nao_mexe_e_pula_a_loja():
@@ -612,6 +807,22 @@ def test_magalu_com_outro_produto_continua_sem_mexer():
 def test_magalu_uma_tv_certa_nao_mexe():
     p = PaginaMagalu([{"id": "240162700", "quantity": 1, "name": TV_MAGALU}])
     assert Magalu().garantir_item(p, URL_MAGALU) is True and p.cliques == []
+
+
+def test_magalu_conta_o_que_tirou_da_sacola():
+    # F3 (22/09): o aviso de "sacola vazia" depende de o robô ter tirado algo de fato
+    m = Magalu()
+    m.comecar_rodada()
+    p = PaginaMagalu([{"id": "kc7h6f4k4b", "quantity": 1, "name": TV_COLOMBO, "seller": COLOMBO}])
+    assert m.garantir_item(p, URL_MAGALU + "?seller_id=magazineluiza",
+                           {"vendedor": "Magalu", "vendedor_id": "magazineluiza"}) is True
+    assert m.remocoes == 1
+    m.comecar_rodada()
+    assert m.remocoes == 0
+    p = PaginaMagalu([{"id": "240162700", "quantity": 1, "name": TV_MAGALU}])
+    assert m.garantir_item(p, URL_MAGALU) is True and m.remocoes == 0, "nada tirado"
+    p = PaginaMagalu([{"id": "240162700", "quantity": 2, "name": TV_MAGALU}], excluir_quebrado=True)
+    assert m.garantir_item(p, URL_MAGALU) is False and m.remocoes == 0, "o Excluir não achou botão: nada tirado"
 
 
 # --- 19/09: vendedor do anúncio ---
