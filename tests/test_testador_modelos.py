@@ -115,6 +115,49 @@ def test_f1_por_modelo_usa_a_65_lida_pelo_testador(amb):
     assert [(a.chave, a.modelo, a.origem) for a in anuncios] == [(KA, "55C6K", "coleta"), (KA65, "65C6K", "estado")]
 
 
+def test_f1_65_de_vendedor_reprovado_nao_volta_pelo_estado(amb):
+    # revisão de 26/09: a coleta desta rodada não trouxe a 65C6K do Magalu; o testador leu há 3 h um anúncio da 65"
+    # que está na lista curada de reprovados (o de 25/09, /p/kd12g2e47k). Ele não volta como anúncio (F1).
+    from monitor import confianca
+
+    amb.latest("cloud", [A], codigos=["LU300"])
+    url = ("https://www.magazineluiza.com.br/smart-tv-65-tcl-4k-uhd-miniled-65c6k/p/kd12g2e47k/et/elit/"
+           "?seller_id=importadoslili")
+    lili = {"vendedor": "Importados Lili", "url": url, "modelo": "65C6K", "titulo": 'Smart TV 65" TCL 65C6K',
+            "tv_pix": 3054.56, "tv_cartao": 4559.05, "sem_cupom_pix": 3054.56, "sem_cupom_cartao": 4559.05,
+            "lido_em": _iso(FIXO - timedelta(hours=3))}
+    assert confianca.motivo_bloqueio({"loja": "Magazine Luiza", "url": url, "vendedor": "Importados Lili"}, ())
+    legit = {"vendedor": "Magalu", "url": A65["url"], "modelo": "65C6K", "tv_pix": 4559.05, "tv_cartao": 4799.0,
+             "sem_cupom_pix": 4559.05, "sem_cupom_cartao": 4799.0, "lido_em": _iso(FIXO - timedelta(hours=3))}
+    reg = {"precos": {"kd12g2e47k-importadoslili": lili, KA65: legit}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoMagalu(amb.pasta), reg)
+    assert [(a.chave, a.modelo, a.origem) for a in anuncios] == [(KA, "55C6K", "coleta"), (KA65, "65C6K", "estado")]
+    # sem o nome do vendedor no registro: a chave '<anúncio>-<vendedor>' ainda diz quem vende
+    sem_nome = {k: v for k, v in lili.items() if k != "vendedor"}
+    sem_nome["url"] = url.split("?")[0]
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoMagalu(amb.pasta),
+                                        {"precos": {"kd12g2e47k-importadoslili": sem_nome}})
+    assert [a.chave for a in anuncios] == [KA]
+
+
+def test_f5_opcao_da_65_e_comparada_com_a_65(amb):
+    # a 65C6K do ML 1P (confiável) a Pix R$ 4.219; a página logada da 65" mostrou um vendedor desconhecido a R$ 3.300
+    # (22% abaixo da 65" confiável). Perto do preço da 55" (R$ 3.491), mas é da 65": fica de fora.
+    from test_testador_anuncios import CarrinhoFalsoML, _confiavel, _opcao as _opcao_f5, oferta_ml
+
+    ml65 = _confiavel(_oferta_ml(M65, "Mercado Livre", 4624.0, 4219.0))
+    ml55 = _confiavel(oferta_ml("MLB5417889802", "Mercado Livre", 3599.0, pix=3491.03))
+    amb.latest("pc", [ml55, ml65], codigos=["CUPOMML"], loja="Mercado Livre")
+    opcao = _opcao_f5(P65, 3300.0, vendedor="Loja Nova XYZ", quando=FIXO - timedelta(hours=1), titulo=TITULO65,
+                      url=_url_ml(P65), catalogo=CAT65, modelo="65C6K")
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), {"opcoes_catalogo": {P65: opcao}})
+    assert [(a.chave, a.modelo) for a in anuncios] == [("MLB5417889802", "55C6K"), (M65, "65C6K")]
+    # a mesma opção a R$ 4.100 (3% abaixo da 65" confiável) é legítima e entra
+    opcao["preco"] = 4100.0
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), {"opcoes_catalogo": {P65: opcao}})
+    assert [(a.chave, a.origem) for a in anuncios][1] == (P65, "catalogo_logado")
+
+
 # ------------------------------------------------------------------------------------------------
 # 2. Magalu: isolar o modelo do cupom e, no fim, uma TV de cada modelo
 # ------------------------------------------------------------------------------------------------
@@ -582,6 +625,113 @@ def test_tv_do_outro_modelo_que_nao_volta_avisa(amb):
         "tenta a mais barata da 65C6K e, sem ela, a próxima"
 
 
+class CarrinhoQueCaiNoFim(CarrinhoDoisModelos):
+    """O passo final (garantir_itens) leva o antirrobô do Magalu ('Não conseguimos carregar sua sacola') enquanto
+    `cai` for True; garantir_item (o isolamento para medir o cupom) funciona."""
+
+    def __init__(self, *a, cai=True, **k):
+        super().__init__(*a, **k)
+        self.cai = cai
+
+    def garantir_itens(self, page, alvos):
+        if self.cai:
+            self.eventos.append(("garantir_itens", tuple(a["chave"] for a in alvos)))
+            from monitor.carrinho import LojaIndisponivel
+            raise LojaIndisponivel("Não conseguimos carregar sua sacola")
+        return super().garantir_itens(page, alvos)
+
+
+def _relogio(monkeypatch, quando):
+    monkeypatch.setattr(tc, "agora", lambda: quando)
+    monkeypatch.setattr(tc, "agora_iso", lambda: _iso(quando))
+
+
+def _rodada_que_deixa_a_65_fora(amb):
+    """Rodada 1 (revisão de 26/09): só a 55C6K tem cupom pendente; a 65C6K sai para medir o cupom e o passo final leva o
+    antirrobô. A sacola termina só com a 55C6K e a pessoa recebe UM aviso."""
+    amb.latest("cloud", [A, A65], codigos=["NOVO50"])
+    estado = {"magalu": {"cupons": {f"NOVO50@{KA65}": _rec("recusado", FIXO - timedelta(hours=1))}}}
+    loja = CarrinhoQueCaiNoFim(amb.pasta, carrinho=[KA, KA65])
+    amb.rodar(loja, estado)
+    assert loja.carrinho == [KA]
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "65C6K" in aviso and "não consegui devolver" in aviso
+    assert set(estado["magalu"]["tvs_fora"]) == {"65C6K"}, "o estado lembra que a 65C6K saiu e não voltou"
+    tc.AVISOS_CARRINHO.clear()
+    loja.eventos.clear()
+    return loja, estado
+
+
+def test_tv_que_saiu_e_nao_voltou_e_devolvida_na_rodada_seguinte_sem_cupom_pendente(amb, monkeypatch):
+    loja, estado = _rodada_que_deixa_a_65_fora(amb)
+    # rodada 2, depois da pausa de 3 h: nada pendente (NOVO50 recusado nos dois), mas a 65C6K tem de voltar
+    _relogio(monkeypatch, FIXO + timedelta(hours=3, minutes=10))
+    loja.cai = False
+    amb.rodar(loja, estado)
+    assert loja.eventos == [("garantir_itens", (KA65,))], "só põe a que falta, sem mexer na 55C6K nem aplicar cupom"
+    assert sorted(loja.carrinho) == sorted([KA, KA65])
+    assert "tvs_fora" not in estado["magalu"]
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "65C6K" in aviso and "de volta" in aviso and "⚠" not in aviso
+    # rodada 3: tudo certo, o carrinho não é tocado
+    tc.AVISOS_CARRINHO.clear()
+    loja.eventos.clear()
+    amb.rodar(loja, estado)
+    assert loja.eventos == [] and tc.AVISOS_CARRINHO == []
+
+
+def test_tv_fora_respeita_a_pausa_da_loja(amb, monkeypatch):
+    loja, estado = _rodada_que_deixa_a_65_fora(amb)
+    assert "pausa_ate" in estado["magalu"]
+    _relogio(monkeypatch, FIXO + timedelta(hours=1))
+    loja.cai = False
+    amb.rodar(loja, estado)
+    assert loja.eventos == [] and loja.carrinho == [KA], "em pausa: a loja não é aberta"
+    assert set(estado["magalu"]["tvs_fora"]) == {"65C6K"}
+
+
+def test_tv_fora_que_nao_volta_de_novo_nao_repete_o_aviso_e_desiste_depois_de_3_tentativas(amb, monkeypatch, capsys):
+    loja, estado = _rodada_que_deixa_a_65_fora(amb)
+    loja.cai = False
+    loja.nao_entra = {KA65}   # o anúncio da 65C6K não entra (a página não confere)
+    for k in range(1, 4):
+        _relogio(monkeypatch, FIXO + timedelta(hours=3 + k))
+        amb.rodar(loja, estado)
+        assert [e[0] for e in loja.eventos] == ["garantir_itens"], f"rodada {k + 1}: uma tentativa"
+        assert tc.AVISOS_CARRINHO == [], "o aviso já foi dado na rodada em que a TV saiu"
+        loja.eventos.clear()
+    assert estado["magalu"]["tvs_fora"]["65C6K"]["tentativas"] == 3
+    _relogio(monkeypatch, FIXO + timedelta(hours=7))
+    capsys.readouterr()
+    amb.rodar(loja, estado)
+    assert loja.eventos == [] and "tvs_fora" not in estado["magalu"]
+    assert "desisto de devolver" in capsys.readouterr().out
+
+
+def test_tv_fora_sem_anuncio_conhecido_espera_a_rodada_em_que_ele_aparece(amb, monkeypatch):
+    loja, estado = _rodada_que_deixa_a_65_fora(amb)
+    loja.cai = False
+    _relogio(monkeypatch, FIXO + timedelta(hours=4))
+    amb.latest("cloud", [A], codigos=["NOVO50"])          # a coleta desta rodada não trouxe a 65C6K
+    amb.rodar(loja, estado)
+    assert loja.eventos == [] and estado["magalu"]["tvs_fora"]["65C6K"]["tentativas"] == 0
+    amb.latest("cloud", [A, A65], codigos=["NOVO50"])
+    amb.rodar(loja, estado)
+    assert loja.eventos == [("garantir_itens", (KA65,))] and sorted(loja.carrinho) == sorted([KA, KA65])
+    assert "tvs_fora" not in estado["magalu"]
+
+
+def test_tv_fora_volta_no_passo_final_de_uma_rodada_com_cupom(amb, monkeypatch):
+    loja, estado = _rodada_que_deixa_a_65_fora(amb)
+    loja.cai = False
+    _relogio(monkeypatch, FIXO + timedelta(hours=4))
+    amb.latest("cloud", [A, A65], codigos=["NOVO50", "OUTRO10"])   # cupom novo: rodada normal
+    amb.rodar(loja, estado)
+    assert loja.eventos[-1] == ("garantir_itens", (KA, KA65)), "o passo final de sempre devolve a 65C6K"
+    assert [e for e in loja.eventos if e[0] == "garantir_itens"] == [("garantir_itens", (KA, KA65))]
+    assert sorted(loja.carrinho) == sorted([KA, KA65]) and "tvs_fora" not in estado["magalu"]
+
+
 def test_65_sem_anuncio_conhecido_nao_deixa_isolar_a_55(amb):
     amb.latest("cloud", [A], codigos=["CUPOMX"])
     loja = CarrinhoDoisModelos(amb.pasta, carrinho=[KA, KA65])
@@ -782,6 +932,23 @@ def test_ml_rodada_com_os_dois_modelos_adaptador_real(amb, monkeypatch):
     assert set(est["mercadolivre"]["cupons"]) == {f"CUPOMML@{PARCELADO}", f"CUPOMML@{M65}"}
     opcoes = est["mercadolivre"]["opcoes_catalogo"]
     assert opcoes[P65]["modelo"] == "65C6K" and opcoes[ALVO]["modelo"] == "55C6K"
+
+
+def test_ml_tv_fora_de_rodada_anterior_volta_sem_tirar_a_outra_adaptador_real(amb, monkeypatch):
+    # a 65C6K saiu do carrinho do ML numa rodada anterior e não voltou; nada pendente agora: ela volta, e a 55C6K da
+    # pessoa fica onde está
+    p = PaginaMLDoisModelos([{"id": PARCELADO, "preco": 3749, "qtd": 1}])
+    ofertas = [_oferta_ml(PARCELADO, "Magalu", 3749.0), _oferta_ml(M65, "Mercado Livre", 4499.0, 4399.0)]
+    uma_hora = FIXO - timedelta(hours=1)
+    estado = {"mercadolivre": {"cupons": {f"CUPOMML@{PARCELADO}": _rec("recusado", uma_hora),
+                                          f"CUPOMML@{M65}": _rec("recusado", uma_hora)},
+                               "tvs_fora": {"65C6K": {"desde": _iso(FIXO - timedelta(hours=2)), "tentativas": 0}}}}
+    loja, _aceitos, est = _rodar_ml(amb, monkeypatch, p, estado, ofertas)
+    assert sorted(_ids(p)) == sorted([(PARCELADO, 1), (M65, 1)])
+    assert p.cliques == ["adicionar"], "só põe a 65C6K; nada é tirado"
+    assert "tvs_fora" not in est["mercadolivre"]
+    (aviso,) = tc.AVISOS_CARRINHO
+    assert "Mercado Livre" in aviso and "de volta" in aviso
 
 
 # ------------------------------------------------------------------------------------------------

@@ -1291,3 +1291,82 @@ def test_f5_coleta_vazia_mas_opcao_recente_do_catalogo_serve_de_anuncio(amb):
     loja = CarrinhoFalsoML(amb.pasta)
     amb.rodar(loja, reg, loja_id="mercadolivre")
     assert _garantidos(loja) == [ML_MAGALU] and _aplicados(loja) == [(ML_MAGALU, "CUPOMML")]
+
+
+# --- revisão de 26/09 (65C6K): anúncio que o testador conhece (F1/F5) passa pela mesma checagem de confiança da coleta
+#     (monitor.confianca.pode_ir_ao_carrinho: lista curada de reprovados, reprovado automático e preço muito abaixo da
+#     loja confiável mais barata do MESMO modelo). Antes, a opção do catálogo vista logado ou o anúncio lido há 3 h iam
+#     ao carrinho sem ela: o padrão do anúncio de 25/09 (vendedor desconhecido muito abaixo das lojas confiáveis).
+
+GOLPE_ML = "MLB9999999999"
+
+
+def _confiavel(o: dict) -> dict:
+    o.setdefault("extra", {})["confianca"] = {"veredito": "confiavel"}
+    return o
+
+
+def test_f5_opcao_do_catalogo_suspeita_nao_vai_ao_carrinho(amb, capsys):
+    # ML 1P confiável a Pix 3.491,03; a página logada mostrou um vendedor desconhecido a R$ 2.590 (26% abaixo)
+    col = _confiavel(oferta_ml(ML_MELHOR, "Mercado Livre", 3599.0, pix=3491.03))
+    amb.latest("pc", [col], codigos=["CUPOMML"], loja="Mercado Livre")
+    reg = {"cupons": {}, "opcoes_catalogo": {
+        GOLPE_ML: _opcao(GOLPE_ML, 2590.0, vendedor="Loja Nova XYZ", quando=FIXO - timedelta(hours=1)),
+        ML_MAGALU: _opcao(ML_MAGALU, 3749.0, vendedor="Loja oficial Magalu", quando=FIXO - timedelta(hours=1))}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [a.chave for a in anuncios] == [ML_MELHOR, ML_MAGALU], "a opção suspeita fica de fora; as legítimas não"
+    assert "preço R$ 2.590,00" in capsys.readouterr().out
+    # a rodada inteira: o carrinho da pessoa nunca recebe o anúncio suspeito
+    loja = CarrinhoFalsoML(amb.pasta, no_carrinho=ML_MELHOR, precos={ML_MELHOR: 3599.0, ML_MAGALU: 3749.0,
+                                                                     GOLPE_ML: 2590.0})
+    amb.rodar(loja, {"mercadolivre": reg}, loja_id="mercadolivre")
+    assert GOLPE_ML not in _garantidos(loja) and loja.no_carrinho == ML_MELHOR
+
+
+def test_f5_opcao_do_catalogo_de_vendedor_reprovado_nao_vai_ao_carrinho(amb):
+    # reprovado automático gravado pela coleta (state_pc.json): vale também para a opção vista logado
+    amb.latest("pc", [oferta_ml(ML_MAGALU, "Magalu", 3749.0)], codigos=["CUPOMML"], loja="Mercado Livre")
+    auto = {"loja": "Mercado Livre", "ids": ["777"], "nomes": ["Loja Reprovada"], "motivo": "sinais de risco",
+            "desde": "2026-09-19"}
+    (config.DIR_DADOS / "state_pc.json").write_text(
+        json.dumps({"confianca": {"reprovados_auto": {"Mercado Livre|777": auto}}}), encoding="utf-8")
+    reg = {"opcoes_catalogo": {GOLPE_ML: _opcao(GOLPE_ML, 3700.0, vendedor="Loja Reprovada",
+                                                quando=FIXO - timedelta(hours=1))}}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), reg)
+    assert [a.chave for a in anuncios] == [ML_MAGALU]
+
+
+def test_f1_anuncio_lido_antes_passa_pela_checagem_de_confianca(amb):
+    # a coleta do ML desta rodada não trouxe nada; o testador leu há 3 h um anúncio que hoje é de vendedor reprovado
+    amb.latest("pc", [], codigos=["CUPOMML"], loja="Mercado Livre")
+    auto = {"loja": "Mercado Livre", "ids": ["777"], "nomes": ["Loja Reprovada"], "motivo": "sinais de risco",
+            "desde": "2026-09-19"}
+    (config.DIR_DADOS / "state_pc.json").write_text(
+        json.dumps({"confianca": {"reprovados_auto": {"Mercado Livre|777": auto}}}), encoding="utf-8")
+    precos = {GOLPE_ML: {**_preco_lido(GOLPE_ML, "Loja Reprovada", 3600.0, FIXO - timedelta(hours=3)),
+                         "vendedor_id": "777"},
+              ML_MAGALU: _preco_lido(ML_MAGALU, "Magalu", 3749.0, FIXO - timedelta(hours=3))}
+    _, anuncios = tc.codigos_conhecidos(CarrinhoFalsoML(amb.pasta), {"precos": precos})
+    assert [(a.chave, a.origem) for a in anuncios] == [(ML_MAGALU, "estado")]
+
+
+def test_anuncio_barrado_pela_coleta_nao_volta_pelo_estado(amb):
+    # a coleta desta rodada marcou o anúncio como suspeito (e ele era o único da loja): o registro de 3 h atrás do
+    # mesmo anúncio não o traz de volta pela F1
+    susp = oferta_ml(GOLPE_ML, "Loja Nova XYZ", 3300.0)
+    susp["extra"]["confianca"] = {"veredito": "suspeito", "sinais": ["anúncio sem avaliações"]}
+    amb.latest("pc", [susp], codigos=["CUPOMML"], loja="Mercado Livre")
+    precos = {GOLPE_ML: _preco_lido(GOLPE_ML, "Loja Nova XYZ", 3300.0, FIXO - timedelta(hours=3))}
+    loja = CarrinhoFalsoML(amb.pasta)
+    _, anuncios = tc.codigos_conhecidos(loja, {"precos": precos})
+    assert anuncios == []
+    amb.rodar(loja, {"mercadolivre": {"cupons": {}, "precos": precos}}, loja_id="mercadolivre")
+    assert loja.eventos == [], "sem anúncio que possa ir ao carrinho, o carrinho não é tocado (F1)"
+
+
+def test_testador_grava_o_id_do_vendedor_do_anuncio_lido(amb):
+    o = oferta_ml(ML_MAGALU, "Magalu", 3749.0)
+    o["extra"]["vendedor_id"] = "3592255542"
+    amb.latest("pc", [o], codigos=["CUPOMML"], loja="Mercado Livre")
+    _, estado = amb.rodar(CarrinhoFalsoML(amb.pasta), loja_id="mercadolivre")
+    assert estado["mercadolivre"]["precos"][ML_MAGALU]["vendedor_id"] == "3592255542"
