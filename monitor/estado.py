@@ -31,19 +31,20 @@ CAMPOS_HISTORICO = [
     "quando", "fonte", "tipo", "loja", "vendedor", "titulo", "preco", "preco_pix", "parcelado", "cupom", "url", "modelo",
 ]
 MODOS = ("cloud", "pc")
+# um cupom já alertado só volta a ser alerta depois deste prazo sem aparecer (ou se o desconto mudar)
+JANELA_CUPOM_DIAS = 30
 
 
 def chave_minimo(modelo: str = MODELO_PADRAO) -> str:
     """Chave do "menor já visto" do modelo no state e no latest: 'minimo' (55C6K, a de sempre) ou 'minimo_65C6K'."""
-    return "minimo" if modelo_de({"modelo": modelo}) == MODELO_PADRAO else f"minimo_{modelo_de({'modelo': modelo})}"
+    m = modelo_de({"modelo": modelo})
+    return "minimo" if m == MODELO_PADRAO else f"minimo_{m}"
 
 
 def _linha_csv_valida(cab: list[str], row: list[str]) -> bool:
     """A linha tem o número de colunas do cabeçalho, ou uma a menos quando a que falta é a 'modelo' do fim (linha
     gravada antes de 26/09 num arquivo cujo cabeçalho já ganhou a coluna)."""
     return len(row) == len(cab) or (len(row) == len(cab) - 1 and bool(cab) and cab[-1] == "modelo")
-# um cupom já alertado só volta a ser alerta depois deste prazo sem aparecer (ou se o desconto mudar)
-JANELA_CUPOM_DIAS = 30
 
 
 def marca_cupom(loja: str, codigo: str) -> str:
