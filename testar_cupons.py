@@ -7,9 +7,15 @@
   python testar_cupons.py --forcar                        # testa de novo todos os cupons conhecidos
   opções: --no-notify  --visivel (mostra a janela)  --check (só confere a sessão)
 
-Cada teste fica gravado com um status: "aceito", "recusado" (a loja disse não) ou "erro" (falha do
-robô: campo não achado, exceção, total ilegível). "erro" é testado de novo na rodada seguinte;
-"recusado" depois de 24 h, ou a cada hora nova para cupons de horário (…14H, …18H).
+Cada teste fica gravado com um status: "aceito" (o preço da TV caiu), "so_frete" (a loja aceitou, mas só o frete
+mudou: nunca é desconto na TV), "recusado" (a loja disse não) ou "erro" (falha do robô: campo não achado, exceção,
+preço ilegível). "erro" é testado de novo na rodada seguinte; "recusado" e "so_frete" depois de 24 h, ou a cada hora
+nova para cupons de horário (…14H, …18H). Desde 26/09 (primeira rodada real com as duas TVs) quem decide é o preço da
+TV medido no carrinho antes e depois do cupom (monitor.carrinho.medir_cupom), nunca uma linha "Desconto" do resumo.
+
+Frete (26/09, L4): o frete lido no carrinho com o anúncio sozinho (reg["precos"][chave]["frete"], até 72 h) entra no
+preço do anúncio: a ordem dos anúncios, o anúncio mais barato do fim da rodada e o melhor cupom são decididos pelo
+preço COM frete, e a mensagem mostra "R$ X no Pix + frete R$ Y = R$ Z".
 
 Anúncios (pedido do usuário em 19/09: "priorize o mais barato"): o robô pega TODOS os anúncios ativos da
 TV na loja (latest_cloud.json + latest_pc.json, um por anúncio+vendedor) e vai do mais barato ao mais caro.
@@ -107,6 +113,7 @@ PRAZO_PASSO_FINAL_S = 15 * 60
 JANELA_ANUNCIO_DO_ESTADO = timedelta(hours=24)       # F1: anúncio lido pelo testador que ainda vale sem coleta
 JANELA_OPCAO_DO_CATALOGO = timedelta(hours=24)       # F5: opção do catálogo vista logado que ainda vale
 JANELA_ACEITE_NO_PASSO_FINAL = timedelta(hours=48)   # F4: aceite que o passo final ainda tenta reaplicar
+JANELA_FRETE_CONHECIDO = timedelta(hours=72)         # L4: frete lido no carrinho que ainda vale para comparar anúncios
 # revisão de 26/09: TV de um modelo que o robô tirou do carrinho e não voltou (reg["tvs_fora"]) é devolvida nas rodadas
 # seguintes, mesmo sem cupom pendente; desiste depois de tantas tentativas ou desse tempo (o aviso já foi dado)
 JANELA_DEVOLVER_TV = timedelta(hours=24)
@@ -122,10 +129,18 @@ def _tempo_esgotado(prazo: float = PRAZO_RODADA_S) -> bool:
     return _INICIO is not None and time.monotonic() - _INICIO > prazo
 
 
+_CAMPOS_DE_PRECO = ("tv_pix", "tv_cartao", "total_pix", "total_cartao")
+
+
 def status_do_registro(reg: dict) -> str:
-    """Status gravado; registros antigos (só com 'aceito') são reclassificados pela mensagem."""
+    """Status gravado; registros antigos (só com 'aceito') são reclassificados pela mensagem.
+
+    L2 (26/09): 'aceito' gravado com TODOS os preços vazios (o MELIPROMOBIT da 65C6K em 26/09 17:2x, "TV —") não
+    mediu nada: vale como 'erro' e volta na próxima rodada. 'so_frete': a loja aceitou, mas só o frete mudou."""
     st = reg.get("status")
-    if st in ("aceito", "recusado", "erro"):
+    if st == "aceito" and all(k in reg for k in _CAMPOS_DE_PRECO) and all(reg.get(k) is None for k in _CAMPOS_DE_PRECO):
+        return "erro"
+    if st in ("aceito", "recusado", "erro", "so_frete"):
         return st
     if reg.get("aceito"):
         return "aceito"
@@ -147,9 +162,9 @@ def _momento_do_registro(reg: Optional[dict]) -> datetime:
 def precisa_testar(codigo: str, reg: dict | None, momento: datetime | None = None) -> bool:
     """Decide se o cupom volta para a fila deste anúncio.
 
-    - nunca testado ou 'erro' (o robô falhou, a loja não respondeu): testa de novo;
+    - nunca testado ou 'erro' (o robô falhou, a loja não respondeu, o preço não deu para ler): testa de novo;
     - 'aceito': de novo no dia seguinte (o desconto pode mudar);
-    - 'recusado': de novo depois de 24 h; cupom de horário (…14H), a cada hora nova.
+    - 'recusado' e 'so_frete' (só o frete mudou): de novo depois de 24 h; cupom de horário (…14H), a cada hora nova.
     """
     if not reg:
         return True
@@ -227,12 +242,20 @@ class Anuncio:
     modelo: str = MODELO_PADRAO         # 55C6K ou 65C6K (campo 'modelo' da coleta; sem ele, 55C6K)
     # cupom da página do próprio anúncio (campo 'cupom' da oferta, ex. LU300 no Magalu 1P): testado primeiro nele
     cupom: Optional[str] = None
+    # L4 (26/09): frete deste anúncio SOZINHO no carrinho, lido pelo testador numa rodada recente (reg["precos"], até
+    # JANELA_FRETE_CONHECIDO); None: não se sabe (nunca aberto no carrinho, ou a Amazon, que não mostra o frete)
+    frete: Optional[float] = field(default=None, compare=False)
     # reconhece as chaves antigas do estado (fim da URL) que são deste anúncio
     antiga: Optional[Callable[[str, dict], bool]] = field(default=None, repr=False, compare=False)
 
     @property
     def rotulo(self) -> str:
         return f"{self.vendedor or '?'} [{self.chave}]"
+
+    @property
+    def preco_final(self) -> float:
+        """O preço coletado mais o frete conhecido (o que a pessoa paga no fim); frete desconhecido conta zero."""
+        return round(self.preco + (self.frete or 0), 2)
 
     def alvo(self, ids_tv: Iterable[str] = (), contexto: Optional[dict] = None) -> dict:
         """O que o adaptador do carrinho precisa para achar ESTE anúncio (ver monitor.carrinho). `contexto`: o que a
@@ -486,8 +509,23 @@ def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
         ok, motivo = pode_ir_ao_carrinho(o, do_modelo.get(modelo_da_oferta(o), []), auto)
         return None if ok else (motivo or "anúncio barrado pela checagem de confiança")
 
-    ordenados = sorted(coletados + anuncios_do_estado(loja, reg, coletados, momento, barrar), key=lambda a: a.preco)
+    todos = coletados + anuncios_do_estado(loja, reg, coletados, momento, barrar)
+    # L4 (26/09): o frete que o testador leu no carrinho (anúncio sozinho) entra na ordem: o 1P do ML a R$ 3.491,03
+    # cobrava R$ 278,60 de frete, e o anúncio "mais barato" pode não ser o mais barato no fim
+    precos_lidos = (reg or {}).get("precos") or {}
+    for a in todos:
+        a.frete = frete_gravado(precos_lidos.get(a.chave), momento)
+    ordenados = sorted(todos, key=lambda a: (a.preco_final, a.preco))
     return lista, ordenados
+
+
+def frete_gravado(v: Optional[dict], momento: Optional[datetime] = None) -> Optional[float]:
+    """O frete que o testador gravou para um anúncio (reg["precos"][chave]["frete"]), se a leitura é recente."""
+    if not isinstance(v, dict) or not isinstance(v.get("frete"), (int, float)):
+        return None
+    if not _recente(v.get("lido_em"), momento or agora(), JANELA_FRETE_CONHECIDO):
+        return None
+    return float(v["frete"])
 
 
 def _chaves_da_oferta(loja: LojaCarrinho, o: dict) -> set[str]:
@@ -634,7 +672,10 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
             blocos.append((m, linhas, meta))
     if not blocos:
         return ""
-    topo = ["🎯 <b>META ATINGIDA</b>" if any(b[2] for b in blocos) else "✅ <b>Cupom funcionou</b>", ""]
+    # só blocos de cupom só de frete (sem a linha do alvo, que é de cupom na TV): o título não diz que um cupom funcionou
+    so_frete = not any(l.startswith("Alvo:") for b in blocos for l in b[1])
+    topo = ["🎯 <b>META ATINGIDA</b>" if any(b[2] for b in blocos) else
+            "🚚 <b>Cupom só de frete</b>" if so_frete else "✅ <b>Cupom funcionou</b>", ""]
     if len(blocos) == 1 and blocos[0][0] == MODELO_PADRAO:
         return "\n".join(topo + blocos[0][1])
     out = topo
@@ -646,40 +687,78 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
     return "\n".join(out)
 
 
+def texto_com_frete(valor: Optional[float], frete: Optional[float], pix: bool = False) -> str:
+    """L4 (26/09): 'R$ X no Pix + frete R$ Y = R$ Z' quando o frete lido no carrinho é conhecido e cobrado; sem frete
+    (grátis ou não lido), só 'R$ X', como sempre."""
+    if valor is None or not frete:
+        return fmt_preco(valor)
+    return f"{fmt_preco(valor)}{' no Pix' if pix else ''} + frete {fmt_preco(frete)} = {fmt_preco(valor + frete)}"
+
+
+def _final_a_vista(r: ResultadoCupom) -> float:
+    """O preço à vista de UMA TV com o frete lido no carrinho (o que a pessoa paga no fim)."""
+    return (r.tv_pix or r.tv_cartao or 9e9) + (r.frete or 0)
+
+
+def _final_no_cartao(r: ResultadoCupom) -> float:
+    return (r.tv_cartao or 9e9) + (r.frete or 0)
+
+
+def _linhas_so_frete(resultados: list[tuple[str, ResultadoCupom]]) -> list[str]:
+    """L2 (26/09): cupom que a loja aceitou mas que só mexeu no frete: vai como frete, NUNCA como desconto na TV."""
+    out = []
+    for n, r in resultados:
+        if r.aceito or not r.extra.get("so_frete"):
+            continue
+        out.append(f"🚚 Só frete: <code>{r.codigo}</code> na {_onde(n, r)}: frete "
+                   f"{fmt_preco(r.extra.get('antes_frete'))} → {fmt_preco(r.frete)}; a TV continua "
+                   f"{fmt_preco(r.tv_pix or r.tv_cartao)} (não é desconto na TV)")
+    return out[:4]
+
+
 def _bloco_do_modelo(modelo: str, resultados: list[tuple[str, ResultadoCupom]]) -> tuple[list[str], bool]:
     """Linhas da mensagem de UM modelo (melhor à vista, melhor parcelado, outros, alvo, carrinho) e se o alvo foi
-    atingido. Sem cupom que compense, ([], False)."""
+    atingido. L4 (26/09): o melhor é escolhido pelo preço COM o frete lido no carrinho, que a mensagem mostra
+    ('R$ X no Pix + frete R$ Y = R$ Z'), e o alvo vale para esse preço final. Cupom só de frete vai numa linha
+    própria (L2). Sem cupom que compense nem cupom só de frete, ([], False)."""
     alvo_pix, alvo_parc = alvos_do_modelo(modelo)
     validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao)]
     vista = [(n, r) for n, r in validos if not r.extra.get("pior_a_vista")]
     com_parcela = [(n, r) for n, r in validos if r.parcelado and r.tv_cartao and not r.extra.get("pior_parcelado")]
+    so_frete = _linhas_so_frete(resultados)
     if not vista and not com_parcela:
-        return [], False
-    melhor_vista = min(vista, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9) if vista else None
-    melhor_parc = min(com_parcela, key=lambda x: x[1].tv_cartao or 9e9) if com_parcela else None
+        return (so_frete, False) if so_frete else ([], False)
+    melhor_vista = min(vista, key=lambda x: _final_a_vista(x[1])) if vista else None
+    melhor_parc = min(com_parcela, key=lambda x: _final_no_cartao(x[1])) if com_parcela else None
     principal = melhor_vista or melhor_parc
 
     r = principal[1]
-    alvo = bool((melhor_vista is not None and r.tv_pix is not None and r.tv_pix <= alvo_pix) or
-                (melhor_parc and (melhor_parc[1].tv_cartao or 9e9) <= alvo_parc))
+    alvo = bool((melhor_vista is not None and r.tv_pix is not None and r.tv_pix + (r.frete or 0) <= alvo_pix) or
+                (melhor_parc and _final_no_cartao(melhor_parc[1]) <= alvo_parc))
     linhas: list[str] = []
     if melhor_vista:
-        linhas.append(f"<b>Melhor à vista</b>: {fmt_preco(r.tv_pix or r.tv_cartao)} na {_onde(*melhor_vista)} "
-                      f"com <code>{r.codigo}</code>" + _quando_foi_aceito(r))
+        valor = texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
+        linhas.append(f"<b>Melhor à vista</b>: {valor} na {_onde(*melhor_vista)} com <code>{r.codigo}</code>"
+                      + _quando_foi_aceito(r))
         if r.extra.get("antes_pix") and r.frete is not None:
             antes = round((r.extra["antes_pix"] - r.frete) / max(1, r.quantidade), 2)  # de UMA TV, como tv_pix
             if antes > (r.tv_pix or 0):
                 linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
     if melhor_parc:
         p = melhor_parc[1]
-        linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado_real} na {_onde(*melhor_parc)} "
-                      f"com <code>{p.codigo}</code>")
-    outros = [f"{_onde(n, x)}: {fmt_preco(x.tv_pix or x.tv_cartao)} ({x.codigo})" for n, x in
-              sorted((v for v in validos if v[1] is not r),
-                     key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)[:4]]
+        frete_p = (f" + frete {fmt_preco(p.frete)} = {fmt_preco(p.tv_cartao + p.frete)}"
+                   if p.frete and p.tv_cartao is not None else "")
+        linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado_real}{frete_p} "
+                      f"na {_onde(*melhor_parc)} com <code>{p.codigo}</code>")
+    outros = [f"{_onde(n, x)}: {texto_com_frete(x.tv_pix or x.tv_cartao, x.frete, preco_a_vista(x) is not None)} "
+              f"({x.codigo})" for n, x in sorted((v for v in validos if v[1] is not r),
+                                                 key=lambda x: _final_a_vista(x[1]))[:4]]
     if outros:
         linhas.append("")
         linhas.append("Outros que funcionaram: " + " · ".join(outros))
+    if so_frete:
+        linhas.append("")
+        linhas += so_frete
     linhas.append("")
     linhas.append(f"Alvo: Pix {fmt_preco(alvo_pix)} · parcelado {fmt_preco(alvo_parc)}")
     # só afirma que o cupom ficou no carrinho quando o passo final foi conferido (ver testar_loja)
@@ -717,6 +796,7 @@ class Percurso:
     inicio: datetime
     orcamento: int = MAX_APLICACOES_POR_RODADA
     aceitos: list = field(default_factory=list)       # ResultadoCupom aceitos nesta rodada
+    so_frete: list = field(default_factory=list)      # L2: aceitos pela loja que só mexeram no frete (não é desconto)
     lidos: dict = field(default_factory=dict)         # chave do anúncio -> melhor leitura (sem cupom ou com)
     visitados: list = field(default_factory=list)     # chaves dos anúncios em que o robô abriu/mexeu no carrinho
     gravados: set = field(default_factory=set)        # chaves de estado escritas nesta rodada
@@ -839,9 +919,18 @@ def _grava_teste(loja: LojaCarrinho, testados: dict, a: Anuncio, cod: str, r: Re
         "total_pix": r.total_pix, "total_cartao": r.total_cartao, "frete": r.frete,
         "desconto": r.desconto, "parcelado": r.parcelado, "quantidade": r.quantidade,
     }
+    if r.status == "so_frete":
+        testados[chave]["frete_antes"] = (r.extra or {}).get("antes_frete")
     if getattr(loja, "item_alvo", None):
         testados[chave]["item"] = loja.item_alvo
     return chave
+
+
+def _txt_resultado(r: ResultadoCupom) -> str:
+    """O que vai no log depois do código: o preço da TV (com o frete lido, L4) para o aceito; a mensagem para o resto."""
+    if r.aceito:
+        return "TV " + texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
+    return r.mensagem[:100]
 
 
 def _testar_fila(loja: LojaCarrinho, page, a: Anuncio, fila: list[str], testados: dict, p: Percurso) -> None:
@@ -865,17 +954,20 @@ def _testar_fila(loja: LojaCarrinho, page, a: Anuncio, fila: list[str], testados
                                mensagem=f"erro: {type(e).__name__}: {str(e)[:120]}")
         st = r.status  # 'erro' não é recusa: volta na próxima rodada
         p.gravados.add(_grava_teste(loja, testados, a, cod, r))
-        print(f"  {'✅' if r.aceito else ('⚠ ' if st == 'erro' else '✗ ')} {cod:<18} "
-              f"{('TV ' + fmt_preco(r.tv_pix or r.tv_cartao)) if r.aceito else r.mensagem[:80]}")
+        icone = {"aceito": "✅", "so_frete": "🚚", "erro": "⚠ "}.get(st, "✗ ")
+        print(f"  {icone} {cod:<18} {_txt_resultado(r)}")
         erros_seguidos = erros_seguidos + 1 if st == "erro" else 0
         if erros_seguidos >= MAX_ERROS_SEGUIDOS:
             print(f"[{loja.nome}] {a.rotulo}: {erros_seguidos} falhas seguidas do robô; "
                   "paro este anúncio e os cupons voltam na próxima rodada")
             break
-        if r.aceito:
+        if r.aceito or st == "so_frete":
             r.extra.update(vendedor=a.vendedor or loja.loja_canonica, anuncio=a.chave, modelo=a.modelo)
-            p.aceitos.append(r)
-            _registra_leitura(p, a, r)
+            if r.aceito:
+                p.aceitos.append(r)
+                _registra_leitura(p, a, r)
+            else:
+                p.so_frete.append(r)   # L2: vai para a mensagem como frete, nunca como desconto na TV
             loja.remover(page)
             page.wait_for_timeout(1000)
         if i % 5 == 4:
@@ -939,11 +1031,17 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
             base = loja.ler_totais(page)
         base.codigo = "(sem cupom)"
         base.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, modelo=a.modelo)
-        p.sem_cupom[a.chave] = base
-        _registra_leitura(p, a, base)
         print(f"[{loja.nome}] {a.rotulo}: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
               f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
               + (f" · {base.parcelado}" if base.parcelado else ""))
+        if base.total_pix is None and base.total_cartao is None:
+            # L2 (26/09): sem o total lido, nenhum teste mede nada (em 26/09 o da 65C6K saiu "aceito" com "TV —"); os
+            # cupons ficam pendentes para a próxima rodada, sem gastar testes
+            print(f"[{loja.nome}] {a.rotulo}: não consegui ler o total do carrinho; não testo cupons neste anúncio "
+                  "agora (ficam para a próxima rodada)")
+            continue
+        p.sem_cupom[a.chave] = base
+        _registra_leitura(p, a, base)
         _testar_fila(loja, page, a, fila, testados, p)
 
 
@@ -980,25 +1078,46 @@ def escolher_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
                 cands.append((a, _resultado_do_registro(cod, reg, a)))
     if not cands:
         return None
-    return min(cands, key=lambda x: x[1].tv_pix or x[1].tv_cartao or 9e9)
+    return min(cands, key=lambda x: _preco_final(x[1]))
 
 
 def _preco(r: ResultadoCupom) -> float:
     return r.tv_pix or r.tv_cartao or 9e9
 
 
+def _preco_final(r: ResultadoCupom) -> float:
+    """L4 (26/09): o preço de UMA TV com o cupom MAIS o frete lido no carrinho junto (o que a pessoa paga no fim)."""
+    return _preco(r) + (r.frete or 0)
+
+
+def frete_do_anuncio(p: Optional[Percurso], a: Anuncio) -> Optional[float]:
+    """L4: o frete do anúncio sozinho no carrinho: o da leitura sem cupom desta rodada ou, sem ela, o que o testador
+    gravou numa rodada recente (a.frete). None: não se sabe."""
+    r = p.sem_cupom.get(a.chave) if p is not None else None
+    if r is not None and r.frete is not None and max(1, r.quantidade) == 1:
+        return r.frete
+    return a.frete
+
+
 def ordem_sem_cupom(p: Percurso, anuncios: list[Anuncio]) -> list[Anuncio]:
     """Anúncios que podem ficar no carrinho sem cupom no fim da rodada, do mais barato ao mais caro: TODOS os
-    anúncios da loja (visitados ou não nesta rodada), na ordem do preço coletado (a mesma do percurso), menos os
-    que não entraram no carrinho nesta rodada."""
-    return [a for a in anuncios if a.chave not in p.falhou]
+    anúncios da loja (visitados ou não nesta rodada), menos os que não entraram no carrinho nesta rodada. A ordem é a
+    do preço coletado (a mesma do percurso) MAIS o frete lido no carrinho (L4, 26/09: o anúncio de preço menor pode
+    sair mais caro no fim; frete desconhecido conta zero)."""
+    return sorted((a for a in anuncios if a.chave not in p.falhou),
+                  key=lambda a: round(a.preco + (frete_do_anuncio(p, a) or 0), 2))
 
 
 def preco_sem_cupom(p: Percurso, a: Anuncio) -> float:
-    """Preço do anúncio sem cupom: a leitura do carrinho nesta rodada ou, sem ela, o preço coletado."""
+    """Preço da TV do anúncio sem cupom (sem frete): a leitura do carrinho nesta rodada ou, sem ela, o preço coletado."""
     r = p.sem_cupom.get(a.chave)
     v = (r.tv_pix or r.tv_cartao) if r is not None else None
     return v or a.preco or 9e9
+
+
+def preco_final_sem_cupom(p: Percurso, a: Anuncio) -> float:
+    """L4: preco_sem_cupom MAIS o frete do anúncio (o que decide o anúncio mais barato de verdade no fim)."""
+    return preco_sem_cupom(p, a) + (frete_do_anuncio(p, a) or 0)
 
 
 def destino_do_modelo(p: Percurso, anuncios: list[Anuncio], testados: dict, momento: datetime | None = None,
@@ -1010,7 +1129,7 @@ def destino_do_modelo(p: Percurso, anuncios: list[Anuncio], testados: dict, mome
     # de pôr o anúncio novo), então o destino volta a ser o mais barato de TODOS, nem que ele já tenha falhado
     ordem = ordem_sem_cupom(p, anuncios) or list(anuncios)
     base = ordem[0] if ordem else None
-    if final and (base is None or _preco(final[1]) < preco_sem_cupom(p, base)):
+    if final and (base is None or _preco_final(final[1]) < preco_final_sem_cupom(p, base)):
         return final
     return (base, None) if base is not None else None
 
@@ -1048,7 +1167,8 @@ def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], v
     True: o carrinho ficou só com `a`; False: não deu (quem chama pode tentar o próximo mais barato);
     None: parar de mexer (carrinho com outro produto, loja fora do ar ou sessão expirada; o motivo vai para
     p.parou_por, para o aviso de sacola vazia)."""
-    print(f"[{loja.nome}] volto o carrinho para o anúncio mais barato, sem cupom: {a.rotulo} ({fmt_preco(a.preco)})")
+    print(f"[{loja.nome}] volto o carrinho para o anúncio mais barato, sem cupom: {a.rotulo} "
+          f"({texto_com_frete(a.preco, frete_do_anuncio(p, a))})")
     try:
         with _sessao(loja, visivel) as page:
             try:
@@ -1058,6 +1178,8 @@ def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], v
                 if p is not None:
                     _atualiza_fora(loja, p)
             if entrou:
+                if p is not None:
+                    _le_o_frete_no_fim(loja, page, a, p)
                 return True
         print(f"[{loja.nome}] não consegui voltar o carrinho para {a.rotulo}")
     except LojaIndisponivel as e:
@@ -1073,6 +1195,25 @@ def voltar_ao_anuncio(loja: LojaCarrinho, a: Anuncio, anuncios: list[Anuncio], v
     except Exception as e:  # noqa: BLE001
         print(f"[{loja.nome}] não voltei o carrinho para {a.rotulo}: {type(e).__name__}: {str(e)[:120]}")
     return False
+
+
+def _le_o_frete_no_fim(loja: LojaCarrinho, page, a: Anuncio, p: Percurso) -> None:
+    """L4: o anúncio que o passo final pôs no carrinho (sozinho) sem ter sido aberto na rodada: lê o total dele, que
+    traz o frete, para as próximas rodadas compararem com o frete (reg["precos"]). Só leitura; falha não atrapalha."""
+    if a.chave in p.sem_cupom:
+        return
+    try:
+        r = loja.ler_totais(page)
+    except Exception:  # noqa: BLE001 - leitura extra: nunca atrapalha o passo final
+        return
+    if r is None or (r.total_pix is None and r.total_cartao is None) or max(1, r.quantidade) != 1:
+        return
+    r.codigo = "(sem cupom)"
+    r.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, modelo=a.modelo)
+    p.sem_cupom[a.chave] = r
+    _registra_leitura(p, a, r)
+    valor = texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
+    print(f"[{loja.nome}] {a.rotulo} no carrinho: {valor}" + ("" if r.frete is None else " (frete lido)"))
 
 
 MAX_VOLTAS = 2  # no fim da rodada: tenta o mais barato e, se ele não entrar, o próximo (a sacola não fica vazia)
@@ -1205,10 +1346,11 @@ def arrumar_carrinho(loja: LojaCarrinho, p: Percurso, anuncios: list[Anuncio], r
         _grava_reaplicacao(loja, reg["cupons"], a, melhor, situacao, resposta)
         ordem = ordem_sem_cupom(p, anuncios)
         if situacao == "ok" and ordem and ordem[0].chave != a.chave and \
-                _preco(melhor) >= preco_sem_cupom(p, ordem[0]) - 0.005:
-            # G3: o preço de agora (o cupom pode ser de ontem) não bate o anúncio mais barato sem cupom
-            print(f"[{loja.nome}] com o preço de agora, {melhor.codigo} em {a.rotulo} dá {fmt_preco(_preco(melhor))}, "
-                  f"não menos que {ordem[0].rotulo} sem cupom ({fmt_preco(preco_sem_cupom(p, ordem[0]))})")
+                _preco_final(melhor) >= preco_final_sem_cupom(p, ordem[0]) - 0.005:
+            # G3: o preço de agora (o cupom pode ser de ontem) não bate o anúncio mais barato sem cupom (com o frete, L4)
+            print(f"[{loja.nome}] com o preço de agora, {melhor.codigo} em {a.rotulo} dá "
+                  f"{fmt_preco(_preco_final(melhor))} com o frete, não menos que {ordem[0].rotulo} sem cupom "
+                  f"({fmt_preco(preco_final_sem_cupom(p, ordem[0]))})")
             _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_NAO_COMPENSA)
             situacao = "nao_compensa"
         if situacao == "ok":
@@ -1262,10 +1404,12 @@ def _grava_reaplicacao(loja: LojaCarrinho, testados: dict, a: Anuncio, melhor: R
     fica gravada (volta à fila em 24 h, como qualquer recusa). Falha do robô não muda o registro."""
     if resposta is None or resposta.codigo != melhor.codigo:
         return
-    if (situacao == "ok" and resposta.aceito) or (situacao == "sem_cupom" and resposta.status == "recusado"):
+    if (situacao == "ok" and resposta.aceito) or \
+            (situacao == "sem_cupom" and resposta.status in ("recusado", "so_frete")):
         _grava_teste(loja, testados, a, melhor.codigo, resposta)
         if situacao != "ok":
-            print(f"[{loja.nome}] {melhor.codigo} foi recusado agora em {a.rotulo}: gravado como recusado")
+            como = "só frete (a TV não mudou)" if resposta.status == "so_frete" else "recusado"
+            print(f"[{loja.nome}] {melhor.codigo} foi {como} agora em {a.rotulo}: gravado como {resposta.status}")
 
 
 # ------------------------------------------------------------------------------------------------
@@ -1285,8 +1429,9 @@ def _preco_do_pedido(r: ResultadoCupom) -> Optional[float]:
 def cupom_do_pedido(p: Percurso, grupos: dict[str, list[Anuncio]],
                     destinos: dict) -> Optional[tuple[str, ResultadoCupom]]:
     """O cupom vale para o pedido inteiro, então só um fica no carrinho: dos cupons de destino de cada modelo, o de
-    maior economia (preço sem cupom do anúncio mais barato do modelo menos o preço com o cupom). (modelo, cupom)."""
-    cands = [(preco_sem_cupom(p, _mais_barato(p, grupos[m])) - _preco(r), m, r)
+    maior economia (preço sem cupom do anúncio mais barato do modelo menos o preço com o cupom, os dois com o frete lido
+    no carrinho, L4). (modelo, cupom)."""
+    cands = [(preco_final_sem_cupom(p, _mais_barato(p, grupos[m])) - _preco_final(r), m, r)
              for m, (_a, r) in destinos.items() if r is not None]
     if not cands:
         return None
@@ -1358,7 +1503,8 @@ def _pedido_sem_cupom(loja: LojaCarrinho, p: Percurso, grupos: dict[str, list[An
             return None, True
         alvos = {m: cands[m][i] for m, i in idx.items()}
         print(f"[{loja.nome}] passo final, sem cupom: "
-              + " + ".join(f"{m} {a.rotulo} ({fmt_preco(a.preco)})" for m, a in alvos.items()))
+              + " + ".join(f"{m} {a.rotulo} ({texto_com_frete(a.preco, frete_do_anuncio(p, a))})"
+                           for m, a in alvos.items()))
         conferidos: set = set()
         try:
             with _sessao(loja, visivel) as page:
@@ -1449,11 +1595,15 @@ def arrumar_carrinho_modelos(loja: LojaCarrinho, p: Percurso, grupos: dict[str, 
         situacao, erro = _deixar_cupom_no_pedido(loja, p, alvos, grupos, melhor, visivel)
         if situacao == "ok":
             baratos = {m: _mais_barato(p, grupos[m]) for m in alvos}
-            ref = sum(preco_sem_cupom(p, b) for b in baratos.values())
+            # L4: dos dois lados, o preço das TVs mais o frete de cada anúncio sozinho no carrinho (o frete das duas
+            # juntas é outro número e só existe para o pedido que está no carrinho)
+            ref = sum(preco_final_sem_cupom(p, b) for b in baratos.values())
             fresco = melhor.extra.get("preco_pedido")
+            if fresco is not None:
+                fresco = round(fresco + sum(frete_do_anuncio(p, a) or 0 for a in alvos.values()), 2)
             if fresco is not None and any(baratos[m].chave != alvos[m].chave for m in alvos) and fresco >= ref - 0.005:
-                print(f"[{loja.nome}] com o preço de agora, o pedido com {melhor.codigo} sai {fmt_preco(fresco)}, não "
-                      f"menos que as TVs mais baratas sem cupom ({fmt_preco(ref)})")
+                print(f"[{loja.nome}] com o preço de agora, o pedido com {melhor.codigo} sai {fmt_preco(fresco)} com o "
+                      f"frete, não menos que as TVs mais baratas sem cupom ({fmt_preco(ref)})")
                 _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_NAO_COMPENSA)
             else:
                 feito = True
@@ -1548,18 +1698,21 @@ def _precos_por_anuncio(antigos: Optional[dict], p: Percurso, anuncios: list[Anu
     """reg["precos"]: última leitura de cada anúncio, pela chave do anúncio (os não visitados ficam como
     estavam; chaves que não são anúncio atual, como as antigas por nome do vendedor, saem). Guarda também a
     leitura SEM cupom (sem_cupom_pix / sem_cupom_cartao), que é o preço do anúncio quando ele volta do estado
-    numa rodada sem coleta (F1), e o id do vendedor (a checagem de confiança do anúncio que volta do estado)."""
+    numa rodada sem coleta (F1), e o id do vendedor (a checagem de confiança do anúncio que volta do estado).
+    L4 (26/09): e o frete do anúncio sozinho no carrinho ('frete'; None quando a loja não mostra), que entra na ordem
+    dos anúncios nas próximas rodadas (JANELA_FRETE_CONHECIDO)."""
     por_chave = {a.chave: a for a in anuncios}
     novo = {k: v for k, v in (antigos or {}).items() if k in por_chave and isinstance(v, dict)}
     for chave, r in p.lidos.items():
         a = por_chave.get(chave)
+        s = p.sem_cupom.get(chave)
+        frete = (s if s is not None else r).frete
         novo[chave] = {"vendedor": (a.vendedor if a else None) or r.extra.get("vendedor"), "url": a.url if a else None,
                        "modelo": a.modelo if a else (r.extra.get("modelo") or MODELO_PADRAO),
                        "tv_pix": r.tv_pix, "tv_cartao": r.tv_cartao, "parcelado": r.parcelado, "cupom": r.codigo,
-                       "lido_em": agora_iso()}
+                       "frete": frete, "lido_em": agora_iso()}
         if a is not None and a.vendedor_id:
             novo[chave]["vendedor_id"] = a.vendedor_id
-        s = p.sem_cupom.get(chave)
         if s is not None:
             novo[chave].update(sem_cupom_pix=s.tv_pix, sem_cupom_cartao=s.tv_cartao)
     return novo
@@ -1611,8 +1764,8 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     grupos = por_modelo(anuncios)
     for m, lista in grupos.items():
         print(f"[{loja_id}] " + ("" if list(grupos) == [MODELO_PADRAO] else f"{m}: ")
-              + f"{len(lista)} anúncio(s), do mais barato ao mais caro: "
-              + " · ".join(f"{a.rotulo} {fmt_preco(a.preco)}" for a in lista[:8]))
+              + f"{len(lista)} anúncio(s), do mais barato ao mais caro (com o frete lido no carrinho): "
+              + " · ".join(f"{a.rotulo} {texto_com_frete(a.preco, a.frete)}" for a in lista[:8]))
     do_estado = [a for a in anuncios if a.origem == "estado"]
     if do_estado:
         de_quem = sorted({a.modelo for a in do_estado})
@@ -1684,6 +1837,8 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     finally:
         if not so_leitura:
             _grava_tvs_fora(loja, reg, p, fora_antes, tentou)
+            # L4: o frete lido no passo final (anúncio que só entrou no fim) também fica para as próximas rodadas
+            reg["precos"] = _precos_por_anuncio(reg.get("precos"), p, anuncios)
     if getattr(loja, "tvs_a_mais", False):
         _avisar_tvs_a_mais(loja)
     _anota_opcoes_do_catalogo(reg, loja)
@@ -1695,7 +1850,8 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
             resultado.append(final[1])  # a mensagem compara com o melhor que já funcionou hoje
     for m, lista in grupos.items():
         marcar_se_compensa([r for r in resultado if _modelo_do_resultado(r) == m], *referencia_sem_cupom(p, lista))
-    return resultado
+    # L2: cupom que só mexeu no frete vai para a mensagem como frete (aceito=False: nunca é o "melhor preço" da TV)
+    return resultado + list(p.so_frete)
 
 
 def _tem_pendencia(anuncios: list[Anuncio], fila_base: list[str], testados: dict, p: Percurso, forcar: bool,
@@ -1744,19 +1900,20 @@ def preco_a_vista(r: Optional[ResultadoCupom]) -> Optional[float]:
 
 def referencia_sem_cupom(p: Percurso, anuncios: list[Anuncio]) -> tuple[Optional[float], Optional[float]]:
     """(à vista, cartão) mais baratos da loja SEM cupom, entre todos os anúncios: a leitura do carrinho nesta
-    rodada ou, sem ela, o preço coletado.
+    rodada ou, sem ela, o preço coletado; os dois com o frete do anúncio lido no carrinho (L4, 26/09).
 
     Cada lista só junta preços da MESMA base: à vista com à vista (Pix de verdade), cartão com cartão."""
     vista: list[float] = []
     cartao: list[float] = []
     for a in anuncios:
         r = p.sem_cupom.get(a.chave)
+        frete = frete_do_anuncio(p, a) or 0
         v = preco_a_vista(r) or a.preco            # Pix com Pix (a.preco é o menor preço coletado, à vista)
         c = (r.tv_cartao if r is not None else None) or a.preco_cartao
         if v:
-            vista.append(v)
+            vista.append(round(v + frete, 2))
         if c:
-            cartao.append(c)
+            cartao.append(round(c + frete, 2))
     return (min(vista) if vista else None), (min(cartao) if cartao else None)
 
 
@@ -1768,14 +1925,17 @@ def marcar_se_compensa(resultados: list[ResultadoCupom], ref_vista: Optional[flo
 
     Cada comparação é entre preços da MESMA base. Quando o carrinho não mostra o Pix (ML, Amazon sem preço à
     vista na página), o número que a mensagem mostra como "à vista" é o do CARTÃO, então ele é comparado com a
-    referência de cartão; sem referência na base certa, não marca (19/09, item B1)."""
+    referência de cartão; sem referência na base certa, não marca (19/09, item B1). Os preços têm o frete lido no
+    carrinho, dos dois lados (L4, 26/09)."""
     for r in resultados:
+        frete = r.frete or 0
         vista = preco_a_vista(r)
+        cartao = None if r.tv_cartao is None else r.tv_cartao + frete
         if vista is not None:
-            r.extra["pior_a_vista"] = bool(ref_vista and vista >= ref_vista - 0.005)
+            r.extra["pior_a_vista"] = bool(ref_vista and vista + frete >= ref_vista - 0.005)
         else:   # msg_melhor cai no tv_cartao: compara com o cartão, nunca com o Pix de outro anúncio
-            r.extra["pior_a_vista"] = bool(ref_cartao and r.tv_cartao and r.tv_cartao >= ref_cartao - 0.005)
-        r.extra["pior_parcelado"] = bool(ref_cartao and r.tv_cartao and r.tv_cartao >= ref_cartao - 0.005)
+            r.extra["pior_a_vista"] = bool(ref_cartao and cartao and cartao >= ref_cartao - 0.005)
+        r.extra["pior_parcelado"] = bool(ref_cartao and cartao and cartao >= ref_cartao - 0.005)
 
 
 MOTIVO_SEM_TV = "o carrinho não ficou só com a TV"
