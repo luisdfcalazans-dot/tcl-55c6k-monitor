@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-28T18:48:02-03:00",
+ "atualizado": "2026-09-28T21:59:27-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -55,6 +55,32 @@
    "melhor_preco": 3279.0
   },
   {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 55C6K",
+   "url": "https://site.fastshop.com.br/smart-tv-4k-tcl-qd-mini-led-55”-polegadas-com-hdmi-2-1--dolby-vision-iq--subwoofer--144hz-vrr-e-wi-fi---55c6k-tk55c6kpto_prd/p",
+   "id": "Fast Shop-114589-1",
+   "preco": 3615.96,
+   "preco_pix": 3399.0,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 4699.0,
+    "ref": "TK55C6KPTO_PRD",
+    "ean": "7899968301747",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "vtex:Fast Shop-114589-1",
+   "melhor_preco": 3399.0
+  },
+  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -105,11 +131,73 @@
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assi",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1484766165",
+   "id": "1484766165",
+   "preco": 3899.0,
+   "preco_pix": 3704.05,
+   "parcelado": "10x R$ 389,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true
+   },
+   "modelo": "55C6K",
+   "chave": "zoom:1484766165",
+   "melhor_preco": 3704.05
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
+   "id": "240162700-magazineluiza",
+   "preco": 3899.0,
+   "preco_pix": 3704.05,
+   "parcelado": "10x R$ 389,90 sem juros",
+   "cupom": "LU300",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4199.0,
+    "1p": true,
+    "anuncio": "240162700",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3637,
+     "peso_kg": 17.2,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 20000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "preco_com_cupom": 3404.05,
+    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:240162700-magazineluiza",
+   "melhor_preco": 3704.05
+  },
+  {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
    "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
    "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
    "id": "1561988278",
    "preco": 4124.0,
-   "preco_pix": 3794.08,
+   "preco_pix": 3711.6,
    "parcelado": "10x R$ 412,40 sem juros",
    "cupom": null,
    "publicado": null,
@@ -120,7 +208,7 @@
    },
    "modelo": "55C6K",
    "chave": "zoom:1561988278",
-   "melhor_preco": 3794.08
+   "melhor_preco": 3711.6
   },
   {
    "fonte": "magalu",
@@ -130,7 +218,7 @@
    "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
    "id": "kc7h6f4k4b-lojascolombooficial",
    "preco": 4124.0,
-   "preco_pix": 3794.08,
+   "preco_pix": 3711.6,
    "parcelado": "10x R$ 412,40 sem juros",
    "cupom": null,
    "publicado": null,
@@ -159,69 +247,7 @@
    },
    "modelo": "55C6K",
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
-   "melhor_preco": 3794.08
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assi",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1484766165",
-   "id": "1484766165",
-   "preco": 3999.0,
-   "preco_pix": 3799.05,
-   "parcelado": "10x R$ 399,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true
-   },
-   "modelo": "55C6K",
-   "chave": "zoom:1484766165",
-   "melhor_preco": 3799.05
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
-   "id": "240162700-magazineluiza",
-   "preco": 3999.0,
-   "preco_pix": 3799.05,
-   "parcelado": "10x R$ 399,90 sem juros",
-   "cupom": "LU300",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4199.0,
-    "1p": true,
-    "anuncio": "240162700",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3637,
-     "peso_kg": 17.2,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 20000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "preco_com_cupom": 3499.05,
-    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:240162700-magazineluiza",
-   "melhor_preco": 3799.05
+   "melhor_preco": 3711.6
   },
   {
    "fonte": "zoom",
@@ -420,9 +446,9 @@
    "titulo": "Smart TV  65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV AiPQ Google Ass",
    "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1484514384",
    "id": "1484514384",
-   "preco": 4799.0,
-   "preco_pix": 4559.05,
-   "parcelado": "10x R$ 479,90 sem juros",
+   "preco": 4599.0,
+   "preco_pix": 4369.05,
+   "parcelado": "10x R$ 459,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -433,7 +459,7 @@
    },
    "modelo": "65C6K",
    "chave": "zoom:1484514384",
-   "melhor_preco": 4559.05
+   "melhor_preco": 4369.05
   },
   {
    "fonte": "magalu",
@@ -442,9 +468,9 @@
    "titulo": "Smart TV  65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
    "url": "https://www.magazineluiza.com.br/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162600/et/elit/",
    "id": "240162600-magazineluiza",
-   "preco": 4799.0,
-   "preco_pix": 4559.05,
-   "parcelado": "10x R$ 479,90 sem juros",
+   "preco": 4599.0,
+   "preco_pix": 4369.05,
+   "parcelado": "10x R$ 459,90 sem juros",
    "cupom": "LU300",
    "publicado": null,
    "ativo": true,
@@ -466,7 +492,7 @@
      "nota_vendedor": 5
     },
     "anuncio_exclusivo": true,
-    "preco_com_cupom": 4259.05,
+    "preco_com_cupom": 4069.05,
     "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
     "confianca": {
      "veredito": "confiavel"
@@ -474,7 +500,33 @@
    },
    "modelo": "65C6K",
    "chave": "magalu:240162600-magazineluiza",
-   "melhor_preco": 4559.05
+   "melhor_preco": 4369.05
+  },
+  {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
+   "url": "https://site.fastshop.com.br/smart-tv-4k-tcl-qd-mini-led-65”-polegadas-com-hdmi-2-1--dolby-vision-iq--subwoofer--144hz-vrr-e-wi-fi---65c6k-tk65c6kpto_prd/p",
+   "id": "Fast Shop-114593-1",
+   "preco": 4679.79,
+   "preco_pix": 4399.0,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 6079.0,
+    "ref": "TK65C6KPTO_PRD",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "vtex:Fast Shop-114593-1",
+   "melhor_preco": 4399.0
   },
   {
    "fonte": "zoom",
@@ -599,6 +651,67 @@
    "melhor_preco": 4736.0
   },
   {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl, 65\"",
+   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1561978326",
+   "id": "1561978326",
+   "preco": 5274.9,
+   "preco_pix": 4747.41,
+   "parcelado": "10x R$ 527,49 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true,
+    "media_40_dias": 3961.36
+   },
+   "modelo": "65C6K",
+   "chave": "zoom:1561978326",
+   "melhor_preco": 4747.41
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
+   "id": "jcefd125c3-lojascolombooficial",
+   "preco": 5274.9,
+   "preco_pix": 4747.41,
+   "parcelado": "10x R$ 527,49 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 5274.9,
+    "1p": false,
+    "anuncio": "jcefd125c3",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3660,
+     "peso_kg": 22.9,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 10000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:jcefd125c3-lojascolombooficial",
+   "melhor_preco": 4747.41
+  },
+  {
    "fonte": "kabum",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -649,67 +762,6 @@
    "modelo": "65C6K",
    "chave": "vtex:Webcontinental-5364479-003082",
    "melhor_preco": 4844.31
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl, 65\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1561978326",
-   "id": "1561978326",
-   "preco": 5274.9,
-   "preco_pix": 4852.91,
-   "parcelado": "10x R$ 527,49 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true,
-    "media_40_dias": 3961.36
-   },
-   "modelo": "65C6K",
-   "chave": "zoom:1561978326",
-   "melhor_preco": 4852.91
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
-   "id": "jcefd125c3-lojascolombooficial",
-   "preco": 5274.9,
-   "preco_pix": 4852.91,
-   "parcelado": "10x R$ 527,49 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 5274.9,
-    "1p": false,
-    "anuncio": "jcefd125c3",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3660,
-     "peso_kg": 22.9,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 10000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "magalu:jcefd125c3-lojascolombooficial",
-   "melhor_preco": 4852.91
   },
   {
    "fonte": "magalu",
@@ -863,7 +915,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-28T18:48:02-03:00",
+   "ultima_vez": "2026-09-28T21:59:27-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -953,7 +1005,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3051199",
    "melhor_preco": 3787.55,
-   "ultima_vez": "2026-09-28T18:48:02-03:00"
+   "ultima_vez": "2026-09-28T21:59:27-03:00"
   },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
@@ -1101,7 +1153,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-09-28T18:48:02-03:00"
+   "ultima_vez": "2026-09-28T21:59:27-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1126,7 +1178,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3039832",
    "melhor_preco": 3949.0,
-   "ultima_vez": "2026-09-28T18:48:02-03:00"
+   "ultima_vez": "2026-09-28T21:59:27-03:00"
   },
   {
    "primeira_vez": "2026-09-13T15:23:17-03:00",
@@ -1254,7 +1306,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-28T18:48:02-03:00",
+   "ultima_vez": "2026-09-28T21:59:27-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1281,7 +1333,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-28T18:48:02-03:00",
+   "ultima_vez": "2026-09-28T21:59:27-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -1308,7 +1360,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-28T18:48:02-03:00",
+   "ultima_vez": "2026-09-28T21:59:27-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1335,7 +1387,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-28T18:48:02-03:00",
+   "ultima_vez": "2026-09-28T21:59:27-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0,
    "modelo": "55C6K"
@@ -1413,7 +1465,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2985630",
    "melhor_preco": 3793.54,
-   "ultima_vez": "2026-09-28T18:48:02-03:00"
+   "ultima_vez": "2026-09-28T21:59:27-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1438,7 +1490,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2984367",
    "melhor_preco": 3626.1,
-   "ultima_vez": "2026-09-28T18:48:02-03:00"
+   "ultima_vez": "2026-09-28T21:59:27-03:00"
   }
  ],
  "cupons": [
@@ -2370,52 +2422,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:46:55-03:00",
+   "ultimo_ok": "2026-09-28T21:58:14-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:46:57-03:00",
+   "ultimo_ok": "2026-09-28T21:58:15-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:04-03:00",
+   "ultimo_ok": "2026-09-28T21:58:20-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:05-03:00",
+   "ultimo_ok": "2026-09-28T21:58:21-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:44-03:00",
+   "ultimo_ok": "2026-09-28T21:59:02-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:47-03:00",
+   "ultimo_ok": "2026-09-28T21:59:05-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:50-03:00",
+   "ultimo_ok": "2026-09-28T21:59:08-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:53-03:00",
+   "ultimo_ok": "2026-09-28T21:59:11-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:47:56-03:00",
+   "ultimo_ok": "2026-09-28T21:59:14-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T18:48:01-03:00",
+   "ultimo_ok": "2026-09-28T21:59:19-03:00",
    "ultimo_erro": null
   }
  },
