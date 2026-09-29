@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-28T22:44:18-03:00",
+ "atualizado": "2026-09-29T03:41:59-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -33,6 +33,32 @@
   "modelo": "65C6K"
  },
  "ofertas_loja": [
+  {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Webcontinental",
+   "titulo": "Smart TV TCL 4K QLED 55\" QD-Mini LED Preto Bivolt 55C6K",
+   "url": "https://www.webcontinental.com.br/smart-tv-tcl-55-polegadas-c6k-premium-4k-qd-mini-led-preto-bivolt-003250031577/p",
+   "id": "Webcontinental-4806203-003250",
+   "preco": 3324.05,
+   "preco_pix": 3254.07,
+   "parcelado": "8x R$ 415,50 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Ponto",
+   "extra": {
+    "preco_de": 3499.0,
+    "ref": "7899968301747",
+    "ean": "7899968301747",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "vtex:Webcontinental-4806203-003250",
+   "melhor_preco": 3254.07
+  },
   {
    "fonte": "zoom",
    "tipo": "loja",
@@ -211,45 +237,6 @@
    "melhor_preco": 3711.6
   },
   {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
-   "id": "kc7h6f4k4b-lojascolombooficial",
-   "preco": 4124.0,
-   "preco_pix": 3711.6,
-   "parcelado": "10x R$ 412,40 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 4124.0,
-    "1p": false,
-    "anuncio": "kc7h6f4k4b",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3672,
-     "peso_kg": 17.2,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 10000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
-   "melhor_preco": 3711.6
-  },
-  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Webcontinental",
@@ -286,7 +273,7 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1512707137",
@@ -317,6 +304,45 @@
    "modelo": "65C6K",
    "chave": "vtex:Webcontinental-4806999-003731",
    "melhor_preco": 3963.6
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
+   "id": "kc7h6f4k4b-lojascolombooficial",
+   "preco": 4443.0,
+   "preco_pix": 3998.7,
+   "parcelado": "10x R$ 444,30 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 4443.0,
+    "1p": false,
+    "anuncio": "kc7h6f4k4b",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3672,
+     "peso_kg": 17.2,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 10000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
+   "melhor_preco": 3998.7
   },
   {
    "fonte": "zoom",
@@ -407,7 +433,7 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1514640554",
@@ -455,7 +481,7 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1484514384",
@@ -544,7 +570,7 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1556167443",
@@ -566,7 +592,7 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1556167411",
@@ -666,49 +692,10 @@
    "vendedor": null,
    "extra": {
     "agregador": true,
-    "media_40_dias": 3961.36
+    "media_40_dias": 3963.6
    },
    "modelo": "65C6K",
    "chave": "zoom:1561978326",
-   "melhor_preco": 4747.41
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
-   "id": "jcefd125c3-lojascolombooficial",
-   "preco": 5274.9,
-   "preco_pix": 4747.41,
-   "parcelado": "10x R$ 527,49 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 5274.9,
-    "1p": false,
-    "anuncio": "jcefd125c3",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3660,
-     "peso_kg": 22.9,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 10000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "magalu:jcefd125c3-lojascolombooficial",
    "melhor_preco": 4747.41
   },
   {
@@ -738,21 +725,60 @@
    "melhor_preco": 4799.0
   },
   {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
+   "id": "jcefd125c3-lojascolombooficial",
+   "preco": 5913.0,
+   "preco_pix": 5321.7,
+   "parcelado": "10x R$ 591,30 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 5913.0,
+    "1p": false,
+    "anuncio": "jcefd125c3",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3660,
+     "peso_kg": 22.9,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 10000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:jcefd125c3-lojascolombooficial",
+   "melhor_preco": 5321.7
+  },
+  {
    "fonte": "vtex",
    "tipo": "loja",
    "loja": "Webcontinental",
    "titulo": "Smart TV TCL 65C6K 65 Polegadas 4K Mini LED QLED Preto com Android TV Dolby Vision Dolby Atmos Bivolt",
    "url": "https://www.webcontinental.com.br/smart-tv-tcl-65c6k-65-polegadas-4k-mini-led-qled-preto-com-android-tv-bivolt-003082004562/p",
    "id": "Webcontinental-5364479-003082",
-   "preco": 5059.61,
-   "preco_pix": 4844.31,
-   "parcelado": "8x R$ 632,45 sem juros",
+   "preco": 5671.7,
+   "preco_pix": 5430.35,
+   "parcelado": "8x R$ 708,96 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "Lojas Colombo SA",
    "extra": {
-    "preco_de": 5382.56,
+    "preco_de": 6033.72,
     "ref": "7899968301754",
     "ean": "7899968301754",
     "confianca": {
@@ -761,96 +787,7 @@
    },
    "modelo": "65C6K",
    "chave": "vtex:Webcontinental-5364479-003082",
-   "melhor_preco": 4844.31
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV C6K 55 Polegadas 4K 144 HZ QLED Mini Led TCL",
-   "url": "https://www.magazineluiza.com.br/smart-tv-c6k-55-polegadas-4k-144-hz-qled-mini-led-tcl/p/eecab9199g/et/elit/",
-   "id": "eecab9199g-leonfer",
-   "preco": 5399.9,
-   "preco_pix": 4859.91,
-   "parcelado": "7x R$ 771,41 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Leonfer",
-   "extra": {
-    "preco_de": 5399.9,
-    "1p": false,
-    "anuncio": "eecab9199g",
-    "vendedor_id": "leonfer",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3672,
-     "peso_kg": 17.2,
-     "razao_social": "leonfer",
-     "vendedor_desde": "2017-07-21",
-     "vendas_vendedor": 300,
-     "nota_vendedor": 4.7
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Anatel",
-      "modelo",
-      "tamanho",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:eecab9199g-leonfer",
-   "melhor_preco": 4859.91
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL C6K 55 Polegadas 4K QLED Mini LED Preto Android TV 144Hz Bivolt",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-c6k-55-polegadas-4k-qled-mini-led-preto-android-tv-144hz-bivolt/p/kkfe3d8a79/et/elit/",
-   "id": "kkfe3d8a79-lojawebcontinentalmarketplace",
-   "preco": 4954.9,
-   "preco_pix": null,
-   "parcelado": "10x R$ 495,49 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Webcontinental Marketplace",
-   "extra": {
-    "preco_de": 4954.9,
-    "1p": false,
-    "anuncio": "kkfe3d8a79",
-    "vendedor_id": "lojawebcontinentalmarketplace",
-    "ficha": {
-     "tamanho": "55\"",
-     "avaliacoes": 3672,
-     "peso_kg": 17.2,
-     "razao_social": "Webcontinental Ltda",
-     "vendedor_desde": "2023-04-18",
-     "vendas_vendedor": 100000,
-     "nota_vendedor": 3.5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:kkfe3d8a79-lojawebcontinentalmarketplace",
-   "melhor_preco": 4954.9
+   "melhor_preco": 5430.35
   },
   {
    "fonte": "magalu",
@@ -915,7 +852,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-28T22:44:18-03:00",
+   "ultima_vez": "2026-09-29T03:41:58-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -1005,7 +942,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3051199",
    "melhor_preco": 3787.55,
-   "ultima_vez": "2026-09-28T22:44:18-03:00"
+   "ultima_vez": "2026-09-29T03:41:58-03:00"
   },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
@@ -1153,7 +1090,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-09-28T22:44:18-03:00"
+   "ultima_vez": "2026-09-29T03:41:58-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1178,7 +1115,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3039832",
    "melhor_preco": 3949.0,
-   "ultima_vez": "2026-09-28T22:44:18-03:00"
+   "ultima_vez": "2026-09-29T03:41:58-03:00"
   },
   {
    "primeira_vez": "2026-09-13T15:23:17-03:00",
@@ -1306,7 +1243,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-28T22:44:18-03:00",
+   "ultima_vez": "2026-09-29T03:41:58-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1333,7 +1270,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-28T22:44:18-03:00",
+   "ultima_vez": "2026-09-29T03:41:58-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -1360,7 +1297,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-28T22:44:18-03:00",
+   "ultima_vez": "2026-09-29T03:41:58-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1387,7 +1324,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-28T22:44:18-03:00",
+   "ultima_vez": "2026-09-29T03:41:58-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0,
    "modelo": "55C6K"
@@ -1465,7 +1402,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2985630",
    "melhor_preco": 3793.54,
-   "ultima_vez": "2026-09-28T22:44:18-03:00"
+   "ultima_vez": "2026-09-29T03:41:58-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1490,7 +1427,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2984367",
    "melhor_preco": 3626.1,
-   "ultima_vez": "2026-09-28T22:44:18-03:00"
+   "ultima_vez": "2026-09-29T03:41:58-03:00"
   }
  ],
  "cupons": [
@@ -2183,16 +2120,16 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "VOLTAAQUI",
-   "titulo": "OFERTA SURPREENDENTE: 25,00% OFF no Mercado Livre (acima de R$ 1) com cupom",
+   "codigo": "QUEROMAIS",
+   "titulo": "DESCONTOS QUE SURPREDEM: 30,00% OFF no Mercado Livre (acima de R$ 1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69901",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 28/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-09-28T23:59:59-03:00",
-   "publicado": "2026-09-24T07:01:33-03:00",
+   "id": "69895",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 249/09/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": "2026-10-31T23:59:59-03:00",
+   "publicado": "2026-09-24T07:01:20-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "promobit:69901"
+   "chave": "promobit:69895"
   },
   {
    "fonte": "promobit",
@@ -2249,34 +2186,6 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:69986"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "KaBuM!",
-   "codigo": "TV300",
-   "titulo": "R$300 de Desconto em TVs selecionadas",
-   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "69941",
-   "regra": "produtos KaBuM! R$300 OFF em TVs selecionadas",
-   "validade": "2026-09-28T23:59:00-03:00",
-   "publicado": "2026-09-24T17:00:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69941"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "KaBuM!",
-   "codigo": "TV100",
-   "titulo": "R$100 de Desconto em TVs selecionadas",
-   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "69942",
-   "regra": "produtos KaBuM! R$100 OFF em TVs selecionadas",
-   "validade": "2026-09-28T23:59:00-03:00",
-   "publicado": "2026-09-24T17:00:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69942"
   },
   {
    "fonte": "promobit",
@@ -2422,52 +2331,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:43:14-03:00",
+   "ultimo_ok": "2026-09-29T03:40:45-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:43:15-03:00",
+   "ultimo_ok": "2026-09-29T03:40:47-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:43:21-03:00",
+   "ultimo_ok": "2026-09-29T03:40:53-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:43:22-03:00",
+   "ultimo_ok": "2026-09-29T03:40:55-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:01-03:00",
+   "ultimo_ok": "2026-09-29T03:41:41-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:04-03:00",
+   "ultimo_ok": "2026-09-29T03:41:44-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:06-03:00",
+   "ultimo_ok": "2026-09-29T03:41:46-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:09-03:00",
+   "ultimo_ok": "2026-09-29T03:41:49-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:11-03:00",
+   "ultimo_ok": "2026-09-29T03:41:52-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-28T22:44:17-03:00",
+   "ultimo_ok": "2026-09-29T03:41:58-03:00",
    "ultimo_erro": null
   }
  },
