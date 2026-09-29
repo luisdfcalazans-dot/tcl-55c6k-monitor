@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-29T11:06:14-03:00",
+ "atualizado": "2026-09-29T15:48:02-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -34,29 +34,24 @@
  },
  "ofertas_loja": [
   {
-   "fonte": "vtex",
+   "fonte": "zoom",
    "tipo": "loja",
    "loja": "Webcontinental",
    "titulo": "Smart TV TCL 4K QLED 55\" QD-Mini LED Preto Bivolt 55C6K",
-   "url": "https://www.webcontinental.com.br/smart-tv-tcl-55-polegadas-c6k-premium-4k-qd-mini-led-preto-bivolt-003250031577/p",
-   "id": "Webcontinental-4806203-003250",
-   "preco": 3324.05,
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1514640548",
+   "id": "1514640548",
+   "preco": 3324.0,
    "preco_pix": 3254.07,
    "parcelado": "8x R$ 415,50 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Ponto",
+   "vendedor": null,
    "extra": {
-    "preco_de": 3499.0,
-    "ref": "7899968301747",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
+    "agregador": true
    },
    "modelo": "55C6K",
-   "chave": "vtex:Webcontinental-4806203-003250",
+   "chave": "zoom:1514640548",
    "melhor_preco": 3254.07
   },
   {
@@ -79,6 +74,47 @@
    "modelo": "55C6K",
    "chave": "zoom:1489104908",
    "melhor_preco": 3279.0
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
+   "id": "240162700-magazineluiza",
+   "preco": 3499.0,
+   "preco_pix": 3324.05,
+   "parcelado": "10x R$ 349,90 sem juros",
+   "cupom": "LU300",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4199.0,
+    "1p": true,
+    "anuncio": "240162700",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3645,
+     "peso_kg": 17.2,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 20000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "preco_com_cupom": 3024.05,
+    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:240162700-magazineluiza",
+   "melhor_preco": 3324.05
   },
   {
    "fonte": "zoom",
@@ -196,47 +232,6 @@
    "melhor_preco": 3704.05
   },
   {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.magazineluiza.com.br/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb/p/240162700/et/elit/",
-   "id": "240162700-magazineluiza",
-   "preco": 3899.0,
-   "preco_pix": 3704.05,
-   "parcelado": "10x R$ 389,90 sem juros",
-   "cupom": "LU300",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4199.0,
-    "1p": true,
-    "anuncio": "240162700",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3645,
-     "peso_kg": 17.2,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 20000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "preco_com_cupom": 3404.05,
-    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:240162700-magazineluiza",
-   "melhor_preco": 3704.05
-  },
-  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Webcontinental",
@@ -306,79 +301,6 @@
    "melhor_preco": 3963.6
   },
   {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
-   "id": "1561988278",
-   "preco": 4443.0,
-   "preco_pix": 3998.7,
-   "parcelado": "10x R$ 444,30 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true
-   },
-   "modelo": "55C6K",
-   "chave": "zoom:1561988278",
-   "melhor_preco": 3998.7
-  },
-  {
-   "fonte": "vtex",
-   "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
-   "url": "https://site.fastshop.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv-139680/p",
-   "id": "Fast Shop-139680-cnl222",
-   "preco": 3998.98,
-   "preco_pix": null,
-   "parcelado": "10x R$ 399,89 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Ponto",
-   "extra": {
-    "preco_de": 3998.98,
-    "ref": "143077_Fastshopbr",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "vtex:Fast Shop-139680-cnl222",
-   "melhor_preco": 3998.98
-  },
-  {
-   "fonte": "vtex",
-   "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
-   "url": "https://site.fastshop.com.br/smart-tv-55”-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv-134511/p",
-   "id": "Fast Shop-134511-cnl223",
-   "preco": 3998.98,
-   "preco_pix": null,
-   "parcelado": "10x R$ 399,89 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Casas Bahia",
-   "extra": {
-    "preco_de": 4199.34,
-    "ref": "136994_Fastshopbr",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "vtex:Fast Shop-134511-cnl223",
-   "melhor_preco": 3998.98
-  },
-  {
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -416,6 +338,54 @@
    "modelo": "55C6K",
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 4087.56
+  },
+  {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
+   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1543961592",
+   "id": "1543961592",
+   "preco": 4299.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true,
+    "media_40_dias": 3963.6
+   },
+   "modelo": "65C6K",
+   "chave": "zoom:1543961592",
+   "melhor_preco": 4299.0
+  },
+  {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
+   "url": "https://site.fastshop.com.br/smart-tv-4k-tcl-qd-mini-led-65”-polegadas-com-hdmi-2-1--dolby-vision-iq--subwoofer--144hz-vrr-e-wi-fi---65c6k-tk65c6kpto_prd/p",
+   "id": "Fast Shop-114593-1",
+   "preco": 4573.4,
+   "preco_pix": 4299.0,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 5949.0,
+    "ref": "TK65C6KPTO_PRD",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "vtex:Fast Shop-114593-1",
+   "melhor_preco": 4299.0
   },
   {
    "fonte": "zoom",
@@ -527,54 +497,6 @@
    "modelo": "65C6K",
    "chave": "magalu:240162600-magazineluiza",
    "melhor_preco": 4369.05
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
-   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1543961592",
-   "id": "1543961592",
-   "preco": 4399.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true,
-    "media_40_dias": 3963.6
-   },
-   "modelo": "65C6K",
-   "chave": "zoom:1543961592",
-   "melhor_preco": 4399.0
-  },
-  {
-   "fonte": "vtex",
-   "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
-   "url": "https://site.fastshop.com.br/smart-tv-4k-tcl-qd-mini-led-65”-polegadas-com-hdmi-2-1--dolby-vision-iq--subwoofer--144hz-vrr-e-wi-fi---65c6k-tk65c6kpto_prd/p",
-   "id": "Fast Shop-114593-1",
-   "preco": 4679.79,
-   "preco_pix": 4399.0,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Fast Shop",
-   "extra": {
-    "preco_de": 6079.0,
-    "ref": "TK65C6KPTO_PRD",
-    "ean": "7899968301754",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "vtex:Fast Shop-114593-1",
-   "melhor_preco": 4399.0
   },
   {
    "fonte": "zoom",
@@ -725,6 +647,95 @@
    "melhor_preco": 4799.0
   },
   {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV C6K 55 Polegadas 4K 144 HZ QLED Mini Led TCL",
+   "url": "https://www.magazineluiza.com.br/smart-tv-c6k-55-polegadas-4k-144-hz-qled-mini-led-tcl/p/eecab9199g/et/elit/",
+   "id": "eecab9199g-leonfer",
+   "preco": 5399.9,
+   "preco_pix": 4859.91,
+   "parcelado": "7x R$ 771,41 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Leonfer",
+   "extra": {
+    "preco_de": 5399.9,
+    "1p": false,
+    "anuncio": "eecab9199g",
+    "vendedor_id": "leonfer",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3680,
+     "peso_kg": 17.2,
+     "razao_social": "leonfer",
+     "vendedor_desde": "2017-07-21",
+     "vendas_vendedor": 300,
+     "nota_vendedor": 4.7
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Anatel",
+      "modelo",
+      "tamanho",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:eecab9199g-leonfer",
+   "melhor_preco": 4859.91
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL C6K 55 Polegadas 4K QLED Mini LED Preto Android TV 144Hz Bivolt",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-c6k-55-polegadas-4k-qled-mini-led-preto-android-tv-144hz-bivolt/p/kkfe3d8a79/et/elit/",
+   "id": "kkfe3d8a79-lojawebcontinentalmarketplace",
+   "preco": 4954.9,
+   "preco_pix": null,
+   "parcelado": "10x R$ 495,49 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Webcontinental Marketplace",
+   "extra": {
+    "preco_de": 4954.9,
+    "1p": false,
+    "anuncio": "kkfe3d8a79",
+    "vendedor_id": "lojawebcontinentalmarketplace",
+    "ficha": {
+     "tamanho": "55\"",
+     "avaliacoes": 3680,
+     "peso_kg": 17.2,
+     "razao_social": "Webcontinental Ltda",
+     "vendedor_desde": "2023-04-18",
+     "vendas_vendedor": 100000,
+     "nota_vendedor": 3.5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:kkfe3d8a79-lojawebcontinentalmarketplace",
+   "melhor_preco": 4954.9
+  },
+  {
    "fonte": "vtex",
    "tipo": "loja",
    "loja": "Webcontinental",
@@ -852,7 +863,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-29T11:06:14-03:00",
+   "ultima_vez": "2026-09-29T15:48:02-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -942,7 +953,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3051199",
    "melhor_preco": 3787.55,
-   "ultima_vez": "2026-09-29T11:06:14-03:00"
+   "ultima_vez": "2026-09-29T15:48:02-03:00"
   },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
@@ -1090,7 +1101,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-09-29T11:06:14-03:00"
+   "ultima_vez": "2026-09-29T15:48:02-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1115,7 +1126,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3039832",
    "melhor_preco": 3949.0,
-   "ultima_vez": "2026-09-29T11:06:14-03:00"
+   "ultima_vez": "2026-09-29T15:48:02-03:00"
   },
   {
    "primeira_vez": "2026-09-13T15:23:17-03:00",
@@ -1243,7 +1254,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-29T11:06:14-03:00",
+   "ultima_vez": "2026-09-29T15:48:02-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1270,7 +1281,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-29T11:06:14-03:00",
+   "ultima_vez": "2026-09-29T15:48:02-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -1297,7 +1308,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-29T11:06:14-03:00",
+   "ultima_vez": "2026-09-29T15:48:02-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1324,7 +1335,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-29T11:06:14-03:00",
+   "ultima_vez": "2026-09-29T15:48:02-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0,
    "modelo": "55C6K"
@@ -1402,7 +1413,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2985630",
    "melhor_preco": 3793.54,
-   "ultima_vez": "2026-09-29T11:06:14-03:00"
+   "ultima_vez": "2026-09-29T15:48:02-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1427,7 +1438,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2984367",
    "melhor_preco": 3626.1,
-   "ultima_vez": "2026-09-29T11:06:14-03:00"
+   "ultima_vez": "2026-09-29T15:48:02-03:00"
   }
  ],
  "cupons": [
@@ -1682,6 +1693,20 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:69783"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Amazon",
+   "codigo": "PRIMEGAME5",
+   "titulo": "Use cupom Amazon e tenha desconto de 5% + 7%",
+   "url": "https://www.promobit.com.br/cupons/loja/amazon/",
+   "id": "70070",
+   "regra": "produtos Amazon Aplique o código promocional Amazon no carrinho de compras para participar.",
+   "validade": null,
+   "publicado": "2026-09-29T13:44:11-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70070"
   },
   {
    "fonte": "promobit",
@@ -1952,20 +1977,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "CUSTOUPOUQUINHO",
-   "titulo": "OFERTA SURPREENDENTE: 22% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69948",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-25T09:10:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69948"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "DESCONTOESPECIAL",
    "titulo": "SURPRESA DE ECONOMIA: 25% OFF no Mercado Livre (acima de R$ 1) com cupom",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -1976,6 +1987,20 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:69947"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "CUSTOUPOUQUINHO",
+   "titulo": "OFERTA SURPREENDENTE: 22% OFF no Mercado Livre (acima de R$ 1) com cupom",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69948",
+   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
+   "validade": "2026-10-25T23:59:59-03:00",
+   "publicado": "2026-09-25T09:10:09-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:69948"
   },
   {
    "fonte": "promobit",
@@ -2231,20 +2256,6 @@
   },
   {
    "fonte": "promobit",
-   "loja": "KaBuM!",
-   "codigo": "ULTRA15",
-   "titulo": "Use o cupom KaBum! e economize 15% em suas compras",
-   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "69584",
-   "regra": "produtos KaBuM! 15% DE DESCONTO EM ELETRÔNICOS, VÁLIDO PARA ITENS SELECIONADOS",
-   "validade": "2026-10-22T20:59:59-03:00",
-   "publicado": "2026-09-16T15:31:03-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69584"
-  },
-  {
-   "fonte": "promobit",
    "loja": "Casas Bahia",
    "codigo": "DEZ",
    "titulo": "Cupom Casas Bahia oferece 10% de desconto em todo o site",
@@ -2331,52 +2342,52 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:05-03:00",
+   "ultimo_ok": "2026-09-29T15:46:41-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:06-03:00",
+   "ultimo_ok": "2026-09-29T15:46:43-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:12-03:00",
+   "ultimo_ok": "2026-09-29T15:46:51-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:15-03:00",
+   "ultimo_ok": "2026-09-29T15:46:52-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:54-03:00",
+   "ultimo_ok": "2026-09-29T15:47:35-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:05:57-03:00",
+   "ultimo_ok": "2026-09-29T15:47:38-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:06:00-03:00",
+   "ultimo_ok": "2026-09-29T15:47:42-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:06:03-03:00",
+   "ultimo_ok": "2026-09-29T15:47:45-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:06:06-03:00",
+   "ultimo_ok": "2026-09-29T15:47:49-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-29T11:06:13-03:00",
+   "ultimo_ok": "2026-09-29T15:47:56-03:00",
    "ultimo_erro": null
   }
  },
