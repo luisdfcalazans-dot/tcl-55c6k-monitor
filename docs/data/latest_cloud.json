@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-30T11:33:18-03:00",
+ "atualizado": "2026-09-30T11:48:03-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -204,6 +204,8 @@
     "anuncio": "kc7h6f4k4b",
     "vendedor_id": "lojascolombooficial",
     "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
      "tamanho": "55\"",
      "avaliacoes": 3686,
      "peso_kg": 17.2,
@@ -212,7 +214,7 @@
      "vendas_vendedor": 10000,
      "nota_vendedor": 5
     },
-    "anuncio_exclusivo": false,
+    "anuncio_exclusivo": true,
     "confianca": {
      "veredito": "confiavel"
     }
@@ -320,7 +322,7 @@
    "preco": 4599.0,
    "preco_pix": 4369.05,
    "parcelado": "10x R$ 459,90 sem juros",
-   "cupom": null,
+   "cupom": "LU300",
    "publicado": null,
    "ativo": true,
    "vendedor": "Magalu",
@@ -330,6 +332,8 @@
     "anuncio": "240162600",
     "vendedor_id": "magazineluiza",
     "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
      "tamanho": "65\"",
      "avaliacoes": 3674,
      "peso_kg": 22.9,
@@ -338,7 +342,9 @@
      "vendas_vendedor": 20000000,
      "nota_vendedor": 5
     },
-    "anuncio_exclusivo": false,
+    "anuncio_exclusivo": true,
+    "preco_com_cupom": 4069.05,
+    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
     "confianca": {
      "veredito": "confiavel"
     }
@@ -753,7 +759,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3074165",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -780,7 +786,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3073443",
    "melhor_preco": 3999.05,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 3999.05,
    "menor_preco": 3999.05
   },
@@ -806,7 +812,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -896,7 +902,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3051199",
    "melhor_preco": 3787.55,
-   "ultima_vez": "2026-09-30T11:33:18-03:00"
+   "ultima_vez": "2026-09-30T11:48:03-03:00"
   },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
@@ -1044,7 +1050,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-09-30T11:33:18-03:00"
+   "ultima_vez": "2026-09-30T11:48:03-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1069,7 +1075,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3039832",
    "melhor_preco": 3949.0,
-   "ultima_vez": "2026-09-30T11:33:18-03:00"
+   "ultima_vez": "2026-09-30T11:48:03-03:00"
   },
   {
    "primeira_vez": "2026-09-13T15:23:17-03:00",
@@ -1197,7 +1203,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1224,7 +1230,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -1251,7 +1257,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1278,7 +1284,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultima_vez": "2026-09-30T11:48:03-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0,
    "modelo": "55C6K"
@@ -1356,7 +1362,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2985630",
    "melhor_preco": 3793.54,
-   "ultima_vez": "2026-09-30T11:33:18-03:00"
+   "ultima_vez": "2026-09-30T11:48:03-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1381,7 +1387,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2984367",
    "melhor_preco": 3626.1,
-   "ultima_vez": "2026-09-30T11:33:18-03:00"
+   "ultima_vez": "2026-09-30T11:48:03-03:00"
   }
  ],
  "cupons": [
@@ -2082,59 +2088,59 @@
    "validade": "2026-09-30T23:59:00-03:00",
    "publicado": "2026-09-22T00:00:00-03:00",
    "especifico": true,
-   "modelo": "55C6K",
+   "modelo": null,
    "chave": "magalu:LU300-2026-09-30"
   }
  ],
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:06-03:00",
+   "ultimo_ok": "2026-09-30T11:47:05-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:08-03:00",
+   "ultimo_ok": "2026-09-30T11:47:07-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:15-03:00",
+   "ultimo_ok": "2026-09-30T11:47:13-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:16-03:00",
+   "ultimo_ok": "2026-09-30T11:47:14-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:53-03:00",
+   "ultimo_ok": "2026-09-30T11:47:45-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:55-03:00",
+   "ultimo_ok": "2026-09-30T11:47:48-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:32:58-03:00",
+   "ultimo_ok": "2026-09-30T11:47:51-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:33:01-03:00",
+   "ultimo_ok": "2026-09-30T11:47:53-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:33:03-03:00",
+   "ultimo_ok": "2026-09-30T11:47:56-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T11:33:09-03:00",
+   "ultimo_ok": "2026-09-30T11:48:02-03:00",
    "ultimo_erro": null
   }
  },
