@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-09-30T05:37:46-03:00",
+ "atualizado": "2026-09-30T11:33:18-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -119,27 +119,6 @@
   {
    "fonte": "zoom",
    "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 55C6K",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1544269493",
-   "id": "1544269493",
-   "preco": 3329.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true
-   },
-   "modelo": "55C6K",
-   "chave": "zoom:1544269493",
-   "melhor_preco": 3329.0
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
    "loja": "KaBuM!",
    "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
    "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1572257801",
@@ -192,7 +171,7 @@
    "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
    "id": "1561988278",
    "preco": 4443.0,
-   "preco_pix": 3998.7,
+   "preco_pix": 4087.56,
    "parcelado": "10x R$ 444,30 sem juros",
    "cupom": null,
    "publicado": null,
@@ -203,7 +182,7 @@
    },
    "modelo": "55C6K",
    "chave": "zoom:1561988278",
-   "melhor_preco": 3998.7
+   "melhor_preco": 4087.56
   },
   {
    "fonte": "magalu",
@@ -213,7 +192,7 @@
    "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
    "id": "kc7h6f4k4b-lojascolombooficial",
    "preco": 4443.0,
-   "preco_pix": 3998.7,
+   "preco_pix": 4087.56,
    "parcelado": "10x R$ 444,30 sem juros",
    "cupom": null,
    "publicado": null,
@@ -225,24 +204,22 @@
     "anuncio": "kc7h6f4k4b",
     "vendedor_id": "lojascolombooficial",
     "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
      "tamanho": "55\"",
-     "avaliacoes": 3680,
+     "avaliacoes": 3686,
      "peso_kg": 17.2,
      "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
      "vendedor_desde": "2022-06-03",
      "vendas_vendedor": 10000,
      "nota_vendedor": 5
     },
-    "anuncio_exclusivo": true,
+    "anuncio_exclusivo": false,
     "confianca": {
      "veredito": "confiavel"
     }
    },
    "modelo": "55C6K",
    "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
-   "melhor_preco": 3998.7
+   "melhor_preco": 4087.56
   },
   {
    "fonte": "zoom",
@@ -343,7 +320,7 @@
    "preco": 4599.0,
    "preco_pix": 4369.05,
    "parcelado": "10x R$ 459,90 sem juros",
-   "cupom": "LU300",
+   "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "Magalu",
@@ -353,8 +330,6 @@
     "anuncio": "240162600",
     "vendedor_id": "magazineluiza",
     "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
      "tamanho": "65\"",
      "avaliacoes": 3674,
      "peso_kg": 22.9,
@@ -363,9 +338,7 @@
      "vendas_vendedor": 20000000,
      "nota_vendedor": 5
     },
-    "anuncio_exclusivo": true,
-    "preco_com_cupom": 4069.05,
-    "cupom_regra": "R$ 300,00 OFF com cupom: LU300",
+    "anuncio_exclusivo": false,
     "confianca": {
      "veredito": "confiavel"
     }
@@ -564,7 +537,7 @@
      "anatel": "00738-24-06714",
      "modelo": "55C6K",
      "tamanho": "55\"",
-     "avaliacoes": 3680,
+     "avaliacoes": 3686,
      "peso_kg": 17.2,
      "razao_social": "leonfer",
      "vendedor_desde": "2017-07-21",
@@ -614,7 +587,7 @@
     "vendedor_id": "lojawebcontinentalmarketplace",
     "ficha": {
      "tamanho": "55\"",
-     "avaliacoes": 3680,
+     "avaliacoes": 3686,
      "peso_kg": 17.2,
      "razao_social": "Webcontinental Ltda",
      "vendedor_desde": "2023-04-18",
@@ -631,25 +604,30 @@
    "melhor_preco": 4954.9
   },
   {
-   "fonte": "zoom",
+   "fonte": "vtex",
    "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl, 65\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1561978326",
-   "id": "1561978326",
-   "preco": 5913.0,
-   "preco_pix": 5321.7,
-   "parcelado": "10x R$ 591,30 sem juros",
+   "loja": "Webcontinental",
+   "titulo": "Smart TV TCL 65C6K 65 Polegadas 4K Mini LED QLED Preto com Android TV Dolby Vision Dolby Atmos Bivolt",
+   "url": "https://www.webcontinental.com.br/smart-tv-tcl-65c6k-65-polegadas-4k-mini-led-qled-preto-com-android-tv-bivolt-003082004562/p",
+   "id": "Webcontinental-5364479-003082",
+   "preco": 5354.72,
+   "preco_pix": 5126.86,
+   "parcelado": "8x R$ 669,34 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": null,
+   "vendedor": "Lojas Colombo SA",
    "extra": {
-    "agregador": true
+    "preco_de": 5696.51,
+    "ref": "7899968301754",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
    },
    "modelo": "65C6K",
-   "chave": "zoom:1561978326",
-   "melhor_preco": 5321.7
+   "chave": "vtex:Webcontinental-5364479-003082",
+   "melhor_preco": 5126.86
   },
   {
    "fonte": "magalu",
@@ -658,15 +636,15 @@
    "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
    "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
    "id": "jcefd125c3-lojascolombooficial",
-   "preco": 5913.0,
-   "preco_pix": 5321.7,
-   "parcelado": "10x R$ 591,30 sem juros",
+   "preco": 5582.6,
+   "preco_pix": 5135.99,
+   "parcelado": "10x R$ 558,26 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "Lojas Colombo Oficial",
    "extra": {
-    "preco_de": 5913.0,
+    "preco_de": 5582.6,
     "1p": false,
     "anuncio": "jcefd125c3",
     "vendedor_id": "lojascolombooficial",
@@ -674,7 +652,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3668,
+     "avaliacoes": 3674,
      "peso_kg": 22.9,
      "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
      "vendedor_desde": "2022-06-03",
@@ -688,32 +666,27 @@
    },
    "modelo": "65C6K",
    "chave": "magalu:jcefd125c3-lojascolombooficial",
-   "melhor_preco": 5321.7
+   "melhor_preco": 5135.99
   },
   {
-   "fonte": "vtex",
+   "fonte": "zoom",
    "tipo": "loja",
    "loja": "Webcontinental",
    "titulo": "Smart TV TCL 65C6K 65 Polegadas 4K Mini LED QLED Preto com Android TV Dolby Vision Dolby Atmos Bivolt",
-   "url": "https://www.webcontinental.com.br/smart-tv-tcl-65c6k-65-polegadas-4k-mini-led-qled-preto-com-android-tv-bivolt-003082004562/p",
-   "id": "Webcontinental-5364479-003082",
-   "preco": 5671.7,
+   "url": "https://www.zoom.com.br/tv/smart-tv-qd-mini-led-65-tcl-4k-65c6k?highlightedItemId=1568012264",
+   "id": "1568012264",
+   "preco": 5671.68,
    "preco_pix": 5430.35,
    "parcelado": "8x R$ 708,96 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Lojas Colombo SA",
+   "vendedor": null,
    "extra": {
-    "preco_de": 6033.72,
-    "ref": "7899968301754",
-    "ean": "7899968301754",
-    "confianca": {
-     "veredito": "confiavel"
-    }
+    "agregador": true
    },
    "modelo": "65C6K",
-   "chave": "vtex:Webcontinental-5364479-003082",
+   "chave": "zoom:1568012264",
    "melhor_preco": 5430.35
   },
   {
@@ -739,7 +712,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3668,
+     "avaliacoes": 3674,
      "peso_kg": 22.9,
      "razao_social": "Webcontinental Ltda",
      "vendedor_desde": "2023-04-18",
@@ -757,6 +730,60 @@
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-09-30T11:33:18-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.promobit.com.br/oferta/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb-3074165/",
+   "id": "3074165",
+   "preco": 3024.05,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "LU300",
+   "publicado": "2026-09-30T10:20:29-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 4199.0,
+    "status": "APPROVED"
+   },
+   "modelo": "55C6K",
+   "chave": "promobit:3074165",
+   "melhor_preco": 3024.05,
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultimo_preco": 3024.05,
+   "menor_preco": 3024.05
+  },
+  {
+   "primeira_vez": "2026-09-30T11:33:18-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
+   "url": "https://www.promobit.com.br/oferta/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb-3073443/",
+   "id": "3073443",
+   "preco": 3999.05,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "LU300",
+   "publicado": "2026-09-30T09:21:10-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "APPROVED"
+   },
+   "modelo": "65C6K",
+   "chave": "promobit:3073443",
+   "melhor_preco": 3999.05,
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
+   "ultimo_preco": 3999.05,
+   "menor_preco": 3999.05
+  },
   {
    "primeira_vez": "2026-09-22T09:53:48-03:00",
    "preco_alertado": null,
@@ -779,7 +806,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-09-30T05:37:46-03:00",
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -869,7 +896,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3051199",
    "melhor_preco": 3787.55,
-   "ultima_vez": "2026-09-30T05:37:46-03:00"
+   "ultima_vez": "2026-09-30T11:33:18-03:00"
   },
   {
    "primeira_vez": "2026-09-19T10:09:13-03:00",
@@ -1017,7 +1044,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-09-30T05:37:46-03:00"
+   "ultima_vez": "2026-09-30T11:33:18-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1042,7 +1069,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3039832",
    "melhor_preco": 3949.0,
-   "ultima_vez": "2026-09-30T05:37:46-03:00"
+   "ultima_vez": "2026-09-30T11:33:18-03:00"
   },
   {
    "primeira_vez": "2026-09-13T15:23:17-03:00",
@@ -1170,7 +1197,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-30T05:37:46-03:00",
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1197,7 +1224,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-09-30T05:37:46-03:00",
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -1224,7 +1251,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-09-30T05:37:46-03:00",
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -1251,7 +1278,7 @@
    },
    "chave": "promobit:3013265",
    "melhor_preco": 2939.0,
-   "ultima_vez": "2026-09-30T05:37:46-03:00",
+   "ultima_vez": "2026-09-30T11:33:18-03:00",
    "ultimo_preco": 2939.0,
    "menor_preco": 2939.0,
    "modelo": "55C6K"
@@ -1329,7 +1356,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2985630",
    "melhor_preco": 3793.54,
-   "ultima_vez": "2026-09-30T05:37:46-03:00"
+   "ultima_vez": "2026-09-30T11:33:18-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -1354,7 +1381,7 @@
    "modelo": "65C6K",
    "chave": "promobit:2984367",
    "melhor_preco": 3626.1,
-   "ultima_vez": "2026-09-30T05:37:46-03:00"
+   "ultima_vez": "2026-09-30T11:33:18-03:00"
   }
  ],
  "cupons": [
@@ -1865,48 +1892,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "CUSTOUPOUQUINHO",
-   "titulo": "OFERTA SURPREENDENTE: 22% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69948",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-25T09:10:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69948"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "DESCONTOESPECIAL",
-   "titulo": "SURPRESA DE ECONOMIA: 25% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69947",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-25T09:10:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69947"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "BARRATINHOJA",
-   "titulo": "OFERTA SURPREENDENTE: 30% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69946",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-25T09:10:08-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69946"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "WAPXP26",
    "titulo": "Os melhores itens do site com 10% OFF aplicando cupom Mercado Livre",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -1917,160 +1902,6 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:69925"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "APROVEITAESSA",
-   "titulo": "ACHADOS IMPACTANTES AQUI: 20% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69921",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 08/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 20% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-08T23:59:59-03:00",
-   "publicado": "2026-09-24T10:01:18-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69921"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "OFERTASMELI",
-   "titulo": "SURPRESA DE DESCONTO: 30% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69920",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 08/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-08T23:59:59-03:00",
-   "publicado": "2026-09-24T10:01:17-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69920"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "OFERTAAQUI",
-   "titulo": "OFERTA SURPREENDENTE: 25% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69919",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 08/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-08T23:59:59-03:00",
-   "publicado": "2026-09-24T10:01:14-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69919"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "MLCOMPRANDO",
-   "titulo": "OFERTAS QUE ENCANTAM: 30% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69917",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 31/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-31T23:59:59-03:00",
-   "publicado": "2026-09-24T09:41:14-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69917"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "DESCONTOJUSTO",
-   "titulo": "SÓ AQUI VOCÊ VENCE: 22% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69916",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 14/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 22% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-14T23:59:59-03:00",
-   "publicado": "2026-09-24T09:41:12-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69916"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "VALEMUITO",
-   "titulo": "VANTAGENS INCRÍVEIS: 25,00% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69915",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 15/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-15T23:59:59-03:00",
-   "publicado": "2026-09-24T09:41:10-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69915"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "CARRINHOCHEIOJA",
-   "titulo": "OFERTA INCRÍVEL: 30,00% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69914",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 14/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-14T23:59:59-03:00",
-   "publicado": "2026-09-24T09:41:08-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69914"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "PRECINHOPONTO",
-   "titulo": "OFERTAS SURPREENDENTES: 25% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69906",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-24T09:11:34-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69906"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "SAIUBARATO",
-   "titulo": "OFERTA EXCLUSIVA: 25% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69905",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 25% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-24T09:11:32-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69905"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "FOIBARATO",
-   "titulo": "PREÇOS SURPREENDENTES: 30% OFF no Mercado Livre (acima de R$ 1) com cupom",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "69904",
-   "regra": "produtos Mercado Livre Cupom válido a partir do momento de sua divulgação até às 23h59 do dia 25/10/26 ou até atingir o limite de 1.000 cupons. Desconto de até 30% em compra a partir de R$1, excluído o valor do frete, com desconto máximo de R$500 válido para itens elegíveis.",
-   "validade": "2026-10-25T23:59:59-03:00",
-   "publicado": "2026-09-24T09:11:29-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:69904"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "KaBuM!",
-   "codigo": "PEGUE10",
-   "titulo": "10% de Desconto em produtos da promoção PEGUE10",
-   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "70055",
-   "regra": "produtos KaBuM! 10% OFF em produtos da promoção PEGUE10",
-   "validade": "2026-09-30T10:00:00-03:00",
-   "publicado": "2026-09-28T17:00:10-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:70055"
   },
   {
    "fonte": "promobit",
@@ -2251,59 +2082,59 @@
    "validade": "2026-09-30T23:59:00-03:00",
    "publicado": "2026-09-22T00:00:00-03:00",
    "especifico": true,
-   "modelo": null,
+   "modelo": "55C6K",
    "chave": "magalu:LU300-2026-09-30"
   }
  ],
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:36:43-03:00",
+   "ultimo_ok": "2026-09-30T11:32:06-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:36:45-03:00",
+   "ultimo_ok": "2026-09-30T11:32:08-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:36:49-03:00",
+   "ultimo_ok": "2026-09-30T11:32:15-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:36:51-03:00",
+   "ultimo_ok": "2026-09-30T11:32:16-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:23-03:00",
+   "ultimo_ok": "2026-09-30T11:32:53-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:26-03:00",
+   "ultimo_ok": "2026-09-30T11:32:55-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:29-03:00",
+   "ultimo_ok": "2026-09-30T11:32:58-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:34-03:00",
+   "ultimo_ok": "2026-09-30T11:33:01-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:38-03:00",
+   "ultimo_ok": "2026-09-30T11:33:03-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-09-30T05:37:45-03:00",
+   "ultimo_ok": "2026-09-30T11:33:09-03:00",
    "ultimo_erro": null
   }
  },
