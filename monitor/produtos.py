@@ -105,7 +105,8 @@ _BUSCAS_PS5 = {
 }
 _BUSCAS_GTA = {
     "promobit": ("gta vi", "gta 6", "grand theft auto vi"),
-    "pelando": ("gta 6", "grand theft auto vi"),
+    # /busca/gta-6, /busca/gta-vi e /busca/grand-theft-auto-vi trazem conjuntos diferentes (pesquisa de 03/10)
+    "pelando": ("gta 6", "grand theft auto vi", "gta vi"),
     "telegram": ("GTA", "Grand Theft Auto"),
 }
 
@@ -140,8 +141,9 @@ PRODUTOS: dict[str, Produto] = {p.id: p for p in (
                   "Amazon": ("B0GWNKJDCZ", "B0FPGF9J2J", "B0CQKJN2C6"),
                   "Netshoes": ("D32-286W-014", "D32-286N-014", "HTW-025Z-014"),
                   "Casas Bahia": ("1581976879", "1582493592"), "Americanas": ("8269631", "8299917", "8299907"),
-                  "Carrefour": ("336324399",), "Mercado Livre": ("MLB4214670787", "MLB57081243"),  # item + catálogo
-                  "Sam's Club": ("146554",), "Mais Correios": ("1474239",), "Fast Shop": ("181030",)},
+                  "Carrefour": ("336324399", "340173928", "340058675", "340532210"),
+                  "Mercado Livre": ("MLB4214670787", "MLB57081243"),  # item + catálogo
+                  "Sam's Club": ("146554",), "Mais Correios": ("1474239",), "Fast Shop": ("181030", "141991")},
         temas=("console",), carrinho=True),
     Produto(
         "PS5_DISCO", "PS5 Slim com leitor", FAMILIA_PS5, "PS5 c/ leitor", FAMILIA_PS5, 3950.0, 4150.0,
@@ -205,7 +207,10 @@ PRODUTOS: dict[str, Produto] = {p.id: p for p in (
         ids_loja={"Mercado Livre": ("MLB50200776",)}, compara_preco=False, temas=("gift",)),
     Produto(
         "LEITOR_PS5", "Leitor de disco do PS5", FAMILIA_ACESSORIO, "Leitor PS5", FAMILIA_PS5, 300.0, 320.0,
-        faixa=(150.0, 1000.0), buscas={"promobit": ("leitor de disco ps5",)}, ids_loja={"KaBuM!": ("536958",)},
+        faixa=(150.0, 1000.0),
+        buscas={"promobit": ("leitor de disco ps5",), "pelando": ("leitor de disco ps5",),
+                "telegram": ("leitor de disco",)},
+        ids_loja={"KaBuM!": ("536958",), "Netshoes": ("D32-288O-014",)},
         temas=("leitor",)),
 )}
 
@@ -389,7 +394,9 @@ _RE_ESTADO = re.compile(
 _RE_ESTRANGEIRO = re.compile(
     r"\bksa\b|\binternational\b|\binternacional\b|\bimportad[oa]s?\b|\bversao (?:americana|europeia|japonesa|"
     r"asiatica|arabe|estrangeira|importada|chinesa)\b|\b(?:us|usa|eu|uk|jp|asia) version\b|\bjapan\b|"
-    r"\bhong kong\b|\barabia saudita\b|\bsaudi\b")
+    r"\bhong kong\b|\barabia saudita\b|\bsaudi\b|"
+    # Amazon, 03/10: "Sony PlayStation 5 Slim Digital Edition Console - 825GB - Middle East"
+    r"\bmiddle east\b|\boriente medio\b|\bgcc\b|\buae\b|\bemirados\b")
 _RE_COLECIONADOR = re.compile(r"\b30\s?(?:o|th)?\s*aniversario\b|\b30th anniversary\b|\banniversary edition\b")
 # resumo de várias ofertas num título só ("ACHADOS MAGALU! PS5 Slim R$ 4.875, Galaxy S24 Ultra R$ 5.099 e Lavadora...",
 # "SUPER OFERTAS SHOPEE com Até 70% OFF! Smart TV, GTA 6, Playstation 5 e Muito Mais!"): o preço não é de um produto
@@ -397,11 +404,14 @@ _RE_RESUMO = re.compile(r"\bachados\b|\bsuper ofertas\b|\be muito mais\b|\bofert
                         r"\bselecao de ofertas\b|\blista de ofertas\b|\bvarios produtos\b|\bate [5-9]\d\s?% off\b")
 _RE_OUTRO_PRODUTO_NO_TITULO = re.compile(r"\bsmart\s*tvs?\b|\bgalaxy\b|\biphone\b|\bnotebook\b|\blavadora\b|"
                                          r"\bgeladeira\b|\bcelular\b|\bair\s*fryer\b|\bxbox\b|\bnintendo\b")
-# outros aparelhos e plataformas
+# outros aparelhos e plataformas (03/10, lista da KaBuM: "Sony Playstation 3 Super Slim 500gb" virava PS5 Digital)
 _RE_OUTRO_APARELHO = re.compile(
     r"\bps\s?4\b|\bplaystation 4\b|\bps\s?vr\s?2?\b|\bvr\s?2\b|\bplaystation vr\b|\bplaystation portal\b|"
-    r"\bportal remote\b|\bxbox\b|\bseries [xs]\b|\bnintendo\b|\bswitch\b|\bsteam deck\b|\bps\s?3\b|\bpsp\b|\bps vita\b")
-_RE_ASSINATURA = re.compile(r"\bps\s?plus\b|\bplaystation plus\b|\bgame pass\b|\bassinatura\b|\bgta\s?\+|\bgta plus\b")
+    r"\bportal remote\b|\bxbox\b|\bseries [xs]\b|\bnintendo\b|\bswitch\b|\bsteam deck\b|\bps\s?3\b|\bpsp\b|\bps vita\b|"
+    r"\bplaystation [1-3]\b|\bplaystation (?:one|vita|portable)\b|\bps\s?(?:one|1|2)\b")
+# assinatura e serviço de streaming ("Ganhe até 30 Dias Grátis de NETFLIX - Filmes, Séries, GTA VI", @pelandobr 27/08)
+_RE_ASSINATURA = re.compile(r"\bps\s?plus\b|\bplaystation plus\b|\bgame pass\b|\bassinatura\b|\bgta\s?\+|\bgta plus\b|"
+                            r"\bnetflix\b|\bstreaming\b|\bdias? gratis\b|\bteste gratis\b")
 # acessório: o 1º substantivo do título (depois de emoji, número, "novo", marca) é a peça
 _ACESSORIOS = (
     r"controles?|joysticks?|dualsense|dual sense|dualshock|capas?|cases?|bolsas?|mochilas?|suportes?|bases?|"
@@ -410,14 +420,17 @@ _ACESSORIOS = (
     r"tampas?|faceplates?|covers?|tapetes?|ssds?|hds?|cartao de memoria|memorias?|baterias?|fontes?|kit de "
     r"(?:acessorios|limpeza)|pulse|charging|stand|organizador(?:es)?|racks?|nichos?|mesas?|cadeiras?|"
     r"camisetas?|canecas?|posters?|livros?|guias?|mapas?|funkos?|action figures?|bonecos?|chaveiros?|moletons?|"
-    r"bones?|quadros?|capinhas?|copos?|garrafas?|almofadas?|luminarias?|placas?")
+    r"bones?|quadros?|capinhas?|copos?|garrafas?|almofadas?|luminarias?|placas?|"
+    # vistos na busca do Magalu/nocnoc em 03/10: decoração, cofrinho, pôster, capa em espanhol
+    r"decoracao|decoracoes|cofrinhos?|posterzines?|cubiertas?|carcacas?|reemplazos?|artefatos?|resfriamento|"
+    r"refrigeracao|ventilacao")
 _PREFIXO_TITULO = r"^[^a-z0-9]*(?:\[[^\]]*\]\s*)?(?:(?:novo|nova|original|oficial|sony|playstation|ps5|\d+\s*(?:x|un\w*)?|kit)\s+)*"
 _RE_INICIO_ACESSORIO = re.compile(_PREFIXO_TITULO + rf"({_ACESSORIOS})(?![a-z0-9])")
 _RE_PARA_PS5 = re.compile(r"\b(?:para|pra|p/|compativel com|compativeis com)\s+(?:o\s+|a\s+|os\s+)?"
                           r"(?:console\s+)?(?:ps5|playstation)")
 _RE_TEMATICO = re.compile(r"\b(?:camisetas?|canecas?|posters?|livros?|guias?|mapas?|funkos?|action figures?|bonecos?|"
                           r"chaveiros?|moletons?|bones?|quadros?|almofadas?|luminarias?|copos?|trilha sonora|"
-                          r"steelbook|artbook)\b")
+                          r"steelbook|artbook|decoracao|decoracoes|decorativ[oa]s?|cofrinhos?|posterzines?|adesivos?)\b")
 # jogo: o título começa por "jogo"/"game" ou é "<nome> - PlayStation 5" sem nada de console
 _RE_INICIO_JOGO = re.compile(_PREFIXO_TITULO + r"(?:jogos?|games?|midia fisica|pre[\s-]?venda)\b")
 # leitor de disco avulso no começo do título
@@ -439,12 +452,17 @@ _RE_CONSOLE_FORTE = re.compile(
 _RE_VERSAO = re.compile(r"\bdigital\b|\bsem leitor\b|\bcom leitor\b|\bleitor de dis[ck]o\b|\bmidia fisica\b|\bdis[ck]\b|"
                         r"\bdisco\b|\bstandard\b|\bedicao\b|\bbundle\b|\bpacote\b|\bkit\b|\bpro\b")
 _RE_DIGITAL = re.compile(r"\bdigital\b|\bsem leitor\b|\b825\s?gb\b|\bcfi[\s-]?2\d{3}\s?b|\bdigital edition\b")
+# o que diz "Digital" com todas as letras (o 825GB sozinho não: o PS5 Standard de 825GB tem leitor, 03/10 na KaBuM:
+# "Console Sony Playstation 5 Standard 825gb E Leitor De Blue Ray")
+_RE_DIGITAL_FORTE = re.compile(r"\bdigital\b|\bsem leitor\b|\bcfi[\s-]?2\d{3}\s?b|\bdigital edition\b")
 _RE_DISCO = re.compile(r"\bcom leitor\b|\bleitor de dis[ck]o\b|\bmidia fisica\b|\bdis[ck]\b|\bdisco\b|\bstandard\b|"
-                       r"\bcfi[\s-]?2\d{3}\s?a\b|\b1\s?tb\b")
-# extras de kit / edição especial
+                       r"\bcfi[\s-]?2\d{3}\s?a\b|\b1\s?tb\b|\bleitor de blu[\s-]?e?[\s-]?ray\b")
+# extras de kit / edição especial. "+ 1 Controle" é o controle que já vem com o console (Netshoes, 03/10: "PlayStation 5
+# Slim Disk 1TB + 1 Controle Sony"); "+ Controle", "+ 2 Controles" e "controle extra" são a mais
 _RE_EXTRA_CONTROLE = re.compile(
-    r"\+\s*(?:\d\s+|um\s+|mais\s+um\s+)?(?:controles?|dualsense|dual sense)\b|"
-    r"\b(?:2|dois)\s+(?:controles|dualsense)\b|\bcontroles?\s+(?:extras?|adiciona(?:l|is))\b|"
+    r"\+\s*(?:[2-9]\s+|mais\s+um\s+)?(?:controles?|dualsense|dual sense)\b|"
+    r"\b(?:2|dois|two)\s+(?:controles|dualsense|dual sense|wireless controllers|controllers)\b|"
+    r"\bcontroles?\s+(?:extras?|adiciona(?:l|is))\b|"
     r"\bcom\s+(?:2|dois)\s+(?:controles|dualsense)\b")
 _RE_EXTRA_LEITOR = re.compile(r"\+\s*(?:o\s+|um\s+)?(?:leitor|unidade|drive)\b|\be\s+leitor de dis[ck]o\b")
 _RE_EXTRA_CREDITO = re.compile(
@@ -518,7 +536,9 @@ def _extras_do_console(t: str, base: str, generico: bool = True) -> list[dict]:
         limpo = _RE_JOGOS_DA_BASE.sub(" ", t)
         for m in _RE_OUTRO_EXTRA.finditer(limpo):
             resto = m.group(1).strip()
-            if _RE_GTA6.match(resto) or re.match(r"(?:ps5|playstation|console|slim|digital|pro\b|r\$|\d)", resto):
+            # o que sobra de "+ 1 Controle Sony" (o controle que acompanha) também não é extra
+            if _RE_GTA6.match(resto) or re.match(r"(?:ps5|playstation|console|slim|digital|pro\b|r\$|\d|sony\b|"
+                                                 r"branc[oa]\b|pret[oa]\b|bivolt\b|cor\b)", resto):
                 continue
             out.append({"tipo": "jogo", "valor": VALOR_EXTRA["jogo"], "nome": resto[:40]})
             break
@@ -531,13 +551,14 @@ def _versao_do_console(t: str) -> tuple[str, bool]:
     if re.search(_PS5 + r"\s+pro\b", t) or re.search(r"\b2\s?tb\b|\b1000046552\b", t) or \
             (re.search(r"\bpro\b", t) and not re.search(r"\bpro\s+controller\b|\bdualsense edge\b", t)):
         return "PS5_PRO", False
-    digital = bool(_RE_DIGITAL.search(t))
     # "com leitor" e afins só contam como versão com disco quando não é "+ leitor" (kit Digital + leitor avulso)
     disco = bool(_RE_DISCO.search(_RE_EXTRA_LEITOR.sub(" ", t)))
-    if digital:
+    if _RE_DIGITAL_FORTE.search(t):
         return "PS5_DIGITAL", False
     if disco:
         return "PS5_DISCO", False
+    if _RE_DIGITAL.search(t):   # só o 825GB
+        return "PS5_DIGITAL", False
     return "PS5_DIGITAL", True
 
 
@@ -574,6 +595,8 @@ def _classifica_gta(t: str, loja: str) -> Classificacao:
 
 def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
     """Classificador do PS5, do GTA 6, do gift card e do leitor (texto já normalizado)."""
+    # "Jogo de Vídeo Game Take 2 ... Grand Theft Auto 5 para PS5" (nocnoc no Magalu, 03/10) é um jogo, não um console
+    t = re.sub(r"\b(?:jogos?|videojogos?)\s+(?:de\s+)?video\s?games?\b", "jogo", t)
     tem_ps = bool(_RE_PS5.search(t)) or bool(re.search(r"\bplaystation\b", t))
     gta = bool(_RE_GTA6.search(t))
     gift = bool(_RE_GIFT.search(t))
@@ -626,6 +649,9 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         return _r("sem produto")
     if _RE_INICIO_JOGO.search(t) and not _RE_CONSOLE_PALAVRA.search(t):
         return _r("outro jogo")
+    if not _RE_PS5.search(t):
+        # "Console PlayStation Slim" sem o 5: pode ser PS4 ou PS3 (a lista da KaBuM tem os dois)
+        return _r("sem PS5 no título")
     # console: palavra "console", armazenamento, Slim, Pro; ou o título é só "PlayStation 5 (versão)"
     inicio_ps5 = bool(re.match(_PREFIXO_TITULO + r"(?:console\s+)?(?:sony\s+)?(?:ps5|playstation 5)\b", t))
     if console_forte or (inicio_ps5 and _RE_VERSAO.search(t)) or (inicio_ps5 and len(t) <= 40):

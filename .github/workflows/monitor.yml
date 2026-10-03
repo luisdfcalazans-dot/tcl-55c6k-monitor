@@ -31,6 +31,8 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
+      # CEP de entrega (prazo do GTA 6 nas lojas): só do secret, nunca impresso. Sem ele vale o CEP de referência
+      CEP_ENTREGA: ${{ secrets.CEP_ENTREGA }}
       ALVO_PIX: ${{ vars.ALVO_PIX }}
       ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
       ALVO_PIX_65: ${{ vars.ALVO_PIX_65 }}

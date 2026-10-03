@@ -208,6 +208,53 @@ URL_SHOPEE_BUSCA = "https://shopee.com.br/search?keyword=tcl%2055c6k"
 URL_SHOPEE_BUSCA_65 = "https://shopee.com.br/search?keyword=tcl%2065c6k"
 URLS_SHOPEE_BUSCA = {MODELO: URL_SHOPEE_BUSCA, MODELO_65: URL_SHOPEE_BUSCA_65}
 
+# --- PS5 e GTA 6: lojas e endereços (pesquisa e checagem ao vivo de 03/10/2026) ---
+_NAO_TV = (_produtos.FAMILIA_PS5, _produtos.FAMILIA_GTA6, _produtos.FAMILIA_ACESSORIO)
+# Lojas VTEX lidas pelo código de barras (EAN), num pedido só (vários fq do mesmo campo são OU): a busca por texto perde
+# anúncios (Mais Correios: ft=65c6k achou 1, o EAN achou 3). fonte -> (loja, URL, reserva quando a principal falha
+# [403 do Cloudflare num IP de nuvem], só o PS5/GTA 6?). Mais Correios e Americanas com o catálogo todo (TVs também);
+# Fast Shop e Webcontinental só com o PS5/GTA 6 (as TVs delas continuam na busca de sempre, fontes vtex.<loja>).
+LOJAS_VTEX_EAN = {
+    "maiscorreios": ("Mais Correios", "https://www.maiscorreios.com.br",
+                     "https://maiscorreios.vtexcommercestable.com.br", False),
+    "americanas": ("Americanas", "https://www.americanas.com.br", "", False),
+    "vtex.fastshop.ps5": ("Fast Shop", LOJAS_VTEX["Fast Shop"], "", True),
+    "vtex.webcontinental.ps5": ("Webcontinental", LOJAS_VTEX["Webcontinental"], "", True),
+}
+# KaBuM: a lista de consoles PlayStation (um pedido traz todos os PS5 da loja, com vendedor e oferta) e a cotação de
+# frete (sem login) para o prazo do GTA 6 com o CEP
+URL_KABUM_LISTA_CONSOLES = "https://www.kabum.com.br/gamer/playstation/consoles-playstation"
+URL_KABUM_FRETE = "https://servicespub.prod.api.aws.grupokabum.com.br/shipping/v4/quotation"
+# Magalu (magazinevoce): as buscas do PS5/GTA 6 já trazem preço, vendedor e o cupom do anúncio (seller.tags)
+MAGALU_TERMOS_PRODUTOS = _produtos.termos("magalu", _NAO_TV)
+MAGALU_PRODUTOS_MAX_REQUISICOES = 4
+# Carrefour: busca e página do produto por HTTP (a API VTEX dá 403); a página de cada produto traz vendedor e parcelado
+URL_CARREFOUR_BUSCA = "https://www.carrefour.com.br/busca/playstation%205"
+URL_CARREFOUR_PRODUTO = "https://www.carrefour.com.br/produto/p-{sku}"   # o slug não importa, só o sku no fim
+CARREFOUR_MAX_PRODUTOS = 6
+CARREFOUR_PAUSA_S = float(_env("CARREFOUR_PAUSA_S", "1.0"))
+# PlayStation Store (preço no JSON-LD da página do produto)
+URL_PSSTORE_PRODUTO = "https://store.playstation.com/pt-br/product/{id}"
+# Mercado Livre: vitrine da loja oficial PlayStation (official_store_id 1473), um pedido por rodada; a lista com filtro
+# de loja e a API dão antirrobô/403
+URL_ML_LOJA_PLAYSTATION = "https://www.mercadolivre.com.br/loja/playstation"
+# Telegram: busca por termo (t.me/s/<canal>?q=<termo>) nos canais de muito volume: pega a postagem que saiu da 1ª
+# página entre uma rodada e outra (o @pelandobr posta 7 a 10 por hora; a nuvem roda com intervalos de horas)
+TELEGRAM_CANAIS_BUSCA = [c.strip().lstrip("@") for c in _env("TELEGRAM_CANAIS_BUSCA", "pelandobr").split(",") if c.strip()]
+# Promobit: subcategorias lidas pela página (pegam a postagem antes de a busca indexar)
+URL_PROMOBIT_PS5 = "https://www.promobit.com.br/promocoes/playstation-5/s/"
+# --- só no PC (Chrome) ---
+URL_NETSHOES_BUSCA = "https://www.netshoes.com.br/busca?q=playstation+5"
+NETSHOES_MAX_PRECOS = 12        # consultas de preço (dentro da página, sem abrir outra) por rodada
+URLS_AMAZON_BUSCA_PRODUTOS = (
+    "https://www.amazon.com.br/s?k=grand+theft+auto+vi+playstation+5",
+    "https://www.amazon.com.br/s?k=console+playstation+5",
+)
+AMAZON_MAX_CARGAS_PRODUTOS = 4  # páginas do PS5/GTA 6 por rodada (a do GTA e as buscas), além das das TVs
+CASASBAHIA_MAX_CARGAS_PRODUTOS = 3
+# catálogos do ML abertos no Chrome do PC depois dos das TVs (só se a rodada não levou bloqueio)
+ML_CATALOGOS_PRODUTOS = {"PS5_DIGITAL": "MLB57081243"}
+
 # --- Sites de promoção ---
 PROMOBIT_CUPONS_LOJAS = [
     "magazine-luiza", "amazon", "mercado-livre", "kabum", "casas-bahia",

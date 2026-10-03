@@ -4,8 +4,10 @@ Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e 
 
 O catálogo dos produtos fica em `monitor/produtos.py` (a fonte única de ids, nomes, metas, termos de busca, códigos de barras, ids por loja e regras do classificador). Cada oferta guarda o id do produto no campo `modelo` (`55C6K`, `65C6K`, `PS5_DIGITAL`, `GTA6_CODE_IN_BOX`...).
 
-- **Nuvem (GitHub Actions, a cada 15 min):** Promobit, Zoom, Magazine Luiza, KaBuM!, Fast Shop, Loja TCL, Webcontinental, canais públicos do Telegram, cupons.
-- **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
+- **Nuvem (GitHub Actions, a cada 15 min):** Promobit (busca e as categorias TV e PlayStation 5), Zoom, Magazine Luiza, KaBuM! (anúncios das TVs, lista de consoles PlayStation e o GTA 6), Fast Shop, Loja TCL, Webcontinental, Mais Correios e Americanas (pelo código de barras de todo o catálogo), Carrefour, PlayStation Store, vitrine da loja oficial PlayStation no Mercado Livre, canais públicos do Telegram (no canal oficial do Pelando, `@pelandobr`, também a busca por termo de cada produto, para pegar a postagem que saiu da 1ª página entre uma rodada e outra), cupons.
+- **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon (TVs e, em fonte própria, PS5 e GTA 6), Casas Bahia (idem), Netshoes (melhor esforço: o Akamai pode recusar o Chrome automatizado), Mercado Livre (catálogos das TVs e do PS5), AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
+
+Prazo de entrega do GTA 6 (Code in Box e pacotes): KaBuM (cotação de frete), lojas VTEX (simulação de frete), Netshoes (cotação da página) e Amazon (CEP da sessão do Chrome) usam o CEP da variável `CEP_ENTREGA` (`.env` do PC e secret do GitHub; ele nunca vai para log, painel nem dados). Sem ela, vale um CEP de referência de São Paulo e o prazo sai marcado como aproximado. Quando o anúncio diz "envio a partir de 19/11" (ou depois), a oferta já sai como "chega depois do lançamento".
 
 O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO.md).
 
@@ -65,7 +67,7 @@ No Magalu, vendedor novo que ficou sem checagem nesta rodada (403, limite de 2 v
 
 ### 2. GitHub
 1. Crie um repositório **público** e envie este projeto (`git push`).
-2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
+2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` e (opcional) `CEP_ENTREGA`, o CEP de entrega para o prazo do GTA 6.
 3. (Opcional) **Variables**: `ALVO_PIX`, `ALVO_PARCELADO`, `ALVO_PIX_65`, `ALVO_PARCELADO_65`, `TELEGRAM_CANAIS_EXTRA` (canais públicos separados por vírgula), `MAGALU_ANUNCIOS_EXTRA` (links de anúncios do Magalu que a busca não mostra, separados por vírgula).
 4. **Settings → Pages → Source: Deploy from a branch → main / docs**. O painel fica em `https://<usuário>.github.io/<repo>/`.
 5. **Actions → monitor 55C6K → Run workflow** para a primeira coleta. A primeira rodada só registra o que existe (uma mensagem de "monitor iniciado"); a partir da segunda chegam as novidades.
@@ -102,7 +104,7 @@ python -m pytest -q                         # testes com páginas salvas
 monitor/config.py        URLs, alvos, canais, lojas
 monitor/produtos.py      catálogo dos produtos (TVs, PS5, GTA 6...) e o classificador de títulos e de mensagens
 monitor/filtro.py        aceita só 55C6K e 65C6K e diz qual (rejeita 75/85C6K, vizinhos como 65C7K, combos, acessórios, usados)
-monitor/sources/*.py     um coletor por fonte
+monitor/sources/*.py     um coletor por fonte (entrega.py: prazo de entrega do GTA 6, dias úteis, datas por extenso)
 monitor/regras.py        o que vira alerta
 monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
 monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)

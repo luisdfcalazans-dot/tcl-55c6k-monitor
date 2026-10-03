@@ -61,25 +61,39 @@ class PromobitBusca(Fonte):
         return list(vistos.values()), []
 
 
+def parse_categoria(html: str) -> list[Oferta]:
+    """Ofertas do catálogo na página de uma categoria/subcategoria (__NEXT_DATA__ serverOffers)."""
+    nd = next_data(html) or {}
+    itens = (nd.get("props", {}).get("pageProps", {}) or {}).get("serverOffers") or []
+    if isinstance(itens, dict):
+        itens = itens.get("offers") or itens.get("data") or []
+    out = []
+    for item in itens:
+        if not isinstance(item, dict):
+            continue
+        o = _oferta_de_item(item, True)
+        if o:
+            out.append(o)
+    return out
+
+
 class PromobitCategoriaTV(Fonte):
     """Últimas ofertas da categoria TV: pega postagens novas antes de a busca indexar."""
 
     nome = "promobit.tv"
 
     def coletar(self) -> Resultado:
-        html = get_html("https://www.promobit.com.br/promocoes/tv/s/")
-        nd = next_data(html) or {}
-        itens = (nd.get("props", {}).get("pageProps", {}) or {}).get("serverOffers") or []
-        if isinstance(itens, dict):
-            itens = itens.get("offers") or itens.get("data") or []
-        out = []
-        for item in itens:
-            if not isinstance(item, dict):
-                continue
-            o = _oferta_de_item(item, True)
-            if o:
-                out.append(o)
-        return out, []
+        return parse_categoria(get_html("https://www.promobit.com.br/promocoes/tv/s/")), []
+
+
+class PromobitCategoriaPS5(Fonte):
+    """Últimas ofertas da subcategoria PlayStation 5 (console, GTA 6, leitor, gift card): o mesmo formato da de TV
+    (03/10/2026: 12 ofertas, as da Netshoes e da Amazon de 02-03/10 entre elas)."""
+
+    nome = "promobit.ps5"
+
+    def coletar(self) -> Resultado:
+        return parse_categoria(get_html(config.URL_PROMOBIT_PS5)), []
 
 
 class PromobitCupons(Fonte):

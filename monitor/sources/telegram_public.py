@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 
@@ -63,7 +64,14 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
         # preço riscado (<s>/<del>) é o preço antigo "De": fora do texto
         for riscado in txt_el.find_all(["s", "del", "strike"]):
             riscado.decompose()
+        # a busca por termo (?q=) destaca o termo com <mark>, que parte o título em pedaços ("Auto  GTA  6"): sem ele, e
+        # com os espaços repetidos que os pedaços deixam colapsados (só nessas páginas: a 1ª página fica como sempre)
+        destaques = txt_el.find_all("mark")
+        for mk in destaques:
+            mk.unwrap()
         texto = txt_el.get_text(" ", strip=False)
+        if destaques:
+            texto = re.sub(r"[ \t]{2,}", " ", texto)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
         links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         loja = loja_canonica(loja_no_texto(texto, links))
@@ -97,18 +105,42 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
     return out
 
 
+def urls_de_busca(canais: list[str] | None = None, termos: list[str] | None = None) -> list[tuple[str, str]]:
+    """(canal, URL) da busca por termo (t.me/s/<canal>?q=<termo>) de cada canal de muito volume e termo do catálogo.
+    Cada busca traz as 20 postagens mais recentes com o termo, cobrindo semanas: a postagem que saiu da 1ª página entre
+    uma rodada da nuvem e outra (o @pelandobr posta 7 a 10 por hora) ainda é vista. O GTA precisa de dois termos ("GTA"
+    não acha "Grand Theft Auto VI")."""
+    canais = config.TELEGRAM_CANAIS_BUSCA if canais is None else canais
+    termos = produtos.termos("telegram") if termos is None else termos
+    return [(c, f"https://t.me/s/{c}?q={quote(t)}") for c in canais for t in termos]
+
+
 class TelegramPublico(Fonte):
     nome = "telegram.publico"
 
     def coletar(self) -> Resultado:
-        out: list[Oferta] = []
+        out: dict[str, Oferta] = {}
         erros = []
         for canal in config.TELEGRAM_CANAIS_PUBLICOS:
             try:
                 html = get_html(f"https://t.me/s/{canal}")
-                out.extend(parse_canal(html, canal))
+                for o in parse_canal(html, canal):
+                    out.setdefault(o.chave, o)
             except Exception as e:  # um canal fora do ar não derruba os outros
                 erros.append(f"{canal}: {e}")
         if erros and len(erros) == len(config.TELEGRAM_CANAIS_PUBLICOS):
             raise RuntimeError("; ".join(erros)[:300])
-        return out, []
+        # busca por termo nos canais de muito volume (a mesma postagem da 1ª página fica uma só, pela chave)
+        n_busca, falhas = 0, 0
+        for canal, url in urls_de_busca():
+            try:
+                for o in parse_canal(get_html(url), canal):
+                    if o.chave not in out:
+                        out[o.chave] = o
+                        n_busca += 1
+            except Exception:  # noqa: BLE001 - a busca é extra: a 1ª página do canal já foi lida
+                falhas += 1
+        if config.TELEGRAM_CANAIS_BUSCA:
+            print(f"[telegram.publico] busca por termo: {n_busca} postagens a mais"
+                  + (f", {falhas} buscas falharam" if falhas else ""))
+        return list(out.values()), []
