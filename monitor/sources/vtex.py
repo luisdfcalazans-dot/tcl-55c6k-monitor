@@ -16,7 +16,8 @@ que não é cartão: o 12x sem juros dele aparecia como o parcelado da loja, que
 lista "Cartão Cliente A" (o cartão da loja, 3x) e "WH Google Pay": também não contam.
 Pix: a parcela 1x do meio "Pix" (Fast Shop, Mais Correios, Americanas) ou o selo "X% no Pix".
 GTA 6 (Code in Box e pacotes com ele): prazo de entrega pela simulação de frete do checkout (orderForms/simulation, sem
-carrinho e sem login) com o CEP de config.cep_entrega(); "39bd" = 39 dias úteis a partir de hoje.
+carrinho e sem login) com o CEP de config.cep_entrega(); "39bd" = 39 dias úteis a partir de hoje. Só a data que cai antes
+de as caixas saírem (12/11, ou o envio informado na descrição) é reprojetada (sources/entrega.marca).
 """
 
 from __future__ import annotations
@@ -163,8 +164,11 @@ def url_por_ean(base: str, eans: Iterable[str]) -> str:
 def simula_prazo(base: str, sku: str, vendedor: str, cep: str, timeout: int = 20,
                  inicio: Optional[date] = None) -> Optional[str]:
     """Prazo de entrega (data ISO) do item no CEP pela simulação do checkout (sem carrinho, sem login). A menor
-    estimativa entre as opções de entrega (retirada não conta). None quando a loja não responde ou não entrega.
-    `inicio`: pré-venda (GTA 6 físico): o prazo em dias conta a partir do envio (12/11 ou o informado), não de hoje."""
+    estimativa entre as opções de entrega (retirada não conta), contada a partir de HOJE (é como a loja conta: "39bd" é
+    39 dias úteis depois do pedido). None quando a loja não responde ou não entrega.
+    `inicio`: pré-venda (GTA 6 físico): só a data que cai ANTES do envio (12/11 ou o informado) é reprojetada a partir
+    dele (entrega.ajusta_pre_venda); a que já cai depois vale como está. 2ª conferência de 03/10: contar toda estimativa
+    a partir de 12/11 contava a espera da pré-venda duas vezes ("39bd" da Fast Shop virava 11/01/2027 em vez de 01/12)."""
     h = dict(HEADERS_JSON)
     h["Content-Type"] = "application/json"
     corpo = {"items": [{"id": str(sku), "quantity": 1, "seller": str(vendedor)}], "postalCode": cep, "country": "BRA"}
@@ -172,15 +176,19 @@ def simula_prazo(base: str, sku: str, vendedor: str, cep: str, timeout: int = 20
     r.raise_for_status()
     datas = []
     hoje = entrega.hoje()
-    a_partir = max(hoje, inicio) if inicio else None
     for li in (r.json() or {}).get("logisticsInfo") or []:
         for s in li.get("slas") or []:
             if str(s.get("deliveryChannel") or "delivery") != "delivery":
                 continue
-            d = entrega.data_da_estimativa(s.get("shippingEstimate"), a_partir)
+            d = entrega.data_da_estimativa(s.get("shippingEstimate"), hoje)
             if d:
                 datas.append(d)
-    return min(datas) if datas else None
+    if not datas:
+        return None
+    menor = min(datas)
+    if inicio:
+        menor = entrega.ajusta_pre_venda(menor, base=hoje, inicio=inicio)[0]
+    return menor
 
 
 def completa_entrega(ofertas: list[Oferta], base: str, nome: str, maximo: int = 3) -> None:
@@ -196,9 +204,9 @@ def completa_entrega(ofertas: list[Oferta], base: str, nome: str, maximo: int = 
             entrega.marca_envio_tardio(o)
             continue
         try:
-            # pré-venda: o prazo da VTEX (dias úteis) conta a partir de 12/11 (ou do envio informado), não de hoje
-            data = simula_prazo(base, o.extra["sku"], o.extra.get("seller_id") or "1", cep,
-                                inicio=entrega.inicio_pre_venda(envio))
+            # a data contada de hoje, como a loja conta; entrega.marca reprojeta só a que cai antes de as caixas saírem
+            # (12/11 ou o envio informado) e anota "(prazo contado a partir de 12/11...)" nela
+            data = simula_prazo(base, o.extra["sku"], o.extra.get("seller_id") or "1", cep)
         except Exception as e:  # noqa: BLE001 - o prazo é extra: a oferta continua sem ele
             print(f"[{nome}] simulação de frete de {o.id} falhou: {type(e).__name__}")
             continue

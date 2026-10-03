@@ -197,9 +197,10 @@ def test_vtex_fast_shop_so_ps5_e_gta_com_prazo_da_simulacao(monkeypatch, hoje_03
     ofs, _ = vtex.VtexEan("vtex.fastshop.ps5").coletar()
     assert [o.modelo for o in ofs] == ["GTA6_CODE_IN_BOX"]   # a TV da resposta fica com a fonte vtex.fastshop
     o = ofs[0]
-    # pré-venda: os 39 dias úteis contam a partir de 12/11, quando as caixas saem (revisão de 03/10), não de hoje
-    assert o.fonte == "vtex.fastshop.ps5" and \
-        o.extra["entrega_prevista"] == entrega.data_da_estimativa("39bd", date(2026, 11, 12))
+    # os 39 dias úteis contam de hoje, como a loja conta: já caem depois de 12/11 (01/12), então não são reprojetados
+    # (2ª conferência de 03/10: contar de 12/11 punha a espera da pré-venda duas vezes e dava 11/01/2027)
+    assert o.fonte == "vtex.fastshop.ps5" and o.extra["entrega_prevista"] == entrega.data_da_estimativa("39bd") \
+        == "2026-12-01"
     assert o.extra["entrega_ate_lancamento"] is False and o.extra["cep_referencia"] is False
     (url, corpo), = corpos
     assert url.endswith("/api/checkout/pub/orderForms/simulation?sc=1")
