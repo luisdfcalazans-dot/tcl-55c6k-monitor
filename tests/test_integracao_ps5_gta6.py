@@ -84,7 +84,8 @@ def test_cupom_da_pagina_entra_no_custo_final_do_gta():
     linhas = produtos.linhas_da_oferta(o)
     assert "🎟️ Com o cupom GTA60 do anúncio: R$ 338,00" in linhas
     assert any(l.startswith("🎯 Meta: Pix R$ 345,00") and "abaixo da meta" in l for l in linhas)
-    (linha,) = [l for l in produtos.custo_final_gta([o]) if l["loja"] == "Magazine Luiza"]
+    (linha,) = [l for l in produtos.custo_final_gta([o]) if l["loja"] == "Magazine Luiza"
+                and l["produto"] == "GTA6_CODE_IN_BOX"]
     assert (linha["custo_final"], linha["preco"], linha["cupom"]) == (338.0, 398.0, "GTA60")
 
 
@@ -131,7 +132,9 @@ def test_codigo_de_assinante_no_cupom_da_postagem_nao_vale(tmp_path, monkeypatch
                   modelo="GTA6_CODE_IN_BOX")
     assert produtos.exige_assinatura(post) == "prime"
     assert any("exclusivo de assinatura (prime)" in l for l in produtos.linhas_da_oferta(post))
-    assert produtos.custo_final_gta([post]) == [], "preço de assinante não é o custo final do usuário"
+    # só a referência da Ultimate (preço oficial da PS Store) fica: nem o Code in Box de assinante nem ele + upgrade
+    linhas = produtos.custo_final_gta([post])
+    assert [l["produto"] for l in linhas] == ["GTA6_ULTIMATE"], "preço de assinante não é o custo final do usuário"
     primeira = Oferta(fonte="promobit", tipo="post", loja="Netshoes", titulo="Jogo GTA 6 PS5 Code in Box",
                       url="https://www.promobit.com.br/oferta/y/", id="p2", preco=339.0, cupom="PRIMEIRA20",
                       modelo="GTA6_CODE_IN_BOX")

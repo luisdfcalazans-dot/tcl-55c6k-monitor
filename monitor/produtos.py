@@ -16,6 +16,8 @@ sempre); dos outros: as chaves de PRODUTOS. API para as fontes, o estado, as reg
   - extrai_produtos(texto, loja=None) -> {produto: Trecho(titulo, trecho, preambulo, detalhes)} (mensagem livre)
   - piso(), faixa(), preco_plausivel(), alvos_da_oferta(), preco_comparavel(), desconto_gift_card(), entrega(),
     linhas_da_oferta(), anota(), custo_final_gta(), para_painel()
+  - as duas edições do GTA 6: edicao_gta(), comparacao_ultimate() (Ultimate digital × Standard + upgrade pelo custo
+    final) e linha_ultimate() (a linha "🆚" do alerta)
   - entrega do GTA 6: a fonte grava Oferta.extra['entrega_prevista'] (ISO), ['entrega_ate_lancamento'] (bool) e
     ['cep_referencia'] (bool), com o CEP de config.cep_entrega() (variável CEP_ENTREGA; nunca gravar o CEP)
 
@@ -1358,9 +1360,12 @@ def distancia(valor: Optional[float], meta: Optional[float]) -> str:
     return f"{_fmt(abs(d))} acima da meta{pct}" if d > 0 else f"{_fmt(abs(d))} abaixo da meta ✅"
 
 
-def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None) -> list[str]:
+def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
+                     ultimate: Optional[dict] = None) -> list[str]:
     """Linhas extras do alerta de um produto que não é TV: a meta e a distância até ela, a entrega do GTA 6 (chega a
-    tempo?), o custo efetivo do digital com gift card e, no gift card, quanto o GTA digital sairia."""
+    tempo?), o custo efetivo do digital com gift card, no gift card quanto o GTA digital sairia e, no GTA 6 avulso, a
+    Ultimate digital × Standard + upgrade pelo custo final (`ultimate`: comparacao_ultimate das ofertas da rodada; sem
+    ela, só esta oferta e os preços oficiais da PS Store)."""
     pid = _pid(o)
     p = produto(pid)
     if p is None or p.familia == FAMILIA_TV:
@@ -1397,6 +1402,11 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None) 
     e = entrega(o)
     if e:
         out.append(e.texto)
+    if pid in EDICAO_GTA6:
+        comp = ultimate if ultimate is not None else comparacao_ultimate([o], desconto_gift)
+        lu = linha_ultimate(o, comp, desc)
+        if lu:
+            out.append(lu)
     if pid == "GIFT_CARD_PSN":
         face, preco = det.get("valor_face"), _melhor_preco(o)
         if face and preco and preco < face:
@@ -1430,51 +1440,207 @@ def anota(ofertas: Iterable[Any]) -> None:
                                 "cep_referencia": e.cep_referencia, "texto": e.texto}
 
 
+# As duas edições do GTA 6 (pedido do usuário em 03/10: "O GTA tem a versão standard e uma mais completa. vamos
+# monitorar as duas"): a Standard (Code in Box nas lojas, digital na PS Store) e a Ultimate (só digital no Brasil, R$
+# 549,90 na PS Store). A Ultimate também sai pela Standard + o upgrade (R$ 100 na PS Store): as duas formas de ter a
+# Ultimate são comparadas pelo custo final na tabela, no alerta e no resumo.
+EDICAO_GTA6 = {"GTA6_CODE_IN_BOX": "Standard", "GTA6_DIGITAL": "Standard", "GTA6_ULTIMATE": "Ultimate",
+               "GTA6_UPGRADE": "Ultimate"}
+FORMA_STANDARD = {"GTA6_CODE_IN_BOX": "Code in Box", "GTA6_DIGITAL": "digital"}
+_ORDEM_ENTREGA = {"a_tempo": 0, "digital": 0, "desconhecida": 1, "no_dia": 2, "depois": 3}
+
+
+def edicao_gta(pid: Any) -> Optional[str]:
+    """'Standard' (Code in Box, digital), 'Ultimate' (a Ultimate e o upgrade) ou None (não é o GTA 6 avulso)."""
+    return EDICAO_GTA6.get(str(pid or "").strip().upper())
+
+
+def _attr(o: Any, k: str, padrao: Any = None) -> Any:
+    return o.get(k, padrao) if isinstance(o, dict) else getattr(o, k, padrao)
+
+
+def _custo_do_gta(o: Any, desconto_gift: Optional[float]) -> Optional[float]:
+    """O custo final de uma oferta/postagem do GTA 6 (o preço comparável), ou None quando ela não conta: inativa, sem
+    preço, só para assinante (o usuário só tem Nubank/NuPay) ou postagem com mais de 7 dias."""
+    from .util import dias_desde
+
+    p = _melhor_preco(o)
+    if _attr(o, "ativo", True) is False or not p or exige_assinatura(o):
+        return None
+    if _attr(o, "tipo") == "post":
+        d = dias_desde(_attr(o, "publicado") or _attr(o, "primeira_vez"))
+        if d is not None and d > 7:
+            return None
+    return preco_comparavel(o, desconto_gift)
+
+
+def _oficial(pid: str, desconto_gift: Optional[float]) -> float:
+    p = produto(pid).preco_oficial
+    return round(p * (1 - desconto_gift), 2) if desconto_gift else p
+
+
+def comparacao_ultimate(ofertas: Iterable[Any], gift: Optional[tuple[float, Any]] = None) -> dict:
+    """A Ultimate pelo custo final: a Ultimate digital × a Standard (Code in Box ou digital) + o upgrade.
+
+    Vale o mais barato visto de cada um (o preço comparável: com o cupom do anuncio, ou com o gift card na PS Store);
+    sem oferta vista, o preço oficial da PS Store (Ultimate R$ 549,90, upgrade R$ 100, Standard digital R$ 449,90),
+    com o gift card quando há um. Devolve {'ultimate', 'upgrade', 'standard' (o mais barato), 'standards' (o melhor de
+    cada forma), 'standard_mais_upgrade', 'mais_barato' ('standard+upgrade' | 'ultimate' | 'empate'), 'diferenca',
+    'meta_ultimate'}; cada item tem custo, loja, url, produto, forma, oficial (preço oficial, sem oferta) e entrega."""
+    ofertas = list(ofertas)
+    if gift is None:
+        gift = desconto_gift_card(ofertas)
+    d = gift[0] if gift else None
+    melhor: dict[str, tuple[float, Any]] = {}
+    for o in ofertas:
+        pid = _pid(o)
+        if pid not in EDICAO_GTA6:
+            continue
+        c = _custo_do_gta(o, d)
+        if c is None:
+            continue
+        atual = melhor.get(pid)
+        if atual is None or c < atual[0] - 0.005 or (abs(c - atual[0]) < 0.005 and _ORDEM_ENTREGA.get(
+                _classe_entrega(o), 1) < _ORDEM_ENTREGA.get(_classe_entrega(atual[1]), 1)):
+            melhor[pid] = (c, o)
+
+    def item(pid: str) -> Optional[dict]:
+        if pid in melhor:
+            c, o = melhor[pid]
+            return {"produto": pid, "custo": c, "loja": _attr(o, "loja") or "?", "url": _attr(o, "url"),
+                    "forma": FORMA_STANDARD.get(pid, nome(pid)), "oficial": False, "entrega": _classe_entrega(o)}
+        if pid == "GTA6_CODE_IN_BOX":
+            return None   # o Code in Box não tem preço oficial na PS Store
+        return {"produto": pid, "custo": _oficial(pid, d), "loja": "PlayStation Store", "url": None,
+                "forma": FORMA_STANDARD.get(pid, nome(pid)), "oficial": True, "entrega": "digital"}
+
+    standards = [s for s in (item("GTA6_CODE_IN_BOX"), item("GTA6_DIGITAL")) if s]
+    std = min(standards, key=lambda s: (s["custo"], _ORDEM_ENTREGA.get(s["entrega"] or "", 1)))
+    ult, up = item("GTA6_ULTIMATE"), item("GTA6_UPGRADE")
+    soma = round(std["custo"] + up["custo"], 2)
+    dif = round(abs(soma - ult["custo"]), 2)
+    mais = "empate" if dif < 0.005 else ("standard+upgrade" if soma < ult["custo"] else "ultimate")
+    return {"ultimate": ult, "upgrade": up, "standard": std, "standards": standards, "standard_mais_upgrade": soma,
+            "mais_barato": mais, "diferenca": dif, "meta_ultimate": _alvo_base("GTA6_ULTIMATE")[0], "gift": d}
+
+
+def _classe_entrega(o: Any) -> Optional[str]:
+    e = entrega(o)
+    if e:
+        return e.classe
+    p = produto(_pid(o))
+    return "digital" if p and p.digital else None
+
+
+def _conclusao_ultimate(soma: float, ultimate: float) -> str:
+    dif = round(abs(soma - ultimate), 2)
+    if dif < 0.005:
+        return "as duas formas empatam"
+    if soma < ultimate:
+        return f"Standard + upgrade sai {_fmt(dif)} mais barato"
+    return f"a Ultimate digital sai {_fmt(dif)} mais barata"
+
+
+def linha_ultimate(o: Any, comp: dict, desconto_gift: Optional[float] = None) -> Optional[str]:
+    """A linha "🆚" do alerta de uma oferta do GTA 6 avulso: a Ultimate digital × Standard + upgrade pelo custo final,
+    com esta oferta no seu papel (a Standard, a Ultimate ou o upgrade). None para os outros produtos."""
+    pid = _pid(o)
+    if pid not in EDICAO_GTA6 or exige_assinatura(o):
+        return None
+    esta = preco_comparavel(o, desconto_gift)
+    if not esta:
+        return None
+    ult, up, std = comp["ultimate"], comp["upgrade"], comp["standard"]
+    ref_ult = f"Ultimate digital {_fmt(ult['custo'])} ({ult['loja']}{', preço oficial' if ult['oficial'] else ''})"
+    ref_up = f"upgrade {_fmt(up['custo'])}{' (preço oficial)' if up['oficial'] else ''}"
+    meta = comp.get("meta_ultimate")
+    if pid in FORMA_STANDARD:
+        soma = round(esta + up["custo"], 2)
+        txt = (f"🆚 Ultimate pelo custo final: esta Standard + {ref_up} = {_fmt(soma)} × {ref_ult} — "
+               f"{_conclusao_ultimate(soma, ult['custo'])}")
+        if meta:
+            txt += f" (meta da Ultimate {_fmt(meta)}{' ✅' if soma <= meta + 0.005 else ''})"
+        return txt
+    std_txt = f"{std['forma']} {_fmt(std['custo'])} em {std['loja']}{', preço oficial' if std['oficial'] else ''}"
+    if pid == "GTA6_ULTIMATE":
+        soma = comp["standard_mais_upgrade"]
+        return (f"🆚 Ultimate pelo custo final: esta {_fmt(esta)} × Standard + upgrade {_fmt(soma)} ({std_txt} + "
+                f"{ref_up}) — {_conclusao_ultimate(soma, esta)}")
+    soma = round(std["custo"] + esta, 2)   # o upgrade
+    return (f"🆚 Ultimate pelo custo final: Standard + este upgrade = {_fmt(soma)} ({std_txt}) × {ref_ult} — "
+            f"{_conclusao_ultimate(soma, ult['custo'])}")
+
+
 def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
-    """GTA 6 em todas as formas, pelo custo final (decisão do usuário em 03/10): o Code in Box de cada loja (Pix, com a
-    entrega) e o digital pago com o melhor gift card de loja oficial visto. Só ofertas/postagens ativas."""
+    """GTA 6 em todas as formas, pelo custo final (decisão do usuário em 03/10), nas duas edições (campo 'edicao'):
+    - Standard: o Code in Box de cada loja (Pix, com a entrega) e o digital (pago com o melhor gift card de loja oficial
+      visto, na PS Store);
+    - Ultimate (só digital no Brasil): a Ultimate digital (oferta vista ou o preço oficial) e a Standard + o upgrade de
+      R$ 100 (linha 'calculo' com 'via' = a forma da Standard: o melhor Code in Box e o melhor digital + o upgrade).
+    Só ofertas/postagens ativas. A Ultimate nunca é cortada pelo limite de linhas."""
     ofertas = list(ofertas)
     gift = desconto_gift_card(ofertas)
+    d = gift[0] if gift else None
     linhas: list[dict] = []
     for o in ofertas:
         pid = _pid(o)
         if familia(pid) != FAMILIA_GTA6 or pid == "GTA6_UPGRADE":
-            continue   # o upgrade é um complemento (Standard -> Ultimate), não uma forma de ter o jogo
-        ativo = o.get("ativo", True) if isinstance(o, dict) else getattr(o, "ativo", True)
+            continue   # o upgrade é um complemento (Standard -> Ultimate): entra somado à Standard, abaixo
         p = _melhor_preco(o)
-        if ativo is False or not p or exige_assinatura(o):
+        if _attr(o, "ativo", True) is False or not p or exige_assinatura(o):
             continue   # preço só de assinante (Prime, Meli+...) não é o custo final do usuário (só Nubank/NuPay)
-        custo = preco_comparavel(o, gift[0] if gift else None)
+        custo = preco_comparavel(o, d)
         cc = preco_com_cupom_do_anuncio(o)
         e = entrega(o)
-        loja = o.get("loja") if isinstance(o, dict) else o.loja
+        loja = _attr(o, "loja")
         forma = nome(pid)
         if produto(pid).digital and not paga_com_gift_card(o):
             # chave/código de outra loja: não é a compra na PS Store (o gift card não paga ali)
             forma = f"{forma.replace(' (PS Store)', '')} (código vendido por {loja})"
         linhas.append({
-            "produto": pid, "forma": forma, "loja": loja,
-            "tipo": (o.get("tipo") if isinstance(o, dict) else o.tipo),
-            "url": (o.get("url") if isinstance(o, dict) else o.url), "preco": p, "custo_final": custo,
+            "produto": pid, "edicao": edicao_gta(pid), "forma": forma, "loja": loja, "tipo": _attr(o, "tipo"),
+            "url": _attr(o, "url"), "preco": p, "custo_final": custo,
             "cupom": cc[1] if cc and custo == cc[0] else None,
             "entrega": e.classe if e else ("digital" if produto(pid).digital else None),
             "entrega_texto": e.texto if e else ("libera às 00:00 de 19/11 (digital)" if produto(pid).digital else ""),
             "meta": alvos_da_oferta(o).pix})
-    if gift:
-        d, og = gift
-        for pid, custo in custo_digital_com_gift(d).items():
-            if pid == "GTA6_UPGRADE":
-                continue
-            if not any(l["produto"] == pid and l["custo_final"] <= custo for l in linhas):
-                linhas.append({"produto": pid, "forma": nome(pid) + " (preço oficial + gift card)",
-                               "loja": "PlayStation Store", "tipo": "calculo",
-                               "url": og.get("url") if isinstance(og, dict) else og.url,
-                               "preco": produto(pid).preco_oficial, "custo_final": custo, "entrega": "digital",
-                               "entrega_texto": f"gift card a {d * 100:.0f}% de desconto", "meta": _alvo_base(pid)[0]})
+    for pid in ("GTA6_DIGITAL", "GTA6_ULTIMATE"):
+        # o digital pelo preço oficial (com o gift card, quando há): a Ultimate sempre (é a referência da comparação); a
+        # Standard digital só com o gift card (sem ele, a PS Store já está na tabela quando a fonte dela respondeu)
+        custo = _oficial(pid, d)
+        if (pid == "GTA6_DIGITAL" and not gift) or any(l["produto"] == pid and l["custo_final"] <= custo
+                                                       for l in linhas):
+            continue
+        texto = f"gift card a {d * 100:.0f}% de desconto" if gift else "libera às 00:00 de 19/11 (digital)"
+        linhas.append({"produto": pid, "edicao": edicao_gta(pid),
+                       "forma": nome(pid) + (" (preço oficial + gift card)" if gift else " (preço oficial)"),
+                       "loja": "PlayStation Store", "tipo": "calculo",
+                       "url": _attr(gift[1], "url") if gift else None, "preco": produto(pid).preco_oficial,
+                       "custo_final": custo, "entrega": "digital", "entrega_texto": texto,
+                       "meta": _alvo_base(pid)[0]})
+    # a Ultimate pela Standard + upgrade: o melhor de cada forma da Standard (já com o gift card) + o upgrade
+    up = comparacao_ultimate(ofertas, gift)["upgrade"]
+    for via, forma in FORMA_STANDARD.items():
+        base = sorted((l for l in linhas if l["produto"] == via and l["custo_final"]),
+                      key=lambda l: (l["custo_final"], _ORDEM_ENTREGA.get(l["entrega"] or "", 1)))
+        if not base:
+            continue
+        b = base[0]
+        linhas.append({
+            "produto": "GTA6_UPGRADE", "via": via, "edicao": "Ultimate",
+            "forma": f"GTA 6 Ultimate = Standard ({forma}) + upgrade", "loja": b["loja"], "tipo": "calculo",
+            "url": b["url"], "preco": round((b["preco"] or 0) + produto("GTA6_UPGRADE").preco_oficial, 2),
+            "custo_final": round(b["custo_final"] + up["custo"], 2), "cupom": b.get("cupom"),
+            "entrega": b["entrega"],
+            "entrega_texto": (f"{forma} {_fmt(b['custo_final'])} em {b['loja']} + upgrade {_fmt(up['custo'])}"
+                              f"{' (preço oficial)' if up['oficial'] else ''} na PS Store"
+                              + (f" · {b['entrega_texto']}" if b.get("entrega_texto") else "")),
+            "meta": _alvo_base("GTA6_ULTIMATE")[0]})
     # pelo custo final; no empate, a que chega a tempo (ou o digital, que libera à meia-noite) primeiro
-    ordem = {"a_tempo": 0, "digital": 0, "desconhecida": 1, "no_dia": 2, "depois": 3}
-    linhas.sort(key=lambda l: (l["custo_final"] or 9e9, ordem.get(l["entrega"] or "", 1)))
-    return linhas[:30]
+    linhas.sort(key=lambda l: (l["custo_final"] or 9e9, _ORDEM_ENTREGA.get(l["entrega"] or "", 1)))
+    standard = [l for l in linhas if l["edicao"] == "Standard"][:24]
+    ultimate = [l for l in linhas if l["edicao"] == "Ultimate"][:6]
+    return [l for l in linhas if any(l is x for x in standard + ultimate)]
 
 
 def para_painel() -> dict[str, dict]:
@@ -1486,5 +1652,6 @@ def para_painel() -> dict[str, dict]:
         out[i] = {"nome": p.nome, "curto": p.curto, "familia": p.familia, "secao": p.secao,
                   "alvo_pix": config.alvo_pix(i), "alvo_parcelado": config.alvo_parcelado(i),
                   "alvo_pix_tardio": p.alvo_pix_tardio, "alvo_parcelado_tardio": p.alvo_parcelado_tardio,
-                  "compara_preco": p.compara_preco, "digital": p.digital, "gta_fisico": p.gta_fisico}
+                  "compara_preco": p.compara_preco, "digital": p.digital, "gta_fisico": p.gta_fisico,
+                  "edicao": edicao_gta(i)}
     return out

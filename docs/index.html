@@ -360,7 +360,7 @@ function secaoFamilia(sec, titulo, ctx, posts, gtaFinal) {
     const p = CATALOGO[id], r = painelDoModelo(id, ctx);
     const meta = {pix: p.alvo_pix, parcelado: p.alvo_parcelado};
     const metaOferta = r.melhor?.extra?.alvo?.pix ?? meta.pix;
-    resumo.push(`<tr><td><b>${esc(p.nome)}</b></td>
+    resumo.push(`<tr><td><b>${esc(p.nome)}</b>${p.edicao ? `<span class="sub2">edição ${esc(p.edicao)}</span>` : ''}</td>
       <td class="num">${meta.pix != null ? fmt(meta.pix) : '<span class="sub2">por oferta</span>'}${meta.parcelado != null && meta.parcelado !== meta.pix ? `<span class="sub2">parc. ${fmt(meta.parcelado)}</span>` : ''}${p.alvo_pix_tardio ? `<span class="sub2">chega depois: ${fmt(p.alvo_pix_tardio)}</span>` : ''}</td>
       <td class="num"><b>${r.melhor ? fmt(r.melhor.melhor_preco) : '—'}</b>${r.melhor ? `<span class="sub2">${esc(quem(r.melhor))}</span>` : ''}</td>
       <td class="num"><b>${r.melhorParc ? fmt(r.melhorParc.pc.total) : '—'}</b>${r.melhorParc ? `<span class="sub2">${esc(quem(r.melhorParc.o))}</span>` : ''}</td>
@@ -384,21 +384,38 @@ function secaoFamilia(sec, titulo, ctx, posts, gtaFinal) {
 }
 
 // GTA 6 em todas as formas pelo custo final (latest.gta6_custo_final, calculado no monitor com o melhor gift card de loja
-// oficial visto): o mais barato primeiro, com a entrega (precisa chegar até 18/11 para jogar à meia-noite de 19/11)
+// oficial visto), nas duas edições (pedido de 03/10): a Standard (Code in Box e digital) e a Ultimate (só digital no
+// Brasil), que também sai pela Standard + o upgrade de R$ 100. O mais barato primeiro, com a entrega (precisa chegar até
+// 18/11 para jogar à meia-noite de 19/11). Linha de latest antigo, sem 'edicao': a edição sai do produto.
+const EDICAO_GTA = {GTA6_CODE_IN_BOX: 'Standard', GTA6_DIGITAL: 'Standard', GTA6_ULTIMATE: 'Ultimate', GTA6_UPGRADE: 'Ultimate'};
 function tabelaCustoFinal(fontes) {
   const vistos = new Map();
   for (const f of fontes) for (const r of (f.gta6_custo_final || [])) {
-    const k = [r.produto, normLoja(r.loja), r.url].join('|'), atual = vistos.get(k);
+    const k = [r.produto, r.via || '', normLoja(r.loja), r.url].join('|'), atual = vistos.get(k);
     if (!atual || r.custo_final < atual.custo_final) vistos.set(k, r);
   }
-  const linhas = [...vistos.values()].filter(r => r.custo_final != null).sort((a, b) => a.custo_final - b.custo_final).slice(0, 12);
-  if (!linhas.length) return '';
-  return `<h3 class="modelo-cab">Todas as formas pelo custo final</h3><div class="tbl"><table><thead><tr><th>Forma</th><th>Loja</th><th>Custo final</th><th>Meta</th><th>Entrega</th><th></th></tr></thead><tbody>${linhas.map(r => `<tr>
-    <td>${esc(r.forma)}</td><td>${esc(r.loja || '?')}${r.tipo === 'post' ? '<span class="sub2">postagem</span>' : ''}</td>
+  const todas = [...vistos.values()].filter(r => r.custo_final != null).sort((a, b) => a.custo_final - b.custo_final);
+  if (!todas.length) return '';
+  const edicao = r => r.edicao || EDICAO_GTA[r.produto] || 'Standard';
+  const std = todas.filter(r => edicao(r) === 'Standard').slice(0, 10), ult = todas.filter(r => edicao(r) === 'Ultimate').slice(0, 6);
+  const tabela = rs => `<div class="tbl"><table><thead><tr><th>Forma</th><th>Loja</th><th>Custo final</th><th>Meta</th><th>Entrega</th><th></th></tr></thead><tbody>${rs.map(r => `<tr>
+    <td>${esc(r.forma)}</td><td>${esc(r.loja || '?')}${r.tipo === 'post' ? '<span class="sub2">postagem</span>' : r.tipo === 'calculo' ? '<span class="sub2">cálculo</span>' : ''}</td>
     <td class="num"><b>${fmt(r.custo_final)}</b>${r.preco && Math.abs(r.preco - r.custo_final) > 0.5 ? `<span class="sub2">preço ${fmt(r.preco)}${r.cupom ? ` · cupom ${esc(r.cupom)}` : ''}</span>` : ''}</td>
     <td class="num ${r.meta && r.custo_final <= r.meta ? 'ok-t' : ''}">${r.meta ? fmt(r.meta) : '—'}</td>
     <td>${r.entrega ? `<span class="chip ${ENTREGA_CLASSE[r.entrega] || 'mute'}" title="${esc(r.entrega_texto || '')}">${esc(ENTREGA_ROTULO[r.entrega] || r.entrega)}</span>` : '—'}</td>
     <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">abrir</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  // a Ultimate mais barata: a digital × a Standard + upgrade (a melhor das linhas da comparação)
+  const dig = ult.find(r => r.produto === 'GTA6_ULTIMATE'), combo = ult.find(r => r.via);
+  let nota = '';
+  if (dig && combo) {
+    const d = Math.abs(dig.custo_final - combo.custo_final);
+    nota = d < 0.005 ? `Ultimate mais barata: a digital e a Standard + upgrade empatam (${fmt(dig.custo_final)}).`
+      : combo.custo_final < dig.custo_final ? `Ultimate mais barata: ${esc(combo.forma.replace('GTA 6 Ultimate = ', ''))} (${esc(combo.loja || '?')}) por ${fmt(combo.custo_final)}, ${fmt(d)} a menos que a Ultimate digital (${fmt(dig.custo_final)}).`
+      : `Ultimate mais barata: a digital por ${fmt(dig.custo_final)}, ${fmt(d)} a menos que a Standard + upgrade (${fmt(combo.custo_final)}).`;
+  }
+  return `<h3 class="modelo-cab">Todas as formas pelo custo final</h3>
+    <h3 class="modelo-cab">Edição Standard <span class="sub2">Code in Box e digital</span></h3>${std.length ? tabela(std) : '<p class="nota">Nenhuma oferta da Standard agora.</p>'}
+    <h3 class="modelo-cab">Edição Ultimate <span class="sub2">só digital no Brasil; ou a Standard + upgrade de R$ 100 na PS Store</span></h3>${nota ? `<p class="nota">${nota}</p>` : ''}${ult.length ? tabela(ult) : '<p class="nota">Sem preço da Ultimate agora.</p>'}`;
 }
 
 (async () => {

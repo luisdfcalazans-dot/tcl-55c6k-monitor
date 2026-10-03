@@ -409,3 +409,162 @@ def test_mensagem_com_o_gta_6_e_outro_gta_separa_os_blocos():
     # a linha de outro GTA abre o bloco de outro produto: o preço dele não entra no do GTA 6
     r = produtos.extrai_produtos("GTA VI PS5 Code in Box\n💰 R$ 339\nGrand Theft Auto V para PS5\n💰 R$ 59")
     assert "R$ 59" not in r["GTA6_CODE_IN_BOX"].trecho and "R$ 339" in r["GTA6_CODE_IN_BOX"].trecho
+
+
+# ------------------------------------------------------------------------------------------------
+# P5. as duas edições do GTA 6: Ultimate digital × Standard (Code in Box ou digital) + upgrade, pelo custo final
+# ------------------------------------------------------------------------------------------------
+
+URL_ULT = "https://store.playstation.com/pt-br/product/EP1004-PPSA01547_00-GTAVIULTIMATE001"
+URL_STD = "https://store.playstation.com/pt-br/product/EP1004-PPSA01547_00-GTAVISTANDARD001"
+
+
+def _cib(loja="KaBuM!", preco=449.9, pix=418.41, oid="1051619", tipo="loja", entrega_prevista="2026-11-17"):
+    return Oferta("kabum", tipo, loja, "Jogo Grand Theft Auto VI PS5 Code in Box", f"https://k/{oid}", oid, preco=preco,
+                  preco_pix=pix, vendedor=loja, modelo="GTA6_CODE_IN_BOX", publicado=agora_iso(),
+                  extra={"entrega_prevista": entrega_prevista} if entrega_prevista else {})
+
+
+def _ps(pid, preco, url, oid):
+    titulo = {"GTA6_DIGITAL": "Grand Theft Auto VI", "GTA6_ULTIMATE": "Grand Theft Auto VI: Ultimate Edition",
+              "GTA6_UPGRADE": "Grand Theft Auto VI: Melhoria Ultimate Edition"}[pid]
+    return Oferta("psstore", "loja", "PlayStation Store", titulo, url, oid, preco=preco, vendedor="PlayStation Store",
+                  modelo=pid)
+
+
+def _gift_nuuvem():
+    return Oferta("promobit", "post", "Nuuvem", "Gift Card PlayStation R$ 300", "https://p/g", "g1", preco=242.74,
+                  modelo="GIFT_CARD_PSN", publicado=agora_iso())
+
+
+def test_custo_final_mostra_as_duas_edicoes_e_o_standard_mais_upgrade():
+    linhas = produtos.custo_final_gta([_cib(), _ps("GTA6_DIGITAL", 449.90, URL_STD, "s"),
+                                       _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")])
+    assert {l["edicao"] for l in linhas} == {"Standard", "Ultimate"}
+    std = {l["produto"]: l for l in linhas if l["edicao"] == "Standard"}
+    assert set(std) == {"GTA6_CODE_IN_BOX", "GTA6_DIGITAL"}
+    ult = [l for l in linhas if l["edicao"] == "Ultimate"]
+    # a Ultimate digital e o Standard (Code in Box e digital) + upgrade de R$ 100 (preço oficial: a PS Store ainda não
+    # vende o upgrade), pelo custo final
+    combos = {l["via"]: l for l in ult if l.get("via")}
+    assert set(combos) == {"GTA6_CODE_IN_BOX", "GTA6_DIGITAL"}
+    assert combos["GTA6_CODE_IN_BOX"]["custo_final"] == 518.41 and combos["GTA6_DIGITAL"]["custo_final"] == 549.90
+    assert "Standard" in combos["GTA6_CODE_IN_BOX"]["forma"] and "upgrade" in combos["GTA6_CODE_IN_BOX"]["forma"]
+    assert combos["GTA6_CODE_IN_BOX"]["entrega"] == "a_tempo"            # a caixa ainda tem de chegar
+    assert combos["GTA6_CODE_IN_BOX"]["meta"] == 450.0                   # a meta da Ultimate
+    (digital,) = [l for l in ult if l["produto"] == "GTA6_ULTIMATE"]
+    assert digital["custo_final"] == 549.90 and digital["entrega"] == "digital"
+    assert [l["custo_final"] for l in linhas] == sorted(l["custo_final"] for l in linhas)
+
+
+def test_custo_final_com_gift_card_desconta_a_ultimate_e_o_upgrade():
+    d = 1 - 242.74 / 300
+    linhas = produtos.custo_final_gta([_cib(), _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u"), _gift_nuuvem()])
+    (ult,) = [l for l in linhas if l["produto"] == "GTA6_ULTIMATE" and l["tipo"] == "loja"]
+    assert ult["custo_final"] == round(549.90 * (1 - d), 2)
+    (combo,) = [l for l in linhas if l.get("via") == "GTA6_CODE_IN_BOX"]
+    assert combo["custo_final"] == round(418.41 + round(100.0 * (1 - d), 2), 2)   # o upgrade é pago na PS Store
+
+
+def test_custo_final_sem_ultimate_vista_usa_o_preco_oficial():
+    linhas = produtos.custo_final_gta([_cib()])
+    ult = [l for l in linhas if l["edicao"] == "Ultimate"]
+    assert any(l["produto"] == "GTA6_ULTIMATE" and l["custo_final"] == 549.90 and l["tipo"] == "calculo" for l in ult)
+    assert any(l.get("via") == "GTA6_CODE_IN_BOX" and l["custo_final"] == 518.41 for l in ult)
+
+
+def test_custo_final_nao_corta_a_ultimate_com_muitas_ofertas_standard():
+    muitas = [_cib(loja="KaBuM!", preco=400.0 + i, pix=None, oid=f"k{i}") for i in range(40)]
+    linhas = produtos.custo_final_gta(muitas + [_ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")])
+    assert any(l["produto"] == "GTA6_ULTIMATE" for l in linhas) and any(l.get("via") for l in linhas)
+
+
+def test_comparacao_da_ultimate_pelo_custo_final():
+    c = produtos.comparacao_ultimate([_cib(pix=340.0), _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")])
+    assert c["ultimate"]["custo"] == 549.90 and c["upgrade"]["custo"] == 100.0
+    assert c["standard"]["custo"] == 340.0 and c["standard"]["produto"] == "GTA6_CODE_IN_BOX"
+    assert c["standard_mais_upgrade"] == 440.0 and c["mais_barato"] == "standard+upgrade"
+
+
+def _estado_iniciado(tmp_path, monkeypatch):
+    from monitor import config
+    from monitor.estado import Estado
+
+    monkeypatch.setattr(config, "DIR_DADOS", tmp_path)
+    d = {"ofertas": {}, "cupons": {}, "minimo": None, "saude": {}, "ultimo_resumo": None,
+         "criado_em": "2026-09-13T15:22:00-03:00", "modelos_iniciados": list(produtos.IDS)}
+    (tmp_path / "state_cloud.json").write_text(json.dumps(d), encoding="utf-8")
+    return Estado("cloud")
+
+
+def test_alerta_do_standard_compara_com_a_ultimate(tmp_path, monkeypatch):
+    from monitor.regras import gerar_alertas
+
+    e = _estado_iniciado(tmp_path, monkeypatch)
+    post = _cib(loja="KaBuM!", preco=340.0, pix=None, oid="p1", tipo="post")
+    msgs, _ = gerar_alertas(e, [post, _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")], [])
+    (m,) = [x for x in msgs if "Code in Box" in x.split("\n")[0]]
+    linha = next(l for l in m.split("\n") if l.startswith("🆚"))
+    assert "Ultimate" in linha and "Standard" in linha and "upgrade" in linha
+    assert "R$ 440,00" in linha and "R$ 549,90" in linha and "R$ 109,90" in linha
+    assert "meta da Ultimate" in linha
+
+
+def test_alerta_da_ultimate_compara_com_o_standard_mais_upgrade(tmp_path, monkeypatch):
+    from monitor.regras import gerar_alertas
+
+    e = _estado_iniciado(tmp_path, monkeypatch)
+    ult = Oferta("promobit", "post", "PlayStation Store", "GTA VI Ultimate Edition PS5", "https://p/u", "u1",
+                 preco=499.90, modelo="GTA6_ULTIMATE", publicado=agora_iso())
+    msgs, _ = gerar_alertas(e, [ult, _cib(pix=340.0)], [])
+    (m,) = [x for x in msgs if "Ultimate" in x.split("\n")[0]]
+    linha = next(l for l in m.split("\n") if l.startswith("🆚"))
+    assert "Standard + upgrade" in linha and "R$ 440,00" in linha and "R$ 499,90" in linha and "R$ 59,90" in linha
+    assert "Code in Box" in linha and "KaBuM!" in linha
+
+
+def test_resumo_compara_as_duas_edicoes(tmp_path, monkeypatch):
+    from monitor.regras import resumo_diario
+
+    e = _estado_iniciado(tmp_path, monkeypatch)
+    of = [_cib(pix=418.41), _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")]
+    r = resumo_diario(e, of, [])
+    linha = next(l for l in r.split("\n") if l.startswith("🆚"))
+    assert "Ultimate" in linha and "R$ 518,41" in linha and "R$ 549,90" in linha
+
+
+def test_painel_mostra_as_duas_edicoes(tmp_path):
+    import test_painel as tp
+
+    if not tp.NODE:
+        pytest.skip("node não encontrado no PATH")
+    harness = tp.HARNESS.replace(
+        "process.stdout.write(JSON.stringify(saida));",
+        "saida.gta = el('secao-GTA6').innerHTML;\n  process.stdout.write(JSON.stringify(saida));")
+    cat = produtos.para_painel()
+    assert cat["GTA6_CODE_IN_BOX"]["edicao"] == "Standard" and cat["GTA6_ULTIMATE"]["edicao"] == "Ultimate"
+    gta = tp.oferta("kabum", "KaBuM!", 449.9, 418.41, vendedor="KaBuM!", oid="1051619")
+    gta.update(modelo="GTA6_CODE_IN_BOX", titulo="GTA VI")
+    cloud = tp.latest("cloud", tp.CLOUD_AT, [*tp.ofertas_cloud_hoje(), gta], tp.MIN_MAGALU)
+    cloud["produtos"] = cat
+    # 14 linhas da Standard (mais que as 12 da tabela de antes) e as da Ultimate, mais caras: as duas aparecem
+    muitas = [_cib(loja="KaBuM!", preco=400.0 + i, pix=None, oid=f"k{i}") for i in range(14)]
+    cloud["gta6_custo_final"] = produtos.custo_final_gta(muitas + [_ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")])
+    dados = tmp_path / "dados.json"
+    dados.write_text(json.dumps({"agora": tp.AGORA, "formatar": [], "arquivos": {
+        "data/latest_cloud.json": cloud, "data/latest_pc.json": tp.latest("pc", tp.PC_AT, tp.ofertas_pc_hoje(),
+                                                                         tp.MIN_AMAZON),
+        "data/historico_cloud.csv": tp.CSV_CLOUD, "data/historico_pc.csv": tp.CSV_PC}}, ensure_ascii=False),
+        encoding="utf-8")
+    h = tmp_path / "h.js"
+    h.write_text(harness, encoding="utf-8")
+    p = subprocess.run([tp.NODE, str(h), str(tp.INDEX), str(dados)], capture_output=True, text=True, encoding="utf-8",
+                       timeout=60)
+    assert p.returncode == 0, p.stderr
+    out = json.loads(p.stdout)
+    assert out["erro"] is None, out["erro"]
+    g = out["gta"]
+    assert "Edição Standard" in g and "Edição Ultimate" in g
+    assert "Standard (Code in Box) + upgrade" in g and "GTA 6 digital Ultimate" in g
+    assert tp.brl(549.90) in g and tp.brl(500.0) in g          # o Code in Box de R$ 400 + upgrade de R$ 100
+    assert "Ultimate mais barata" in g
