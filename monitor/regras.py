@@ -702,8 +702,12 @@ _TEMAS_CUPOM = (
     ("console", re.compile(r"\bconsoles?\b|\bps5\b|playstation 5|\bvideo\s?games?\b")),
     ("gift", re.compile(r"\bgift\s?cards?\b|\bcart(?:ao|oes) presente\b|\bvale[\s-]presentes?\b|\bpsn card|"
                         r"\bsaldo (?:playstation|psn)\b")),
-    ("leitor", re.compile(r"\bleitor(?:es)?\b")),
+    ("leitor", re.compile(r"\bleitor(?:es)?\b|\bunidades? de dis[ck]os?\b|\bdrives? de dis[ck]os?\b|\bdisc drive\b")),
 )
+_RE_TEMA_LEITOR = dict(_TEMAS_CUPOM)["leitor"]
+# o leitor como característica do console ou parte do kit, logo antes dele: "PS5 com leitor", "PS5 Slim c/ Leitor de
+# Disco", "PS5 sem leitor", "PS5 Digital + Leitor de Disco"
+_RE_LEITOR_RECURSO = re.compile(r"(?:\bcom|\bc/|\bsem|\+)\s*(?:o\s+|um\s+)?$")
 # "em jogos" (a categoria) vale para o jogo do GTA; "no jogo Palworld", "do jogo", "jogos de tabuleiro/PC/mobile" são de
 # outro jogo
 _RE_JOGOS_GENERICO = re.compile(r"\b(?:em|nos|de|para|todos os)\s+(?:todos\s+os\s+)?jogos\b"
@@ -739,15 +743,33 @@ def _loja_de_outra_marca_jogos(e: "_Escopo", loja: str) -> bool:
     return loja_canonica(nome) != loja_canonica(loja or "")
 
 
+def _leitor_ou_console(t: str, temas: set[str]) -> None:
+    """Cupom que cita o PS5 e o leitor: de quem é? Do console quando o leitor é característica dele ou parte do kit ("R$
+    200 OFF no PS5 Slim com Leitor de Disco", "Cupom PS5 com leitor", "PS5 Slim Leitor de Disco 1TB", "PS5 Digital +
+    Leitor"); dos dois numa lista com a palavra console antes ("10% OFF em consoles e leitores de disco"); só do leitor
+    quando ele é o assunto e o PS5 é a plataforma dele ("R$ 62 OFF no Leitor de Disco PS5" (LEITOR62), "Leitor de Disco
+    PS5 por R$ 399", "na Unidade de Disco para Consoles PS5"). 2ª conferência de 03/10: "com leitor" sem a palavra
+    console virava "cupom só de leitor" e saía do PS5 com leitor (alerta e testador)."""
+    m = _RE_TEMA_LEITOR.search(t)
+    if not m:
+        return
+    if _RE_LEITOR_RECURSO.search(t[:m.start()]) or produtos.papel_do_leitor(t) == "console":
+        temas.discard("leitor")
+        return
+    cw = _RE_CONSOLE_PALAVRA_CUPOM.search(t)
+    if cw and cw.start() < m.start():
+        return
+    temas.discard("console")
+
+
 def _temas_do_texto(t: str) -> set[str]:
     """Os temas que o texto do cupom cita; o GTA vence (o "PS5" de "GTA 6 PS5" é a plataforma). "Em jogos" (a
     categoria) é o tema 'jogo'; um jogo citado sem ser o GTA ("no jogo Palworld") é 'outro_jogo'."""
     temas = {nome for nome, rx in _TEMAS_CUPOM if rx.search(t)}
     if "gta" in temas:
         return {"gta"}
-    if "leitor" in temas and "console" in temas and not _RE_CONSOLE_PALAVRA_CUPOM.search(t):
-        # "R$ 62 OFF no Leitor de Disco PS5" (LEITOR62): o PS5 é a plataforma do leitor, não o console (revisão de 03/10)
-        temas.discard("console")
+    if "leitor" in temas and "console" in temas:
+        _leitor_ou_console(t, temas)
     if "console" in temas and _RE_GAMES_CATEGORIA.search(t):
         # "10% OFF em Games e Consoles" (GAMES10): a categoria toda de games (jogos inclusive), não só o console
         temas.discard("console")

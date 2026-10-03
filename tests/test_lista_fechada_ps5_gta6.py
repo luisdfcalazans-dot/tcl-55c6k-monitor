@@ -226,3 +226,54 @@ def test_leitor_da_pessoa_no_carrinho_continua_fora_dos_principais():
     # a defesa do carrinho (1ª revisão) não muda: uma linha que cita o leitor como peça nunca é um principal
     for t in LEITORES_AVULSOS[:16]:
         assert produto_do_titulo(t) is None and modelo_da_linha(t) is None, t
+
+
+# ------------------------------------------------------------------------------------------------
+# P3. cupom do console que cita "com leitor" é do console; só é do leitor quando o leitor é o assunto
+# ------------------------------------------------------------------------------------------------
+
+CONSOLES = ("PS5_DIGITAL", "PS5_DISCO", "PS5_PRO", "PS5_KIT")
+
+
+def _cupom(loja, codigo, titulo, regra=""):
+    return Cupom("promobit", loja, codigo, titulo, "https://c", codigo, regra=regra)
+
+
+def _servem(c):
+    return {p for p in CONSOLES + ("LEITOR_PS5", "GTA6_CODE_IN_BOX", "GIFT_CARD_PSN") if cupom_compativel(c, None, p)[0]}
+
+
+@pytest.mark.parametrize("loja,codigo,titulo", [
+    ("KaBuM!", "PS5C200", "R$ 200 OFF no PS5 Slim com Leitor de Disco"),
+    ("KaBuM!", "PS5COMLEITOR", "Cupom PS5 com leitor"),
+    ("Magazine Luiza", "PS5C300", "R$ 300 OFF no PlayStation 5 com leitor"),
+    ("Amazon", "PS5STD", "10% OFF PS5 Slim Edição Standard (com leitor)"),
+    ("KaBuM!", "PS5CL", "R$ 250 OFF no PS5 Slim c/ Leitor de Disco 1TB"),
+    ("KaBuM!", "PS5SLD", "R$ 300 OFF no PS5 Slim Leitor de Disco 1TB"),   # o console com leitor (P2)
+    ("Netshoes", "PS5KIT", "R$ 400 OFF no PS5 Digital + Leitor de Disco"),  # o kit (o leitor vem junto)
+])
+def test_cupom_do_console_com_leitor_serve_para_o_console(loja, codigo, titulo):
+    c = _cupom(loja, codigo, titulo)
+    assert cupom_compativel(c, None, "PS5_DISCO") == (True, "")
+    assert _servem(c) == set(CONSOLES), _servem(c)
+    assert cupom_compativel(c, None, "LEITOR_PS5")[1] == "cupom só de console"
+
+
+@pytest.mark.parametrize("loja,codigo,titulo", [
+    ("KaBuM!", "LEITOR62", "R$ 62 OFF no Leitor de Disco PS5"),               # o caso real da pesquisa (10/09)
+    ("KaBuM!", "LEITOR399", "Leitor de Disco PS5 por R$ 399 com cupom"),
+    ("KaBuM!", "LEITORPS5", "Cupom de R$ 50 OFF no Leitor de Disco do PS5 Digital"),
+    ("Pelando", "DRIVE", "10% OFF Leitor de Disco Sony para PS5 Slim"),
+    ("Netshoes", "UNIDADE", "R$ 80 OFF na Unidade de Disco PS5"),             # "unidade de disco" também é o leitor
+    ("KaBuM!", "VIRADISC", "15% OFF no leitor de disco"),
+    ("KaBuM!", "UNIDCONS", "R$ 50 OFF na Unidade de Disco para Consoles PS5 Digital"),
+])
+def test_cupom_do_leitor_continua_so_do_leitor(loja, codigo, titulo):
+    c = _cupom(loja, codigo, titulo)
+    assert _servem(c) == {"LEITOR_PS5"}, _servem(c)
+    assert cupom_compativel(c, None, "PS5_DISCO")[1] == "cupom só de leitor"
+
+
+@pytest.mark.parametrize("titulo", ["10% OFF em consoles e leitores de disco", "R$ 150 OFF em Consoles e Leitores"])
+def test_cupom_de_consoles_e_leitores_serve_para_os_dois(titulo):
+    assert _servem(_cupom("KaBuM!", "X", titulo)) == set(CONSOLES) | {"LEITOR_PS5"}

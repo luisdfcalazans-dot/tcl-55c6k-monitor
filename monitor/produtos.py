@@ -470,6 +470,17 @@ _RE_PS5_ANTES = re.compile(r"\bps5\b|\bplaystation\b")
 _RE_VERSAO_SEM_LEITOR = re.compile(r"\bpro\b|\bdigital\b")
 
 
+def papel_do_leitor(texto: Any) -> Optional[str]:
+    """Como o texto (título, cupom) cita o leitor de disco como peça: 'peca' (o leitor é o assunto: o leitor avulso,
+    "R$ 62 OFF no Leitor de Disco PS5"), 'console' (descreve o console ou entra num kit: "PS5 Slim Leitor de Disco 1TB",
+    "Leitor de Disco + Console PS5") ou None (não cita o leitor como peça; "com leitor", "+ leitor" ficam com quem
+    chama). A mesma leitura do classificador (_e_o_leitor)."""
+    t = normaliza(texto)
+    if not _RE_LEITOR_PECA.search(t):
+        return None
+    return "peca" if _e_o_leitor(t) else "console"
+
+
 def cita_leitor_avulso(texto: Any) -> bool:
     """O texto cita o leitor de disco como peça ("Leitor de Disco ... Console PS5", "Unidade de Disco para Consoles
     PS5"), não como descrição do console ("com leitor", "+ leitor"). O carrinho usa: uma linha assim nunca é um
