@@ -2118,6 +2118,9 @@ def main() -> int:
         return login(a.loja)
     if a.check:
         return 0 if all(checar_sessao(l, a.visivel) for l in lojas) else 1
+    if config.modo_vigia() and not a.codigos and not a.forcar:
+        print(f"[vigia] TV comprada (03/10): testador de cupons desligado até {config.VIGIA_ATE}")
+        return 0
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None
     return executar(lojas, cods, a.forcar, a.visivel, not a.no_notify)
 

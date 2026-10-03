@@ -134,12 +134,25 @@ def main() -> int:
     for velha, nova in estado.migra_chaves_de_oferta(ofertas).items():  # type: ignore[arg-type]
         print(f"[estado] histórico de {velha} passou para {nova}")
 
-    msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
+    vigia = config.modo_vigia(hoje())
+    if vigia:
+        # TV comprada (03/10): só a 65C6K abaixo do limite gera alerta; sem cupons, sem 55C6K, sem resumo diário
+        config.ALVO_PIX_65 = config.ALVO_PARCELADO_65 = config.VIGIA_LIMITE
+        candidatas = [o for o in ofertas if modelo_de(o) == config.VIGIA_MODELO  # type: ignore[arg-type]
+                      and o.melhor_preco and o.melhor_preco <= config.VIGIA_LIMITE]  # type: ignore[union-attr]
+        print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; alerta só da {config.VIGIA_MODELO} até "
+              f"R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s)")
+        msgs, alertados = gerar_alertas(estado, candidatas, [])  # type: ignore[arg-type]
+        avisos = []
+    else:
+        msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
     aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
     # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço
     diretas = estado.lojas_diretas_conhecidas(ofertas)  # type: ignore[arg-type]
 
-    if estado.bootstrap and (ofertas or cupons):
+    if vigia:
+        pass  # modo vigia: sem mensagem de início nem resumo diário
+    elif estado.bootstrap and (ofertas or cupons):
         msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas)]  # type: ignore[arg-type]
     elif not estado.bootstrap:
         # partida de um modelo que entrou num state que já existia (26/09: a 65C6K): gerar_alertas não alertou nada
@@ -150,8 +163,8 @@ def main() -> int:
 
     # resumo diário
     h = agora().hour
-    if args.resumo or (config.HORA_RESUMO_DIARIO >= 0 and h >= config.HORA_RESUMO_DIARIO
-                       and estado.dados.get("ultimo_resumo") != hoje() and args.mode != "pc"):
+    if not vigia and (args.resumo or (config.HORA_RESUMO_DIARIO >= 0 and h >= config.HORA_RESUMO_DIARIO
+                       and estado.dados.get("ultimo_resumo") != hoje() and args.mode != "pc")):
         if not estado.bootstrap:
             msgs.append(resumo_diario(estado, ofertas, aplicaveis))  # type: ignore[arg-type]
         estado.dados["ultimo_resumo"] = hoje()

@@ -27,6 +27,23 @@ ALVO_PIX_65 = float(_env("ALVO_PIX_65", "3300"))          # 65C6K: à vista / Pi
 ALVO_PARCELADO_65 = float(_env("ALVO_PARCELADO_65", "3500"))  # 65C6K: total parcelado sem juros
 QUEDA_MINIMA_PCT = float(_env("QUEDA_MINIMA_PCT", "2"))  # queda vs. última coleta que gera alerta
 
+# Modo vigia (03/10/2026): o usuário COMPROU a 65C6K por R$ 3.527 (Pelando, Mais Correios / Ponto Frio). Até VIGIA_ATE só
+# sai alerta da 65C6K com preço pelo menos R$ 100 abaixo do que ele pagou (para devolver no prazo de arrependimento e
+# recomprar); alertas da 55C6K, de cupom e o resumo diário param, e o testador de cupons não roda.
+VIGIA_MODELO = "65C6K"
+VIGIA_PRECO_PAGO = float(_env("VIGIA_PRECO_PAGO", "3527"))
+VIGIA_LIMITE = float(_env("VIGIA_LIMITE", str(VIGIA_PRECO_PAGO - 100)))
+VIGIA_ATE = _env("VIGIA_ATE", "2026-10-17")   # inclusive; ajustar para 7 dias depois da entrega
+
+
+def modo_vigia(hoje_iso: str | None = None) -> bool:
+    """Ainda dentro da janela de vigia da TV comprada? (vazio em VIGIA_ATE desliga o modo)."""
+    if not VIGIA_ATE:
+        return False
+    from datetime import date
+    d = hoje_iso or date.today().isoformat()
+    return d <= VIGIA_ATE
+
 
 def alvo_pix(modelo: str | None = None) -> float:
     """Alvo do Pix/à vista do modelo (sem modelo: o da 55C6K). Lê o valor do módulo na hora (os testes trocam)."""
@@ -202,7 +219,7 @@ LOJAS_CANONICAS = {
     "fast shop": "Fast Shop", "fastshop": "Fast Shop", "fast-shop": "Fast Shop",
     "aliexpress": "AliExpress", "shopee": "Shopee",
     "loja tcl": "Loja TCL", "tcl": "Loja TCL", "semp tcl": "Loja TCL", "tcl semp": "Loja TCL",
-    "webcontinental": "Webcontinental",
+    "webcontinental": "Webcontinental", "maiscorreios": "Mais Correios", "mais correios": "Mais Correios", "maiscorreios.com.br": "Mais Correios",
     "ponto": "Ponto", "pontofrio": "Ponto", "ponto frio": "Ponto", "extra": "Extra",
     "carrefour": "Carrefour", "americanas": "Americanas",
 }

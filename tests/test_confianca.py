@@ -1519,3 +1519,11 @@ def test_c6_log_do_expurgo_diz_suspeito_ou_reprovado(dados, capsys):
     Estado("cloud")
     (linha,) = [ln for ln in capsys.readouterr().out.splitlines() if "registro(s)" in ln]
     assert "1 de anúncio suspeito" in linha and "reprovado" not in linha, linha
+
+
+def test_modo_vigia_janela(monkeypatch):
+    from monitor import config
+    monkeypatch.setattr(config, "VIGIA_ATE", "2026-10-17")
+    assert config.modo_vigia("2026-10-03") and config.modo_vigia("2026-10-17")
+    assert not config.modo_vigia("2099-01-01")
+    assert config.VIGIA_LIMITE == config.VIGIA_PRECO_PAGO - 100
