@@ -723,9 +723,31 @@ class Estado:
         print(f"[estado] historico_{self.modo}.csv: coluna 'modelo' acrescentada ao cabeçalho (linhas antigas = "
               f"{MODELO_PADRAO})")
 
+    def _repete_no_historico(self, o: Oferta, dia: str) -> bool:
+        """PS5/GTA 6 e o resto do catálogo que não é TV (03/10): a linha só entra no CSV quando o preço (cartão, Pix,
+        parcelado, cupom, vendedor) muda ou na primeira rodada do dia. São ~50 anúncios por rodada; repetir todos a cada
+        15 min incharia o CSV que o painel baixa. O gráfico (menor preço de cada loja por dia) fica igual. As TVs gravam
+        toda rodada, como antes. True quando a linha é repetição e fica de fora."""
+        if produtos.eh_tv(modelo_de(o)):
+            return False
+        assin = "|".join(str(x or "") for x in (o.preco, o.preco_pix, o.parcelado, o.cupom, o.vendedor))
+        reg = self.dados.setdefault("historico_ultimas", {})
+        antes = reg.get(o.chave)
+        if isinstance(antes, dict) and antes.get("assinatura") == assin and antes.get("dia") == dia:
+            return True
+        reg[o.chave] = {"assinatura": assin, "dia": dia}
+        return False
+
     def anexa_historico(self, ofertas: list[Oferta]) -> None:
         self._purga_historico()
-        linhas = [o for o in ofertas if o.ativo and o.melhor_preco and not self._bloqueado(o)]
+        dia = agora_iso()[:10]
+        linhas = [o for o in ofertas if o.ativo and o.melhor_preco and not self._bloqueado(o)
+                  and not self._repete_no_historico(o, dia)]
+        # o registro do que já foi gravado fica só com o dia de hoje (o de ontem não serve mais)
+        ultimas = self.dados.get("historico_ultimas")
+        if isinstance(ultimas, dict):
+            self.dados["historico_ultimas"] = {k: v for k, v in ultimas.items()
+                                               if isinstance(v, dict) and v.get("dia") == dia}
         novo = not self.arq_hist.exists()
         if linhas and not novo:
             self._cabecalho_com_modelo()

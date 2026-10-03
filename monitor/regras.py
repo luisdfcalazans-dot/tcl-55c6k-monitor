@@ -1637,7 +1637,10 @@ def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -
                 p = produtos.preco_comparavel(o, gift[0] if gift else None)
                 quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
                 txt += f"{fmt_preco(p)} ({_esc(quem)})"
-                if p and o.melhor_preco and abs(p - o.melhor_preco) > 0.5:
+                cc = produtos.preco_com_cupom_do_anuncio(o)
+                if p and cc and abs(p - cc[0]) < 0.005:
+                    txt += f" com o cupom {_esc(cc[1])} (sem ele {fmt_preco(o.melhor_preco)})"
+                elif p and o.melhor_preco and abs(p - o.melhor_preco) > 0.5:
                     txt += f" com gift card (na loja {fmt_preco(o.melhor_preco)})"
                 alvo_pix, _ap = alvos_de(o)
                 dist = produtos.distancia(p, alvo_pix)
@@ -1738,14 +1741,18 @@ def _bootstrap_produtos(ofertas: list[Oferta], cupons: list[Cupom], modo: str, d
               if any(produtos.secao(m) == s for m in modelos)]
     linhas = [f"✅ <b>Monitor de {' e '.join(secoes)} iniciado</b> (modo {modo})"]
     for m in [x for x in produtos.IDS if x in modelos]:
+        # pelo preço que conta para a meta (com o cupom da página do anúncio, quando há)
         lojas = sorted([o for o in ofertas if o.tipo == "loja" and modelo_de(o) == m and conta_como_preco(o, diretas)],
-                       key=lambda o: o.melhor_preco or 0)
+                       key=lambda o: produtos.preco_comparavel(o) or o.melhor_preco or 0)
         if not lojas:
             continue
         o = lojas[0]
+        p = produtos.preco_comparavel(o) or o.melhor_preco
+        cc = produtos.preco_com_cupom_do_anuncio(o)
+        com_cupom = f" com o cupom {_esc(cc[1])}" if cc and p and abs(p - cc[0]) < 0.005 else ""
         quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
         alvo_pix, _ap = alvos_de(o)
-        linhas.append(f"• {_esc(rotulo_modelo(m))}: <b>{fmt_preco(o.melhor_preco)}</b> ({_esc(quem)})"
+        linhas.append(f"• {_esc(rotulo_modelo(m))}: <b>{fmt_preco(p)}</b>{com_cupom} ({_esc(quem)})"
                       + (f" · meta {fmt_preco(alvo_pix)}" if alvo_pix else ""))
     posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in modelos]
     linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só "

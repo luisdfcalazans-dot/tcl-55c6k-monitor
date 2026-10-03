@@ -536,9 +536,11 @@ def _extras_do_console(t: str, base: str, generico: bool = True) -> list[dict]:
         limpo = _RE_JOGOS_DA_BASE.sub(" ", t)
         for m in _RE_OUTRO_EXTRA.finditer(limpo):
             resto = m.group(1).strip()
-            # o que sobra de "+ 1 Controle Sony" (o controle que acompanha) também não é extra
+            # o que sobra de "+ 1 Controle Sony" (o controle que acompanha) também não é extra; nem a versão escrita
+            # depois do pacote ("... DualSense + 2 Jogos Digitais Edição Digital", Magalu 240590700, 03/10)
             if _RE_GTA6.match(resto) or re.match(r"(?:ps5|playstation|console|slim|digital|pro\b|r\$|\d|sony\b|"
-                                                 r"branc[oa]\b|pret[oa]\b|bivolt\b|cor\b)", resto):
+                                                 r"branc[oa]\b|pret[oa]\b|bivolt\b|cor\b|edicao\b|edition\b|"
+                                                 r"versao\b|standard\b|bundle\b|pacote\b)", resto):
                 continue
             out.append({"tipo": "jogo", "valor": VALOR_EXTRA["jogo"], "nome": resto[:40]})
             break
@@ -596,7 +598,9 @@ def _classifica_gta(t: str, loja: str) -> Classificacao:
 def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
     """Classificador do PS5, do GTA 6, do gift card e do leitor (texto já normalizado)."""
     # "Jogo de Vídeo Game Take 2 ... Grand Theft Auto 5 para PS5" (nocnoc no Magalu, 03/10) é um jogo, não um console
-    t = re.sub(r"\b(?:jogos?|videojogos?)\s+(?:de\s+)?video\s?games?\b", "jogo", t)
+    t = re.sub(r"\b(?:jogos?|videojogos?)\s+(?:de\s+)?video(?:\s?games?)?\b", "jogo", t)
+    # "Jogo de Vídeo Ubisoft Anno 1800 Edição Console PS5" (nocnoc no Magalu, 03/10): a edição do jogo para console
+    t = re.sub(r"\bedicao (?:para )?consoles?\b", "edicao", t)
     tem_ps = bool(_RE_PS5.search(t)) or bool(re.search(r"\bplaystation\b", t))
     gta = bool(_RE_GTA6.search(t))
     gift = bool(_RE_GIFT.search(t))
@@ -1060,7 +1064,14 @@ def exige_assinatura(o: Any) -> Optional[str]:
     quando o preço é o público."""
     campos = [(o.get(k) if isinstance(o, dict) else getattr(o, k, "")) for k in ("titulo", "cupom")]
     m = _RE_SO_ASSINANTE.search(normaliza(" ".join(str(x) for x in campos if x)))
-    return m.group(0) if m else None
+    if m:
+        return m.group(0)
+    # o código do cupom grudado ("PRIMEGAME5", "PRIMEGTA", "OFERTAMELIMAIS"; "PRIMEIRA..." é primeira compra)
+    m = _RE_CODIGO_ASSINANTE.search(_ascii(campos[1] or ""))
+    return {"melimais": "meli+"}.get(m.group(0), m.group(0)) if m else None
+
+
+_RE_CODIGO_ASSINANTE = re.compile(r"prime(?!ir)|melimais|ninja")
 
 
 def desconto_gift_card(ofertas: Iterable[Any], dias: float = 7.0) -> Optional[tuple[float, Any]]:
@@ -1106,12 +1117,39 @@ def _melhor_preco(o: Any) -> Optional[float]:
     return float(v) if v else None
 
 
+def preco_com_cupom_do_anuncio(o: Any) -> Optional[tuple[float, str]]:
+    """(preço, código) com o cupom da página do anúncio (extra['preco_com_cupom'], gravado pela coleta: no Magalu, o
+    GTA60 do GTA 6, o LU325 do PS5 Digital) nos produtos que não são TV, quando fica abaixo do melhor preço e o cupom não
+    é só de assinante. É o preço público do anúncio com o cupom dele (a decisão de 03/10: comparar pelo custo final);
+    nas TVs nada muda (o testador de cupons confere o cupom no carrinho, como antes). None sem cupom que valha."""
+    pid = _pid(o)
+    if eh_tv(pid) or produto(pid) is None:
+        return None
+    extra = (o.get("extra") if isinstance(o, dict) else getattr(o, "extra", None)) or {}
+    v = extra.get("preco_com_cupom")
+    try:
+        v = float(v) if v else None
+    except (TypeError, ValueError):
+        v = None
+    p = _melhor_preco(o)
+    codigo = str((o.get("cupom") if isinstance(o, dict) else getattr(o, "cupom", "")) or "").strip()
+    if not v or not p or v >= p or not codigo or not preco_plausivel(pid, v):
+        return None
+    if exige_assinatura(o) or _RE_SO_ASSINANTE.search(normaliza(extra.get("cupom_regra") or "")):
+        return None
+    return round(v, 2), codigo
+
+
 def preco_comparavel(o: Any, desconto_gift: Optional[float] = None) -> Optional[float]:
-    """O preço que se compara com a meta: o melhor preço (Pix/à vista); no produto digital da PS Store, o custo efetivo
+    """O preço que se compara com a meta: o melhor preço (Pix/à vista), ou o preço com o cupom da página do anúncio
+    (preco_com_cupom_do_anuncio, só nos produtos que não são TV); no produto digital da PS Store, o custo efetivo
     pagando com gift card comprado com o maior desconto visto (quando ele existe)."""
     p = _melhor_preco(o)
     if p and desconto_gift and produto(_pid(o)) and produto(_pid(o)).digital:
         return round(p * (1 - desconto_gift), 2)
+    cc = preco_com_cupom_do_anuncio(o)
+    if cc:
+        return cc[0]
     return p
 
 
@@ -1151,6 +1189,9 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None) 
     valor = preco_comparavel(o, desc)
     if p.digital and desc and valor != _melhor_preco(o):
         out.append(f"💳 Com gift card a {desc * 100:.0f}% de desconto: custo efetivo {_fmt(valor)}")
+    cc = preco_com_cupom_do_anuncio(o)
+    if cc and valor == cc[0]:
+        out.append(f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
     if alvo.pix:
         meta = f"🎯 Meta: Pix {_fmt(alvo.pix)}"
         if alvo.parcelado and abs(alvo.parcelado - alvo.pix) > 0.5:
@@ -1215,14 +1256,16 @@ def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
             continue   # o upgrade é um complemento (Standard -> Ultimate), não uma forma de ter o jogo
         ativo = o.get("ativo", True) if isinstance(o, dict) else getattr(o, "ativo", True)
         p = _melhor_preco(o)
-        if ativo is False or not p:
-            continue
+        if ativo is False or not p or exige_assinatura(o):
+            continue   # preço só de assinante (Prime, Meli+...) não é o custo final do usuário (só Nubank/NuPay)
         custo = preco_comparavel(o, gift[0] if gift else None)
+        cc = preco_com_cupom_do_anuncio(o)
         e = entrega(o)
         linhas.append({
             "produto": pid, "forma": nome(pid), "loja": (o.get("loja") if isinstance(o, dict) else o.loja),
             "tipo": (o.get("tipo") if isinstance(o, dict) else o.tipo),
             "url": (o.get("url") if isinstance(o, dict) else o.url), "preco": p, "custo_final": custo,
+            "cupom": cc[1] if cc and custo == cc[0] else None,
             "entrega": e.classe if e else ("digital" if produto(pid).digital else None),
             "entrega_texto": e.texto if e else ("libera às 00:00 de 19/11 (digital)" if produto(pid).digital else ""),
             "meta": alvos_da_oferta(o).pix})

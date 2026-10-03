@@ -395,7 +395,7 @@ function tabelaCustoFinal(fontes) {
   if (!linhas.length) return '';
   return `<h3 class="modelo-cab">Todas as formas pelo custo final</h3><div class="tbl"><table><thead><tr><th>Forma</th><th>Loja</th><th>Custo final</th><th>Meta</th><th>Entrega</th><th></th></tr></thead><tbody>${linhas.map(r => `<tr>
     <td>${esc(r.forma)}</td><td>${esc(r.loja || '?')}${r.tipo === 'post' ? '<span class="sub2">postagem</span>' : ''}</td>
-    <td class="num"><b>${fmt(r.custo_final)}</b>${r.preco && Math.abs(r.preco - r.custo_final) > 0.5 ? `<span class="sub2">preço ${fmt(r.preco)}</span>` : ''}</td>
+    <td class="num"><b>${fmt(r.custo_final)}</b>${r.preco && Math.abs(r.preco - r.custo_final) > 0.5 ? `<span class="sub2">preço ${fmt(r.preco)}${r.cupom ? ` · cupom ${esc(r.cupom)}` : ''}</span>` : ''}</td>
     <td class="num ${r.meta && r.custo_final <= r.meta ? 'ok-t' : ''}">${r.meta ? fmt(r.meta) : '—'}</td>
     <td>${r.entrega ? `<span class="chip ${ENTREGA_CLASSE[r.entrega] || 'mute'}" title="${esc(r.entrega_texto || '')}">${esc(ENTREGA_ROTULO[r.entrega] || r.entrega)}</span>` : '—'}</td>
     <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">abrir</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;

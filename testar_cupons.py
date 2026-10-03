@@ -643,8 +643,17 @@ class Codigos(list):
     def compat(self, codigo: str, produto: str) -> str:
         k = (codigo, produto)
         if k not in self._notas:
-            self._notas[k] = compat_do_cupom(self.fontes.get(codigo), produto)
+            if not eh_tv(produto) and _RE_CODIGO_DE_ASSINANTE.search(codigo.lower()) and \
+                    not any(f.get("tipo") == "manual" for f in self.fontes.get(codigo) or ()):
+                # PS5/GTA 6: o usuário não assina Prime, Meli+ nem o Ninja (decisão de 03/10): não gasta teste
+                self._notas[k] = "nao"
+            else:
+                self._notas[k] = compat_do_cupom(self.fontes.get(codigo), produto)
         return self._notas[k]
+
+
+# código de cupom só de assinante ("PRIMEGAME5", "PRIMEGTA", "OFERTAMELIMAIS"); "PRIMEIRA..." é primeira compra
+_RE_CODIGO_DE_ASSINANTE = re.compile(r"prime(?!ir)|melimais|meli\+|ninja")
 
 
 def _cupom_da_lista(c: dict) -> Cupom:
@@ -2218,6 +2227,18 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
         return []
     # TV que o robô tirou do carrinho numa rodada anterior e não voltou: volta nesta, mesmo sem cupom pendente
     fora_antes = _tvs_fora_do_estado(loja, reg)
+    desligados_fora = [m for m in PRINCIPAIS if m in fora_antes and m in _DESLIGADOS]
+    if desligados_fora:
+        # modo vigia (03/10): a TV saiu do carrinho e fica fora por decisão do usuário ("tirar as TVs dos carrinhos");
+        # o registro de "devolver" sai e nada volta (o PS5 e o GTA 6 seguem normalmente)
+        print(f"[{loja_id}] {' e '.join(com_artigo(m) for m in desligados_fora)}: fora do testador nesta rodada "
+              "(modo vigia); não volta ao carrinho")
+        for m in desligados_fora:
+            fora_antes.pop(m, None)
+        if fora_antes:
+            reg["tvs_fora"] = fora_antes
+        else:
+            reg.pop("tvs_fora", None)
     conhecidos, anuncios = codigos_conhecidos(loja, reg)
     if not anuncios:
         # F1 (22/09 10:12): a coleta do ML foi bloqueada e o robô caiu no "anúncio padrão" (catálogo, vendedor
