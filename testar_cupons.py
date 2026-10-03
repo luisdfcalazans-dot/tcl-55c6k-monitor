@@ -63,6 +63,19 @@ modelo, com o alvo de cada um (55C6K: Pix R$ 2.900 / parcelado R$ 3.000; 65C6K: 
 Regras: no máximo 1 unidade de cada modelo, nunca duas linhas do mesmo modelo, nunca outro produto; Amazon só
 leitura; anúncio suspeito ou reprovado (monitor.confianca.pode_ir_ao_carrinho) nunca vai ao carrinho.
 
+PS5 e GTA 6 (pedido do usuário em 03/10: o testador PODE usar os carrinhos para o PS5 e o GTA 6, com as mesmas regras):
+o "modelo" de um anúncio é o id do produto no catálogo (monitor/produtos.py; campo 'modelo' da coleta). Os anúncios
+de cada produto são percorridos do mais barato ao mais caro e cada cupom é medido com o produto SOZINHO no carrinho (o
+cupom vale para o pedido). No fim da rodada o carrinho fica com UM item de cada produto PRINCIPAL que tem anúncio na
+loja: as TVs, o PS5 Digital, o PS5 com leitor, o PS5 Pro e o GTA 6 Code in Box (monitor.carrinho.PRINCIPAIS). Os
+CAMINHOS (pacote PS5 + GTA 6, kit/edição especial, gift card PlayStation) só são testados quando são o caminho mais
+barato para um principal da mesma loja (o preço deles menos o valor do extra — o GTA 6, o controle, a edição — ou, no
+gift card, o GTA 6 digital pago com ele, abaixo do anúncio mais barato do principal) e NUNCA ficam no carrinho.
+Os cupons de cada produto passam pela regra de cupom do catálogo (regras.cupom_compativel): o que é claramente de outra
+coisa não é testado; o duvidoso vai depois. Modo vigia (TV comprada em 03/10): as TVs ficam fora do testador até
+config.VIGIA_ATE; o PS5 e o GTA 6 seguem. A mensagem traz, de cada produto, o preço + frete e, no GTA 6, a previsão de
+entrega (chega até 18/11?).
+
 O robô nunca avança para pagamento nem digita dados de conta. Só aplica cupom, lê o total e remove.
 """
 
@@ -87,11 +100,13 @@ from run import carrega_env  # noqa: E402
 
 carrega_env()
 
-from monitor import config, notificar  # noqa: E402
+from monitor import config, notificar, produtos  # noqa: E402
 from monitor.carrinho import (  # noqa: E402
-    LOJAS, MODELO_PADRAO, MODELOS, CarrinhoOcupado, LojaCarrinho, LojaIndisponivel, PrecisaLogin, ResultadoCupom,
-    abrir_chrome_normal, abrir_navegador, eh_do_modelo, falha_da_ferramenta, modelo_da_oferta, norm_vendedor,
+    CAMINHOS, LOJAS, MODELO_PADRAO, MODELOS, PRINCIPAIS, PRODUTOS_DO_CARRINHO, CarrinhoOcupado, LojaCarrinho,
+    LojaIndisponivel, PrecisaLogin, ResultadoCupom, abrir_chrome_normal, abrir_navegador, com_artigo, eh_do_modelo,
+    eh_tv, falha_da_ferramenta, modelo_da_oferta, nome_do_produto, norm_vendedor,
 )
+from monitor.models import Cupom  # noqa: E402
 from monitor.filtro import eh_55c6k  # noqa: E402
 from monitor.trava import PerfilOcupado, trava_perfil  # noqa: E402
 from monitor.util import TZ_BR, agora, agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
@@ -122,6 +137,9 @@ _RE_55 = re.compile(r"(?<!\d)55(?!\d)")
 
 _INICIO: Optional[float] = None          # time.monotonic() do começo da rodada (executar)
 AVISOS_CARRINHO: list[str] = []          # avisos da rodada que vão na mensagem mesmo sem cupom aceito
+# produtos fora do testador nesta rodada (modo vigia: as TVs; executar() define). Anúncio deles não vira Anuncio:
+# não é testado, não é devolvido ao carrinho e a linha dele no carrinho fica intocada (CarrinhoOcupado)
+_DESLIGADOS: frozenset = frozenset()
 
 
 def _tempo_esgotado(prazo: float = PRAZO_RODADA_S) -> bool:
@@ -247,26 +265,61 @@ class Anuncio:
     frete: Optional[float] = field(default=None, compare=False)
     # reconhece as chaves antigas do estado (fim da URL) que são deste anúncio
     antiga: Optional[Callable[[str, dict], bool]] = field(default=None, repr=False, compare=False)
+    # 03/10 (PS5/GTA 6): anúncio de um CAMINHO (pacote PS5 + GTA 6, kit, gift card): o principal a que ele leva e o preço
+    # equivalente nele (o preço menos o valor do extra; no gift card, o GTA 6 digital pago com ele). None: principal
+    caminho: Optional[str] = field(default=None, compare=False)
+    equivalente: Optional[float] = field(default=None, compare=False)
+    # a meta desta oferta (produtos.alvos_da_oferta: no GTA 6 Code in Box ela depende da entrega) e a nota dela
+    alvo_pix: Optional[float] = field(default=None, compare=False)
+    alvo_parcelado: Optional[float] = field(default=None, compare=False)
+    nota_alvo: str = field(default="", compare=False)
+    # GTA 6 físico (Code in Box e pacotes com ele): a linha "📦 Entrega: ..." de produtos.entrega (chega até 18/11?)
+    entrega: Optional[str] = field(default=None, compare=False)
 
     @property
     def rotulo(self) -> str:
         return f"{self.vendedor or '?'} [{self.chave}]"
 
     @property
+    def grupo(self) -> str:
+        """O produto principal em que este anúncio entra (o próprio, ou aquele a que o caminho leva)."""
+        return self.caminho or self.modelo
+
+    @property
     def preco_final(self) -> float:
         """O preço coletado mais o frete conhecido (o que a pessoa paga no fim); frete desconhecido conta zero."""
         return round(self.preco + (self.frete or 0), 2)
 
+    @property
+    def preco_comparavel(self) -> float:
+        """O que decide a ordem dentro do produto principal: o preço final; no caminho, o equivalente mais o frete."""
+        if self.caminho and self.equivalente is not None:
+            return round(self.equivalente + (self.frete or 0), 2)
+        return self.preco_final
+
     def alvo(self, ids_tv: Iterable[str] = (), contexto: Optional[dict] = None) -> dict:
         """O que o adaptador do carrinho precisa para achar ESTE anúncio (ver monitor.carrinho). `contexto`: o que a
-        loja sabe dos dois modelos (ids_modelo: id do anúncio -> modelo; restauraveis: modelos com anúncio conhecido,
-        cuja TV o testador consegue devolver ao carrinho depois de tirá-la para medir um cupom)."""
+        loja sabe dos produtos (ids_modelo: id do anúncio -> produto; restauraveis: produtos com anúncio conhecido,
+        que o testador consegue devolver ao carrinho depois de tirá-los para medir um cupom; descartaveis: caminhos, que
+        saem do carrinho sem volta)."""
         ctx = contexto or {}
         return {"chave": self.chave, "url": self.url, "vendedor": self.vendedor or None,
                 "vendedor_id": self.vendedor_id, "item_id": self.item_id, "produto": self.produto,
                 "catalogo": self.catalogo, "preco": self.preco, "preco_cartao": self.preco_cartao,
                 "ids_tv": sorted(set(ids_tv)), "modelo": self.modelo,
-                "ids_modelo": dict(ctx.get("ids_modelo") or {}), "restauraveis": sorted(ctx.get("restauraveis") or ())}
+                "ids_modelo": dict(ctx.get("ids_modelo") or {}), "restauraveis": sorted(ctx.get("restauraveis") or ()),
+                "descartaveis": sorted(ctx.get("descartaveis") or ())}
+
+    def extra_do_resultado(self) -> dict:
+        """O que a mensagem precisa saber do anúncio em cada leitura/teste dele (ResultadoCupom.extra)."""
+        out: dict = {"modelo": self.modelo}
+        if self.caminho:
+            out.update(grupo=self.caminho, caminho=True, equivalente=self.equivalente, preco_ref=self.preco)
+        if self.alvo_pix is not None or self.alvo_parcelado is not None:
+            out.update(alvo_pix=self.alvo_pix, alvo_parcelado=self.alvo_parcelado, nota_alvo=self.nota_alvo)
+        if self.entrega:
+            out["entrega"] = self.entrega
+        return out
 
 
 def _eh_a_tv(titulo: str, modelo: str = MODELO_PADRAO) -> bool:
@@ -277,29 +330,144 @@ def _eh_a_tv(titulo: str, modelo: str = MODELO_PADRAO) -> bool:
     return eh_do_modelo(titulo, modelo)
 
 
-def contexto_do_carrinho(anuncios: Iterable[Anuncio]) -> dict:
-    """ids_modelo (id do /p/ do Magalu ou item MLB… do ML -> modelo) e restauraveis (modelos com anúncio conhecido na
-    loja) para os adaptadores do carrinho."""
+def _titulo_do_produto(titulo: str, modelo: str, o: dict, ident: dict, loja: LojaCarrinho) -> bool:
+    """O título da oferta é do produto dela? TVs: _eh_a_tv. Os outros (03/10): o classificador do catálogo pelo título;
+    o EAN e o id do anúncio na loja (dado estruturado diz QUAL produto é) desempatam só dentro da mesma família (o
+    "PS5 Digital com 2 jogos digitais" que o título sozinho lê como kit), nunca de um produto para outro (a mesma regra
+    da página do anúncio no carrinho: monitor.carrinho.eh_do_modelo). Usado/estrangeiro/acessório nunca."""
+    if eh_tv(modelo):
+        return _eh_a_tv(titulo, modelo)
+    pelo_titulo = produtos.classifica(titulo, loja.loja_canonica).produto
+    if pelo_titulo == modelo:
+        return True
+    if pelo_titulo is None or produtos.familia(pelo_titulo) != produtos.familia(modelo):
+        return False
+    extra = o.get("extra") or {}
+    ean = extra.get("ean") or extra.get("gtin") or extra.get("gtin13")
+    id_loja = ident.get("produto") or ident.get("item_id") or extra.get("anuncio")
+    return produtos.classifica(titulo, loja.loja_canonica, ean=ean, id_loja=id_loja).produto == modelo
+
+
+def caminho_da_oferta(o: dict, preco: float) -> tuple[Optional[str], Optional[float]]:
+    """(principal, preço equivalente nele) de uma oferta de CAMINHO; (None, None) para o principal ou quando o caminho
+    não dá para comparar.
+
+    - pacote PS5 + GTA 6: o PS5 da mesma versão; equivalente = preço menos o GTA 6 (produtos.VALOR_EXTRA['gta6']);
+    - kit/edição especial: o console-base (produtos.detalhes_de); equivalente = preço menos o valor do extra (e menos o
+      GTA 6 quando a base é um pacote);
+    - gift card PlayStation (só loja oficial, com o valor de face): o GTA 6 Code in Box; equivalente = o GTA 6 digital
+      (preço da PS Store) pago com o desconto deste gift card."""
+    pid = modelo_da_oferta(o)
+    if pid not in CAMINHOS:
+        return None, None
+    gta = float(produtos.VALOR_EXTRA["gta6"])
+    pacotes = {"PS5_DIGITAL_GTA6": "PS5_DIGITAL", "PS5_DISCO_GTA6": "PS5_DISCO"}
+    if pid in pacotes:
+        return pacotes[pid], round(preco - gta, 2)
+    if pid == "PS5_KIT":
+        det = produtos.detalhes_de(o)
+        base = det.get("base") or "PS5_DIGITAL"
+        extra = float(det.get("valor_extra") or produtos.VALOR_EXTRA["edicao"])
+        if base in pacotes:
+            base, extra = pacotes[base], extra + gta
+        if base not in PRINCIPAIS:
+            return None, None
+        return base, round(preco - extra, 2)
+    if pid == "GIFT_CARD_PSN":
+        face = produtos.detalhes_de(o).get("valor_face")
+        digital = produtos.produto("GTA6_DIGITAL")
+        if not face or not digital or not digital.preco_oficial or preco >= face or \
+                not produtos._loja_oficial_gift(o):
+            return None, None
+        return "GTA6_CODE_IN_BOX", round(digital.preco_oficial * preco / face, 2)
+    return None, None
+
+
+def contexto_do_carrinho(anuncios: Iterable[Anuncio], loja_canonica: Optional[str] = None,
+                         postos: Optional[dict] = None) -> dict:
+    """ids_modelo (id do /p/ do Magalu ou item MLB… do ML -> produto), restauraveis (produtos principais com anúncio
+    conhecido na loja) e descartaveis (os caminhos: kit, pacote, gift card, que saem do carrinho sem volta) para os
+    adaptadores do carrinho. Com a loja, os ids do catálogo dos PRINCIPAIS (produtos.ids_da_loja) também reconhecem
+    linhas (o anúncio da coleta vale mais).
+
+    Linha de caminho só é do robô quando ele mesmo a pôs no carrinho (`postos`: reg["caminhos_postos"]): o kit, o
+    pacote ou o gift card que a pessoa pôs no carrinho dela não é reconhecido e, por isso, nunca é tirado (o carrinho
+    com ele é "outro produto": CarrinhoOcupado)."""
+    postos = postos or {}
     ids: dict = {}
     modelos: set = set()
     for a in anuncios:
-        modelos.add(a.modelo)
+        if not a.caminho:
+            modelos.add(a.modelo)
+        elif a.chave not in postos:
+            continue
         for k in (a.produto, a.item_id):
             if k:
                 ids[str(k)] = a.modelo
-    return {"ids_modelo": ids, "restauraveis": sorted(modelos)}
+    for v in postos.values():
+        ids.setdefault(str(v["id"]), v["modelo"])
+    if loja_canonica:
+        for k, pid in produtos.ids_da_loja(loja_canonica).items():
+            if pid in PRINCIPAIS:
+                ids.setdefault(str(k), pid)
+    return {"ids_modelo": ids, "restauraveis": sorted(modelos), "descartaveis": sorted(CAMINHOS)}
+
+
+# um caminho (kit, pacote, gift card) que o robô pôs no carrinho para medir um cupom fica registrado até sair de lá
+# (reg["caminhos_postos"]); se não sair, o registro vale por este tempo (a pessoa foi avisada) e o robô tenta tirar
+JANELA_CAMINHO_POSTO = timedelta(hours=72)
+
+
+def caminhos_postos(reg: dict, momento: Optional[datetime] = None) -> dict:
+    """reg["caminhos_postos"] ({chave do anúncio: {"id", "modelo", "desde"}}) sem os registros vencidos ou estranhos."""
+    momento = momento or agora()
+    bruto = reg.get("caminhos_postos")
+    return {k: v for k, v in (bruto.items() if isinstance(bruto, dict) else ())
+            if isinstance(v, dict) and v.get("id") and v.get("modelo") in CAMINHOS
+            and _recente(v.get("desde"), momento, JANELA_CAMINHO_POSTO)}
+
+
+def _marca_caminho_posto(reg: dict, p: "Percurso", a: Anuncio) -> None:
+    """Antes de o robô pôr um caminho no carrinho: registra (para tirá-lo no fim, nesta ou numa próxima rodada) e
+    ensina os adaptadores a reconhecer a linha dele."""
+    ident = str(a.produto or a.item_id or a.chave)
+    reg.setdefault("caminhos_postos", {})[a.chave] = {"id": ident, "modelo": a.modelo, "desde": agora_iso()}
+    p.contexto.setdefault("ids_modelo", {})[ident] = a.modelo
 
 
 def por_modelo(anuncios: Iterable[Anuncio]) -> dict[str, list[Anuncio]]:
-    """{modelo: anúncios dele, do mais barato ao mais caro}, na ordem de MODELOS, só os modelos com anúncio."""
+    """{produto principal: anúncios dele, do mais barato ao mais caro}, na ordem de PRINCIPAIS (as TVs primeiro), só os
+    principais com anúncio. O anúncio de um caminho entra no grupo do principal a que leva só quando é o caminho MAIS
+    BARATO (o equivalente dele, com o frete, abaixo do anúncio mais barato do principal), e vem antes deles."""
     lista = list(anuncios)
-    return {m: [a for a in lista if a.modelo == m] for m in MODELOS if any(a.modelo == m for a in lista)}
+    grupos: dict[str, list[Anuncio]] = {}
+    for m in PRINCIPAIS:
+        principais = [a for a in lista if a.modelo == m and not a.caminho]
+        if not principais:
+            continue
+        ref = min(a.preco_final for a in principais)
+        caminhos = sorted((a for a in lista if a.caminho == m and a.equivalente is not None
+                           and a.preco_comparavel < ref - 0.005), key=lambda a: (a.preco_comparavel, a.preco))
+        grupos[m] = caminhos + principais
+    return grupos
+
+
+def caminhos_fora(anuncios: Iterable[Anuncio], grupos: dict[str, list[Anuncio]]) -> list[Anuncio]:
+    """Os anúncios de caminho que não entraram em grupo nenhum (não são o caminho mais barato, ou a loja não tem anúncio
+    do principal para comparar e para deixar no carrinho no fim)."""
+    dentro = {a.chave for lista in grupos.values() for a in lista}
+    return [a for a in anuncios if a.caminho and a.chave not in dentro]
 
 
 def anuncio_da_oferta(loja: LojaCarrinho, o: dict) -> Optional[Anuncio]:
     """Oferta do latest (contrato: tipo 'loja', um id por anúncio+vendedor, campo 'modelo') -> Anuncio, ou None se não
     serve. O título, quando há, tem de ser a TV do MESMO modelo: título que diz outro tamanho (como o anúncio de 25/09
-    que dizia 55" na opção de 65") não vai ao carrinho."""
+    que dizia 55" na opção de 65") não vai ao carrinho.
+
+    03/10: também os produtos do PS5/GTA 6 que o carrinho conhece (carrinho.PRODUTOS_DO_CARRINHO): o título passa pelo
+    classificador do catálogo (com o EAN e o id do anúncio), o preço tem de caber na faixa do produto, gift card só de
+    loja oficial e caminho só quando dá para compará-lo com um principal (caminho_da_oferta). Produto desligado nesta
+    rodada (modo vigia: as TVs) não vira anúncio."""
     url = o.get("url") or ""
     if o.get("tipo", "loja") != "loja" or not o.get("ativo", True) or loja.dominio_url not in url:
         return None
@@ -308,10 +476,7 @@ def anuncio_da_oferta(loja: LojaCarrinho, o: dict) -> Optional[Anuncio]:
         # Não vai para o carrinho da pessoa nem para a mensagem "é só entrar e finalizar".
         return None
     modelo = modelo_da_oferta(o)
-    if modelo not in MODELOS:
-        return None
-    titulo = o.get("titulo") or ""
-    if titulo and not _eh_a_tv(titulo, modelo):
+    if modelo not in PRODUTOS_DO_CARRINHO or modelo in _DESLIGADOS:
         return None
     precos = [float(v) for v in (o.get("melhor_preco"), o.get("preco"), o.get("preco_pix"))
               if isinstance(v, (int, float)) and v > 0]
@@ -320,12 +485,29 @@ def anuncio_da_oferta(loja: LojaCarrinho, o: dict) -> Optional[Anuncio]:
     ident = loja.identidade(o)
     if not ident.get("chave"):
         return None
+    titulo = o.get("titulo") or ""
+    if titulo and not _titulo_do_produto(titulo, modelo, o, ident, loja):
+        return None
+    caminho = equivalente = None
+    if not eh_tv(modelo):
+        if not produtos.preco_plausivel(modelo, min(precos)):
+            return None
+        if modelo in CAMINHOS:
+            caminho, equivalente = caminho_da_oferta(o, min(precos))
+            if caminho is None:
+                return None
     cartao = o.get("preco")
     a = Anuncio(chave=ident["chave"], url=url, vendedor=(o.get("vendedor") or "").strip(), preco=min(precos),
                 preco_cartao=float(cartao) if isinstance(cartao, (int, float)) and cartao > 0 else None,
                 vendedor_id=ident.get("vendedor_id"), item_id=ident.get("item_id"), produto=ident.get("produto"),
                 catalogo=ident.get("catalogo") or "", modelo=modelo,
-                cupom=str(o["cupom"]).strip().upper() if o.get("cupom") else None)
+                cupom=str(o["cupom"]).strip().upper() if o.get("cupom") else None,
+                caminho=caminho, equivalente=equivalente)
+    if not eh_tv(modelo):
+        meta = produtos.alvos_da_oferta(o, agora().astimezone(TZ_BR).date().isoformat())
+        a.alvo_pix, a.alvo_parcelado, a.nota_alvo = meta.pix, meta.parcelado, meta.nota
+        e = produtos.entrega(o)
+        a.entrega = e.texto if e else None
     alvo = a.alvo()
     a.antiga = lambda sufixo, reg: loja.eh_chave_antiga(sufixo, reg, alvo)
     return a
@@ -443,6 +625,92 @@ def _json(p: Path) -> dict:
         return {}
 
 
+# cupom de lista (Promobit/Pelando) que a regra do catálogo recusa só por não dizer a categoria: é dúvida, não "não"
+# (o testador mede; vai depois dos que a regra aceita). O resto das recusas (outra marca, outro tema, outro jogo, só
+# frete, exclusão, assinatura, cliente novo, valor mínimo/teto) tira o cupom da fila do produto.
+_MOTIVOS_DUVIDOSOS = ("cupom sem a categoria", "restrito:", "cupom genérico de loja")
+
+
+class Codigos(list):
+    """Os códigos da loja (lista, como sempre) e, desde 03/10, de onde cada um veio (`fontes`), para dizer em qual
+    produto vale testar: compat(código, produto) -> 'sim' | 'talvez' | 'nao'."""
+
+    def __init__(self, itens: Iterable[str] = (), fontes: Optional[dict] = None):
+        super().__init__(itens)
+        self.fontes: dict[str, list[dict]] = dict(fontes or {})
+        self._notas: dict[tuple[str, str], str] = {}
+
+    def compat(self, codigo: str, produto: str) -> str:
+        k = (codigo, produto)
+        if k not in self._notas:
+            self._notas[k] = compat_do_cupom(self.fontes.get(codigo), produto)
+        return self._notas[k]
+
+
+def _cupom_da_lista(c: dict) -> Cupom:
+    return Cupom(fonte=str(c.get("fonte") or ""), loja=str(c.get("loja") or ""), codigo=str(c.get("codigo") or ""),
+                 titulo=str(c.get("titulo") or ""), url=str(c.get("url") or ""), id=str(c.get("id") or ""),
+                 regra=str(c.get("regra") or ""), validade=c.get("validade"), publicado=c.get("publicado"),
+                 especifico=bool(c.get("especifico")), modelo=c.get("modelo"))
+
+
+def compat_do_cupom(fontes: Optional[list[dict]], produto: str) -> str:
+    """Vale testar o cupom neste produto? 'sim', 'talvez' (vai depois) ou 'nao'. `fontes`: de onde o código veio.
+
+    - sem fonte conhecida (--codigos) ou CUPONS_EXTRA: sim, em todos;
+    - TVs: como sempre, todo cupom da loja; menos o que só veio de um produto que não é TV (cupom da página do anúncio
+      do PS5/GTA 6, postagem do PS5/GTA 6);
+    - PS5/GTA 6/caminhos: cupom da página do anúncio vale para o produto dele; o de postagem, para os produtos da mesma
+      família da postagem; o de lista (Promobit/Pelando) passa pela regra do catálogo (regras.cupom_compativel): aceito
+      é 'sim', recusado só por não dizer a categoria é 'talvez', o resto é 'nao'."""
+    if not fontes:
+        return "sim"
+    from monitor import regras
+
+    tv = eh_tv(produto)
+    melhor = "nao"
+    for f in fontes:
+        tipo, dono = f.get("tipo"), f.get("produto")
+        if tipo == "manual":
+            return "sim"
+        if tipo in ("post", "pagina"):
+            dono = dono or MODELO_PADRAO
+            if dono == produto or (tv and eh_tv(dono)):
+                return "sim"
+            if tipo == "post" and not tv and not eh_tv(dono) and produtos.familia(dono) == produtos.familia(produto):
+                return "sim"
+            continue
+        c = f.get("cupom") or {}
+        dono = c.get("modelo")
+        if tv:
+            if c.get("especifico") and dono and not eh_tv(dono):
+                continue   # cupom da página de um anúncio do PS5/GTA 6
+            return "sim"
+        ok, motivo = regras.cupom_compativel(_cupom_da_lista(c), None, produto)
+        if ok:
+            return "sim"
+        texto = f"{c.get('titulo') or ''} {c.get('regra') or ''}"
+        if any(motivo.startswith(m) for m in _MOTIVOS_DUVIDOSOS) and not _RE_CUPOM_DE_TV.search(texto) and \
+                not _categoria_declarada(c):
+            melhor = "talvez"
+    return melhor
+
+
+def _categoria_declarada(c: dict) -> str:
+    """A categoria que o cupom de lista declara ("em Moda e Acessórios", "em Beleza"); '' quando não declara nenhuma
+    (aí a recusa da regra do catálogo é dúvida, não "é de outra coisa")."""
+    from monitor import regras
+
+    try:
+        return regras._escopo(str(c.get("titulo") or ""), str(c.get("regra") or "")).categoria_declarada()
+    except Exception:  # noqa: BLE001 - leitura auxiliar: sem ela, fica a dúvida
+        return ""
+
+
+# cupom de lista que fala de TV ("R$ 200 OFF em Smart TVs"): para o PS5/GTA 6 não é dúvida, é de outra coisa
+_RE_CUPOM_DE_TV = re.compile(r"\btvs?\b|televis|smart\s*tvs?\b", re.I)
+
+
 def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
                        momento: Optional[datetime] = None) -> tuple[list[str], list[Anuncio]]:
     """Cupons da loja (Promobit, Pelando, etiquetas, postagens, CUPONS_EXTRA) e TODOS os anúncios ativos dela.
@@ -454,13 +722,18 @@ def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
     F5). Sem anúncio nenhum, a lista volta VAZIA: não existe mais "anúncio padrão" (F1, 22/09).
     Os cupons são da loja (valem para os dois modelos). A checagem de confiança compara cada anúncio com as ofertas
     do MESMO modelo (a 65" custa mais: um golpe na 65" não pode passar por estar perto do preço da 55"), e vale também
-    para os anúncios do estado (F1/F5): um anúncio que a coleta desta rodada barrou não volta por eles."""
+    para os anúncios do estado (F1/F5): um anúncio que a coleta desta rodada barrou não volta por eles.
+    03/10: a lista de códigos é um Codigos, que guarda de onde cada código veio (compat: em qual produto testar)."""
     import os
 
     from monitor.confianca import cupom_barrado, pode_ir_ao_carrinho, reprovados_auto_dos_arquivos
 
     cods: dict[str, str] = {}
+    fontes: dict[str, list[dict]] = {}
     anuncios: dict[str, Anuncio] = {}
+
+    def fonte(codigo: str, **f) -> None:
+        fontes.setdefault(codigo, []).append(f)
     barrados: set[str] = set()     # chaves dos anúncios que a checagem de confiança barrou nesta rodada
     latests = [_json(config.DIR_DADOS / arq) for arq in ("latest_cloud.json", "latest_pc.json")]
     # referência de preço para o registro sem veredito (gravado antes da checagem de confiança existir)
@@ -475,12 +748,16 @@ def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
                     print(f"[{loja.nome}] ignoro o cupom {c['codigo']}: {motivo[:160]}")
                     continue
                 cods.setdefault(c["codigo"].strip().upper(), c.get("fonte", ""))
+                fonte(c["codigo"].strip().upper(), tipo="loja", cupom=c)
         for p in d.get("posts") or []:
             if loja_canonica(p.get("loja", "")) == loja.loja_canonica and p.get("cupom"):
                 cods.setdefault(str(p["cupom"]).strip().upper(), p.get("fonte", ""))
+                fonte(str(p["cupom"]).strip().upper(), tipo="post", produto=modelo_da_oferta(p))
         for o in d.get("ofertas_loja") or []:
             if loja_canonica(o.get("loja", "")) != loja.loja_canonica:
                 continue
+            if modelo_da_oferta(o) in _DESLIGADOS:
+                continue   # modo vigia: a TV fica fora do testador (nem o cupom da página dela entra)
             # só anúncio confiável ou sem risco aparente vai ao carrinho da pessoa; suspeito/reprovado nunca (nem o
             # cupom da página dele entra na fila)
             ok, motivo = pode_ir_ao_carrinho(o, do_modelo.get(modelo_da_oferta(o), []), auto)
@@ -490,6 +767,7 @@ def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
                 continue
             if o.get("cupom"):
                 cods.setdefault(str(o["cupom"]).strip().upper(), "produto")
+                fonte(str(o["cupom"]).strip().upper(), tipo="pagina", produto=modelo_da_oferta(o))
             a = anuncio_da_oferta(loja, o)
             if a is None:
                 continue
@@ -499,7 +777,8 @@ def codigos_conhecidos(loja: LojaCarrinho, reg: Optional[dict] = None,
     for c in os.environ.get("CUPONS_EXTRA", "").split(","):
         if c.strip():
             cods.setdefault(c.strip().upper(), "manual")
-    lista = [c for c in cods if 3 <= len(c) <= 30 and c not in CODIGOS_IGNORAR and " " not in c]
+            fonte(c.strip().upper(), tipo="manual")
+    lista = Codigos([c for c in cods if 3 <= len(c) <= 30 and c not in CODIGOS_IGNORAR and " " not in c], fontes)
     coletados = sorted(anuncios.values(), key=lambda a: a.preco)
 
     def barrar(o: dict, a: Anuncio) -> Optional[str]:
@@ -595,22 +874,35 @@ def aceito_em_mais_barato(codigo: str, mais_baratos: list[Anuncio], testados: di
     return None
 
 
+Compat = Callable[[str, str], str]   # (código, produto) -> 'sim' | 'talvez' | 'nao' (Codigos.compat)
+
+
+def fila_do_produto(fila_base: list[str], produto: str, compat: Optional[Compat] = None) -> list[str]:
+    """Os códigos da loja que vale testar neste produto, os 'sim' antes dos 'talvez' (sem compat: todos, na ordem)."""
+    if compat is None:
+        return list(fila_base)
+    notas = {c: compat(c, produto) for c in fila_base}
+    return [c for c in fila_base if notas[c] == "sim"] + [c for c in fila_base if notas[c] == "talvez"]
+
+
 def pendentes(anuncios: list[Anuncio], i: int, fila_base: list[str], testados: dict, momento: datetime,
               forcar: bool = False, explicitos: bool = False,
-              desde: Optional[datetime] = None) -> tuple[list[str], dict[str, Anuncio]]:
+              desde: Optional[datetime] = None, compat: Optional[Compat] = None) -> tuple[list[str], dict[str, Anuncio]]:
     """Fila do anúncio i, calculada ANTES de mexer no carrinho.
 
     Entra o cupom que precisa de teste neste anúncio (precisa_testar; com --forcar/--codigos, todos),
-    menos os já aceitos (e válidos) num anúncio mais barato. Recusa ou erro no mais barato não tira o
-    cupom daqui: "troque de anúncio se não funcionar nos mais baratos". Devolve (fila, {código: anúncio
-    mais barato onde já foi aceito})."""
+    menos os já aceitos (e válidos) num anúncio mais barato DO MESMO PRODUTO (o aceite num caminho — kit, pacote — não
+    tira o cupom do principal, nem o contrário). Recusa ou erro no mais barato não tira o cupom daqui: "troque de
+    anúncio se não funcionar nos mais baratos". Com `compat` (03/10), só os códigos que valem para o produto do anúncio
+    ('sim' antes de 'talvez'). Devolve (fila, {código: anúncio mais barato onde já foi aceito})."""
     a = anuncios[i]
     fila: list[str] = []
     pulados: dict[str, Anuncio] = {}
-    for c in fila_base:
+    mais_baratos = [b for b in anuncios[:i] if b.modelo == a.modelo]
+    for c in fila_do_produto(fila_base, a.modelo, compat):
         if not (forcar or explicitos) and not precisa_testar(c, registro_do_cupom(testados, c, a), momento):
             continue
-        b = aceito_em_mais_barato(c, anuncios[:i], testados, momento, desde if forcar else None)
+        b = aceito_em_mais_barato(c, mais_baratos, testados, momento, desde if forcar else None)
         if b is not None:
             pulados[c] = b
             continue
@@ -647,27 +939,35 @@ def _quando_foi_aceito(r: ResultadoCupom) -> str:
     return f" (aceito em {q.astimezone(TZ_BR):%d/%m %H:%M})"
 
 
-def alvos_do_modelo(modelo: str) -> tuple[float, float]:
+def alvos_do_modelo(modelo: str) -> tuple[Optional[float], Optional[float]]:
     """(alvo Pix, alvo parcelado) do modelo, os mesmos da coleta e do painel: 55C6K config.ALVO_PIX / ALVO_PARCELADO
-    (R$ 2.900 / R$ 3.000); 65C6K config.ALVO_PIX_65 / ALVO_PARCELADO_65 (R$ 3.300 / R$ 3.500, decisão de 26/09)."""
-    return float(config.alvo_pix(modelo)), float(config.alvo_parcelado(modelo))
+    (R$ 2.900 / R$ 3.000); 65C6K config.ALVO_PIX_65 / ALVO_PARCELADO_65 (R$ 3.300 / R$ 3.500, decisão de 26/09); os
+    outros produtos, as metas do catálogo aprovadas em 03/10 (kit e gift card: None, a meta é por oferta)."""
+    pix, parc = config.alvo_pix(modelo), config.alvo_parcelado(modelo)
+    return (None if pix is None else float(pix)), (None if parc is None else float(parc))
 
 
 def _modelo_do_resultado(r: ResultadoCupom) -> str:
     return str((r.extra or {}).get("modelo") or MODELO_PADRAO).upper()
 
 
+def _grupo_do_resultado(r: ResultadoCupom) -> str:
+    """O produto principal do resultado (o do anúncio, ou aquele a que o caminho leva)."""
+    return str((r.extra or {}).get("grupo") or _modelo_do_resultado(r)).upper()
+
+
 def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
     """Uma mensagem só, com o melhor preço à vista e o melhor parcelado entre todas as lojas e anúncios, de CADA
-    modelo (55C6K e 65C6K), com o alvo de cada um.
+    modelo/produto (55C6K, 65C6K, PS5 Digital, PS5 com leitor, PS5 Pro, GTA 6 Code in Box), com o alvo de cada um.
 
-    Cupom marcado por marcar_se_compensa (não deixa a TV mais barata que o anúncio mais barato da loja sem cupom)
+    Cupom marcado por marcar_se_compensa (não deixa o produto mais barato que o anúncio mais barato da loja sem cupom)
     não disputa o melhor à vista (pior_a_vista) nem o melhor parcelado (pior_parcelado); se nenhum cupom
-    compensa, não há mensagem. Só a 55C6K: o formato de sempre (sem o cabeçalho do modelo)."""
-    presentes = {_modelo_do_resultado(r) for _, r in resultados}
+    compensa, não há mensagem. Só a 55C6K: o formato de sempre (sem o cabeçalho do modelo). O cupom num caminho (kit,
+    pacote, gift card) vai numa linha própria do principal a que ele leva."""
+    presentes = {_grupo_do_resultado(r) for _, r in resultados}
     blocos = []
-    for m in [*MODELOS, *sorted(presentes - set(MODELOS))]:
-        linhas, meta = _bloco_do_modelo(m, [(n, r) for n, r in resultados if _modelo_do_resultado(r) == m])
+    for m in [*PRINCIPAIS, *sorted(presentes - set(PRINCIPAIS))]:
+        linhas, meta = _bloco_do_modelo(m, [(n, r) for n, r in resultados if _grupo_do_resultado(r) == m])
         if linhas:
             blocos.append((m, linhas, meta))
     if not blocos:
@@ -682,7 +982,7 @@ def msg_melhor(resultados: list[tuple[str, ResultadoCupom]]) -> str:
     for k, (m, linhas, meta) in enumerate(blocos):
         if k:
             out.append("")
-        out.append(("🎯 " if meta else "📺 ") + f"<b>{NOME_MODELO.get(m, m)}</b>")
+        out.append(("🎯 " if meta else "📺 " if eh_tv(m) else "🎮 ") + f"<b>{NOME_MODELO.get(m, m)}</b>")
         out += linhas
     return "\n".join(out)
 
@@ -705,36 +1005,99 @@ def _final_no_cartao(r: ResultadoCupom) -> float:
 
 
 def _linhas_so_frete(resultados: list[tuple[str, ResultadoCupom]]) -> list[str]:
-    """L2 (26/09): cupom que a loja aceitou mas que só mexeu no frete: vai como frete, NUNCA como desconto na TV."""
+    """L2 (26/09): cupom que a loja aceitou mas que só mexeu no frete: vai como frete, NUNCA como desconto na TV (ou no
+    produto)."""
     out = []
     for n, r in resultados:
         if r.aceito or not r.extra.get("so_frete"):
             continue
+        m = _modelo_do_resultado(r)
+        qual, no = ("a TV", "na TV") if eh_tv(m) else (f"o {produtos.curto(m)}", "no produto")
         out.append(f"🚚 Só frete: <code>{r.codigo}</code> na {_onde(n, r)}: frete "
-                   f"{fmt_preco(r.extra.get('antes_frete'))} → {fmt_preco(r.frete)}; a TV continua "
-                   f"{fmt_preco(r.tv_pix or r.tv_cartao)} (não é desconto na TV)")
+                   f"{fmt_preco(r.extra.get('antes_frete'))} → {fmt_preco(r.frete)}; {qual} continua "
+                   f"{fmt_preco(r.tv_pix or r.tv_cartao)} (não é desconto {no})")
     return out[:4]
 
 
+def _alvos_do_resultado(r: ResultadoCupom, alvo_pix: Optional[float],
+                        alvo_parc: Optional[float]) -> tuple[Optional[float], Optional[float], str]:
+    """A meta da oferta do resultado (no GTA 6 Code in Box ela depende da entrega; produtos.alvos_da_oferta, guardada
+    no Anuncio) ou, sem ela, a do produto."""
+    e = r.extra or {}
+    pix = e["alvo_pix"] if e.get("alvo_pix") is not None else alvo_pix
+    parc = e["alvo_parcelado"] if e.get("alvo_parcelado") is not None else alvo_parc
+    return pix, parc, str(e.get("nota_alvo") or "")
+
+
+def _equivalente_com_cupom(r: ResultadoCupom) -> Optional[float]:
+    """O preço equivalente no principal de um resultado num CAMINHO, com o cupom: no pacote/kit, o preço com o cupom
+    menos o mesmo valor do extra; no gift card, o GTA 6 digital pago com o desconto que o cupom deu."""
+    e = r.extra or {}
+    valor, eq, ref = (r.tv_pix or r.tv_cartao), e.get("equivalente"), e.get("preco_ref")
+    if valor is None or eq is None or not ref:
+        return None
+    if _modelo_do_resultado(r) == "GIFT_CARD_PSN":
+        return round(eq * valor / ref, 2)
+    return round(valor - (ref - eq), 2)
+
+
+def _linhas_caminhos(modelo: str, resultados: list[tuple[str, ResultadoCupom]]) -> tuple[list[str], bool]:
+    """Linhas dos cupons que funcionaram num CAMINHO (kit, pacote, gift card) do principal `modelo` e se algum deles
+    bateu a meta da própria oferta. Caminho nunca fica no carrinho: a linha diz isso."""
+    out: list[str] = []
+    meta = False
+    cands = [(n, r) for n, r in resultados if r.extra.get("caminho") and r.aceito and (r.tv_pix or r.tv_cartao)
+             and not r.extra.get("pior_que_principal")]
+    for n, r in sorted(cands, key=lambda x: _equivalente_com_cupom(x[1]) or 9e9)[:3]:
+        pid = _modelo_do_resultado(r)
+        valor = texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
+        eq = _equivalente_com_cupom(r)
+        como = "o GTA 6 digital pago com ele sai" if pid == "GIFT_CARD_PSN" else "equivale a"
+        linha = (f"🧩 Caminho mais barato: {produtos.nome(pid)} por {valor} na {_onde(n, r)} com "
+                 f"<code>{r.codigo}</code> ({como} {fmt_preco(eq)} no {produtos.curto(modelo)}"
+                 f"{'' if pid != 'GIFT_CARD_PSN' else ' digital'}); não fica no carrinho")
+        a_pix = r.extra.get("alvo_pix")
+        final = _final_a_vista(r)
+        if a_pix:
+            linha += f" — meta do {produtos.curto(pid)}: {fmt_preco(a_pix)}, {produtos.distancia(final, a_pix)}"
+            meta = meta or final <= a_pix + 0.005
+        out.append(linha)
+        if r.extra.get("entrega"):
+            out.append("   " + str(r.extra["entrega"]))
+    return out, meta
+
+
 def _bloco_do_modelo(modelo: str, resultados: list[tuple[str, ResultadoCupom]]) -> tuple[list[str], bool]:
-    """Linhas da mensagem de UM modelo (melhor à vista, melhor parcelado, outros, alvo, carrinho) e se o alvo foi
-    atingido. L4 (26/09): o melhor é escolhido pelo preço COM o frete lido no carrinho, que a mensagem mostra
-    ('R$ X no Pix + frete R$ Y = R$ Z'), e o alvo vale para esse preço final. Cupom só de frete vai numa linha
-    própria (L2). Sem cupom que compense nem cupom só de frete, ([], False)."""
+    """Linhas da mensagem de UM modelo/produto (melhor à vista, melhor parcelado, outros, caminhos, alvo, carrinho) e se
+    o alvo foi atingido. L4 (26/09): o melhor é escolhido pelo preço COM o frete lido no carrinho, que a mensagem
+    mostra ('R$ X no Pix + frete R$ Y = R$ Z'), e o alvo vale para esse preço final. Cupom só de frete vai numa linha
+    própria (L2). 03/10: no PS5/GTA 6 o alvo é o da oferta (o GTA 6 Code in Box depende da entrega), com a distância
+    até ele, e o GTA 6 traz a linha da entrega (chega até 18/11?); o cupom num caminho (kit, pacote, gift card) vai
+    numa linha própria. Sem cupom que compense nem cupom só de frete, ([], False)."""
+    tv = eh_tv(modelo)
     alvo_pix, alvo_parc = alvos_do_modelo(modelo)
-    validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao)]
+    validos = [(n, r) for n, r in resultados if r.aceito and (r.tv_pix or r.tv_cartao) and not r.extra.get("caminho")]
     vista = [(n, r) for n, r in validos if not r.extra.get("pior_a_vista")]
     com_parcela = [(n, r) for n, r in validos if r.parcelado and r.tv_cartao and not r.extra.get("pior_parcelado")]
     so_frete = _linhas_so_frete(resultados)
+    caminhos, meta_caminho = ([], False) if tv else _linhas_caminhos(modelo, resultados)
     if not vista and not com_parcela:
+        if caminhos:
+            linhas = caminhos + ([""] + so_frete if so_frete else [])
+            linhas += ["", f"Alvo: Pix {fmt_preco(alvo_pix)} · parcelado {fmt_preco(alvo_parc)}"]
+            return linhas, meta_caminho
         return (so_frete, False) if so_frete else ([], False)
     melhor_vista = min(vista, key=lambda x: _final_a_vista(x[1])) if vista else None
     melhor_parc = min(com_parcela, key=lambda x: _final_no_cartao(x[1])) if com_parcela else None
     principal = melhor_vista or melhor_parc
 
     r = principal[1]
-    alvo = bool((melhor_vista is not None and r.tv_pix is not None and r.tv_pix + (r.frete or 0) <= alvo_pix) or
-                (melhor_parc and _final_no_cartao(melhor_parc[1]) <= alvo_parc))
+    a_pix, _a_parc, nota = _alvos_do_resultado(r, alvo_pix, alvo_parc)
+    parc_alvo = _alvos_do_resultado(melhor_parc[1], alvo_pix, alvo_parc)[1] if melhor_parc else None
+    alvo = bool((melhor_vista is not None and r.tv_pix is not None and a_pix is not None
+                 and r.tv_pix + (r.frete or 0) <= a_pix) or
+                (melhor_parc and parc_alvo is not None and _final_no_cartao(melhor_parc[1]) <= parc_alvo))
+    alvo = alvo or meta_caminho
     linhas: list[str] = []
     if melhor_vista:
         valor = texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
@@ -744,37 +1107,57 @@ def _bloco_do_modelo(modelo: str, resultados: list[tuple[str, ResultadoCupom]]) 
             antes = round((r.extra["antes_pix"] - r.frete) / max(1, r.quantidade), 2)  # de UMA TV, como tv_pix
             if antes > (r.tv_pix or 0):
                 linhas.append(f"   antes {fmt_preco(antes)}, economia de {fmt_preco(antes - (r.tv_pix or 0))}")
+        if r.extra.get("entrega"):
+            linhas.append("   " + str(r.extra["entrega"]))
     if melhor_parc:
         p = melhor_parc[1]
         frete_p = (f" + frete {fmt_preco(p.frete)} = {fmt_preco(p.tv_cartao + p.frete)}"
                    if p.frete and p.tv_cartao is not None else "")
         linhas.append(f"<b>Melhor parcelado</b>: {fmt_preco(p.tv_cartao)} em {p.parcelado_real}{frete_p} "
                       f"na {_onde(*melhor_parc)} com <code>{p.codigo}</code>")
+        if p.extra.get("entrega") and (p is not r or not melhor_vista):
+            linhas.append("   " + str(p.extra["entrega"]))
     outros = [f"{_onde(n, x)}: {texto_com_frete(x.tv_pix or x.tv_cartao, x.frete, preco_a_vista(x) is not None)} "
               f"({x.codigo})" for n, x in sorted((v for v in validos if v[1] is not r),
                                                  key=lambda x: _final_a_vista(x[1]))[:4]]
     if outros:
         linhas.append("")
         linhas.append("Outros que funcionaram: " + " · ".join(outros))
+    if caminhos:
+        linhas.append("")
+        linhas += caminhos
     if so_frete:
         linhas.append("")
         linhas += so_frete
     linhas.append("")
-    linhas.append(f"Alvo: Pix {fmt_preco(alvo_pix)} · parcelado {fmt_preco(alvo_parc)}")
+    if tv:
+        linhas.append(f"Alvo: Pix {fmt_preco(alvo_pix)} · parcelado {fmt_preco(alvo_parc)}")
+    else:
+        dist = produtos.distancia(_final_a_vista(r), a_pix) if a_pix else ""
+        linhas.append(f"Alvo: Pix {fmt_preco(a_pix)} · parcelado {fmt_preco(_a_parc)}" + (f" ({nota})" if nota else "")
+                      + (f" — {dist}" if dist else ""))
+    o_item = "a TV" if tv else com_artigo(modelo)
     # só afirma que o cupom ficou no carrinho quando o passo final foi conferido (ver testar_loja)
     if r.extra.get("no_carrinho") is True and r.extra.get("pedido"):
-        linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {principal[0]}, com uma TV de "
-                      "cada modelo (o cupom vale para o pedido); confira o total antes de finalizar.")
+        cada = "uma TV de cada modelo" if r.extra.get("pedido_so_tvs", True) else "1 unidade de cada produto"
+        linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {principal[0]}, com {cada} "
+                      "(o cupom vale para o pedido); confira o total antes de finalizar.")
     elif r.extra.get("no_carrinho") is True:
         linhas.append(f"O cupom <code>{r.codigo}</code> ficou aplicado no carrinho da {principal[0]}, "
-                      "só com a TV; é só entrar e finalizar.")
+                      f"só com {o_item}; é só entrar e finalizar.")
     elif r.extra.get("no_carrinho") is False and r.extra.get("motivo_carrinho") == MOTIVO_OUTRO_CUPOM:
-        linhas.append(f"O carrinho da {principal[0]} tem uma TV de cada modelo e ficou com o cupom "
-                      f"<code>{r.extra.get('cupom_do_pedido')}</code> (vale um cupom por pedido); para esta TV sozinha, "
-                      f"o cupom é <code>{r.codigo}</code>.")
+        if r.extra.get("pedido_so_tvs", True) and tv:
+            linhas.append(f"O carrinho da {principal[0]} tem uma TV de cada modelo e ficou com o cupom "
+                          f"<code>{r.extra.get('cupom_do_pedido')}</code> (vale um cupom por pedido); para esta TV "
+                          f"sozinha, o cupom é <code>{r.codigo}</code>.")
+        else:
+            linhas.append(f"O carrinho da {principal[0]} tem 1 unidade de cada produto e ficou com o cupom "
+                          f"<code>{r.extra.get('cupom_do_pedido')}</code> (vale um cupom por pedido); para "
+                          f"{o_item} sozinho, o cupom é <code>{r.codigo}</code>.")
     elif r.extra.get("no_carrinho") is False and r.extra.get("motivo_carrinho") == MOTIVO_NAO_COMPENSA:
-        linhas.append(f"Com o preço de agora, <code>{r.codigo}</code> não deixa a TV mais barata que o anúncio mais "
-                      f"barato sem cupom da {principal[0]}; o carrinho ficou com ele, sem cupom.")
+        linhas.append(f"Com o preço de agora, <code>{r.codigo}</code> não deixa {o_item} mais barat"
+                      f"{'a' if tv else 'o'} que o anúncio mais barato sem cupom da {principal[0]}; o carrinho ficou "
+                      "com ele, sem cupom.")
     elif r.extra.get("no_carrinho") is False:
         motivo = r.extra.get("motivo_carrinho") or "não deu para conferir"
         linhas.append(f"⚠️ Não consegui deixar o cupom aplicado no carrinho da {principal[0]} ({motivo}); "
@@ -828,9 +1211,10 @@ def _remocoes(loja) -> int:
 
 def _atualiza_fora(loja, p: Percurso, conferidos: Iterable[str] = ()) -> None:
     """Passa para p.modelos_fora os modelos das linhas que o adaptador tirou desde a última vez e tira de lá (e de
-    p.fora_de_antes) os modelos cuja TV acabou de ser conferida no carrinho."""
+    p.fora_de_antes) os modelos cuja TV acabou de ser conferida no carrinho. Só os PRINCIPAIS (TVs, PS5, GTA 6 Code
+    in Box) voltam ao carrinho: o caminho (kit, pacote, gift card) sai sem volta."""
     tirados = list(getattr(loja, "removidos", None) or [])
-    p.modelos_fora |= {m for m in tirados[p.removidos_vistos:] if m in MODELOS}
+    p.modelos_fora |= {m for m in tirados[p.removidos_vistos:] if m in PRINCIPAIS}
     p.removidos_vistos = len(tirados)
     p.modelos_fora -= set(conferidos)
     p.fora_de_antes -= set(conferidos)
@@ -864,6 +1248,32 @@ def _sessao(loja: LojaCarrinho, visivel: bool):
             ctx.close()
 
 
+def _entrega_do_carrinho(loja: LojaCarrinho, page, a: Anuncio, r: ResultadoCupom) -> None:
+    """GTA 6 físico (03/10): o carrinho logado (ou a página do anúncio na Amazon) mostra o prazo com o endereço da conta
+    da pessoa, o prazo de verdade. Quando a página traz a data, ela vale no lugar da estimativa da coleta: a linha
+    "📦 Entrega" e a meta da oferta (até 18/11: R$ 345 / 370; depois: R$ 300 / 320) passam a ser as dela. Só a data é
+    lida; endereço e CEP nunca."""
+    if a.entrega is None or not hasattr(loja, "ler_entrega"):
+        return
+    try:
+        quando = loja.ler_entrega(page)
+    except Exception:  # noqa: BLE001 - leitura extra: nunca atrapalha o teste do cupom
+        quando = None
+    if not quando:
+        return
+    o = {"modelo": a.modelo, "loja": loja.loja_canonica, "vendedor": a.vendedor,
+         "extra": {"entrega_prevista": quando, "cep_referencia": False}}
+    e = produtos.entrega(o)
+    if e is None:
+        return
+    a.entrega = e.texto.replace("📦 Entrega:", "📦 Entrega (lida no carrinho, no seu endereço):", 1)
+    meta = produtos.alvos_da_oferta(o, agora().astimezone(TZ_BR).date().isoformat())
+    if not a.caminho:
+        a.alvo_pix, a.alvo_parcelado, a.nota_alvo = meta.pix, meta.parcelado, meta.nota
+    r.extra.update(a.extra_do_resultado())
+    print(f"[{loja.nome}] {a.rotulo}: {a.entrega}")
+
+
 def _registra_leitura(p: Percurso, a: Anuncio, r: ResultadoCupom) -> None:
     atual = p.lidos.get(a.chave)
     if atual is None or (r.tv_pix or r.tv_cartao or 9e9) < (atual.tv_pix or atual.tv_cartao or 9e9):
@@ -886,7 +1296,8 @@ def _ler_anuncio_so_leitura(loja: LojaCarrinho, page, a: Anuncio, p: Percurso, i
     base = loja.ler_totais(page)
     base.codigo = "(sem cupom)"
     base.extra.update(anuncio=a.chave, vendedor=a.vendedor or base.extra.get("vendedor"), so_leitura=True,
-                      modelo=a.modelo)
+                      **a.extra_do_resultado())
+    _entrega_do_carrinho(loja, page, a, base)
     p.sem_cupom[a.chave] = base
     _registra_leitura(p, a, base)
     print(f"[{loja.nome}] {a.rotulo}: Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
@@ -902,7 +1313,7 @@ def _ler_anuncio_so_leitura(loja: LojaCarrinho, page, a: Anuncio, p: Percurso, i
         or (depois.total_pix and base.total_pix and depois.total_pix < base.total_pix - 1))
     depois.mensagem = rot
     depois.extra.update(so_leitura=True, anuncio=a.chave, vendedor=base.extra.get("vendedor"),  # nada vai ao carrinho
-                        modelo=a.modelo)
+                        **a.extra_do_resultado())
     print(f"  {'✅' if depois.aceito else 'ℹ '} cupom da página: {rot[:80]}")
     if depois.aceito:
         p.aceitos.append(depois)
@@ -926,10 +1337,12 @@ def _grava_teste(loja: LojaCarrinho, testados: dict, a: Anuncio, cod: str, r: Re
     return chave
 
 
-def _txt_resultado(r: ResultadoCupom) -> str:
-    """O que vai no log depois do código: o preço da TV (com o frete lido, L4) para o aceito; a mensagem para o resto."""
+def _txt_resultado(r: ResultadoCupom, modelo: Optional[str] = None) -> str:
+    """O que vai no log depois do código: o preço da TV/do produto (com o frete lido, L4) para o aceito; a mensagem
+    para o resto."""
     if r.aceito:
-        return "TV " + texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
+        qual = "TV" if eh_tv(modelo) else produtos.curto(modelo)
+        return f"{qual} " + texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
     return r.mensagem[:100]
 
 
@@ -955,14 +1368,14 @@ def _testar_fila(loja: LojaCarrinho, page, a: Anuncio, fila: list[str], testados
         st = r.status  # 'erro' não é recusa: volta na próxima rodada
         p.gravados.add(_grava_teste(loja, testados, a, cod, r))
         icone = {"aceito": "✅", "so_frete": "🚚", "erro": "⚠ "}.get(st, "✗ ")
-        print(f"  {icone} {cod:<18} {_txt_resultado(r)}")
+        print(f"  {icone} {cod:<18} {_txt_resultado(r, a.modelo)}")
         erros_seguidos = erros_seguidos + 1 if st == "erro" else 0
         if erros_seguidos >= MAX_ERROS_SEGUIDOS:
             print(f"[{loja.nome}] {a.rotulo}: {erros_seguidos} falhas seguidas do robô; "
                   "paro este anúncio e os cupons voltam na próxima rodada")
             break
         if r.aceito or st == "so_frete":
-            r.extra.update(vendedor=a.vendedor or loja.loja_canonica, anuncio=a.chave, modelo=a.modelo)
+            r.extra.update(vendedor=a.vendedor or loja.loja_canonica, anuncio=a.chave, **a.extra_do_resultado())
             if r.aceito:
                 p.aceitos.append(r)
                 _registra_leitura(p, a, r)
@@ -974,30 +1387,45 @@ def _testar_fila(loja: LojaCarrinho, page, a: Anuncio, fila: list[str], testados
             page.wait_for_timeout(3000)  # respiro para não parecer ataque
 
 
+def _sem_visitas(loja: LojaCarrinho, p: Percurso) -> bool:
+    """A rodada já abriu o total de anúncios da loja (loja.max_visitas_rodada, somando os produtos)?"""
+    teto = getattr(loja, "max_visitas_rodada", None)
+    if teto is None or len(p.visitados) < teto:
+        return False
+    print(f"[{loja.nome}] limite de {teto} anúncios abertos por rodada nesta loja; o resto fica para a próxima")
+    return True
+
+
 def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list[str], reg: dict, p: Percurso,
-              forcar: bool = False, explicitos: bool = False) -> None:
-    """Vai do anúncio mais barato ao mais caro (de UM modelo) até acabar o orçamento de testes (p.orcamento) ou o
-    limite de anúncios (loja.max_anuncios por modelo)."""
+              forcar: bool = False, explicitos: bool = False, compat: Optional[Compat] = None,
+              max_anuncios: Optional[int] = None) -> None:
+    """Vai do anúncio mais barato ao mais caro (de UM modelo/produto principal, com o caminho mais barato antes dele)
+    até acabar o orçamento de testes (p.orcamento), o limite de anúncios (loja.max_anuncios por produto, ou
+    `max_anuncios`) ou o total de anúncios abertos na loja (loja.max_visitas_rodada). `compat`: em qual produto cada
+    código vale (Codigos.compat)."""
     testados = reg.setdefault("cupons", {})
     ids_tv = sorted({a.item_id for a in anuncios if a.item_id})
     so_leitura = getattr(loja, "so_leitura", False)
+    limite = max_anuncios or loja.max_anuncios
     visitas = 0
     for i, a in enumerate(anuncios):
-        if visitas >= loja.max_anuncios:
-            print(f"[{loja.nome}] limite de {loja.max_anuncios} anúncios por rodada; "
+        if visitas >= limite:
+            print(f"[{loja.nome}] limite de {limite} anúncios por rodada; "
                   f"{len(anuncios) - i} ficam para a próxima")
             break
         if _tempo_esgotado():
             print(f"[{loja.nome}] a rodada passou de {PRAZO_RODADA_S // 60} min; o resto fica para a próxima")
             break
         if so_leitura:
+            if _sem_visitas(loja, p):
+                break
             if p.visitados:
                 page.wait_for_timeout(PAUSA_ENTRE_ANUNCIOS_MS)
             p.visitados.append(a.chave)
             visitas += 1
             _ler_anuncio_so_leitura(loja, page, a, p, ids_tv)
             continue
-        fila, pulados = pendentes(anuncios, i, fila_base, testados, agora(), forcar, explicitos, p.inicio)
+        fila, pulados = pendentes(anuncios, i, fila_base, testados, agora(), forcar, explicitos, p.inicio, compat)
         if pulados:
             print(f"[{loja.nome}] {a.rotulo}: não testo {', '.join(pulados)} (já aceito(s) num anúncio mais barato)")
         if not fila:
@@ -1007,11 +1435,18 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
             print(f"[{loja.nome}] limite de {MAX_APLICACOES_POR_RODADA} testes da rodada atingido; "
                   f"{len(fila)} cupons de {a.rotulo} ficam para a próxima")
             break
+        if _sem_visitas(loja, p):
+            break
         if p.visitados:
             page.wait_for_timeout(PAUSA_ENTRE_ANUNCIOS_MS)
         p.visitados.append(a.chave)
         visitas += 1
-        print(f"[{loja.nome}] anúncio {visitas}/{loja.max_anuncios}: {a.rotulo} ({fmt_preco(a.preco)}), "
+        if a.caminho:
+            print(f"[{loja.nome}] {produtos.curto(a.modelo)} {a.rotulo} a {fmt_preco(a.preco)} equivale a "
+                  f"{fmt_preco(a.equivalente)} no {produtos.curto(a.caminho)}: é o caminho mais barato; testo os "
+                  "cupons nele, mas ele não fica no carrinho")
+            _marca_caminho_posto(reg, p, a)
+        print(f"[{loja.nome}] anúncio {visitas}/{limite}: {a.rotulo} ({fmt_preco(a.preco)}), "
               f"{len(fila)} cupom(ns) pendente(s)")
         p.no_carrinho = None  # se a troca parar no meio (falha ou exceção), no fim da rodada o carrinho é conferido
         p.conferidos = {}
@@ -1030,7 +1465,8 @@ def percorrer(loja: LojaCarrinho, page, anuncios: list[Anuncio], fila_base: list
             loja.remover(page)
             base = loja.ler_totais(page)
         base.codigo = "(sem cupom)"
-        base.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, modelo=a.modelo)
+        base.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, **a.extra_do_resultado())
+        _entrega_do_carrinho(loja, page, a, base)
         print(f"[{loja.nome}] {a.rotulo}: produtos {fmt_preco(base.produtos)} frete {fmt_preco(base.frete)} "
               f"Pix {fmt_preco(base.total_pix)} cartão {fmt_preco(base.total_cartao)}"
               + (f" · {base.parcelado}" if base.parcelado else ""))
@@ -1052,7 +1488,7 @@ def _resultado_do_registro(codigo: str, reg: dict, a: Anuncio) -> ResultadoCupom
         pix_real=bool(reg.get("pix_real", True)),  # registro antigo, sem o campo: trata como Pix de verdade
         parcelado=reg.get("parcelado"), quantidade=int(reg.get("quantidade") or 1),
         extra={"vendedor": a.vendedor or reg.get("vendedor"), "anuncio": a.chave, "anterior": True,
-               "aceito_em": reg.get("testado_em"), "modelo": a.modelo})
+               "aceito_em": reg.get("testado_em"), **a.extra_do_resultado()})
 
 
 def escolher_final(p: Percurso, anuncios: list[Anuncio], testados: dict,
@@ -1209,7 +1645,7 @@ def _le_o_frete_no_fim(loja: LojaCarrinho, page, a: Anuncio, p: Percurso) -> Non
     if r is None or (r.total_pix is None and r.total_cartao is None) or max(1, r.quantidade) != 1:
         return
     r.codigo = "(sem cupom)"
-    r.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, modelo=a.modelo)
+    r.extra.update(anuncio=a.chave, vendedor=a.vendedor or loja.loja_canonica, **a.extra_do_resultado())
     p.sem_cupom[a.chave] = r
     _registra_leitura(p, a, r)
     valor = texto_com_frete(r.tv_pix or r.tv_cartao, r.frete, preco_a_vista(r) is not None)
@@ -1242,20 +1678,28 @@ def _carrinho_intacto(loja: LojaCarrinho, p: Percurso) -> None:
           f"({onde}); sem aviso")
 
 
+def _o_item(modelos: Iterable[str]) -> tuple[str, str]:
+    """('a TV', 'ela') quando tudo é TV (ou não se sabe); ('o produto', 'ele') com o PS5/GTA 6 no meio."""
+    ms = [m for m in modelos if m]
+    return ("a TV", "ela") if all(eh_tv(m) for m in ms) else ("o produto", "ele")
+
+
 def _avisar_sacola_vazia(loja: LojaCarrinho, tentados: list[Anuncio], motivo: Optional[str] = None) -> None:
-    """O robô TIROU algo do carrinho nesta rodada (esvaziar do Magalu, linha antiga do ML) e a TV não voltou a
-    ser conferida lá: a sacola da pessoa pode ter ficado VAZIA. Vai para o log e para o Telegram.
+    """O robô TIROU algo do carrinho nesta rodada (esvaziar do Magalu, linha antiga do ML) e a TV (o produto) não voltou
+    a ser conferida lá: a sacola da pessoa pode ter ficado VAZIA. Vai para o log e para o Telegram.
     Quem chama confere antes (_removeu_sem_conferir, F3): sem remoção, o carrinho está intacto e não há aviso."""
     quais = ", ".join(a.rotulo for a in tentados[:3]) or "nenhum anúncio conhecido"
+    item, pron = _o_item(a.modelo for a in tentados)
     if motivo:
-        print(f"[{loja.nome}] ⚠ tirei a TV do carrinho e {motivo} antes de ela voltar; a sacola pode ter ficado VAZIA")
+        print(f"[{loja.nome}] ⚠ tirei {item} do carrinho e {motivo} antes de {pron} voltar; a sacola pode ter ficado "
+              "VAZIA")
         AVISOS_CARRINHO.append(
-            f"⚠️ <b>{loja.loja_canonica}</b>: tirei a TV do carrinho para trocar de anúncio e {motivo} antes de "
-            f"ela voltar; a sua sacola pode ter ficado <b>vazia</b>. Confira em {loja.url_carrinho}")
+            f"⚠️ <b>{loja.loja_canonica}</b>: tirei {item} do carrinho para trocar de anúncio e {motivo} antes de "
+            f"{pron} voltar; a sua sacola pode ter ficado <b>vazia</b>. Confira em {loja.url_carrinho}")
         return
-    print(f"[{loja.nome}] ⚠ não consegui deixar a TV no carrinho ({quais}); a sacola pode ter ficado VAZIA")
+    print(f"[{loja.nome}] ⚠ não consegui deixar {item} no carrinho ({quais}); a sacola pode ter ficado VAZIA")
     AVISOS_CARRINHO.append(
-        f"⚠️ <b>{loja.loja_canonica}</b>: não consegui deixar a TV no carrinho nesta rodada "
+        f"⚠️ <b>{loja.loja_canonica}</b>: não consegui deixar {item} no carrinho nesta rodada "
         f"(tentei {len(tentados)} anúncio(s)); a sua sacola pode ter ficado <b>vazia</b>. "
         f"Confira em {loja.url_carrinho}")
 
@@ -1274,30 +1718,48 @@ def _avisar_sem_tempo(loja: LojaCarrinho, p: Percurso) -> None:
         f"ele pode ter ficado <b>vazio</b>. Confira em {loja.url_carrinho}")
 
 
-def _avisar_tvs_a_mais(loja: LojaCarrinho) -> None:
-    """O carrinho terminou com mais de uma linha (ou mais de 1 unidade) do mesmo modelo e o robô não conseguiu
-    arrumar sem arriscar tirar a TV errada."""
-    print(f"[{loja.nome}] ⚠ o carrinho pode ter ficado com mais de uma TV do mesmo modelo")
+def _avisar_tvs_a_mais(loja: LojaCarrinho, modelos: Iterable[str] = ()) -> None:
+    """O carrinho terminou com mais de uma linha (ou mais de 1 unidade) do mesmo modelo/produto e o robô não conseguiu
+    arrumar sem arriscar tirar o item errado."""
+    if _o_item(modelos)[0] == "a TV":
+        print(f"[{loja.nome}] ⚠ o carrinho pode ter ficado com mais de uma TV do mesmo modelo")
+        AVISOS_CARRINHO.append(
+            f"⚠️ <b>{loja.loja_canonica}</b>: o carrinho pode ter ficado com <b>mais de uma TV do mesmo modelo</b> (ou "
+            f"mais de 1 unidade). Confira em {loja.url_carrinho} e deixe só uma de cada modelo.")
+        return
+    print(f"[{loja.nome}] ⚠ o carrinho pode ter ficado com mais de uma unidade do mesmo produto")
     AVISOS_CARRINHO.append(
-        f"⚠️ <b>{loja.loja_canonica}</b>: o carrinho pode ter ficado com <b>mais de uma TV do mesmo modelo</b> (ou mais "
-        f"de 1 unidade). Confira em {loja.url_carrinho} e deixe só uma de cada modelo.")
+        f"⚠️ <b>{loja.loja_canonica}</b>: o carrinho pode ter ficado com <b>mais de uma unidade do mesmo produto</b> "
+        f"(TV, PS5 ou GTA 6). Confira em {loja.url_carrinho} e deixe só uma de cada.")
 
 
-NOME_MODELO = {"55C6K": 'TV 55" (55C6K)', "65C6K": 'TV 65" (65C6K)'}
+def _avisar_caminho_que_ficou(loja: LojaCarrinho) -> None:
+    """03/10: o kit/pacote/gift card que o robô pôs no carrinho para medir um cupom não saiu no passo final."""
+    print(f"[{loja.nome}] ⚠ um kit/pacote/gift card que eu pus para medir um cupom ficou no carrinho")
+    AVISOS_CARRINHO.append(
+        f"⚠️ <b>{loja.loja_canonica}</b>: pus no carrinho um kit/pacote/gift card só para medir um cupom e não consegui "
+        f"tirar no fim. Confira em {loja.url_carrinho} e tire-o à mão (ele não é para ficar lá).")
 
 
-def _avisar_tv_fora(loja: LojaCarrinho, modelos: Iterable[str], motivo: Optional[str] = None) -> None:
+# nomes nas mensagens: as TVs como sempre; os outros, o nome do catálogo
+NOME_MODELO = {m: nome_do_produto(m) for m in PRODUTOS_DO_CARRINHO}
+
+
+def _avisar_tv_fora(loja: LojaCarrinho, modelos: Iterable[str], motivo: Optional[str] = None,
+                    todos: Optional[Iterable[str]] = None) -> None:
     """26/09: o robô tirou do carrinho a TV de um modelo (para medir o cupom do outro, que vale para o pedido
-    inteiro) e ela não voltou a ser conferida lá. Vai para o log e para o Telegram."""
-    ms = [m for m in MODELOS if m in set(modelos)]
+    inteiro) e ela não voltou a ser conferida lá. Vai para o log e para o Telegram. 03/10: também o PS5/GTA 6 (os
+    principais); `todos`: os produtos da loja na rodada (fora todos eles, a sacola pode ter ficado vazia)."""
+    ms = [m for m in PRINCIPAIS if m in set(modelos)]
     if not ms:
         return
-    quais = " e ".join(NOME_MODELO.get(m, m) for m in ms)
+    quais = " e ".join(com_artigo(m).split(" ", 1)[0] + f" <b>{NOME_MODELO.get(m, m)}</b>" for m in ms)
     porque = f" ({motivo})" if motivo else ""
-    print(f"[{loja.nome}] ⚠ tirei do carrinho a {quais} e ela não voltou{porque}")
-    vazia = " A sua sacola pode ter ficado <b>vazia</b>." if len(ms) == len(MODELOS) else ""
+    pron = "não voltou" if len(ms) == 1 else "não voltaram"
+    print(f"[{loja.nome}] ⚠ tirei do carrinho {re.sub(r'</?b>', '', quais)} e {pron}{porque}")
+    vazia = " A sua sacola pode ter ficado <b>vazia</b>." if set(ms) >= set(todos or MODELOS) else ""
     AVISOS_CARRINHO.append(
-        f"⚠️ <b>{loja.loja_canonica}</b>: tirei do carrinho a <b>{quais}</b> para medir um cupom e não consegui "
+        f"⚠️ <b>{loja.loja_canonica}</b>: tirei do carrinho {quais} para medir um cupom e não consegui "
         f"devolver{porque}.{vazia} Confira em {loja.url_carrinho}")
 
 
@@ -1467,17 +1929,20 @@ def _deixar_cupom_no_pedido(loja: LojaCarrinho, p: Percurso, alvos: dict[str, An
                 conferidos = loja.garantir_itens(page, _alvos_do_pedido(p, alvos, grupos))
             finally:
                 _atualiza_fora(loja, p)
+            so_tvs = all(eh_tv(m) for m in alvos)
             if len(_conferencia_do_pedido(loja, p, alvos, conferidos)) != len(alvos):
-                _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_SEM_AS_DUAS)
+                _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_SEM_AS_DUAS if so_tvs else MOTIVO_SEM_CADA_PRODUTO)
                 return "sem_tv", None
             r = loja.aplicar(page, melhor.codigo)
             if r.aceito and r.codigo == melhor.codigo:
-                melhor.extra.update(no_carrinho=True, pedido=True, preco_pedido=_preco_do_pedido(r))
+                melhor.extra.update(no_carrinho=True, pedido=True, preco_pedido=_preco_do_pedido(r),
+                                    pedido_so_tvs=so_tvs)
                 return "ok", None
             _marca_sem_cupom_no_carrinho(loja, melhor, r.mensagem or "a loja não confirmou o cupom")
             return "sem_cupom", None
     except CarrinhoOcupado as e:
-        _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_OCUPADO)
+        _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_OCUPADO if all(eh_tv(m) for m in alvos)
+                                     else MOTIVO_OCUPADO_PRODUTO)
         p.parou_por = MOTIVO_PAROU_OCUPADO
         return "parar", e
     except (LojaIndisponivel, PrecisaLogin) as e:
@@ -1545,11 +2010,11 @@ def _avisos_do_pedido(loja: LojaCarrinho, p: Percurso, grupos: dict[str, list[An
     outro modelo, tirada para medir um cupom, ou as duas). Sem remoção, o carrinho está como a pessoa deixou."""
     motivo = MOTIVO_SEM_TEMPO if sem_tempo else parou
     if p.modelos_fora:
-        _avisar_tv_fora(loja, p.modelos_fora, motivo)
+        _avisar_tv_fora(loja, p.modelos_fora, motivo, todos=grupos)
         return
     # adaptador que não disse o modelo do que tirou: a regra da F3 (tirou algo e nada foi conferido depois)
     if not p.conferidos and _removeu_sem_conferir(loja, p) and parou != MOTIVO_PAROU_OCUPADO:
-        _avisar_tv_fora(loja, grupos, motivo)
+        _avisar_tv_fora(loja, grupos, motivo, todos=grupos)
     elif not p.conferidos:
         _carrinho_intacto(loja, p)
 
@@ -1589,7 +2054,8 @@ def arrumar_carrinho_modelos(loja: LojaCarrinho, p: Percurso, grupos: dict[str, 
     if pedido is not None:
         dono, melhor = pedido
         alvos = {m: d[0] for m, d in destinos.items()}
-        print(f"[{loja.nome}] passo final: uma TV de cada modelo ("
+        cada = "uma TV de cada modelo" if all(eh_tv(m) for m in alvos) else "um item de cada produto"
+        print(f"[{loja.nome}] passo final: {cada} ("
               + " + ".join(f"{m} {a.rotulo}" for m, a in alvos.items()) + f") com {melhor.codigo}"
               + (" (aceito antes)" if melhor.extra.get("anterior") else ""))
         situacao, erro = _deixar_cupom_no_pedido(loja, p, alvos, grupos, melhor, visivel)
@@ -1603,7 +2069,7 @@ def arrumar_carrinho_modelos(loja: LojaCarrinho, p: Percurso, grupos: dict[str, 
                 fresco = round(fresco + sum(frete_do_anuncio(p, a) or 0 for a in alvos.values()), 2)
             if fresco is not None and any(baratos[m].chave != alvos[m].chave for m in alvos) and fresco >= ref - 0.005:
                 print(f"[{loja.nome}] com o preço de agora, o pedido com {melhor.codigo} sai {fmt_preco(fresco)} com o "
-                      f"frete, não menos que as TVs mais baratas sem cupom ({fmt_preco(ref)})")
+                      f"frete, não menos que os anúncios mais baratos sem cupom ({fmt_preco(ref)})")
                 _marca_sem_cupom_no_carrinho(loja, melhor, MOTIVO_NAO_COMPENSA)
             else:
                 feito = True
@@ -1635,12 +2101,12 @@ def _tvs_fora_do_estado(loja: LojaCarrinho, reg: dict, momento: Optional[datetim
     bruto = reg.get("tvs_fora")
     vale: dict[str, dict] = {}
     for m, v in (bruto.items() if isinstance(bruto, dict) else ()):
-        if m not in MODELOS or not isinstance(v, dict):
+        if m not in PRINCIPAIS or not isinstance(v, dict):
             continue
         tentativas = int(v.get("tentativas") or 0)
         if tentativas >= MAX_TENTATIVAS_DEVOLVER or not _recente(v.get("desde"), momento, JANELA_DEVOLVER_TV):
-            print(f"[{loja.nome}] desisto de devolver ao carrinho a {NOME_MODELO.get(m, m)} (fora desde "
-                  f"{v.get('desde')}, {tentativas} tentativa(s)); a pessoa foi avisada quando ela saiu")
+            print(f"[{loja.nome}] desisto de devolver ao carrinho {com_artigo(m)} (fora desde "
+                  f"{v.get('desde')}, {tentativas} tentativa(s)); a pessoa foi avisada quando saiu")
             continue
         vale[m] = {"desde": v.get("desde"), "tentativas": tentativas}
     if vale:
@@ -1656,18 +2122,18 @@ def devolver_tvs_fora(loja: LojaCarrinho, p: Percurso, grupos: dict[str, list[An
     que saíram numa rodada anterior e não voltaram (p.fora_de_antes), o anúncio mais barato de cada um, sem cupom, sem
     tocar na TV do outro modelo (garantir_itens só com os que faltam). Modelo sem anúncio conhecido nesta rodada fica
     para a próxima. Devolve os modelos tentados."""
-    faltam = {m: grupos[m] for m in MODELOS if m in p.fora_de_antes and grupos.get(m)}
+    faltam = {m: grupos[m] for m in PRINCIPAIS if m in p.fora_de_antes and grupos.get(m)}
     sem_anuncio = sorted(p.fora_de_antes - set(faltam))
     if sem_anuncio:
-        print(f"[{loja.nome}] a {' e a '.join(NOME_MODELO.get(m, m) for m in sem_anuncio)} saiu do carrinho numa rodada "
-              "anterior, mas não conheço anúncio dela nesta rodada; tento na próxima")
+        print(f"[{loja.nome}] {' e '.join(com_artigo(m) for m in sem_anuncio)}: saiu do carrinho numa rodada "
+              "anterior, mas não conheço anúncio nesta rodada; tento na próxima")
     if not faltam:
         return set()
     if _tempo_esgotado(PRAZO_PASSO_FINAL_S):
-        print(f"[{loja.nome}] sem tempo nesta rodada para devolver a TV que saiu do carrinho; tento na próxima")
+        print(f"[{loja.nome}] sem tempo nesta rodada para devolver o que saiu do carrinho; tento na próxima")
         return set()
-    print(f"[{loja.nome}] devolvo ao carrinho a {' e a '.join(NOME_MODELO.get(m, m) for m in faltam)}, que saiu numa "
-          "rodada anterior e não voltou (sem cupom, sem mexer na TV do outro modelo)")
+    print(f"[{loja.nome}] devolvo ao carrinho {' e '.join(com_artigo(m) for m in faltam)}, que saiu numa "
+          "rodada anterior e não voltou (sem cupom, sem mexer nos outros itens)")
     _pedido_sem_cupom(loja, p, faltam, reg, visivel)
     return set(faltam)
 
@@ -1677,16 +2143,17 @@ def _grava_tvs_fora(loja: LojaCarrinho, reg: dict, p: Percurso, antes: dict[str,
     rodada e não voltou, ou saiu antes e ainda não voltou); a que voltou sai de lá e a pessoa sabe."""
     tentou = set(tentou)
     novo: dict[str, dict] = {}
-    for m in MODELOS:
+    for m in PRINCIPAIS:
         if m in antes and m in p.fora_de_antes:             # saiu antes e ainda não voltou
             novo[m] = {**antes[m], "tentativas": int(antes[m].get("tentativas") or 0) + (1 if m in tentou else 0)}
         elif m in p.modelos_fora:                           # saiu nesta rodada e não voltou (o aviso já foi dado)
             novo[m] = {"desde": agora_iso(), "tentativas": 0}
-    de_volta = [m for m in MODELOS if m in antes and m not in novo]
+    de_volta = [m for m in PRINCIPAIS if m in antes and m not in novo]
     if de_volta:
-        quais = " e a ".join(NOME_MODELO.get(m, m) for m in de_volta)
-        print(f"[{loja.nome}] a {quais}, que tinha saído do carrinho numa rodada anterior, está de volta (conferido)")
-        AVISOS_CARRINHO.append(f"✅ <b>{loja.loja_canonica}</b>: a <b>{quais}</b>, que tinha saído do carrinho numa "
+        quais = " e ".join(com_artigo(m).split(" ", 1)[0] + f" <b>{NOME_MODELO.get(m, m)}</b>" for m in de_volta)
+        print(f"[{loja.nome}] {re.sub(r'</?b>', '', quais)}, que tinha saído do carrinho numa rodada anterior, está de "
+              "volta (conferido)")
+        AVISOS_CARRINHO.append(f"✅ <b>{loja.loja_canonica}</b>: {quais}, que tinha saído do carrinho numa "
                                f"rodada anterior, está de volta lá (conferido agora).")
     if novo:
         reg["tvs_fora"] = novo
@@ -1756,16 +2223,27 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
         # F1 (22/09 10:12): a coleta do ML foi bloqueada e o robô caiu no "anúncio padrão" (catálogo, vendedor
         # '?', R$ 0,00), tentou trocar a TV da pessoa e avisou "sacola VAZIA" à toa. Sem anúncio conhecido,
         # nada de troca, de teste de cupom nem de passo final.
-        print(f"[{loja_id}] nenhum anúncio conhecido nesta rodada (a coleta não trouxe a TV desta loja — falhou ou "
-              f"foi bloqueada — e o testador não leu anúncio dela nas últimas "
+        print(f"[{loja_id}] nenhum anúncio conhecido nesta rodada (a coleta não trouxe os produtos desta loja — falhou "
+              f"ou foi bloqueada — e o testador não leu anúncio dela nas últimas "
               f"{int(JANELA_ANUNCIO_DO_ESTADO.total_seconds() // 3600)} h): não mexo no carrinho")
         return []
     fila_base = _sem_repetir(codigos or conhecidos)
+    # 03/10: em qual produto vale testar cada código (os de --codigos, em todos)
+    compat = conhecidos.compat if isinstance(conhecidos, Codigos) and not codigos else None
     grupos = por_modelo(anuncios)
     for m, lista in grupos.items():
         print(f"[{loja_id}] " + ("" if list(grupos) == [MODELO_PADRAO] else f"{m}: ")
               + f"{len(lista)} anúncio(s), do mais barato ao mais caro (com o frete lido no carrinho): "
               + " · ".join(f"{a.rotulo} {texto_com_frete(a.preco, a.frete)}" for a in lista[:8]))
+    for a in caminhos_fora(anuncios, grupos):
+        motivo = ("a loja não tem anúncio do principal para comparar" if a.caminho not in grupos else
+                  f"não é o caminho mais barato (equivale a {fmt_preco(a.preco_comparavel)})")
+        print(f"[{loja_id}] {produtos.curto(a.modelo)} {a.rotulo} a {fmt_preco(a.preco)}: não testo ({motivo})")
+    if not grupos:
+        print(f"[{loja_id}] nenhum produto principal com anúncio nesta rodada: não mexo no carrinho")
+        return []
+    # o passo final só deixa no carrinho os PRINCIPAIS: o caminho (kit, pacote, gift card) nunca fica
+    finais_por_produto = {m: [a for a in lista if not a.caminho] for m, lista in grupos.items()}
     do_estado = [a for a in anuncios if a.origem == "estado"]
     if do_estado:
         de_quem = sorted({a.modelo for a in do_estado})
@@ -1779,16 +2257,18 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     if hasattr(loja, "comecar_rodada"):
         loja.comecar_rodada()
     so_leitura = getattr(loja, "so_leitura", False)
+    postos = caminhos_postos(reg)
     p = Percurso(inicio=agora().replace(microsecond=0), orcamento=MAX_APLICACOES_POR_RODADA,
-                 contexto=contexto_do_carrinho(anuncios), fora_de_antes=set(fora_antes))
+                 contexto=contexto_do_carrinho(anuncios, loja.loja_canonica, postos), fora_de_antes=set(fora_antes))
+    p.contexto["restauraveis"] = sorted(grupos)   # só volta ao carrinho o principal que tem anúncio nesta rodada
     if fora_antes:
-        print(f"[{loja_id}] a {' e a '.join(NOME_MODELO.get(m, m) for m in fora_antes)} saiu do carrinho numa rodada "
-              "anterior e não voltou: vai de volta nesta rodada")
+        print(f"[{loja_id}] {' e '.join(com_artigo(m) for m in fora_antes)}: saiu do carrinho numa rodada "
+              "anterior e não voltou; vai de volta nesta rodada")
     interrompida: Optional[str] = None   # motivo (MOTIVO_PAROU_*) quando a loja parou no meio do percurso
     try:
         with _sessao(loja, visivel) as page:
             try:
-                percorrer_modelos(loja, page, grupos, fila_base, reg, p, forcar, bool(codigos))
+                percorrer_modelos(loja, page, grupos, fila_base, reg, p, forcar, bool(codigos), compat)
                 _foto(page, loja_id)
             except LojaIndisponivel as e:
                 interrompida = MOTIVO_PAROU_INDISPONIVEL
@@ -1816,31 +2296,48 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
     tentou: set = set()    # modelos de p.fora_de_antes que o robô tentou devolver ao carrinho nesta rodada
     try:
         if p.visitados and not so_leitura and not interrompida:
-            tentou |= p.fora_de_antes & set(grupos)       # o passo final de sempre põe uma TV de cada modelo
-            if len(grupos) == 1:
-                (m, lista), = grupos.items()
+            tentou |= p.fora_de_antes & set(grupos)       # o passo final de sempre põe um item de cada produto
+            if len(finais_por_produto) == 1:
+                (m, lista), = finais_por_produto.items()
                 finais = {m: arrumar_carrinho(loja, p, lista, reg, visivel)}
             else:
-                finais = arrumar_carrinho_modelos(loja, p, grupos, reg, visivel)
+                finais = arrumar_carrinho_modelos(loja, p, finais_por_produto, reg, visivel)
         else:
             if interrompida and not so_leitura and len(grupos) > 1 and p.modelos_fora:
                 # a loja parou depois de o robô tirar a TV de um modelo (para medir o cupom do outro): sem passo final
-                _avisar_tv_fora(loja, p.modelos_fora, interrompida)
+                _avisar_tv_fora(loja, p.modelos_fora, interrompida, todos=grupos)
             elif interrompida and interrompida != MOTIVO_PAROU_OCUPADO and not so_leitura and \
                     _removeu_sem_conferir(loja, p):
                 # a loja parou (antirrobô, sessão) depois de o robô tirar a TV e antes de ela voltar: sem passo final
                 _avisar_sacola_vazia(loja, [a for a in anuncios if a.chave in p.visitados], interrompida)
-            if p.fora_de_antes and not so_leitura and interrompida in (None, MOTIVO_PAROU_OCUPADO):
+            if postos and not so_leitura and interrompida is None and not _tempo_esgotado(PRAZO_PASSO_FINAL_S):
+                # 03/10: um caminho (kit, pacote, gift card) que o robô pôs numa rodada anterior e não conseguiu tirar:
+                # o passo final sem cupom (1 item de cada principal) tira a linha dele
+                print(f"[{loja_id}] tiro do carrinho o caminho que pus numa rodada anterior para medir um cupom")
+                tentou |= p.fora_de_antes & set(finais_por_produto)
+                _pedido_sem_cupom(loja, p, finais_por_produto, reg, visivel)
+            elif p.fora_de_antes and not so_leitura and interrompida in (None, MOTIVO_PAROU_OCUPADO):
                 # nada pendente (o passo final não correu) ou a loja parou por uma TV que o robô não sabe devolver:
                 # a TV que saiu numa rodada anterior volta mesmo assim (loja fora do ar ou sessão expirada: não)
-                tentou |= devolver_tvs_fora(loja, p, grupos, reg, visivel)
+                tentou |= devolver_tvs_fora(loja, p, finais_por_produto, reg, visivel)
     finally:
         if not so_leitura:
             _grava_tvs_fora(loja, reg, p, fora_antes, tentou)
             # L4: o frete lido no passo final (anúncio que só entrou no fim) também fica para as próximas rodadas
             reg["precos"] = _precos_por_anuncio(reg.get("precos"), p, anuncios)
+            # o caminho que o robô pôs saiu do carrinho (a última conferência não viu a linha dele): o registro sai
+            agora_postos = caminhos_postos(reg)
+            if agora_postos and p.conferidos and not set(p.conferidos) & set(CAMINHOS) and \
+                    not getattr(loja, "sobrou_caminho", False):
+                reg.pop("caminhos_postos", None)
+            elif agora_postos:
+                reg["caminhos_postos"] = agora_postos
+            else:
+                reg.pop("caminhos_postos", None)
     if getattr(loja, "tvs_a_mais", False):
-        _avisar_tvs_a_mais(loja)
+        _avisar_tvs_a_mais(loja, grupos)
+    if getattr(loja, "sobrou_caminho", False):
+        _avisar_caminho_que_ficou(loja)
     _anota_opcoes_do_catalogo(reg, loja)
     print(f"[{loja_id}] {len(p.aceitos)} cupom(ns) aceito(s)")
     resultado = list(p.aceitos)
@@ -1848,29 +2345,36 @@ def testar_loja(loja_id: str, codigos: list[str] | None, forcar: bool, visivel: 
         if final and final[1] is not None and final[1].extra.get("anterior") and \
                 any(_modelo_do_resultado(r) == m for r in p.aceitos):
             resultado.append(final[1])  # a mensagem compara com o melhor que já funcionou hoje
-    for m, lista in grupos.items():
-        marcar_se_compensa([r for r in resultado if _modelo_do_resultado(r) == m], *referencia_sem_cupom(p, lista))
+    for m, lista in finais_por_produto.items():
+        ref = referencia_sem_cupom(p, lista)
+        marcar_se_compensa([r for r in resultado if _modelo_do_resultado(r) == m and not r.extra.get("caminho")], *ref)
+        marcar_caminhos([r for r in resultado if r.extra.get("caminho") and _grupo_do_resultado(r) == m], ref[0])
     # L2: cupom que só mexeu no frete vai para a mensagem como frete (aceito=False: nunca é o "melhor preço" da TV)
     return resultado + list(p.so_frete)
 
 
 def _tem_pendencia(anuncios: list[Anuncio], fila_base: list[str], testados: dict, p: Percurso, forcar: bool,
-                   explicitos: bool) -> bool:
+                   explicitos: bool, compat: Optional[Compat] = None) -> bool:
     """Algum anúncio deste modelo tem cupom para testar nesta rodada (mesma conta de percorrer, sem mexer em nada)?"""
     momento = agora()
-    return any(pendentes(anuncios, i, fila_base, testados, momento, forcar, explicitos, p.inicio)[0]
+    return any(pendentes(anuncios, i, fila_base, testados, momento, forcar, explicitos, p.inicio, compat)[0]
                for i in range(len(anuncios)))
 
 
 def percorrer_modelos(loja: LojaCarrinho, page, grupos: dict[str, list[Anuncio]], fila_base: list[str], reg: dict,
-                      p: Percurso, forcar: bool = False, explicitos: bool = False) -> None:
-    """percorrer() em cada modelo (55C6K primeiro). Os testes de cupom da rodada (p.orcamento, contra o antirrobô)
-    são divididos entre os modelos que têm cupom pendente: cada um tem direito à sua parte, e o que um não usa passa
-    para o seguinte. Loja só de leitura (Amazon) lê os anúncios dos dois modelos."""
+                      p: Percurso, forcar: bool = False, explicitos: bool = False,
+                      compat: Optional[Compat] = None) -> None:
+    """percorrer() em cada modelo/produto (as TVs primeiro, depois PS5 Digital, PS5 com leitor, PS5 Pro e GTA 6). Os
+    testes de cupom da rodada (p.orcamento, contra o antirrobô) são divididos entre os produtos que têm cupom pendente:
+    cada um tem direito à sua parte, e o que um não usa passa para o seguinte. Loja só de leitura (Amazon) lê os
+    anúncios de cada produto, com as páginas da rodada (loja.max_visitas_rodada) repartidas entre eles."""
     testados = reg.setdefault("cupons", {})
     so_leitura = getattr(loja, "so_leitura", False)
     modelos = list(grupos)
-    pend = {m: so_leitura or _tem_pendencia(grupos[m], fila_base, testados, p, forcar, explicitos) for m in modelos}
+    pend = {m: so_leitura or _tem_pendencia(grupos[m], fila_base, testados, p, forcar, explicitos, compat)
+            for m in modelos}
+    teto = getattr(loja, "max_visitas_rodada", None)
+    por_produto = max(1, min(loja.max_anuncios, teto // len(modelos))) if so_leitura and teto and modelos else None
     for k, m in enumerate(modelos):
         com_pendencia = [x for x in modelos[k:] if pend[x]]
         cota = p.orcamento
@@ -1882,7 +2386,7 @@ def percorrer_modelos(loja: LojaCarrinho, page, grupos: dict[str, list[Anuncio]]
         reserva = p.orcamento - cota
         p.orcamento = cota
         try:
-            percorrer(loja, page, grupos[m], fila_base, reg, p, forcar, explicitos)
+            percorrer(loja, page, grupos[m], fila_base, reg, p, forcar, explicitos, compat, por_produto)
         finally:
             p.orcamento += reserva
 
@@ -1938,12 +2442,24 @@ def marcar_se_compensa(resultados: list[ResultadoCupom], ref_vista: Optional[flo
         r.extra["pior_parcelado"] = bool(ref_cartao and cartao and cartao >= ref_cartao - 0.005)
 
 
+def marcar_caminhos(resultados: list[ResultadoCupom], ref_vista: Optional[float]) -> None:
+    """Cupom aceito num CAMINHO (kit, pacote, gift card) que, no equivalente do principal (com o frete), não fica abaixo
+    do anúncio mais barato do principal sem cupom não é o caminho mais barato: sai da mensagem (pior_que_principal)."""
+    for r in resultados:
+        eq = _equivalente_com_cupom(r)
+        r.extra["pior_que_principal"] = bool(ref_vista and eq is not None and eq + (r.frete or 0) >= ref_vista - 0.005)
+
+
 MOTIVO_SEM_TV = "o carrinho não ficou só com a TV"
 MOTIVO_OCUPADO = "o carrinho tem outros produtos além da TV"
 MOTIVO_SEM_TEMPO = "o tempo da rodada acabou antes do passo final"
 MOTIVO_NAO_COMPENSA = "com o preço de agora o cupom não deixa a TV mais barata que o anúncio mais barato sem cupom"
 MOTIVO_SEM_AS_DUAS = "o carrinho não ficou com uma TV de cada modelo"
+MOTIVO_SEM_CADA_PRODUTO = "o carrinho não ficou com um item de cada produto"
 MOTIVO_OUTRO_CUPOM = "o carrinho tem as duas TVs e vale um cupom por pedido"
+# 03/10: os mesmos motivos com o PS5/GTA 6 (a mensagem decide o texto pelo produto)
+MOTIVO_SEM_O_PRODUTO = "o carrinho não ficou só com o produto"
+MOTIVO_OCUPADO_PRODUTO = "o carrinho tem outros produtos além dos monitorados"
 
 
 def _marca_sem_cupom_no_carrinho(loja: LojaCarrinho, melhor: ResultadoCupom, motivo: str) -> None:
@@ -1961,9 +2477,10 @@ def _deixar_cupom(loja: LojaCarrinho, page, url: str, melhor: ResultadoCupom,
     melhor.extra["no_carrinho"] = False
     erro: Optional[Exception] = None
     final: Optional[ResultadoCupom] = None
+    tv = eh_tv(_modelo_do_resultado(melhor))
     try:
         if not loja.garantir_item(page, url, alvo):
-            situacao, motivo = "sem_tv", MOTIVO_SEM_TV
+            situacao, motivo = "sem_tv", (MOTIVO_SEM_TV if tv else MOTIVO_SEM_O_PRODUTO)
         else:
             final = loja.aplicar(page, melhor.codigo)
             if final.aceito and final.codigo == melhor.codigo:
@@ -1975,7 +2492,7 @@ def _deixar_cupom(loja: LojaCarrinho, page, url: str, melhor: ResultadoCupom,
                 return "ok", None, final
             situacao, motivo = "sem_cupom", final.mensagem or "a loja não confirmou o cupom"
     except CarrinhoOcupado as e:
-        situacao, motivo, erro = "parar", MOTIVO_OCUPADO, e
+        situacao, motivo, erro = "parar", (MOTIVO_OCUPADO if tv else MOTIVO_OCUPADO_PRODUTO), e
     except (LojaIndisponivel, PrecisaLogin) as e:
         situacao, motivo, erro = "parar", f"erro: {type(e).__name__}", e
     except Exception as e:  # noqa: BLE001
@@ -1994,9 +2511,12 @@ def deixar_cupom_no_carrinho(loja: LojaCarrinho, page, url: str, melhor: Resulta
     return _deixar_cupom(loja, page, url, melhor, alvo)[0] == "ok"
 
 
-def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool) -> int:
-    global _INICIO
+def executar(lojas: list[str], codigos: list[str] | None, forcar: bool, visivel: bool, notify: bool,
+             desligados: Iterable[str] = ()) -> int:
+    """Rodada do testador em cada loja. `desligados`: produtos fora desta rodada (modo vigia: as TVs)."""
+    global _INICIO, _DESLIGADOS
     _INICIO = time.monotonic()
+    _DESLIGADOS = frozenset(desligados)
     AVISOS_CARRINHO.clear()
     estado = carrega_estado()
     resultados: list[tuple[str, ResultadoCupom]] = []
@@ -2118,11 +2638,14 @@ def main() -> int:
         return login(a.loja)
     if a.check:
         return 0 if all(checar_sessao(l, a.visivel) for l in lojas) else 1
+    desligados: tuple[str, ...] = ()
     if config.modo_vigia() and not a.codigos and not a.forcar:
-        print(f"[vigia] TV comprada (03/10): testador de cupons desligado até {config.VIGIA_ATE}")
-        return 0
+        # TV comprada (03/10): as TVs ficam fora do testador; o PS5 e o GTA 6 seguem (pedido de 03/10)
+        desligados = tuple(produtos.TVS)
+        print(f"[vigia] TV comprada (03/10): TVs fora do testador de cupons até {config.VIGIA_ATE}; "
+              "PS5 e GTA 6 seguem")
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None
-    return executar(lojas, cods, a.forcar, a.visivel, not a.no_notify)
+    return executar(lojas, cods, a.forcar, a.visivel, not a.no_notify, desligados)
 
 
 if __name__ == "__main__":
