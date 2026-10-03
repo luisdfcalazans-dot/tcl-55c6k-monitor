@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-10-03T20:15:19-03:00",
+ "atualizado": "2026-10-03T20:48:01-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -11,6 +11,204 @@
   "65C6K": {
    "pix": 3427.0,
    "parcelado": 3427.0
+  }
+ },
+ "produtos": {
+  "55C6K": {
+   "nome": "TCL 55C6K",
+   "curto": "55\"",
+   "familia": "TV",
+   "secao": "TV",
+   "alvo_pix": 2900.0,
+   "alvo_parcelado": 3000.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "65C6K": {
+   "nome": "TCL 65C6K",
+   "curto": "65\"",
+   "familia": "TV",
+   "secao": "TV",
+   "alvo_pix": 3427.0,
+   "alvo_parcelado": 3427.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "PS5_DIGITAL": {
+   "nome": "PS5 Slim Digital",
+   "curto": "PS5 Digital",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": 3550.0,
+   "alvo_parcelado": 3700.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "PS5_DISCO": {
+   "nome": "PS5 Slim com leitor",
+   "curto": "PS5 c/ leitor",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": 3950.0,
+   "alvo_parcelado": 4150.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "PS5_PRO": {
+   "nome": "PS5 Pro",
+   "curto": "PS5 Pro",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": 5950.0,
+   "alvo_parcelado": 6100.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "PS5_DIGITAL_GTA6": {
+   "nome": "Pacote PS5 Digital + GTA 6",
+   "curto": "PS5 Digital + GTA 6",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": 4000.0,
+   "alvo_parcelado": 4150.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": true,
+   "edicao": null
+  },
+  "PS5_DISCO_GTA6": {
+   "nome": "Pacote PS5 com leitor + GTA 6",
+   "curto": "PS5 c/ leitor + GTA 6",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": 4300.0,
+   "alvo_parcelado": 4450.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": true,
+   "edicao": null
+  },
+  "PS5_KIT": {
+   "nome": "PS5 edição especial / kit",
+   "curto": "PS5 kit/edição",
+   "familia": "PS5",
+   "secao": "PS5",
+   "alvo_pix": null,
+   "alvo_parcelado": null,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": false,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "GTA6_CODE_IN_BOX": {
+   "nome": "GTA 6 PS5 Code in Box",
+   "curto": "GTA 6 Code in Box",
+   "familia": "GTA6",
+   "secao": "GTA6",
+   "alvo_pix": 345.0,
+   "alvo_parcelado": 370.0,
+   "alvo_pix_tardio": 300.0,
+   "alvo_parcelado_tardio": 320.0,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": true,
+   "edicao": "Standard"
+  },
+  "GTA6_DIGITAL": {
+   "nome": "GTA 6 digital Standard (PS Store)",
+   "curto": "GTA 6 digital",
+   "familia": "GTA6",
+   "secao": "GTA6",
+   "alvo_pix": 365.0,
+   "alvo_parcelado": 365.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": true,
+   "gta_fisico": false,
+   "edicao": "Standard"
+  },
+  "GTA6_ULTIMATE": {
+   "nome": "GTA 6 digital Ultimate (PS Store)",
+   "curto": "GTA 6 Ultimate",
+   "familia": "GTA6",
+   "secao": "GTA6",
+   "alvo_pix": 450.0,
+   "alvo_parcelado": 450.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": true,
+   "gta_fisico": false,
+   "edicao": "Ultimate"
+  },
+  "GTA6_UPGRADE": {
+   "nome": "Upgrade GTA 6 Standard -> Ultimate",
+   "curto": "GTA 6 upgrade",
+   "familia": "GTA6",
+   "secao": "GTA6",
+   "alvo_pix": 85.0,
+   "alvo_parcelado": 85.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": true,
+   "gta_fisico": false,
+   "edicao": "Ultimate"
+  },
+  "GIFT_CARD_PSN": {
+   "nome": "Gift card PlayStation",
+   "curto": "Gift card PSN",
+   "familia": "ACESSORIO",
+   "secao": "GTA6",
+   "alvo_pix": null,
+   "alvo_parcelado": null,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": false,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
+  },
+  "LEITOR_PS5": {
+   "nome": "Leitor de disco do PS5",
+   "curto": "Leitor PS5",
+   "familia": "ACESSORIO",
+   "secao": "PS5",
+   "alvo_pix": 300.0,
+   "alvo_parcelado": 320.0,
+   "alvo_pix_tardio": null,
+   "alvo_parcelado_tardio": null,
+   "compara_preco": true,
+   "digital": false,
+   "gta_fisico": false,
+   "edicao": null
   }
  },
  "minimo": {
@@ -31,39 +229,165 @@
   "chave": "mercadolivre:MLB5446673958",
   "modelo": "65C6K"
  },
+ "minimo_PS5_DIGITAL": {
+  "preco": 4084.9,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
+  "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
+  "modelo": "PS5_DIGITAL"
+ },
+ "minimo_PS5_DISCO": {
+  "preco": 4649.06,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0F8R9NDXC",
+  "titulo": "PlayStation®5 Slim Disk - Pacote ASTRO BOT e Gran Turismo 7",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0F8R9NDXC-destaque",
+  "modelo": "PS5_DISCO"
+ },
+ "minimo_PS5_PRO": {
+  "preco": 7299.0,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0DH8J5YGH",
+  "titulo": "PlayStation®5 Pro",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0DH8J5YGH-destaque",
+  "modelo": "PS5_PRO"
+ },
+ "minimo_PS5_DIGITAL_GTA6": {
+  "preco": 4602.47,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0H6LVH152",
+  "titulo": "Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0H6LVH152-destaque",
+  "modelo": "PS5_DIGITAL_GTA6"
+ },
+ "minimo_PS5_DISCO_GTA6": {
+  "preco": 5067.47,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0H6LPVFWQ",
+  "titulo": "Bundle GTA VI + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0H6LPVFWQ-destaque",
+  "modelo": "PS5_DISCO_GTA6"
+ },
+ "minimo_GTA6_CODE_IN_BOX": {
+  "preco": 418.4,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
+  "titulo": "Grand Theft Auto VI - PlayStation 5",
+  "vendedor": "Amazon.com.br",
+  "vendedor_id": "A1ZZFT5FULY4LN",
+  "chave": "amazon.produtos:B0H6KT2RWH-A1ZZFT5FULY4LN",
+  "modelo": "GTA6_CODE_IN_BOX"
+ },
+ "minimo_LEITOR_PS5": {
+  "preco": 669.9,
+  "loja": "Amazon",
+  "quando": "2026-10-03T20:48:01-03:00",
+  "url": "https://www.amazon.com.br/dp/B0CL5HJNLM",
+  "titulo": "Drive de Disco para Console PlayStation®5 Slim e Pro",
+  "vendedor": null,
+  "vendedor_id": null,
+  "chave": "amazon.produtos:B0CL5HJNLM-destaque",
+  "modelo": "LEITOR_PS5"
+ },
  "ofertas_loja": [
   {
-   "fonte": "amazon",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET",
-   "id": "B0F7JZMVKF-ACUNARZFR75ET",
-   "preco": null,
-   "preco_pix": 3329.1,
-   "parcelado": null,
+   "titulo": "Grand Theft Auto VI - PlayStation 5",
+   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
+   "id": "B0H6KT2RWH-A1ZZFT5FULY4LN",
+   "preco": 449.9,
+   "preco_pix": 418.4,
+   "parcelado": "12x R$ 37,51 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Magalu.",
+   "vendedor": "Amazon.com.br",
    "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "ACUNARZFR75ET",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 3579,
-     "positivas_pct": 60,
-     "enviado_por": "Magalu.",
-     "full": false
+    "anuncio": "B0H6KT2RWH",
+    "asin": "B0H6KT2RWH",
+    "vendedor_id": "A1ZZFT5FULY4LN",
+    "disponibilidade": "este produto será lançado em 19/novembro/2026. reserve o seu na pré-venda.",
+    "destaque": true,
+    "produto": {
+     "plataforma_incerta": false
     },
+    "entrega_prevista": "2026-11-16",
+    "entrega_ate_lancamento": true,
+    "cep_referencia": false,
+    "entrega_origem": "página da Amazon",
     "confianca": {
      "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "loja",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
     }
    },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
-   "melhor_preco": 3329.1
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "amazon.produtos:B0H6KT2RWH-A1ZZFT5FULY4LN",
+   "melhor_preco": 418.4
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Drive de Disco para Console PlayStation®5 Slim e Pro",
+   "url": "https://www.amazon.com.br/dp/B0CL5HJNLM",
+   "id": "B0CL5HJNLM-destaque",
+   "preco": 669.9,
+   "preco_pix": null,
+   "parcelado": "10x R$ 66,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CL5HJNLM",
+    "asin": "B0CL5HJNLM",
+    "vendedor_id": null,
+    "origem": "busca",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "amazon.produtos:B0CL5HJNLM-destaque",
+   "melhor_preco": 669.9
   },
   {
    "fonte": "amazon",
@@ -134,46 +458,6 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A3POF6EIWE8R8",
-   "id": "B0F7JZMVKF-A3POF6EIWE8R8",
-   "preco": 3498.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Imagem Hitech FULL",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A3POF6EIWE8R8",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 3171,
-     "positivas_pct": 100,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A3POF6EIWE8R8",
-   "melhor_preco": 3498.0
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
    "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A1ZZFT5FULY4LN",
    "id": "B0F7JZMVKF-A1ZZFT5FULY4LN",
    "preco": 3498.0,
@@ -199,6 +483,79 @@
    "modelo": "55C6K",
    "chave": "amazon:B0F7JZMVKF-A1ZZFT5FULY4LN",
    "melhor_preco": 3498.0
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A3POF6EIWE8R8",
+   "id": "B0F7JZMVKF-A3POF6EIWE8R8",
+   "preco": 3498.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Imagem Hitech FULL",
+   "extra": {
+    "anuncio": "B0F7JZMVKF",
+    "asin": "B0F7JZMVKF",
+    "vendedor_id": "A3POF6EIWE8R8",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 3173,
+     "positivas_pct": 99,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "amazon:B0F7JZMVKF-A3POF6EIWE8R8",
+   "melhor_preco": 3498.0
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET",
+   "id": "B0F7JZMVKF-ACUNARZFR75ET",
+   "preco": null,
+   "preco_pix": 3514.05,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu.",
+   "extra": {
+    "anuncio": "B0F7JZMVKF",
+    "asin": "B0F7JZMVKF",
+    "vendedor_id": "ACUNARZFR75ET",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 3579,
+     "positivas_pct": 60,
+     "enviado_por": "Magalu.",
+     "full": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
+   "melhor_preco": 3514.05
   },
   {
    "fonte": "mercadolivre",
@@ -352,6 +709,86 @@
    "melhor_preco": 4084.06
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
+   "id": "B0GWNKJDCZ-destaque",
+   "preco": 4299.84,
+   "preco_pix": 4084.9,
+   "parcelado": "12x R$ 358,32 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
+   "melhor_preco": 4084.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Edição Digital",
+   "url": "https://www.amazon.com.br/dp/B0CQKJN2C6",
+   "id": "B0CQKJN2C6-destaque",
+   "preco": 4299.84,
+   "preco_pix": 4084.9,
+   "parcelado": "12x R$ 358,32 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CQKJN2C6",
+    "asin": "B0CQKJN2C6",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0CQKJN2C6-destaque",
+   "melhor_preco": 4084.9
+  },
+  {
    "fonte": "aliexpress",
    "tipo": "loja",
    "loja": "AliExpress",
@@ -380,37 +817,164 @@
    "melhor_preco": 4159.0
   },
   {
-   "fonte": "amazon",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=ACUNARZFR75ET",
-   "id": "B0F7K7B2PD-ACUNARZFR75ET",
-   "preco": null,
-   "preco_pix": 4229.1,
-   "parcelado": null,
+   "titulo": "PlayStation®5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
+   "id": "B0FPGF9J2J-destaque",
+   "preco": 4498.92,
+   "preco_pix": 4184.07,
+   "parcelado": "12x R$ 374,91 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Magalu.",
+   "vendedor": null,
    "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "ACUNARZFR75ET",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 3579,
-     "positivas_pct": 60,
-     "enviado_por": "Magalu.",
-     "full": false
+    "anuncio": "B0FPGF9J2J",
+    "asin": "B0FPGF9J2J",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
     },
     "confianca": {
-     "veredito": "confiavel"
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
     }
    },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-ACUNARZFR75ET",
-   "melhor_preco": 4229.1
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0FPGF9J2J-destaque",
+   "melhor_preco": 4184.07
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Console PlayStation 5 - Digital Edition",
+   "url": "https://www.amazon.com.br/dp/B0BNSR6S9Z",
+   "id": "B0BNSR6S9Z-destaque",
+   "preco": 4449.0,
+   "preco_pix": 4226.55,
+   "parcelado": "12x R$ 370,75 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0BNSR6S9Z",
+    "asin": "B0BNSR6S9Z",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0BNSR6S9Z-destaque",
+   "melhor_preco": 4226.55
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Console PlayStation 5 - Digital Edition",
+   "url": "https://www.amazon.com.br/dp/B08CWG5K2D",
+   "id": "B08CWG5K2D-destaque",
+   "preco": 4449.84,
+   "preco_pix": 4227.4,
+   "parcelado": "12x R$ 370,82 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B08CWG5K2D",
+    "asin": "B08CWG5K2D",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B08CWG5K2D-destaque",
+   "melhor_preco": 4227.4
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Console PlayStation 5 - Digital Edition",
+   "url": "https://www.amazon.com.br/dp/B09FGCKBPK",
+   "id": "B09FGCKBPK-destaque",
+   "preco": 4499.88,
+   "preco_pix": 4274.9,
+   "parcelado": "12x R$ 374,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B09FGCKBPK",
+    "asin": "B09FGCKBPK",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B09FGCKBPK-destaque",
+   "melhor_preco": 4274.9
   },
   {
    "fonte": "mercadolivre",
@@ -438,6 +1002,39 @@
    "modelo": "65C6K",
    "chave": "mercadolivre:ed-tv-65-c6k-google-tv/up/MLBU3187349883",
    "melhor_preco": 4299.0
+  },
+  {
+   "fonte": "amazon",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
+   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=ACUNARZFR75ET",
+   "id": "B0F7K7B2PD-ACUNARZFR75ET",
+   "preco": null,
+   "preco_pix": 4464.05,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu.",
+   "extra": {
+    "anuncio": "B0F7K7B2PD",
+    "asin": "B0F7K7B2PD",
+    "vendedor_id": "ACUNARZFR75ET",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 3579,
+     "positivas_pct": 60,
+     "enviado_por": "Magalu.",
+     "full": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "amazon:B0F7K7B2PD-ACUNARZFR75ET",
+   "melhor_preco": 4464.05
   },
   {
    "fonte": "mercadolivre",
@@ -472,6 +1069,216 @@
    "melhor_preco": 4599.0
   },
   {
+   "fonte": "mercadolivre.produtos",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Console Playstation®5 Slim Digital - Pacote Astro Bot E Gran Turismo 7 - Branco",
+   "url": "https://www.mercadolivre.com.br/p/MLB57081243?pdp_filters=item_id%3AMLB4214670787",
+   "id": "MLB4214670787",
+   "preco": 4599.9,
+   "preco_pix": null,
+   "parcelado": "10x R$ 459,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "PlayStation",
+   "extra": {
+    "anuncio": "MLB4214670787",
+    "item_id": "MLB4214670787",
+    "catalogo": "MLB57081243",
+    "opcoes_no_catalogo": 45,
+    "vendedor_id": "480263032",
+    "vendas_vendedor": 1000000,
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "mercadolivre.produtos:MLB4214670787",
+   "melhor_preco": 4599.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0H6LVH152",
+   "id": "B0H6LVH152-destaque",
+   "preco": 4948.9,
+   "preco_pix": 4602.47,
+   "parcelado": "10x R$ 494,89 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0H6LVH152",
+    "asin": "B0H6LVH152",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "entrega_prevista": "2026-11-16",
+    "entrega_ate_lancamento": true,
+    "cep_referencia": false,
+    "entrega_origem": "página da Amazon",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 4000.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "loja",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "PS5_DIGITAL_GTA6",
+   "chave": "amazon.produtos:B0H6LVH152-destaque",
+   "melhor_preco": 4602.47
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Disk - Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0F8R9NDXC",
+   "id": "B0F8R9NDXC-destaque",
+   "preco": 4998.96,
+   "preco_pix": 4649.06,
+   "parcelado": "12x R$ 416,58 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0F8R9NDXC",
+    "asin": "B0F8R9NDXC",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0F8R9NDXC-destaque",
+   "melhor_preco": 4649.06
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Bundle PlayStation 5 Slim Disk Pacote Edição Limitada Wolverine + Figura Marvel Legends Hasbro Wolverine",
+   "url": "https://www.amazon.com.br/dp/B0HFY2Z4VV",
+   "id": "B0HFY2Z4VV-destaque",
+   "preco": 5380.0,
+   "preco_pix": 5002.98,
+   "parcelado": "10x R$ 538,00 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0HFY2Z4VV",
+    "asin": "B0HFY2Z4VV",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "base": "PS5_DISCO",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 4150.0,
+     "parcelado": 4350.0,
+     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0HFY2Z4VV-destaque",
+   "melhor_preco": 5002.98
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Stea PlayStation®5 console (slim)",
+   "url": "https://www.amazon.com.br/dp/B0CL61F39H",
+   "id": "B0CL61F39H-destaque",
+   "preco": 5298.96,
+   "preco_pix": 5034.05,
+   "parcelado": "12x R$ 441,58 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CL61F39H",
+    "asin": "B0CL61F39H",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0CL61F39H-destaque",
+   "melhor_preco": 5034.05
+  },
+  {
    "fonte": "amazon",
    "tipo": "loja",
    "loja": "Amazon",
@@ -503,6 +1310,177 @@
    "modelo": "65C6K",
    "chave": "amazon:B0F7K7B2PD-A30OZFNW1RCCSM",
    "melhor_preco": 5058.19
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Bundle GTA VI + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0H6LPVFWQ",
+   "id": "B0H6LPVFWQ-destaque",
+   "preco": 5448.9,
+   "preco_pix": 5067.47,
+   "parcelado": "10x R$ 544,89 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0H6LPVFWQ",
+    "asin": "B0H6LPVFWQ",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "entrega_prevista": "2026-11-16",
+    "entrega_ate_lancamento": true,
+    "cep_referencia": false,
+    "entrega_origem": "página da Amazon",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 4300.0,
+     "parcelado": 4450.0,
+     "nota": ""
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "loja",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "PS5_DISCO_GTA6",
+   "chave": "amazon.produtos:B0H6LPVFWQ-destaque",
+   "melhor_preco": 5067.47
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PS5® Console - Two DualSense Wireless Controllers Bundle",
+   "url": "https://www.amazon.com.br/dp/B0DT9MQQC1",
+   "id": "B0DT9MQQC1-destaque",
+   "preco": 5490.0,
+   "preco_pix": 5215.5,
+   "parcelado": "12x R$ 457,50 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0DT9MQQC1",
+    "asin": "B0DT9MQQC1",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "controle",
+       "valor": 300.0
+      }
+     ],
+     "valor_extra": 300.0,
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3850.0,
+     "parcelado": 4000.0,
+     "nota": "meta do PS5 Slim Digital + R$ 300 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0DT9MQQC1-destaque",
+   "melhor_preco": 5215.5
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Slim 1TB Spider-Man 2",
+   "url": "https://www.amazon.com.br/dp/B0CKZGY5B6",
+   "id": "B0CKZGY5B6-destaque",
+   "preco": 5499.84,
+   "preco_pix": 5224.9,
+   "parcelado": "12x R$ 458,32 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CKZGY5B6",
+    "asin": "B0CKZGY5B6",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CKZGY5B6-destaque",
+   "melhor_preco": 5224.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Disk + 2 Jogos",
+   "url": "https://www.amazon.com.br/dp/B0CSPNDPKG",
+   "id": "B0CSPNDPKG-destaque",
+   "preco": 5499.84,
+   "preco_pix": 5224.9,
+   "parcelado": "12x R$ 458,32 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CSPNDPKG",
+    "asin": "B0CSPNDPKG",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CSPNDPKG-destaque",
+   "melhor_preco": 5224.9
   },
   {
    "fonte": "mercadolivre",
@@ -564,6 +1542,44 @@
    "melhor_preco": 5299.0
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7",
+   "id": "B0CM9VHGY7-destaque",
+   "preco": 5599.8,
+   "preco_pix": 5319.9,
+   "parcelado": "12x R$ 466,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-destaque",
+   "melhor_preco": 5319.9
+  },
+  {
    "fonte": "amazon",
    "tipo": "loja",
    "loja": "Amazon",
@@ -608,6 +1624,86 @@
    "melhor_preco": 5557.4
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Console PlayStation 5",
+   "url": "https://www.amazon.com.br/dp/B09FGC9T19",
+   "id": "B09FGC9T19-destaque",
+   "preco": 5999.88,
+   "preco_pix": 5699.9,
+   "parcelado": "12x R$ 499,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B09FGC9T19",
+    "asin": "B09FGC9T19",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B09FGC9T19-destaque",
+   "melhor_preco": 5699.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Console [videogame]",
+   "url": "https://www.amazon.com.br/dp/B08FC5L3RG",
+   "id": "B08FC5L3RG-destaque",
+   "preco": 5999.88,
+   "preco_pix": 5699.9,
+   "parcelado": "12x R$ 499,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B08FC5L3RG",
+    "asin": "B08FC5L3RG",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B08FC5L3RG-destaque",
+   "melhor_preco": 5699.9
+  },
+  {
    "fonte": "mercadolivre",
    "tipo": "loja",
    "loja": "Mercado Livre",
@@ -633,6 +1729,52 @@
    "modelo": "65C6K",
    "chave": "mercadolivre:k-wifi-bluetooth-65c6k/up/MLBU3933299210",
    "melhor_preco": 6499.0
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Pack do console PlayStation®5 – Edição Limitada Ouro - Ghost of Yōtei",
+   "url": "https://www.amazon.com.br/dp/B0FML8XKTZ",
+   "id": "B0FML8XKTZ-destaque",
+   "preco": 6999.84,
+   "preco_pix": 6649.9,
+   "parcelado": "12x R$ 583,32 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0FML8XKTZ",
+    "asin": "B0FML8XKTZ",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3750.0,
+     "parcelado": 3900.0,
+     "nota": "meta do PS5 Slim Digital + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0FML8XKTZ-destaque",
+   "melhor_preco": 6649.9
   },
   {
    "fonte": "amazon",
@@ -677,9 +1819,501 @@
    "modelo": "65C6K",
    "chave": "amazon:B0F7K7B2PD-A28W2XGABGHXAH",
    "melhor_preco": 6854.15
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Pro",
+   "url": "https://www.amazon.com.br/dp/B0DH8J5YGH",
+   "id": "B0DH8J5YGH-destaque",
+   "preco": 7299.0,
+   "preco_pix": null,
+   "parcelado": "12x R$ 608,25 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0DH8J5YGH",
+    "asin": "B0DH8J5YGH",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 5950.0,
+     "parcelado": 6100.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_PRO",
+   "chave": "amazon.produtos:B0DH8J5YGH-destaque",
+   "melhor_preco": 7299.0
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Pro",
+   "url": "https://www.amazon.com.br/dp/B0DJH2NS6R",
+   "id": "B0DJH2NS6R-destaque",
+   "preco": 7950.0,
+   "preco_pix": 7552.5,
+   "parcelado": "12x R$ 662,50 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0DJH2NS6R",
+    "asin": "B0DJH2NS6R",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 5950.0,
+     "parcelado": 6100.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_PRO",
+   "chave": "amazon.produtos:B0DJH2NS6R-destaque",
+   "melhor_preco": 7552.5
+  },
+  {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
+   "url": "https://www.casasbahia.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv/p/55069456",
+   "id": "55069456-destaque",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "55069456",
+    "sku": "55069456",
+    "vendedor_id": null,
+    "motivo": "esgotado"
+   },
+   "modelo": "55C6K",
+   "chave": "casasbahia:55069456-destaque",
+   "melhor_preco": null
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor de Disco para PlayStation 5 Slim PS5 Pro Sony Edição Digital Branco CFI2000",
+   "url": "https://www.pelando.com.br/d/leitor-de-disco-para-playstation-5-slim-ps5-pro-sony-edicao-digital-branco-cfi2000-slim-branco-97b3",
+   "id": "cdf3d517-82e3-4ba4-ac22-86ec8ec66b12",
+   "preco": 508.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "31°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:cdf3d517-82e3-4ba4-ac22-86ec8ec66b12",
+   "melhor_preco": 508.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+   "url": "https://www.pelando.com.br/d/leitor-disco-playstation-5-slim-ps5-pro-sony-branco-bd0c",
+   "id": "3a258b98-3fc7-4e78-afa3-b5cb7afe088a",
+   "preco": 492.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "252°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:3a258b98-3fc7-4e78-afa3-b5cb7afe088a",
+   "melhor_preco": 492.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+   "url": "https://www.pelando.com.br/d/leitor-disco-playstation-5-slim-ps5-pro-sony-branco-3817",
+   "id": "e40f265a-24f5-41ce-884f-8234fcdc0416",
+   "preco": 483.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "60°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:e40f265a-24f5-41ce-884f-8234fcdc0416",
+   "melhor_preco": 483.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+   "url": "https://www.pelando.com.br/d/leitor-disco-playstation-5-slim-ps5-pro-sony-branco-4523",
+   "id": "0ddcb5a9-7688-4fda-8961-ac853e5071eb",
+   "preco": 476.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "183°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:0ddcb5a9-7688-4fda-8961-ac853e5071eb",
+   "melhor_preco": 476.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor de Disco para PlayStation 5 Slim PS5 Pro Sony Edição Digital Branco CFI2000 Slim Branco",
+   "url": "https://www.pelando.com.br/d/leitor-de-disco-para-playstation-5-slim-ps5-pro-sony-edicao-digital-branco-cfi2000-slim-branco-555a",
+   "id": "5f38f66d-2002-475c-93cb-ab16a7704a17",
+   "preco": 482.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1911°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:5f38f66d-2002-475c-93cb-ab16a7704a17",
+   "melhor_preco": 482.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor de Disco Sony para Playstation 5 Slim e Pro, Edição digital - CFI-2000",
+   "url": "https://www.pelando.com.br/d/leitor-de-disco-para-playstation-5-slim-ps5-pro-sony-edicao-digital-branco-cfi-2000-ebe2",
+   "id": "2a864078-1f1c-44d4-a0c8-a69bbb867744",
+   "preco": 399.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "679°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:2a864078-1f1c-44d4-a0c8-a69bbb867744",
+   "melhor_preco": 399.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor de Disco PS5 Slim Sony CFI-2000",
+   "url": "https://www.pelando.com.br/d/leitor-de-disco-ps5-slim-sony-cfi-2000-ffcd",
+   "id": "c9c183ee-2dc1-4d47-ae30-d36fa78aa5a4",
+   "preco": 399.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1633°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:c9c183ee-2dc1-4d47-ae30-d36fa78aa5a4",
+   "melhor_preco": 399.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "[PRIME] Leitor de Disco Para Playstation 5 Slim, PS5 Pro Sony, Edição digital",
+   "url": "https://www.pelando.com.br/d/prime-leitor-de-disco-para-playstation-5-slim-ps5-pro-sony-edicao-digital-a417",
+   "id": "86661b39-5fdb-46cd-9e5a-4a2dbbc762e9",
+   "preco": 459.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "613°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:86661b39-5fdb-46cd-9e5a-4a2dbbc762e9",
+   "melhor_preco": 459.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "15% OFF no Leitor de Disco PS5 Slim",
+   "url": "https://www.pelando.com.br/d/15-off-no-leitor-de-disco-ps5-slim-6d8e",
+   "id": "3e6c133c-e99b-4f3d-bc8f-1c234e07e065",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "31°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:3e6c133c-e99b-4f3d-bc8f-1c234e07e065",
+   "melhor_preco": null,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor de Disco PS5 Sony CFI-2000",
+   "url": "https://www.pelando.com.br/d/leitor-de-disco-ps5-sony-cfi-2000-f699",
+   "id": "42dba13f-35a3-4ff3-9f9f-27d38237e8bc",
+   "preco": 452.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "605°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:42dba13f-35a3-4ff3-9f9f-27d38237e8bc",
+   "melhor_preco": 452.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Unidade de disco Leitor PS5 Digital Slim / Pro",
+   "url": "https://www.pelando.com.br/d/unidade-de-disco-leitor-ps5r-digital-slim-pro-c9cd",
+   "id": "dbe60dba-bb8e-46ae-be47-300304301ef9",
+   "preco": 460.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "785°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:dbe60dba-bb8e-46ae-be47-300304301ef9",
+   "melhor_preco": 460.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.pelando.com.br/d/sony-playstation-5-edicao-digital-825gb-1-controle-30e7",
+   "id": "424b3e15-e69f-4cfd-8357-ca7711a6fe2c",
+   "preco": 3889.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-03T13:42:42-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "-278°",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "pelando:424b3e15-e69f-4cfd-8357-ca7711a6fe2c",
+   "melhor_preco": 3889.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
+   "ultimo_preco": 3889.0,
+   "menor_preco": 3889.0
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Jogo Grand Theft Auto VI GTA 6 PS5 Code In Box Pré-venda Lançamento Preto",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-pre-venda-lancamento-preto-e687",
+   "id": "e848cddb-48df-41ee-9dae-38cef39c423d",
+   "preco": 341.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-01T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "118°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:e848cddb-48df-41ee-9dae-38cef39c423d",
+   "melhor_preco": 341.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
   {
    "primeira_vez": "2026-10-03T11:49:22-03:00",
    "preco_alertado": null,
@@ -693,7 +2327,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-01T20:12:39-03:00",
+   "publicado": "2026-10-01T20:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -702,7 +2336,7 @@
    "modelo": "65C6K",
    "chave": "pelando:7c1f38b6-7aee-4e95-bfc7-44c0d93c44e5",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-10-03T11:49:22-03:00",
@@ -717,7 +2351,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-30T20:12:39-03:00",
+   "publicado": "2026-09-30T20:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -726,7 +2360,7 @@
    "modelo": "55C6K",
    "chave": "pelando:1a00be38-6cc1-41a5-b000-a5e73e08fea5",
    "melhor_preco": 3024.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -750,7 +2384,7 @@
    "modelo": "55C6K",
    "chave": "pelando:ba600c39-982c-43e9-b7e0-40c5b0c669b5",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -774,7 +2408,7 @@
    "modelo": "55C6K",
    "chave": "pelando:b675e6ae-d3cc-4411-b3e9-f6d5e4145174",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -798,7 +2432,7 @@
    "modelo": "55C6K",
    "chave": "pelando:f49fed6c-c920-4eeb-96aa-c5e691d4b3b7",
    "melhor_preco": 2990.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -822,7 +2456,7 @@
    "modelo": "55C6K",
    "chave": "pelando:95e0b0ce-a976-4e63-825a-c8b03291b27c",
    "melhor_preco": 3100.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -846,7 +2480,7 @@
    "modelo": "55C6K",
    "chave": "pelando:92eac6e1-7d1c-4d8d-861c-4d186147205e",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -870,7 +2504,7 @@
    "modelo": "55C6K",
    "chave": "pelando:a54bebc4-a352-4ec0-b1e9-dec61db0a109",
    "melhor_preco": 2949.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -894,7 +2528,7 @@
    "modelo": "55C6K",
    "chave": "pelando:cf68017e-6a6e-48ad-b899-71b4df636906",
    "melhor_preco": 2910.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -942,7 +2576,7 @@
    "modelo": "65C6K",
    "chave": "pelando:4ee745f4-b964-411e-986e-fb615254c408",
    "melhor_preco": 3289.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -966,7 +2600,7 @@
    "modelo": "65C6K",
    "chave": "pelando:5325809a-bc01-4f44-92e9-593b64559b83",
    "melhor_preco": 3149.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -990,7 +2624,7 @@
    "modelo": "65C6K",
    "chave": "pelando:efd762ee-bb79-47ad-8b0b-0492d2da0602",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1014,7 +2648,7 @@
    "modelo": "65C6K",
    "chave": "pelando:c8ada64f-f164-421b-8ab3-5e01d3b66db8",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1038,7 +2672,7 @@
    "modelo": "65C6K",
    "chave": "pelando:1ae306ce-157f-4dbf-a04f-97c4147f977a",
    "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1062,7 +2696,7 @@
    "modelo": "65C6K",
    "chave": "pelando:1c9bf238-18a8-45cc-97a4-9425a26f1826",
    "melhor_preco": 3782.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1086,7 +2720,7 @@
    "modelo": "65C6K",
    "chave": "pelando:eecf5486-ccba-4a41-aa6b-564843861ac6",
    "melhor_preco": 3439.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1110,7 +2744,7 @@
    "modelo": "65C6K",
    "chave": "pelando:8c66b6d0-d8ed-4598-8bd1-394e751619cc",
    "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1134,7 +2768,7 @@
    "modelo": "65C6K",
    "chave": "pelando:d12a35c4-ad74-417b-842a-495f47a4e7c7",
    "melhor_preco": 3695.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -1182,7 +2816,7 @@
    "modelo": "65C6K",
    "chave": "pelando:823e2314-b26b-4640-9268-10d84740cd36",
    "melhor_preco": 3581.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1206,7 +2840,7 @@
    "modelo": "65C6K",
    "chave": "pelando:59057492-7ac4-4ecc-abd2-a0f61c82eb91",
    "melhor_preco": 3229.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1230,7 +2864,7 @@
    "modelo": "65C6K",
    "chave": "pelando:6e63a033-93ff-4f60-8626-22da5e809f43",
    "melhor_preco": 3395.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1254,7 +2888,7 @@
    "modelo": "65C6K",
    "chave": "pelando:33e44122-f76b-4f5b-b7af-d3f4856c65f1",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1278,7 +2912,7 @@
    "modelo": "65C6K",
    "chave": "pelando:633a9135-e86c-4790-8f2a-0c65b177be6e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1302,7 +2936,7 @@
    "modelo": "65C6K",
    "chave": "pelando:77c4745b-4850-4f78-8800-e707847e216e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1326,7 +2960,7 @@
    "modelo": "65C6K",
    "chave": "pelando:882d170a-08e5-4517-adf0-b019113db009",
    "melhor_preco": 3459.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -1350,7 +2984,568 @@
    "modelo": "65C6K",
    "chave": "pelando:ff5596ef-8e6f-46c5-883e-d455e2c032c0",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00"
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+   "url": "https://www.pelando.com.br/d/leitor-disco-playstation-5-slim-ps5-pro-sony-branco-7c1e",
+   "id": "8a3d084a-cfa6-4399-bf26-e4582195927e",
+   "preco": 395.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-24T20:42:41-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "210°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:8a3d084a-cfa6-4399-bf26-e4582195927e",
+   "melhor_preco": 395.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Standard PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-standard-ps5-6c51",
+   "id": "99efbf95-ba0c-4a1c-91a9-8a44cb37bae6",
+   "preco": 318.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-23T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "486°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:99efbf95-ba0c-4a1c-91a9-8a44cb37bae6",
+   "melhor_preco": 318.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Standard PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-standard-ps5-05b4",
+   "id": "3a667c02-29d0-4a9a-8d2c-e4f072421b07",
+   "preco": 346.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-23T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1540°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:3a667c02-29d0-4a9a-8d2c-e4f072421b07",
+   "melhor_preco": 346.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "Sony PlayStation Store Gift Card R$ 100 (Digital)",
+   "url": "https://www.pelando.com.br/d/sony-playstation-store-gift-card-rdollar-100-digital-40a9",
+   "id": "ba7c58de-f4e7-4b0b-baa8-4b26cfe9f6d2",
+   "preco": 85.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-23T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "823°",
+    "produto": {
+     "valor_face": 100.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:ba7c58de-f4e7-4b0b-baa8-4b26cfe9f6d2",
+   "melhor_preco": 85.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Digital Marvel's Wolverine Edição Limitada",
+   "url": "https://www.pelando.com.br/d/playstation-5-digital-marvels-wolverine-edicao-limitada-a7d1",
+   "id": "c05da568-b76b-4cdd-b4b6-4111d23d54b5",
+   "preco": 4742.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-22T20:42:42-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "-395°",
+    "produto": {
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3750.0,
+     "parcelado": 3900.0,
+     "nota": "meta do PS5 Slim Digital + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "pelando:c05da568-b76b-4cdd-b4b6-4111d23d54b5",
+   "melhor_preco": 4742.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
+   "ultimo_preco": 4742.0,
+   "menor_preco": 4742.0
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation R$150 - Vale-presente para Jogos e Assinaturas",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-rdollar150-vale-presente-para-jogos-e-assinaturas-a9eb",
+   "id": "fe1e3c3e-9986-438f-bfb4-80bc7dfbad76",
+   "preco": 124.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-20T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "965°",
+    "produto": {
+     "valor_face": 150.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:fe1e3c3e-9986-438f-bfb4-80bc7dfbad76",
+   "melhor_preco": 124.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Magazine Luiza",
+   "titulo": "GTA 6 PS5 Code in Box Pré-venda Lançamento",
+   "url": "https://www.pelando.com.br/d/gta-6-ps5-code-in-box-pre-venda-lancamento-0cf1",
+   "id": "323c8a8b-3a45-4ea9-96a4-0ce1344d0eb2",
+   "preco": 341.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-19T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "155°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:323c8a8b-3a45-4ea9-96a4-0ce1344d0eb2",
+   "melhor_preco": 341.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Jogo Grand Theft Auto VI GTA 6 PS5 Code In Box Pré-venda Lançamento Preto",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-pre-venda-lancamento-preto-5b88",
+   "id": "933bed28-8064-44b7-aecd-ba193a57cca8",
+   "preco": 323.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-18T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1433°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:933bed28-8064-44b7-aecd-ba193a57cca8",
+   "melhor_preco": 323.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation Network 60 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-network-60-brl-18-set-2026-912d",
+   "id": "3db339fd-75ef-4fb8-8e89-e1bac816e79f",
+   "preco": 50.75,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-18T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "475°",
+    "produto": {
+     "valor_face": 60.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:3db339fd-75ef-4fb8-8e89-e1bac816e79f",
+   "melhor_preco": 50.75,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "[APP]Jogo Grand Theft Auto VI GTA 6 PS5 Code In Box Pré-venda Lançamento Preto",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-pre-venda-lancamento-preto-d266",
+   "id": "8ec6a119-c8fe-4c6a-be9b-081925eb136b",
+   "preco": 344.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-17T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1763°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:8ec6a119-c8fe-4c6a-be9b-081925eb136b",
+   "melhor_preco": 344.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation R$60 - Vale-presente para Jogos e Assinaturas",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-rdollar60-vale-presente-para-jogos-e-assinaturas-c0f4",
+   "id": "f23e9e92-977b-4edf-9659-b55f9b4e446e",
+   "preco": 48.6,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-17T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "377°",
+    "produto": {
+     "valor_face": 60.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:f23e9e92-977b-4edf-9659-b55f9b4e446e",
+   "melhor_preco": 48.6,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation Network 360 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-network-360-brl-5e10",
+   "id": "1be5f546-3d18-470b-9847-1332da89b141",
+   "preco": 291.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-17T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "217°",
+    "produto": {
+     "valor_face": 360.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:1be5f546-3d18-470b-9847-1332da89b141",
+   "melhor_preco": 291.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation R$300 - Vale-presente para Jogos e Assinaturas",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-rdollar300-vale-presente-para-jogos-e-assinaturas-2cb2",
+   "id": "3729234d-5527-45a5-a762-d3023ad8c22c",
+   "preco": 242.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-17T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "2355°",
+    "produto": {
+     "valor_face": 300.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:3729234d-5527-45a5-a762-d3023ad8c22c",
+   "melhor_preco": 242.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Jogo Grand Theft Auto GTA VI 6, PS5 TT000272PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-gta-vi-6-ps5-tt000272ps5-92b2",
+   "id": "949f8f32-a991-4bde-bae5-349bd7e7ece2",
+   "preco": 333.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-15T20:42:42-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1146°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:949f8f32-a991-4bde-bae5-349bd7e7ece2",
+   "melhor_preco": 333.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation 300 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-300-brl-bb45",
+   "id": "3886d7bc-0155-4fac-9f0d-b41110df59ff",
+   "preco": 243.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-15T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1303°",
+    "produto": {
+     "valor_face": 300.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:3886d7bc-0155-4fac-9f0d-b41110df59ff",
+   "melhor_preco": 243.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation 150 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-150-brl-f101",
+   "id": "7152d27f-2e85-4564-adb0-32fa7c6df61d",
+   "preco": 120.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-15T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "1267°",
+    "produto": {
+     "valor_face": 150.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:7152d27f-2e85-4564-adb0-32fa7c6df61d",
+   "melhor_preco": 120.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -1373,7 +3568,7 @@
    },
    "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00",
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
    "ultimo_preco": 2799.0,
    "menor_preco": 2799.0,
    "modelo": "55C6K"
@@ -1399,7 +3594,7 @@
    },
    "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00",
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0,
    "modelo": "55C6K"
@@ -1425,7 +3620,7 @@
    },
    "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
    "melhor_preco": 3010.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00",
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
    "ultimo_preco": 3010.0,
    "menor_preco": 3010.0,
    "modelo": "55C6K"
@@ -1451,7 +3646,7 @@
    },
    "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
    "melhor_preco": 2957.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00",
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
    "ultimo_preco": 2957.0,
    "menor_preco": 2957.0,
    "modelo": "55C6K"
@@ -1477,10 +3672,264 @@
    },
    "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
    "melhor_preco": 2969.0,
-   "ultima_vez": "2026-10-03T20:15:19-03:00",
+   "ultima_vez": "2026-10-03T20:48:01-03:00",
    "ultimo_preco": 2969.0,
    "menor_preco": 2969.0,
    "modelo": "55C6K"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation Network 100 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-network-100-brl-b081",
+   "id": "42fa7a80-1f39-4cfa-ba96-4066e9e79e9b",
+   "preco": 84.13,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-11T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "611°",
+    "produto": {
+     "valor_face": 100.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:42fa7a80-1f39-4cfa-ba96-4066e9e79e9b",
+   "melhor_preco": 84.13,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI - PlayStation 5",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-70f7",
+   "id": "4a8b8a3a-1345-4b55-9ebe-37f1a567e5ec",
+   "preco": 368.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-10T20:42:42-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "926°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:4a8b8a3a-1345-4b55-9ebe-37f1a567e5ec",
+   "melhor_preco": 368.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+   "url": "https://www.pelando.com.br/d/leitor-disco-playstation-5-slim-ps5-pro-sony-branco-9345",
+   "id": "56bae4f4-4dcb-47e0-a01d-4f2bdb2a3482",
+   "preco": 246.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-10T20:42:41-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "425°",
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": ""
+    }
+   },
+   "modelo": "LEITOR_PS5",
+   "chave": "pelando:56bae4f4-4dcb-47e0-a01d-4f2bdb2a3482",
+   "melhor_preco": 246.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Edição Standard - PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-edicao-standard-ps5-129d",
+   "id": "89eebe39-27fe-42e1-a160-14058d62b732",
+   "preco": 318.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-09T20:42:42-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "376°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:89eebe39-27fe-42e1-a160-14058d62b732",
+   "melhor_preco": 318.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Standard PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-standard-ps5-1096",
+   "id": "d038c93f-d621-4665-99ac-47b11b0e9f46",
+   "preco": 338.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-09T20:42:42-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "239°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:d038c93f-d621-4665-99ac-47b11b0e9f46",
+   "melhor_preco": 338.0,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-03T20:48:01-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Gift Card PlayStation Network 100 BRL",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-network-100-brl-ecb4",
+   "id": "355c376a-a7b5-41c0-9150-2d8ebdb3d3e1",
+   "preco": 89.65,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-09-08T20:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "511°",
+    "produto": {
+     "valor_face": 100.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:355c376a-a7b5-41c0-9150-2d8ebdb3d3e1",
+   "melhor_preco": 89.65,
+   "ultima_vez": "2026-10-03T20:48:01-03:00"
+  }
+ ],
+ "gta6_custo_final": [
+  {
+   "produto": "GTA6_CODE_IN_BOX",
+   "edicao": "Standard",
+   "forma": "GTA 6 PS5 Code in Box",
+   "loja": "Amazon",
+   "tipo": "loja",
+   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
+   "preco": 418.4,
+   "custo_final": 418.4,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 345.0
+  },
+  {
+   "produto": "GTA6_UPGRADE",
+   "via": "GTA6_CODE_IN_BOX",
+   "edicao": "Ultimate",
+   "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
+   "loja": "Amazon",
+   "tipo": "calculo",
+   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
+   "preco": 518.4,
+   "custo_final": 518.4,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "Code in Box R$ 418,40 em Amazon + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 450.0
+  },
+  {
+   "produto": "GTA6_ULTIMATE",
+   "edicao": "Ultimate",
+   "forma": "GTA 6 digital Ultimate (PS Store) (preço oficial)",
+   "loja": "PlayStation Store",
+   "tipo": "calculo",
+   "url": null,
+   "preco": 549.9,
+   "custo_final": 549.9,
+   "entrega": "digital",
+   "entrega_texto": "libera às 00:00 de 19/11 (digital)",
+   "meta": 450.0
   }
  ],
  "cupons": [
@@ -1493,7 +3942,7 @@
    "id": "391f280e-6fbc-45d5-9fd1-91b1877f204e",
    "regra": "Ganhe R$ 50 em itens acima de R$ 400 vendidos e entregues por Lojas Parceiras",
    "validade": null,
-   "publicado": "2026-09-30T20:12:40-03:00",
+   "publicado": "2026-09-30T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:391f280e-6fbc-45d5-9fd1-91b1877f204e"
@@ -1507,7 +3956,7 @@
    "id": "6e16c343-f626-4cf5-817f-86a8c183e31e",
    "regra": "Valido para lojas Parceiras",
    "validade": null,
-   "publicado": "2026-09-30T20:12:40-03:00",
+   "publicado": "2026-09-30T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:6e16c343-f626-4cf5-817f-86a8c183e31e"
@@ -1521,7 +3970,7 @@
    "id": "bb275ca4-9df6-4bbe-8d1b-12b8daf3e0ca",
    "regra": "Cupom válido no app em lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-26T20:12:40-03:00",
+   "publicado": "2026-09-26T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:bb275ca4-9df6-4bbe-8d1b-12b8daf3e0ca"
@@ -1535,7 +3984,7 @@
    "id": "e70af7e5-03f9-4f75-a4a5-a7f2a3d954e7",
    "regra": "Apenas lojas parceiras",
    "validade": null,
-   "publicado": "2026-09-26T20:12:40-03:00",
+   "publicado": "2026-09-26T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:e70af7e5-03f9-4f75-a4a5-a7f2a3d954e7"
@@ -1549,7 +3998,7 @@
    "id": "46d17e9b-4180-45fe-b3e1-82a5a60f09b0",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por lojas parceiras.",
    "validade": null,
-   "publicado": "2026-09-25T20:12:40-03:00",
+   "publicado": "2026-09-25T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:46d17e9b-4180-45fe-b3e1-82a5a60f09b0"
@@ -1563,7 +4012,7 @@
    "id": "b111e880-7617-4776-8711-e7f3fe0ca4e4",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por lojas parceiras.",
    "validade": null,
-   "publicado": "2026-09-25T20:12:40-03:00",
+   "publicado": "2026-09-25T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b111e880-7617-4776-8711-e7f3fe0ca4e4"
@@ -1577,7 +4026,7 @@
    "id": "4bf7a959-09b2-493e-b35e-16a0e4660a8d",
    "regra": "Cupom Válido no APP para itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-25T20:12:40-03:00",
+   "publicado": "2026-09-25T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4bf7a959-09b2-493e-b35e-16a0e4660a8d"
@@ -1591,7 +4040,7 @@
    "id": "11221d2c-ab15-4bc1-9a81-fdcbc2aeac2c",
    "regra": "Cupom Válido no APP para itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-09-25T20:12:40-03:00",
+   "publicado": "2026-09-25T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:11221d2c-ab15-4bc1-9a81-fdcbc2aeac2c"
@@ -1605,7 +4054,7 @@
    "id": "cd138e3f-9edd-48b5-ba2e-447f905061fb",
    "regra": "Cupom Diz Todo Site, confiram",
    "validade": null,
-   "publicado": "2026-10-03T09:12:41-03:00",
+   "publicado": "2026-10-03T09:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:cd138e3f-9edd-48b5-ba2e-447f905061fb"
@@ -1619,7 +4068,7 @@
    "id": "bb52e252-692a-4111-9451-5a03bae9bc99",
    "regra": "Válido Somente pra quem Resgatou as 19h",
    "validade": null,
-   "publicado": "2026-10-03T00:12:41-03:00",
+   "publicado": "2026-10-03T00:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:bb52e252-692a-4111-9451-5a03bae9bc99"
@@ -1633,7 +4082,7 @@
    "id": "0a21f06c-638f-4575-bffc-b47cc56e05b1",
    "regra": "Em itens Selecionados",
    "validade": null,
-   "publicado": "2026-09-30T20:12:41-03:00",
+   "publicado": "2026-09-30T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:0a21f06c-638f-4575-bffc-b47cc56e05b1"
@@ -1647,7 +4096,7 @@
    "id": "a3410477-e7e2-4b60-8387-45abb70b90d5",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:a3410477-e7e2-4b60-8387-45abb70b90d5"
@@ -1661,7 +4110,7 @@
    "id": "db42cff0-426f-4857-acdf-3e34d01008fe",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:db42cff0-426f-4857-acdf-3e34d01008fe"
@@ -1675,7 +4124,7 @@
    "id": "2618eb1b-6226-4273-9d26-858d6ad45724",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2618eb1b-6226-4273-9d26-858d6ad45724"
@@ -1689,7 +4138,7 @@
    "id": "5fc660d0-ba4f-409c-b0bd-be259ce50e50",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:5fc660d0-ba4f-409c-b0bd-be259ce50e50"
@@ -1703,7 +4152,7 @@
    "id": "3f39987c-21ec-4a49-85cb-7533778371a6",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:3f39987c-21ec-4a49-85cb-7533778371a6"
@@ -1717,7 +4166,7 @@
    "id": "63496a5b-7be6-4420-bcf7-96c214b3b3eb",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:63496a5b-7be6-4420-bcf7-96c214b3b3eb"
@@ -1731,7 +4180,7 @@
    "id": "6c3ac10e-52d1-40ec-a106-2e7918517364",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:6c3ac10e-52d1-40ec-a106-2e7918517364"
@@ -1745,7 +4194,7 @@
    "id": "4fa42290-1c7a-4989-87a0-2436a86bca5f",
    "regra": "Vendas Oficiais: 01.10.2026 às 00h01 até 07.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-01T20:12:41-03:00",
+   "publicado": "2026-10-01T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4fa42290-1c7a-4989-87a0-2436a86bca5f"
@@ -1759,7 +4208,7 @@
    "id": "193a79d6-4710-4ad6-8745-e8d4aef723da",
    "regra": "Cupom Aliexpress R$ 55 OFF acima de R$ 550",
    "validade": null,
-   "publicado": "2026-09-21T20:12:41-03:00",
+   "publicado": "2026-09-21T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:193a79d6-4710-4ad6-8745-e8d4aef723da"
@@ -1773,7 +4222,7 @@
    "id": "3422c818-31b4-47ec-a03a-baeba59483ca",
    "regra": "Cupom Aliexpress R$ 165 OFF acima de R$ 1500",
    "validade": null,
-   "publicado": "2026-09-21T20:12:41-03:00",
+   "publicado": "2026-09-21T20:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:3422c818-31b4-47ec-a03a-baeba59483ca"
@@ -1782,42 +4231,62 @@
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:13:15-03:00",
+   "ultimo_ok": "2026-10-03T20:43:16-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
-   "falhas": 4,
-   "ultimo_ok": "2026-10-03T18:14:40-03:00",
-   "ultimo_erro": "2026-10-03T20:13:47-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
+   "falhas": 0,
+   "ultimo_ok": "2026-10-03T20:45:19-03:00",
+   "ultimo_erro": null
   },
   "mercadolivre": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:14:35-03:00",
+   "ultimo_ok": "2026-10-03T20:46:55-03:00",
    "ultimo_erro": null
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:15:17-03:00",
+   "ultimo_ok": "2026-10-03T20:47:37-03:00",
    "ultimo_erro": null
   },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:12:40-03:00",
+   "ultimo_ok": "2026-10-03T20:42:42-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:12:41-03:00",
+   "ultimo_ok": "2026-10-03T20:42:43-03:00",
    "ultimo_erro": null
   },
   "shopee": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:15:18-03:00",
+   "ultimo_ok": "2026-10-03T20:47:37-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-03T20:15:18-03:00",
+   "ultimo_ok": "2026-10-03T20:47:38-03:00",
+   "ultimo_erro": null
+  },
+  "amazon.produtos": {
+   "falhas": 0,
+   "ultimo_ok": "2026-10-03T20:43:52-03:00",
+   "ultimo_erro": null
+  },
+  "casasbahia.produtos": {
+   "falhas": 1,
+   "ultimo_ok": null,
+   "ultimo_erro": "2026-10-03T20:45:42-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
+  },
+  "netshoes": {
+   "falhas": 1,
+   "ultimo_ok": null,
+   "ultimo_erro": "2026-10-03T20:46:05-03:00 RuntimeError: Netshoes bloqueou (Akamai): busca; nova tentativa em 2 h"
+  },
+  "mercadolivre.produtos": {
+   "falhas": 0,
+   "ultimo_ok": "2026-10-03T20:47:06-03:00",
    "ultimo_erro": null
   }
  },
