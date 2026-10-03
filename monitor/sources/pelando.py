@@ -7,8 +7,7 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 
-from .. import config
-from ..filtro import modelo_do_titulo
+from .. import config, produtos
 from ..models import Cupom, Oferta
 from ..util import get_html, loja_canonica, parse_preco, tempo_relativo_para_iso
 from . import Fonte, Resultado
@@ -26,27 +25,32 @@ def parse_busca(html: str) -> list[Oferta]:
         titulo = a.get_text(" ", strip=True)
         if _RE_DISCUSSAO.match(a.get("href") or ""):
             continue
-        modelo = modelo_do_titulo(titulo)
-        if not did or not modelo:
+        if not did:
             continue
         card = a.find_parent("li") or a.find_parent("article") or a.parent.parent
+        loja = "?"
+        lj = card.select_one('[class*="deal-card-store"] a')
+        if lj:
+            loja = lj.get_text(" ", strip=True)
+        # o produto do catálogo pelo título (TVs, PS5, GTA 6, gift card, leitor); a loja ajuda no GTA digital (PS Store)
+        cl = produtos.classifica(titulo, loja)
+        if not cl.produto:
+            continue
         inativo = (a.get("data-inactive") == "true") or bool(card.select_one('[class*="inactive-label"]'))
         preco = None
         st = card.select_one('[class*="deal-card-stamp"]')
         if st:
             preco = parse_preco(st.get_text("", strip=True).replace("R$", "").strip())
-        loja = "?"
-        lj = card.select_one('[class*="deal-card-store"] a')
-        if lj:
-            loja = lj.get_text(" ", strip=True)
         ts = card.select_one('[class*="timestamp"]')
         publicado = tempo_relativo_para_iso(ts.get_text(" ", strip=True)) if ts else None
         temp = card.select_one('[class*="deal-card-temperature"] span')
+        extra = {"temperatura": temp.get_text(strip=True) if temp else None}
+        if cl.detalhes:
+            extra["produto"] = cl.detalhes
         out[did] = Oferta(
             fonte="pelando", tipo="post", loja=loja_canonica(loja), titulo=titulo,
             url=a.get("href") or f"https://www.pelando.com.br/d/{did}", id=did,
-            preco=preco, publicado=publicado, ativo=not inativo,
-            extra={"temperatura": temp.get_text(strip=True) if temp else None}, modelo=modelo,
+            preco=preco, publicado=publicado, ativo=not inativo, extra=extra, modelo=cl.produto,
         )
     return list(out.values())
 
@@ -57,8 +61,9 @@ class PelandoBusca(Fonte):
 
     def coletar(self) -> Resultado:
         vistos: dict[str, Oferta] = {}
-        # as duas primeiras buscas de cada TV ("55c6k", "tcl 55c6k", "65c6k", "tcl 65c6k")
-        for q in [t for termos in config.BUSCAS_POR_MODELO.values() for t in termos[:2]]:
+        # os termos do catálogo (monitor/produtos.py): as duas primeiras buscas de cada TV ("55c6k", "tcl 55c6k",
+        # "65c6k", "tcl 65c6k") e as do PS5, do GTA 6 ("gta 6" não acha "Grand Theft Auto VI": vão os dois) e do gift card
+        for q in produtos.termos("pelando"):
             html = get_html(f"https://www.pelando.com.br/busca/{quote(q)}")
             for o in parse_busca(html):
                 vistos.setdefault(o.chave, o)

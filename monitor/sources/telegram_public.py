@@ -2,30 +2,52 @@
 
 from __future__ import annotations
 
+import re
+
 from bs4 import BeautifulSoup
 
-from .. import config
-from ..filtro import extrai_modelos
+from .. import config, produtos
 from ..models import MODELO_PADRAO, Oferta
-from ..util import (PISO_PRECO_TV, cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto,
-                    preco_postagem)
+from ..util import cupom_no_texto, get_html, iso_normaliza, loja_canonica, parcelado_no_texto, preco_postagem
 from . import Fonte, Resultado
 
+# Lojas citadas no texto/links da postagem. As de marketplace que revendem estoque de outras (Netshoes vende o do
+# Magalu; Mais Correios tem Ponto Frio, Casas Bahia...) vêm antes: o vendedor citado no texto não é a loja da compra
 _LOJAS_NO_TEXTO = [
+    ("maiscorreios", "Mais Correios"), ("mais correios", "Mais Correios"), ("netshoes", "Netshoes"),
     ("magazineluiza", "Magazine Luiza"), ("magalu", "Magazine Luiza"), ("amazon", "Amazon"),
     ("mercadolivre", "Mercado Livre"), ("mercado livre", "Mercado Livre"), ("kabum", "KaBuM!"),
     ("casasbahia", "Casas Bahia"), ("casas bahia", "Casas Bahia"), ("fastshop", "Fast Shop"), ("fast shop", "Fast Shop"),
     ("aliexpress", "AliExpress"), ("shopee", "Shopee"), ("pontofrio", "Ponto"), ("ponto frio", "Ponto"),
     ("extra.com", "Extra"), ("carrefour", "Carrefour"), ("americanas", "Americanas"), ("lojatcl", "Loja TCL"),
+    # PS5 / GTA 6 (pesquisa de 03/10/2026)
+    ("store.playstation.com", "PlayStation Store"), ("playstation store", "PlayStation Store"),
+    ("ps store", "PlayStation Store"), ("nuuvem", "Nuuvem"), ("hype games", "Hype"), ("hypegames", "Hype"),
+    ("eneba", "Eneba"), ("sams club", "Sam's Club"), ("sam's club", "Sam's Club"), ("samsclub", "Sam's Club"),
+    ("terabyte", "Terabyte"), ("inpower", "Inpower"), ("havan", "Havan"), ("loja vivo", "Loja Vivo"),
+    ("pichau", "Pichau"), ("ibyte", "iBYTE"),
 ]
+# linha da loja no formato do canal oficial do Pelando (@pelandobr): "📍 Mais Correios"
+_RE_LINHA_LOJA = re.compile(r"^\s*📍\s*(.+?)\s*$", re.M)
 
 
 def loja_no_texto(texto: str, links: list[str]) -> str:
+    m = _RE_LINHA_LOJA.search(texto or "")
+    if m:
+        lj = loja_canonica(m.group(1))
+        if lj and lj != "?":
+            return lj
     alvo = (texto + " " + " ".join(links)).lower()
     for chave, nome in _LOJAS_NO_TEXTO:
         if chave in alvo:
             return nome
     return "?"
+
+
+def _id_do_post(post: str, produto: str) -> str:
+    """Id da postagem por produto: a mesma mensagem com vários produtos vira um id por produto (o da 55C6K é o de
+    sempre, sem sufixo)."""
+    return post if produto == MODELO_PADRAO else f"{post}#{produto}"
 
 
 def parse_canal(html: str, canal: str) -> list[Oferta]:
@@ -43,30 +65,34 @@ def parse_canal(html: str, canal: str) -> list[Oferta]:
             riscado.decompose()
         texto = txt_el.get_text(" ", strip=False)
         texto = "\n".join(l.strip() for l in texto.splitlines() if l.strip())
+        links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
+        loja = loja_canonica(loja_no_texto(texto, links))
         # o filtro de título roda na linha-título (a descrição da TV, com "suporte a HDR10+" e "controle remoto",
-        # derrubava postagens legítimas); estado do produto e combo valem em qualquer linha. Um bloco por TV
-        # monitorada (55C6K, 65C6K): a postagem com as duas vira duas ofertas, cada uma com o próprio preço
-        achados = extrai_modelos(texto)
+        # derrubava postagens legítimas); estado do produto e combo valem em qualquer linha. Um bloco por produto
+        # monitorado (55C6K, 65C6K, PS5, GTA 6...): a postagem com vários vira uma oferta por produto, cada uma com o
+        # próprio preço
+        achados = produtos.extrai_produtos(texto, loja)
         if not achados:
             continue
-        links = [a.get("href") for a in txt_el.find_all("a", href=True) if "t.me/" not in a.get("href")]
         t = msg.select_one("time[datetime]")
-        for modelo, (titulo, trecho, preambulo) in achados.items():
+        for produto, (titulo, trecho, preambulo, detalhes) in achados.items():
             # preço, parcelado e cupom saem do trecho sem os valores de outros produtos: numa postagem com várias
             # TVs, o menor valor da mensagem era o de outra TV e virava alerta 🎯 falso. O cupom das linhas antes do
             # 1º produto ("Use o Cupom: X" acima das linhas "55''" / "65''") vale para todos.
-            # menor candidato do bloco da TV (fora mínimo/teto do cupom, desconto, parcela, preço "De" e valores
-            # abaixo de R$ 1.500, que não podem ser o preço desta TV)
-            preco = preco_postagem(trecho, PISO_PRECO_TV)
+            # menor candidato do bloco (fora mínimo/teto do cupom, desconto, parcela, preço "De" e valores abaixo do
+            # piso do produto: R$ 1.500 na TV, R$ 2.500 no PS5, R$ 200 no GTA...)
+            preco = preco_postagem(trecho, produtos.piso(produto))
+            extra = {"canal": canal, "links": links[:3], "texto": texto[:600]}
+            if detalhes:
+                extra["produto"] = detalhes
             out.append(Oferta(
-                fonte=f"telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, links)),
+                fonte="telegram", tipo="post", loja=loja,
                 titulo=f"[{canal}] {titulo[:140]}", url=f"https://t.me/{post}",
-                # a mesma mensagem com as duas TVs: o id da 65" leva o modelo (o da 55" é o de sempre)
-                id=post if modelo == MODELO_PADRAO else f"{post}#{modelo}",
+                id=_id_do_post(post, produto),
                 preco=preco, parcelado=parcelado_no_texto(trecho),
                 cupom=cupom_no_texto(trecho) or cupom_no_texto(preambulo),
                 publicado=iso_normaliza(t.get("datetime")) if t else None,
-                extra={"canal": canal, "links": links[:3], "texto": texto[:600]}, modelo=modelo,
+                extra=extra, modelo=produto,
             ))
     return out
 

@@ -1,6 +1,8 @@
-# Monitor TCL 55C6K e 65C6K
+# Monitor TCL 55C6K e 65C6K, PS5 e GTA 6
 
-Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e de 65" (65C6K)** em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e de 65" (65C6K)**, do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+
+O catálogo dos produtos fica em `monitor/produtos.py` (a fonte única de ids, nomes, metas, termos de busca, códigos de barras, ids por loja e regras do classificador). Cada oferta guarda o id do produto no campo `modelo` (`55C6K`, `65C6K`, `PS5_DIGITAL`, `GTA6_CODE_IN_BOX`...).
 
 - **Nuvem (GitHub Actions, a cada 15 min):** Promobit, Zoom, Magazine Luiza, KaBuM!, Fast Shop, Loja TCL, Webcontinental, canais públicos do Telegram, cupons.
 - **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
@@ -20,6 +22,24 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 | Todo dia às 9h | ☀️ resumo com todos os preços |
 
 Todo alerta diz o modelo. Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO` (55C6K) e `ALVO_PIX_65` e `ALVO_PARCELADO_65` (65C6K). O painel mostra as duas TVs, uma tabela com quanto a 65" custa a mais que a 55" na mesma loja (à vista e parcelado) e um gráfico de histórico por modelo.
+
+### PS5 e GTA 6
+
+| Produto | Meta Pix | Meta parcelado (total) |
+|---|---|---|
+| PS5 Slim Digital (com ou sem os 2 jogos digitais) | R$ 3.550 | R$ 3.700 |
+| PS5 Slim com leitor | R$ 3.950 | R$ 4.150 |
+| PS5 Pro | R$ 5.950 | R$ 6.100 |
+| Pacote PS5 Digital + GTA 6 | R$ 4.000 | R$ 4.150 |
+| Pacote PS5 com leitor + GTA 6 | R$ 4.300 | R$ 4.450 |
+| Edição especial / kit | meta do console-base + valor do extra | idem |
+| GTA 6 Code in Box que chega até 18/11 | R$ 345 | R$ 370 |
+| GTA 6 Code in Box que chega depois | R$ 300 | R$ 320 |
+| GTA 6 digital Standard / Ultimate / upgrade (custo efetivo, com gift card) | R$ 365 / R$ 450 / R$ 85 | idem |
+| Gift card PlayStation em loja oficial | 15% de desconto ou mais | idem |
+| Leitor de disco avulso | R$ 300 | R$ 320 |
+
+O GTA 6 sai em 19/11/2026; a "versão física" no Brasil é Code in Box (caixa com código, sem disco). Para jogar à meia-noite a caixa tem de chegar até 18/11: todo alerta do GTA físico traz a entrega prevista e se chega a tempo (o prazo vem da loja quando a fonte o lê; sem ele, uma estimativa por loja marcada como aproximada). Toda postagem nova de PS5/GTA 6 vira alerta, com a meta e a distância até ela. Metas por variável: `ALVO_PIX_<ID>` e `ALVO_PARCELADO_<ID>` (ex.: `ALVO_PIX_PS5_DIGITAL`). O painel tem uma seção por família (TVs, PS5, GTA 6) com o melhor à vista e parcelado de cada produto, a tabela por loja, um gráfico por produto e, no GTA 6, todas as formas comparadas pelo custo final. O modo vigia das TVs não afeta o PS5 nem o GTA 6.
 
 ### Confiança nos vendedores (antes de qualquer alerta de preço)
 
@@ -80,6 +100,7 @@ python -m pytest -q                         # testes com páginas salvas
 ## Estrutura
 ```
 monitor/config.py        URLs, alvos, canais, lojas
+monitor/produtos.py      catálogo dos produtos (TVs, PS5, GTA 6...) e o classificador de títulos e de mensagens
 monitor/filtro.py        aceita só 55C6K e 65C6K e diz qual (rejeita 75/85C6K, vizinhos como 65C7K, combos, acessórios, usados)
 monitor/sources/*.py     um coletor por fonte
 monitor/regras.py        o que vira alerta

@@ -28,6 +28,11 @@ As checagens usam o que a coleta já tem (preços da rodada, ficha técnica, ava
 vendedor NOVO com preço atraente, e só onde a loja deixa (Magalu), 1-2 requisições: a página da loja do vendedor
 (o catálogo dele tem TV?) e o anúncio, quando a coleta não o abriu. O resultado fica no state por dias.
 
+Desde 03/10/2026 vale para todos os produtos do catálogo (monitor/produtos.py): a referência de preço é a loja
+confiável mais barata do MESMO produto (chave_referencia: o kit pelo console-base, o gift card pelo valor de face), e
+as checagens de identidade da TV (Anatel da C6K, tamanho, peso de TV, catálogo sem TV) só valem para as TVs; no PS5 e no
+GTA 6 o catálogo do vendedor é conferido pelos games (catalogo_sem_games).
+
 Texto neutro de propósito: o repositório é público e uma empresa listada pode ser vítima (conta invadida), não autora.
 Esta é a API única de confiança: motivo_bloqueio(), classifica_por_lista(), avaliar(), veredito_de(),
 pode_ir_ao_carrinho(), cupom_barrado(), postagem_barrada(). Com o listas_confianca.json ilegível valem as entradas de
@@ -47,7 +52,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable, NamedTuple, Optional
 
-from . import config
+from . import config, produtos
 from .models import POLEGADAS, modelo_de
 
 ARQ_LISTAS = Path(__file__).with_name("listas_confianca.json")
@@ -91,10 +96,12 @@ QUEDA_NOVO_AVISO = 0.02      # o aviso de suspeito só se repete quando o preço
 TTL_AVISO_DIAS = 7           # aviso de suspeito que não aparece mais há tanto tempo sai do state
 MAX_TVS_DO_INVASOR = 5       # anúncios de TV que um invasor cria na conta não fazem dela uma loja de TV
 MIN_TVS_LOJA_DE_TV = 30      # loja com tantos anúncios de TV vende TV (o sinal de catálogo nunca dispara)
+# peso mínimo na ficha por família (a TV tem ~12 kg; o PS5 Slim Digital ~2,6 kg). Jogo, gift card, leitor: sem checagem
+PESO_MINIMO_POR_FAMILIA = {produtos.FAMILIA_TV: PESO_MINIMO_KG, produtos.FAMILIA_PS5: 1.5}
 
 # sinais fortes de IDENTIDADE (o anúncio/vendedor não é o que diz ser): só com um deles, e mais outro forte, o suspeito
 # vira reprovado automático. Preço (muito abaixo, "preço cheio" copiado) sozinho nunca reprova de vez.
-SINAIS_DE_IDENTIDADE = frozenset({"anatel_diferente", "tamanho_diferente", "catalogo_sem_tv"})
+SINAIS_DE_IDENTIDADE = frozenset({"anatel_diferente", "tamanho_diferente", "catalogo_sem_tv", "catalogo_sem_games"})
 # sinal forte que segura o preço nesta rodada mas não é prova de nada: nunca conta para o reprovado automático
 SINAIS_SEM_PROVA = frozenset({"nao_checado"})
 
@@ -117,6 +124,9 @@ LOJAS_ANUNCIO_POR_VENDEDOR = {"Magazine Luiza", "Mercado Livre"}
 # contam: loja de capinha/cabo não vira loja de TV (revisão de 26/09)
 _CAT_TV = {"ET"}
 _CAT_ELETRONICOS = {"ET", "ED", "EP", "AR", "EA"}
+# PS5 e GTA 6 (03/10/2026): a categoria Games do Magalu ("/games/l/ga/"); informática e celulares contam como eletrônicos
+_CAT_GAMES = {"GA"}
+_CAT_ELETRONICOS_GAMES = _CAT_ELETRONICOS | {"GA", "IN", "TE"}
 
 _MODELO_GENERICO = re.compile(r"^(?:varios|diversos|outros?|generico|n/?a|nao se aplica|nao informado|-+|\.+)$")
 # só no começo da palavra: "otica" não casa com "Robotica", nem "festa" com "Manifesta"
@@ -233,8 +243,30 @@ def _anuncio_proprio(o: Any) -> str:
 
 
 def _catalogos_ml() -> set[str]:
-    """Os catálogos do ML (55C6K e 65C6K): são de todas as opções de compra, nunca de um vendedor só."""
-    return {_norm(c) for c in (*config.ML_CATALOGOS.values(), config.ML_CATALOGO_ID) if _norm(c)}
+    """Os catálogos do ML (55C6K, 65C6K e os do PS5): são de todas as opções de compra, nunca de um vendedor só."""
+    return {_norm(c) for c in (*config.ML_CATALOGOS.values(), config.ML_CATALOGO_ID, *produtos.CATALOGOS_ML_EXTRA)
+            if _norm(c)}
+
+
+def chave_referencia(o: Any) -> str:
+    """Com quem a oferta se compara (preço da loja confiável mais barata): o MESMO produto. O kit/edição especial com
+    os kits do mesmo console-base, o gift card com os do mesmo valor de face (um R$ 100 não é referência de um R$ 300).
+    Nas TVs, o modelo (como antes)."""
+    m = modelo_de(o)
+    if m == "PS5_KIT":
+        return f"{m}|{produtos.detalhes_de(o).get('base') or '?'}"
+    if m == "GIFT_CARD_PSN":
+        return f"{m}|{produtos.detalhes_de(o).get('valor_face') or '?'}"
+    return m
+
+
+def _alvo_da_oferta(o: Any) -> Optional[float]:
+    """A meta do total parcelado da oferta (a do produto; a do kit/gift card/GTA calculada por oferta). None sem meta."""
+    m = modelo_de(o)
+    if produtos.eh_tv(m):
+        return config.alvo_parcelado(m)
+    a = produtos.alvos_da_oferta(o)
+    return a.parcelado or a.pix
 
 
 def chave_vendedor(o: Any) -> Optional[str]:
@@ -531,13 +563,14 @@ def _e_agregador(o: Any) -> bool:
 
 
 def referencias(ofertas: Iterable[Any], extras: Iterable[Any] = (), modelo: Optional[str] = None) -> Referencias:
-    """As referências das lojas confiáveis do `modelo` (None: de todas as ofertas). A 65" custa ~30% mais que a 55":
-    comparar uma com a outra esconderia o golpe da 65" e acusaria a promoção da 55"."""
+    """As referências das lojas confiáveis do `modelo` (a chave_referencia; None: de todas as ofertas). A 65" custa
+    ~30% mais que a 55": comparar uma com a outra esconderia o golpe da 65" e acusaria a promoção da 55" (e o mesmo
+    entre o PS5 Digital e o Pro, o GTA e o gift card)."""
     ref = Referencias()
     for o in list(ofertas) + list(extras):
         if str(_campo(o, "tipo") or "") != "loja" or _campo(o, "ativo") is False or _e_agregador(o):
             continue
-        if modelo is not None and modelo_de(o) != modelo:
+        if modelo is not None and chave_referencia(o) != modelo:
             continue
         v = veredito_de(o)
         if v is None:
@@ -652,8 +685,10 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
         elif desc > DESCONTO_SO_PIX:
             s.append(Sinal("desconto_so_no_pix", False, f"desconto de {_pct(desc)} só no Pix/1x"))
 
-    # 2) ficha técnica do anúncio
-    if _digitos(ficha.get("anatel")):
+    # 2) ficha técnica do anúncio (Anatel da C6K, modelo C6K e tamanho só valem para as TVs)
+    familia = produtos.familia(modelo_de(o))
+    tv = familia == produtos.FAMILIA_TV
+    if tv and _digitos(ficha.get("anatel")):
         feitas.append("Anatel")
         if anatel_confere(ficha.get("anatel")) is False:
             numeros = _numeros_anatel(ficha.get("anatel")) or [_digitos(ficha.get("anatel"))]
@@ -664,9 +699,9 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
     if modelo:
         feitas.append("modelo")
         m = _ascii(modelo).strip()
-        if _MODELO_GENERICO.match(m) or "c6k" not in _norm(m):
+        if _MODELO_GENERICO.match(m) or (tv and "c6k" not in _norm(m)):
             s.append(Sinal("modelo_generico", False, f"modelo na ficha: '{modelo[:40]}'"))
-    tam = _tamanho_na_ficha(ficha)
+    tam = _tamanho_na_ficha(ficha) if tv else None
     if tam is not None:
         feitas.append("tamanho")
         pol = POLEGADAS.get(modelo_de(o), 55)   # o tamanho do modelo da oferta (55C6K ou 65C6K)
@@ -674,10 +709,12 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
             s.append(Sinal("tamanho_diferente", True,
                            f"título diz {pol}\", mas a ficha/seleção do anúncio diz {tam}\""))
     peso = ficha.get("peso_kg")
-    if isinstance(peso, (int, float)) and peso > 0:
+    peso_min = PESO_MINIMO_POR_FAMILIA.get(familia)
+    if peso_min and isinstance(peso, (int, float)) and peso > 0:
         feitas.append("peso")
-        if peso < PESO_MINIMO_KG:
-            s.append(Sinal("peso_irreal", False, f"peso na ficha {str(peso).replace('.', ',')} kg (a TV tem ~12 kg)"))
+        if peso < peso_min:
+            quanto = "a TV tem ~12 kg" if tv else "o PS5 tem ~2,6 kg ou mais"
+            s.append(Sinal("peso_irreal", False, f"peso na ficha {str(peso).replace('.', ',')} kg ({quanto})"))
     aval = ficha.get("avaliacoes")
     if isinstance(aval, (int, float)):
         feitas.append("avaliações")
@@ -719,16 +756,28 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
             s.append(Sinal("vendedor_sem_historico", False, f"vendedor com {int(aval_v)} avaliações"))
 
     # 4) catálogo do vendedor (página da loja dele; só com checagem de rede)
-    if catalogo and catalogo.get("total"):
+    if catalogo and catalogo.get("total") and tv:
         feitas.append("catálogo da loja")
-        total, tv, eletro = int(catalogo["total"]), int(catalogo.get("tv") or 0), int(catalogo.get("eletronicos") or 0)
+        total, n_tv, eletro = int(catalogo["total"]), int(catalogo.get("tv") or 0), int(catalogo.get("eletronicos") or 0)
         # poucas TVs: até as que o próprio invasor anunciou (loja pequena passa de 2% com 4 anúncios) ou menos de 2%
-        poucas_tvs = tv < MIN_TVS_LOJA_DE_TV and (tv <= MAX_TVS_DO_INVASOR or tv / total < 0.02)
+        poucas_tvs = n_tv < MIN_TVS_LOJA_DE_TV and (n_tv <= MAX_TVS_DO_INVASOR or n_tv / total < 0.02)
         if total >= 30 and poucas_tvs and eletro / total < 0.10:
             principais = ", ".join((catalogo.get("principais") or [])[:3])
             s.append(Sinal("catalogo_sem_tv", True,
-                           f"a loja do vendedor tem {total:,} itens e só {tv} de TV ({tv / total * 100:.1f}%)".replace(",", ".")
+                           f"a loja do vendedor tem {total:,} itens e só {n_tv} de TV ({n_tv / total * 100:.1f}%)".replace(",", ".")
                            + (f"; vende sobretudo {principais}" if principais else "")))
+    elif catalogo and catalogo.get("total") and catalogo.get("games") is not None:
+        # PS5, GTA 6, leitor, gift card: a loja do vendedor vende games/eletrônicos? (catálogo lido antes de 03/10 não
+        # traz a contagem de games: sem ela, o sinal não dispara)
+        feitas.append("catálogo da loja")
+        total, games = int(catalogo["total"]), int(catalogo.get("games") or 0)
+        eletro = int(catalogo.get("eletronicos_games") or 0)
+        poucos = games < MIN_TVS_LOJA_DE_TV and (games <= MAX_TVS_DO_INVASOR or games / total < 0.02)
+        if total >= 30 and poucos and eletro / total < 0.10:
+            principais = ", ".join((catalogo.get("principais") or [])[:3])
+            s.append(Sinal("catalogo_sem_games", True,
+                           f"a loja do vendedor tem {total:,} itens e só {games} de games ({games / total * 100:.1f}%)"
+                           .replace(",", ".") + (f"; vende sobretudo {principais}" if principais else "")))
     return s, feitas
 
 
@@ -769,7 +818,8 @@ def _sinal_sem_checagem(o: Any, ref: Referencias, cat: Optional[dict], porque: s
         return None
     if ref.menor is not None and p >= ref.menor[0]:
         return None
-    if ref.menor is None and p > config.alvo_parcelado(modelo_de(o)):
+    alvo = _alvo_da_oferta(o)
+    if ref.menor is None and (alvo is None or p > alvo):
         return None
     faltou = []
     if not _tem_identidade(_extra(o).get("ficha")):
@@ -833,6 +883,8 @@ def resumo_catalogo_magalu(html: str) -> Optional[dict]:
     cats.sort(reverse=True)
     return {"total": total, "tv": sum(c for c, i, _l in cats if i in _CAT_TV),
             "eletronicos": sum(c for c, i, _l in cats if i in _CAT_ELETRONICOS),
+            "games": sum(c for c, i, _l in cats if i in _CAT_GAMES),
+            "eletronicos_games": sum(c for c, i, _l in cats if i in _CAT_ELETRONICOS_GAMES),
             "principais": [lbl for _c, _i, lbl in cats[:4]]}
 
 
@@ -981,7 +1033,8 @@ def _atraente(o: Any, ref: Referencias, sinais: list[Sinal]) -> bool:
     p = melhor_preco(o)
     if not p:
         return False
-    if ref.menor is None or p <= ref.menor[0] or p <= config.alvo_parcelado(modelo_de(o)):
+    alvo = _alvo_da_oferta(o)
+    if ref.menor is None or p <= ref.menor[0] or (alvo is not None and p <= alvo):
         return True
     return any(x.forte for x in sinais)
 
@@ -999,7 +1052,7 @@ def _avalia_agregadas(agregadas: list, refs: dict[str, Referencias], contagem: d
     lojas confiáveis do mesmo modelo. Muito abaixo -> suspeita (fora de alerta de preço, mínimo e painel); senão, a
     linha 🔎. Sem nenhuma loja confiável do modelo de referência não há o que comparar."""
     for o in agregadas:
-        ref = refs[modelo_de(o)]
+        ref = refs[chave_referencia(o)]
         if not ref.menor:
             continue
         sinais, feitas = sinais_da_oferta(o, ref, so_preco=True)
@@ -1066,8 +1119,8 @@ def avaliar(estado: Any, ofertas: list, rede: bool = True, obter: Optional[Calla
             desconhecidas.append(o)
     if desconhecidas or agregadas:
         extras = _extras_de_referencia(estado)
-        # cada oferta é comparada com as lojas confiáveis do MESMO modelo (55C6K com 55C6K, 65C6K com 65C6K)
-        refs = {m: referencias(ofertas, extras, m) for m in {modelo_de(o) for o in desconhecidas + agregadas}}
+        # cada oferta é comparada com as lojas confiáveis do MESMO produto (55C6K com 55C6K, PS5 Pro com PS5 Pro...)
+        refs = {m: referencias(ofertas, extras, m) for m in {chave_referencia(o) for o in desconhecidas + agregadas}}
         if agregadas:
             _avalia_agregadas(agregadas, refs, contagem)
         _avalia_desconhecidas(estado, bloco, desconhecidas, refs, contagem, agora, rede, pedir)
@@ -1080,7 +1133,7 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, refs: d
     usadas = 0
     bloqueado = False
     for o in sorted(desconhecidas, key=lambda x: melhor_preco(x) or 9e9):
-        ref = refs[modelo_de(o)]
+        ref = refs[chave_referencia(o)]
         chave = chave_vendedor(o)
         loja = _loja(o)
         vid = vendedor_id(o)
@@ -1160,6 +1213,8 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, refs: d
                 "codigos": [x.codigo for x in sinais]}
         if cat and not cat.get("erro"):
             info["catalogo"] = {k: cat.get(k) for k in ("total", "tv")}
+            if not produtos.eh_tv(modelo_de(o)) and cat.get("games") is not None:
+                info["catalogo"]["games"] = cat.get("games")
         elif checagem and cat:
             info["catalogo_pendente"] = True   # falha passageira na página da loja: nova tentativa na rodada seguinte
         if guardada:
@@ -1213,10 +1268,11 @@ def _reprova_automatico(bloco: dict, o: Any, sinais: list[str], quando: str) -> 
         return  # sem id nem nome (ex.: 'destaque' da busca da Amazon, opção do ML sem vendedor): nada que identifique
     vid = vendedor_id(o)
     anuncio = _anuncio_proprio(o)
+    do_que = "da TV" if produtos.eh_tv(modelo_de(o)) else f"do produto {produtos.nome(modelo_de(o))}"
     bloco["reprovados_auto"][chave] = {
         "loja": _loja(o), "ids": [vid] if vid else [], "nomes": [o.vendedor] if o.vendedor else [],
         "anuncios": [anuncio] if anuncio else [],
-        "motivo": f"anúncio da TV com sinais de risco em {_data_br(quando)}: " + "; ".join(sinais),
+        "motivo": f"anúncio {do_que} com sinais de risco em {_data_br(quando)}: " + "; ".join(sinais),
         "desde": quando, "origem": "automatico", "chave_oferta": o.chave, "preco": melhor_preco(o),
     }
 
@@ -1416,7 +1472,7 @@ def pode_ir_ao_carrinho(o: Any, todas: Iterable[Any] = (), auto: Optional[Iterab
         return True, v
     if entrada_confiavel(o):
         return True, CONFIAVEL
-    sinais, _feitas = sinais_da_oferta(o, referencias(todas, modelo=modelo_de(o)), so_preco=_e_agregador(o))
+    sinais, _feitas = sinais_da_oferta(o, referencias(todas, modelo=chave_referencia(o)), so_preco=_e_agregador(o))
     if decide(sinais) == SUSPEITO:
         return False, "anúncio suspeito: " + "; ".join(x.texto for x in sinais)
     return True, SEM_RISCO
