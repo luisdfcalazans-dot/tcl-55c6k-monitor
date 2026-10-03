@@ -550,10 +550,13 @@ def test_painel_mostra_as_duas_edicoes(tmp_path):
     # 14 linhas da Standard (mais que as 12 da tabela de antes) e as da Ultimate, mais caras: as duas aparecem
     muitas = [_cib(loja="KaBuM!", preco=400.0 + i, pix=None, oid=f"k{i}") for i in range(14)]
     cloud["gta6_custo_final"] = produtos.custo_final_gta(muitas + [_ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u")])
+    # o PC não lê a PS Store: a tabela dele traz a Ultimate pelo preço oficial (referência) e o Code in Box da Amazon
+    pc = tp.latest("pc", tp.PC_AT, tp.ofertas_pc_hoje(), tp.MIN_AMAZON)
+    pc["gta6_custo_final"] = produtos.custo_final_gta([_cib(loja="Amazon", preco=430.0, pix=None, oid="a1")])
+    assert any(l["produto"] == "GTA6_ULTIMATE" and l["tipo"] == "calculo" for l in pc["gta6_custo_final"])
     dados = tmp_path / "dados.json"
     dados.write_text(json.dumps({"agora": tp.AGORA, "formatar": [], "arquivos": {
-        "data/latest_cloud.json": cloud, "data/latest_pc.json": tp.latest("pc", tp.PC_AT, tp.ofertas_pc_hoje(),
-                                                                         tp.MIN_AMAZON),
+        "data/latest_cloud.json": cloud, "data/latest_pc.json": pc,
         "data/historico_cloud.csv": tp.CSV_CLOUD, "data/historico_pc.csv": tp.CSV_PC}}, ensure_ascii=False),
         encoding="utf-8")
     h = tmp_path / "h.js"
@@ -568,3 +571,8 @@ def test_painel_mostra_as_duas_edicoes(tmp_path):
     assert "Standard (Code in Box) + upgrade" in g and "GTA 6 digital Ultimate" in g
     assert tp.brl(549.90) in g and tp.brl(500.0) in g          # o Code in Box de R$ 400 + upgrade de R$ 100
     assert "Ultimate mais barata" in g
+    ult = g[g.index("Edição Ultimate"):]
+    # a referência pelo preço oficial (do PC) não repete a Ultimate vista na PS Store (da nuvem), e de cada forma da
+    # Standard + upgrade fica a mais barata (a do Code in Box de R$ 400 da nuvem, não a de R$ 430 do PC)
+    assert "Ultimate (PS Store) (preço oficial)" not in ult and ult.count("GTA 6 digital Ultimate") == 1
+    assert ult.count("Standard (Code in Box) + upgrade") == 2 and tp.brl(530.0) not in ult   # a nota + a linha

@@ -394,7 +394,16 @@ function tabelaCustoFinal(fontes) {
     const k = [r.produto, r.via || '', normLoja(r.loja), r.url].join('|'), atual = vistos.get(k);
     if (!atual || r.custo_final < atual.custo_final) vistos.set(k, r);
   }
-  const todas = [...vistos.values()].filter(r => r.custo_final != null).sort((a, b) => a.custo_final - b.custo_final);
+  let todas = [...vistos.values()].filter(r => r.custo_final != null).sort((a, b) => a.custo_final - b.custo_final);
+  // os dois modos juntos: a referência pelo preço oficial (um modo que não leu a PS Store) sai quando o outro viu o
+  // produto por esse preço ou menos; de cada forma da Standard + upgrade fica a mais barata
+  const reais = todas.filter(r => r.tipo !== 'calculo');
+  const vias = new Set();
+  todas = todas.filter(r => {
+    if (r.tipo === 'calculo' && !r.via) return !reais.some(x => x.produto === r.produto && x.custo_final <= r.custo_final + 0.005);
+    if (r.via) { if (vias.has(r.via)) return false; vias.add(r.via); }
+    return true;
+  });
   if (!todas.length) return '';
   const edicao = r => r.edicao || EDICAO_GTA[r.produto] || 'Standard';
   const std = todas.filter(r => edicao(r) === 'Standard').slice(0, 10), ult = todas.filter(r => edicao(r) === 'Ultimate').slice(0, 6);
