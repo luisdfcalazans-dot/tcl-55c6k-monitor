@@ -1,4 +1,10 @@
-"""Decide o que vira alerta. Cada alerta é uma mensagem HTML pronta para o Telegram."""
+"""Decide o que vira alerta. Cada alerta é uma mensagem HTML pronta para o Telegram.
+
+Por produto (03/10/2026: além das TVs, o PS5 e o GTA 6 do catálogo monitor/produtos.py): cada oferta é comparada com a
+meta e o "menor já visto" do SEU produto (a meta do GTA 6 Code in Box depende da entrega; a do kit é a do console-base
+mais o extra; a do gift card é 85% do valor de face em loja oficial; o digital da PS Store conta o custo efetivo com o
+gift card). Os alertas dos produtos que não são TV trazem a meta e a distância até ela e, no GTA 6 físico, a entrega
+("chega a tempo?"). O modo vigia (TV comprada) vale só para as TVs."""
 
 from __future__ import annotations
 
@@ -9,6 +15,7 @@ from typing import Optional
 
 from . import config
 from . import confianca
+from . import produtos
 from .estado import Estado, conta_como_preco, e_agregador, lojas_diretas, marca_cupom
 from .models import MODELO_PADRAO, MODELOS, POLEGADAS, Cupom, Oferta, modelo_de, rotulo_modelo
 from .util import dias_desde, fmt_preco, loja_canonica, parse_preco, sem_acentos
@@ -669,13 +676,191 @@ def _so_frete(e: _Escopo) -> bool:
     return not _RE_TEM_DESCONTO.search(resto)
 
 
+def _valores_cabem(e: _Escopo, p: float) -> tuple[bool, str]:
+    """Compra mínima e teto da compra/do item do cupom contra o preço `p` do produto (ver cupom_compativel)."""
+    minimos = _minimos_da_compra(e.escopo)
+    for campo in e.campos:
+        for lim, faixa in _tetos_da_compra(campo):
+            if lim < p and not (faixa and any(lim <= v <= p for v in minimos)):
+                return False, f"só até R$ {lim:.0f}"
+    if minimos and minimos[0] > p:
+        return False, f"só acima de R$ {minimos[0]:.0f}"
+    return True, ""
+
+
+# ---- cupons do PS5, do GTA 6 e dos acessórios (03/10/2026) ----
+# A regra das TVs recusa "PS5", "PlayStation", "GTA" e "games" como outra marca/categoria; aqui esses são o alvo. Valem
+# do mesmo jeito: exclusões, cliente novo, só frete, compra mínima/teto, seleção sem nome. Cupom "de TV" (em TVs) é de
+# outra categoria. Dentro da família, o cupom que cita um tema só vale para os produtos do tema: "R$ 60 OFF no GTA 6" não
+# vale para o console; "PS5 com R$ 100 de desconto" não vale para o jogo nem para o gift card.
+_RE_ALVO_JOGOS = re.compile(r"\bgames?\b|\bjogos\b|\bvideo\s?games?\b|\bconsoles?\b|\bplaystation\b|\bps5\b|\bgta\b|"
+                            r"grand theft auto|eletronic|tecnolog|\beletro\b")
+_RE_EXCLUI_JOGOS = re.compile(r"\bgames?\b|\bvideo\s?games?\b|\bplaystation\b|eletronic|tecnolog")
+_RE_SO_TV = re.compile(r"\btvs?\b|televis|smart\s*tvs?\b")
+_TEMAS_CUPOM = (
+    ("gta", re.compile(r"\bgta\b|grand theft auto")),
+    ("console", re.compile(r"\bconsoles?\b|\bps5\b|playstation 5|\bvideo\s?games?\b")),
+    ("gift", re.compile(r"\bgift\s?cards?\b|\bcart(?:ao|oes) presente\b|\bvale[\s-]presentes?\b|\bpsn card|"
+                        r"\bsaldo (?:playstation|psn)\b")),
+    ("leitor", re.compile(r"\bleitor(?:es)?\b")),
+)
+# "em jogos" (a categoria) vale para o jogo do GTA; "no jogo Palworld", "do jogo", "jogos de tabuleiro/PC/mobile" são de
+# outro jogo
+_RE_JOGOS_GENERICO = re.compile(r"\b(?:em|nos|de|para|todos os)\s+(?:todos\s+os\s+)?jogos\b"
+                                r"(?!\s+(?:de\s+|para\s+|da\s+|do\s+)?(?:tabuleiro|mobile|pc|xbox|nintendo|switch|celular|"
+                                r"publisher|editora|franquia|serie|colecao))")
+_RE_JOGO_CITADO = re.compile(r"\bjogos?\b")
+# o usuário só tem Nubank/NuPay (decisão de 03/10): cupom exclusivo de assinatura (Prime, Meli+) não vale para ele
+_RE_ASSINANTE = re.compile(r"\bprime\b|\bmeli\s?\+|\bmeli mais\b|\bassinantes?\b|\bninja\b")
+_MARCAS_OUTRAS_JOGOS = [m for m in _MARCAS_OUTRAS if m not in ("ps5", "playstation", "gta", "gamer")] + [
+    "mouses", "teclados", "headsets", "monitores", "cadeiras", "fones", "intel", "amd", "nvidia", "starlink", "pc"]
+_CODIGO_OUTRAS_JOGOS = [m for m in _MARCAS_OUTRAS_JOGOS if " " not in m and len(m) >= 3] + [
+    # a categoria escrita no código ("FASHION10", "15INTIMA", "CAMISETA", "RUNNING", "NETSFITNESS", "MODAKIDS")
+    "prime", "fashion", "intima", "moda", "beleza", "beauty", "kids", "camiseta", "running", "futebol", "fitness",
+    "vest", "casa", "decor", "make", "perfum", "mercado", "bebe", "baby", "fralda", "cozinha", "jardim", "tenis",
+    "calcad", "esporte", "sport", "colageno", "suplement"]
+_CATEGORIAS_FORA_JOGOS = [c for c in _CATEGORIAS_FORA_TEXTO if c != "games"]
+_CATEGORIAS_DENTRO_JOGOS = [d for d in _CATEGORIAS_DENTRO if d not in ("tv", "televis")] + \
+    ["games", "game ", "jogos", "console", "playstation", "ps5", "gta"]
+_RE_QUALIFICA_EXCLUSAO = re.compile(r"r\$|\bvendid|\bterceiros\b|\bmarketplace\b|\bparceir|\binternaciona|\bimportad")
+# lojas em que games são uma parte pequena do catálogo: cupom genérico só vale se citar games/eletrônicos/o site todo
+_LOJAS_GAMES_POUCO = {"Netshoes", "Carrefour", "Americanas", "Sam's Club"}
+
+
+def _loja_de_outra_marca_jogos(e: "_Escopo", loja: str) -> bool:
+    """(e) cupom de loja oficial/marca/outra loja que não é a Sony/PlayStation nem a própria loja do cupom ("10% OFF na
+    Netshoes" num cupom da Netshoes vale)."""
+    nome = e.loja_de_marca
+    if not nome or nome in ("sony", "playstation") or re.search(r"\bsony\b|\bplaystation\b", e.cat):
+        return False
+    return loja_canonica(nome) != loja_canonica(loja or "")
+
+
+def _temas_do_texto(t: str) -> set[str]:
+    """Os temas que o texto do cupom cita; o GTA vence (o "PS5" de "GTA 6 PS5" é a plataforma). "Em jogos" (a
+    categoria) é o tema 'jogo'; um jogo citado sem ser o GTA ("no jogo Palworld") é 'outro_jogo'."""
+    temas = {nome for nome, rx in _TEMAS_CUPOM if rx.search(t)}
+    if "gta" in temas:
+        return {"gta"}
+    if _RE_JOGOS_GENERICO.search(t):
+        temas.add("jogo")
+    elif _RE_JOGO_CITADO.search(t):
+        temas.add("outro_jogo")
+    return temas
+
+
+def _exclusao_tira(ex: str, temas_produto: set[str], modelo: str) -> bool:
+    """A exclusão ("exceto games", "não vale para consoles", "exceto gift cards") tira este produto?"""
+    if _RE_QUALIFICA_EXCLUSAO.search(ex):
+        return False
+    if _RE_EXCLUI_JOGOS.search(ex):
+        return True
+    return bool({n for n, rx in _TEMAS_CUPOM if rx.search(ex)} & temas_produto)
+
+
+def _cupom_compativel_jogos(c: Cupom, preco_loja: Optional[float], modelo: str) -> tuple[bool, str]:
+    """cupom_compativel do PS5, do GTA 6 e dos acessórios (ver o comentário acima)."""
+    p_obj = produtos.produto(modelo)
+    temas_produto = set(p_obj.temas if p_obj else ())
+    e = _escopo(c.titulo, c.regra)
+    for ex in e.exclusoes:
+        if _exclusao_tira(ex, temas_produto, modelo):
+            return False, f"exclui: {ex.strip()[:60]}"
+    codigo = sem_acentos(c.codigo).lower()
+    for w in _MARCAS_OUTRAS_JOGOS:
+        if re.search(r"\b" + re.escape(w) + r"\b", e.escopo):
+            return False, f"marca/produto: {w}"
+    for w in _CODIGO_OUTRAS_JOGOS:
+        if w in codigo:
+            return False, f"código de outra marca: {w}"
+    if _loja_de_outra_marca_jogos(e, c.loja):
+        return False, f"loja/marca: {e.loja_de_marca}"
+    if _RE_ASSINANTE.search(e.escopo):
+        return False, f"exclusivo de assinatura: {_RE_ASSINANTE.search(e.escopo).group(0)} (o usuário não assina)"
+    temas = _temas_do_texto(e.escopo)
+    if "outro_jogo" in temas:
+        return False, "cupom de outro jogo"
+    if temas and not temas & temas_produto:
+        return False, f"cupom só de {'/'.join(sorted(temas))}"
+    if "gift" in temas_produto and "gift" not in temas:
+        # gift card quase sempre fica fora dos cupons das lojas: só o cupom que fala dele
+        return False, "cupom que não cita gift card"
+    for m in _RE_SO_NOVOS.finditer(e.escopo):
+        if not _RE_NOVOS_TAMBEM.search(e.escopo[:m.start()]) and not _RE_NOVOS_E_ANTIGOS.match(e.escopo[m.end():]):
+            return False, f"só para novos clientes: {m.group(0)}"
+    if _so_frete(e):
+        return False, "só frete"
+    dentro = e.site_todo or bool(temas) or any(_RE_ALVO_JOGOS.search(r) for k, r, _f in e.classes
+                                                if k in ("categoria", "tv", "selecao"))
+    if not dentro and not (any(d in e.cat for d in _CATEGORIAS_DENTRO_JOGOS) or _RE_EM_TUDO.search(e.cat)
+                           or re.search(r"ps5|play|gta|game|console", codigo)):
+        # nada diz games, eletrônicos, o site todo ou "suas compras": o desconto é de outro produto ("10% OFF no
+        # Starlink Mini", "15% OFF em diversas categorias")
+        return False, "cupom sem a categoria de games/eletrônicos nem o site todo"
+    if loja_canonica(c.loja) in _LOJAS_GAMES_POUCO and not (dentro or _RE_ALVO_JOGOS.search(e.cat)
+                                                             or re.search(r"ps5|play|gta|game|console", codigo)):
+        # loja em que games são uma parte pequena (Netshoes: esporte e moda; Carrefour: mercado): o cupom genérico dela
+        # quase sempre é de outra categoria ("CAMISETA", "RUNNING", "VESTELES", "colágeno"); vale o que cita games, o
+        # site todo ou tem o tema no código ("PLAY150")
+        return False, "cupom genérico de loja que não é de games"
+    fora = [r for k, r, _f in e.classes if k in ("categoria", "tv") and not _RE_ALVO_JOGOS.search(r)]
+    if fora and not dentro:
+        return False, f"categoria: {fora[0][:30]}"
+    if e.cortado and not dentro:
+        return False, "restrito: anúncio cortado (sem a categoria)"
+    dentro_txt = dentro or any(d in e.cat for d in _CATEGORIAS_DENTRO_JOGOS) or bool(_RE_EM_TUDO.search(e.cat))
+    if not dentro_txt:
+        if _RE_SO_TV.search(_RE_NAO_E_TV.sub(" ", e.cat)):
+            return False, "categoria: tv"
+        for w in _CATEGORIAS_FORA_JOGOS:
+            if w in e.cat:
+                return False, f"categoria: {w.strip()}"
+    m = _RE_SELECAO.search(e.cat)
+    selecao = m.group(0) if m else e.selecao
+    if selecao and not dentro:
+        return False, f"restrito: {selecao}"
+    p = preco_loja or config.alvo_parcelado(modelo) or (p_obj.preco_oficial if p_obj else None) or \
+        produtos.piso(modelo)
+    return _valores_cabem(e, p)
+
+
+def _restricao_jogos(cupons: list[Cupom], registros, modelo: str) -> set[str]:
+    """restricao_do_codigo do PS5/GTA 6: o código que outro anúncio diz ser de outra categoria (não games/eletrônicos
+    nem o site todo), de loja oficial de outra marca, de outro tema ("só GTA" para o console) ou que exclui o produto."""
+    p_obj = produtos.produto(modelo)
+    temas_produto = set(p_obj.temas if p_obj else ())
+    categoria: set[str] = set()
+    exclui: set[str] = set()
+    diz: set[str] = set()
+    for c in list(cupons) + [_cupom_do_registro(r) for r in registros]:
+        if c.especifico or not (c.codigo or "").strip():
+            continue
+        e = _escopo(c.titulo, c.regra)
+        marca = marca_cupom(c.loja, c.codigo)
+        temas = _temas_do_texto(e.escopo)
+        if any(_exclusao_tira(ex, temas_produto, modelo) for ex in e.exclusoes):
+            exclui.add(marca)
+        elif _loja_de_outra_marca_jogos(e, c.loja):
+            categoria.add(marca)
+        elif temas and not temas & temas_produto:
+            categoria.add(marca)
+        elif temas or any(_RE_ALVO_JOGOS.search(r) for k, r, _f in e.classes if k in ("categoria", "tv")):
+            diz.add(marca)
+        elif any(f and k in ("categoria", "tv") and not _RE_ALVO_JOGOS.search(r) for k, r, f in e.classes):
+            categoria.add(marca)
+    return exclui | (categoria - diz)
+
+
 def cupom_compativel(c: Cupom, preco_loja: Optional[float], modelo: str = MODELO_PADRAO) -> tuple[bool, str]:
-    """Verifica se a regra do cupom cabe na TV do `modelo` (padrão: a 55C6K), com o preço dela na loja. Devolve
-    (ok, motivo). O cupom da página do produto só serve para o modelo do anúncio (c.modelo; sem ele, qualquer um)."""
+    """Verifica se a regra do cupom cabe no produto `modelo` (padrão: a 55C6K), com o preço dele na loja. Devolve
+    (ok, motivo). O cupom da página do produto só serve para o produto do anúncio (c.modelo; sem ele, qualquer um).
+    PS5, GTA 6 e acessórios: _cupom_compativel_jogos."""
     if c.especifico:
         if c.modelo and modelo_de({"modelo": c.modelo}) != modelo_de({"modelo": modelo}):
             return False, f"cupom do produto da {c.modelo}"
         return True, "cupom do produto"
+    if not produtos.eh_tv(modelo):
+        return _cupom_compativel_jogos(c, preco_loja, modelo)
     pol = POLEGADAS.get(modelo_de({"modelo": modelo}), 55)
     e = _escopo(c.titulo, c.regra)
     excluida = e.excluida_de(pol)
@@ -796,7 +981,10 @@ def restricao_do_codigo(cupons: list[Cupom], registros=(), modelo: str = MODELO_
     depois de tirar as exclusões (a): a seleção vaga ("em Selecionados", que o Pelando põe em quase todo cupom do ML,
     REG-1), alvos neutros (Pix, app, promoção, ofertas, frete), exclusões de outras categorias ("Não válido para a
     categoria Celulares") e as listas de palavras (que pegam slogans como "MERCADO EM ALTA") não barram o código.
-    Se outro anúncio do mesmo código diz TV ("em TVs e Celulares"), a categoria de um anúncio não barra o código."""
+    Se outro anúncio do mesmo código diz TV ("em TVs e Celulares"), a categoria de um anúncio não barra o código.
+    PS5, GTA 6 e acessórios: _restricao_jogos."""
+    if not produtos.eh_tv(modelo):
+        return _restricao_jogos(cupons, registros, modelo)
     categoria: set[str] = set()
     exclui_tv: set[str] = set()
     diz_tv: set[str] = set()
@@ -902,19 +1090,41 @@ def _linha_preco(o: Oferta, com_cupom: bool = True) -> str:
     return " · ".join(partes) if partes else "preço não informado"
 
 
-def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None, nota: Optional[str] = None) -> str:
-    # o modelo vai no cabeçalho (26/09: as duas TVs chegam no mesmo chat; o título da loja às vezes nem diz o tamanho)
+def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None, nota: Optional[str] = None,
+                gift: Optional[tuple] = None) -> str:
+    # o produto vai no cabeçalho (26/09: as duas TVs chegam no mesmo chat; o título da loja às vezes nem diz o tamanho;
+    # 03/10: o PS5 e o GTA 6 também)
     cab = " ".join(etiquetas) + f" · {rotulo_modelo(modelo_de(o))}"
     quem = o.loja + (f" (vendido por {o.vendedor})" if o.vendedor and o.vendedor != o.loja else "")
     linhas = [f"{cab} — <b>{_esc(quem)}</b>", _esc(o.titulo[:140]), _linha_preco(o)]
     if anterior:
         linhas.append(f"antes: {fmt_preco(anterior)}")
+    # produto que não é TV: a meta e a distância até ela, a entrega do GTA 6 (chega a tempo?), o custo com gift card
+    linhas += [_esc(x) for x in produtos.linhas_da_oferta(o, gift)]
     if o.tipo == "post":
         linhas.append(f"via {_esc(o.fonte)}" + (f" · {_esc(o.publicado[:16].replace('T', ' '))}" if o.publicado else ""))
     if nota:
         linhas.append(_esc(nota))
     linhas.append(o.url)
     return "\n".join(linhas)
+
+
+def alvos_de(o: Oferta) -> tuple[Optional[float], Optional[float]]:
+    """(meta do Pix/à vista, meta do total parcelado) desta oferta: a do modelo nas TVs (config, como antes); nos outros
+    produtos, a da oferta (produtos.alvos_da_oferta: entrega do GTA, extra do kit, valor de face do gift card)."""
+    m = modelo_de(o)
+    if produtos.eh_tv(m):
+        return config.alvo_pix(m), config.alvo_parcelado(m)
+    a = produtos.alvos_da_oferta(o)
+    return a.pix, a.parcelado
+
+
+def _abaixo_do_alvo(o: Oferta, p: float, alvo_pix: Optional[float], alvo_parc: Optional[float]) -> bool:
+    """Pix/à vista na meta do Pix, ou o parcelado (preço do cartão com parcelamento) na meta do parcelado. `p`: o preço
+    comparável (o custo efetivo no digital da PS Store)."""
+    if alvo_pix is not None and ((o.preco_pix and o.preco_pix <= alvo_pix) or p <= alvo_pix):
+        return True
+    return bool(alvo_parc is not None and o.preco and o.preco <= alvo_parc and o.parcelado)
 
 
 CAB_SUSPEITO = "⚠️ <b>Anúncio suspeito — possível golpe</b>"
@@ -955,11 +1165,12 @@ def _reprovados_auto(estado: Optional[Estado]) -> list[dict]:
 
 
 def menor_preco_confiavel(ofertas: list[Oferta], modelo: Optional[str] = None) -> Optional[float]:
-    """Menor preço entre as ofertas de loja com veredito 'confiavel' nesta rodada, do `modelo` (None: de qualquer um;
-    None também sem veredito/sem oferta). A 65" é mais cara: comparar a postagem dela com a 55" daria "⚠️ confira" à
-    toa, e a da 55" com a 65" esconderia o preço bom demais."""
+    """Menor preço entre as ofertas de loja com veredito 'confiavel' nesta rodada, do `modelo` (a chave de referência
+    do produto, confianca.chave_referencia; None: de qualquer um; None também sem veredito/sem oferta). A 65" é mais
+    cara: comparar a postagem dela com a 55" daria "⚠️ confira" à toa, e a da 55" com a 65" esconderia o preço bom
+    demais (o mesmo entre o PS5 Digital e o Pro, o GTA e o gift card)."""
     precos = [o.melhor_preco for o in ofertas if o.tipo == "loja" and o.ativo and o.melhor_preco
-              and (modelo is None or modelo_de(o) == modelo)
+              and (modelo is None or confianca.chave_referencia(o) == modelo)
               and not e_agregador(o) and confianca.veredito_de(o) == confianca.CONFIAVEL]
     return min(precos) if precos else None
 
@@ -970,20 +1181,25 @@ def _boot(estado: Estado, modelo: str) -> bool:
     return bool(f(modelo)) if callable(f) else bool(estado.bootstrap)
 
 
-def modelos_em_jogo(ofertas: list[Oferta]) -> list[str]:
-    """Os modelos que contam para os cupons desta rodada: a 55C6K sempre (como antes) e a 65C6K quando a rodada trouxe
-    preço de loja dela."""
+def modelos_em_jogo(ofertas: list[Oferta], vigia: bool = False) -> list[str]:
+    """Os produtos que contam para os cupons desta rodada: a 55C6K sempre (como antes), a 65C6K quando a rodada trouxe
+    preço de loja dela e os outros produtos (PS5, GTA 6...) quando a rodada trouxe oferta ou postagem deles. No modo
+    vigia as TVs ficam de fora (a vigia vale só para elas)."""
     com_loja = {modelo_de(o) for o in ofertas if o.tipo == "loja"}
-    return [m for m in MODELOS if m == MODELO_PADRAO or m in com_loja]
+    vistos = {modelo_de(o) for o in ofertas}
+    tvs = [] if vigia else [m for m in MODELOS if m == MODELO_PADRAO or m in com_loja]
+    return tvs + [m for m in produtos.NAO_TVS if m in vistos]
 
 
-def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> tuple[list[str], dict[str, float]]:
+def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
+                  vigia: bool = False) -> tuple[list[str], dict[str, float]]:
     """Devolve (mensagens, {chave_oferta: preco_alertado}).
 
-    Cada oferta é comparada com o alvo e o "menor já visto" do SEU modelo (55C6K ou 65C6K). Na partida de um modelo
-    (a primeira rodada em que ele aparece neste modo) as ofertas e postagens dele são registradas sem alerta.
-    Os cupons alertados ficam registrados no estado (em memória; o run.py salva no fim da rodada): quando o mesmo
-    código volta com outro id, só deixa de ser novidade se já foi alertado com o mesmo desconto.
+    Cada oferta é comparada com o alvo e o "menor já visto" do SEU produto (55C6K, 65C6K, PS5 Digital, GTA 6...). Na
+    partida de um produto (a primeira rodada em que ele aparece neste modo) as ofertas e postagens dele são registradas
+    sem alerta. Os cupons alertados ficam registrados no estado (em memória; o run.py salva no fim da rodada): quando o
+    mesmo código volta com outro id, só deixa de ser novidade se já foi alertado com o mesmo desconto. `vigia`: modo
+    vigia (TV comprada): as TVs ficam fora dos cupons (o run.py já filtra as ofertas delas).
     """
     msgs: list[str] = []
     alertados: dict[str, float] = {}
@@ -991,12 +1207,15 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     diretas = estado.lojas_diretas_conhecidas(ofertas)
     lojas = [o for o in ofertas if o.tipo == "loja"]
     posts = [o for o in ofertas if o.tipo == "post"]
-    # o "menor já visto" de cada modelo da rodada é o dos dois modos (o painel mostra o menor entre cloud e pc)
+    # o "menor já visto" de cada produto da rodada é o dos dois modos (o painel mostra o menor entre cloud e pc)
     preco_minimo_antes: dict[str, Optional[float]] = {}
     for m in {modelo_de(o) for o in lojas}:
         minimo_antes = estado.minimo_geral(diretas) if m == MODELO_PADRAO else estado.minimo_geral(diretas, modelo=m)
         preco_minimo_antes[m] = float(minimo_antes["preco"]) if minimo_antes else None
-    boot = {m: _boot(estado, m) for m in MODELOS}
+    boot = {m: _boot(estado, m) for m in produtos.IDS}
+    # maior desconto de gift card da PlayStation em loja oficial visto nesta rodada: custo efetivo do GTA digital
+    gift = produtos.desconto_gift_card(ofertas)
+    desc_gift = gift[0] if gift else None
 
     # ---- preços de loja ----
     for o in lojas:
@@ -1018,8 +1237,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         novo_minimo = pma is not None and p < pma
         if novo_minimo:
             etiquetas.append("🏆 MENOR PREÇO já visto")
+        alvo_pix, alvo_parc = alvos_de(o)
         if prev is None:
-            if not boot[modelo] and (p <= config.alvo_parcelado(modelo) or (pma and p <= pma * 1.03)):
+            if not boot[modelo] and ((alvo_parc is not None and p <= alvo_parc) or (pma and p <= pma * 1.03)):
                 etiquetas.append("🆕 Nova oferta")
         else:
             anterior = prev.get("ultimo_preco")
@@ -1028,27 +1248,26 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
                 anterior = float(anterior)
             else:
                 anterior = None
-        alvo_pix, alvo_parc = config.alvo_pix(modelo), config.alvo_parcelado(modelo)
-        abaixo_alvo = (o.preco_pix and o.preco_pix <= alvo_pix) or p <= alvo_pix or \
-            (o.preco and o.preco <= alvo_parc and o.parcelado)
-        if abaixo_alvo and not boot[modelo]:
+        # o digital da PS Store compara o custo efetivo (pagando com gift card comprado com desconto)
+        p_meta = produtos.preco_comparavel(o, desc_gift) or p
+        if _abaixo_do_alvo(o, p_meta, alvo_pix, alvo_parc) and not boot[modelo]:
             ja = prev.get("preco_alertado") if prev else None
-            if ja is None or p < float(ja) - 0.5:
+            if ja is None or p_meta < float(ja) - 0.5:
                 etiquetas.append("🎯 Abaixo do alvo")
         if etiquetas:
-            # na partida só do modelo (a geral é trocada pela mensagem de início no run.py) a mensagem não sai
+            # na partida só do produto (a geral é trocada pela mensagem de início no run.py) a mensagem não sai
             if not boot[modelo] or estado.bootstrap:
                 # vendedor fora da lista de confiáveis que passou nas checagens: o alerta sai, com o que foi checado
-                msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o)))
-            alertados[o.chave] = p
+                msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o), gift=gift))
+            alertados[o.chave] = p_meta if "🎯 Abaixo do alvo" in etiquetas else p
         if novo_minimo:
             preco_minimo_antes[modelo] = p
 
     # ---- postagens em sites de promoção e canais ----
-    # postagem com preço muito abaixo da loja confiável mais barata do MESMO modelo nesta rodada, ou que leva a anúncio
+    # postagem com preço muito abaixo da loja confiável mais barata do MESMO produto nesta rodada, ou que leva a anúncio
     # que a rodada julgou suspeito/reprovado (ou cita o vendedor dele): pode ser anúncio de golpe divulgado. Sai com
-    # "⚠️ confira", sem 🎯
-    ref_confiavel = {m: menor_preco_confiavel(ofertas, m) for m in MODELOS}
+    # "⚠️ confira", sem 🎯. Toda postagem nova de PS5/GTA 6 sai (como as das TVs), com a meta e a distância até ela
+    ref_confiavel: dict[str, Optional[float]] = {}
     auto = _reprovados_auto(estado)
     for o in posts:
         modelo = modelo_de(o)
@@ -1062,17 +1281,25 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         if boot[modelo]:
             continue
         et = ["📣 Promoção postada"]
-        ref = ref_confiavel[modelo]
+        chave_ref = confianca.chave_referencia(o)
+        if chave_ref not in ref_confiavel:
+            ref_confiavel[chave_ref] = menor_preco_confiavel(ofertas, chave_ref)
+        ref = ref_confiavel[chave_ref]
         muito_abaixo = bool(ref and o.melhor_preco and o.melhor_preco <= ref * confianca.FRACAO_MUITO_ABAIXO)
         barrada = confianca.postagem_barrada(o, lojas, auto)
-        if o.melhor_preco and o.melhor_preco <= config.alvo_pix(modelo) and not muito_abaixo and not barrada:
+        alvo_pix, _alvo_parc = alvos_de(o)
+        p_meta = produtos.preco_comparavel(o, desc_gift)
+        # PS5/GTA 6: preço só de assinante (Prime, Meli+...) não vale para o usuário (decisão de 03/10): sem 🎯
+        assinante = not produtos.eh_tv(modelo) and produtos.exige_assinatura(o)
+        if p_meta and alvo_pix is not None and p_meta <= alvo_pix and not muito_abaixo and not barrada \
+                and not assinante:
             et.append("🎯")
         nota = f"⚠️ confira: {barrada}" if barrada else \
             "⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None
-        msgs.append(_msg_oferta(et, o, nota=nota))
+        msgs.append(_msg_oferta(et, o, nota=nota, gift=gift))
 
     # ---- cupons ----
-    em_jogo = modelos_em_jogo(ofertas)
+    em_jogo = modelos_em_jogo(ofertas, vigia)
     precos_mod, lojas_com_tv = _precos_por_modelo(estado, ofertas, diretas, em_jogo)
     # estado antigo não registrava os alertas de cupom: reconstrói (uma vez) o que o código da época alertou, com o
     # preço que ele usava (qualquer oferta de loja ativa da 55C6K, agregador inclusive)
@@ -1085,18 +1312,20 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
     codigos_vistos: set[str] = set()
     # cupom da página do produto primeiro (se o mesmo código vier também como cupom do site, fica a linha do produto),
     # depois os que falam de TV: a mensagem mostra só 12 linhas e estes não podem ficar no "… e mais N"
+    servem_por_cupom: dict[str, list[str]] = {}
     for c in sorted(cupons, key=lambda c: (not c.especifico, not _escopo(c.titulo, c.regra).tem_tv)):
         if estado.cupom_anterior(c.chave) is not None:
             continue
         lc = loja_canonica(c.loja)
-        if lc not in lojas_com_tv and not c.especifico:
+        if not c.especifico and not any(lc in lojas_com_tv.get(m, ()) for m in em_jogo):
             continue
         if confianca.cupom_barrado(c, ofertas, auto):
             continue  # cupom da página de anúncio reprovado/suspeito: o link levaria ao anúncio barrado
         marca = marca_cupom(lc, c.codigo)
-        servem = _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo)
+        servem = _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo, lojas_com_tv)
         if not servem:
             continue
+        servem_por_cupom[c.chave] = servem
         if marca in codigos_vistos:
             continue  # o mesmo cupom no Promobit e no Pelando nesta rodada
         # o mesmo código volta com outro id (a Magalu põe a data no id; Pelando e Promobit têm ids próprios):
@@ -1104,8 +1333,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         if _ja_alertado(estado, marca, c):
             continue
         codigos_vistos.add(marca)
-        if estado.bootstrap:
-            # partida: a mensagem de início anuncia os cupons aplicáveis e avisa que só chegam novidades depois
+        if estado.bootstrap or all(boot.get(m) for m in servem):
+            # partida (geral, ou só dos produtos a que o cupom serve: o PS5/GTA 6 começando num state que já existia):
+            # a mensagem de início anuncia os cupons aplicáveis e avisa que só chegam novidades depois
             estado.registra_alerta_cupom(c, origem="partida")
             continue
         linha = f"• <b>{_esc(lc)}</b> <code>{_esc(c.codigo)}</code> — {_esc(c.titulo[:90])}"
@@ -1118,6 +1348,13 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
         novos.append((c, linha))
     if novos:
         cab = "🎟️ <b>Novos cupons aplicáveis à TV</b>" if len(novos) > 1 else "🎟️ <b>Novo cupom aplicável à TV</b>"
+        secoes = {produtos.secao(m) for c, _l in novos[:12] for m in servem_por_cupom.get(c.chave, [])}
+        if secoes - {produtos.FAMILIA_TV}:
+            # cupom do PS5/GTA 6: o cabeçalho diz para quais seções (o prefixo "🎟️ <b>Nov" continua o mesmo)
+            nomes = ", ".join(produtos.SECOES.get(s, s) for s in (produtos.FAMILIA_TV, produtos.FAMILIA_PS5,
+                                                                   produtos.FAMILIA_GTA6) if s in secoes)
+            cab = (f"🎟️ <b>Novos cupons aplicáveis</b> ({nomes})" if len(novos) > 1
+                   else f"🎟️ <b>Novo cupom aplicável</b> ({nomes})")
         corpo = "\n".join(linha for _c, linha in novos[:12])
         if len(novos) > 12:
             corpo += f"\n… e mais {len(novos) - 12} (veja o painel)"
@@ -1130,11 +1367,14 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
 
 
 def _modelos_do_cupom(c: Cupom, lc: str, marca: str, precos_mod: dict[str, dict[str, float]],
-                      restritos: dict[str, set[str]], em_jogo: list[str]) -> list[str]:
-    """Os modelos (dos que estão em jogo) para os quais o cupom serve: a regra cabe no preço da TV na loja e o código
-    não é de outra categoria/não exclui aquela TV."""
+                      restritos: dict[str, set[str]], em_jogo: list[str],
+                      lojas: Optional[dict[str, set[str]]] = None) -> list[str]:
+    """Os produtos (dos que estão em jogo) para os quais o cupom serve: a loja vende o produto (`lojas`), a regra cabe
+    no preço dele na loja e o código não é de outra categoria/não exclui aquele produto."""
     out = []
     for m in em_jogo:
+        if lojas is not None and not c.especifico and lc not in lojas.get(m, ()):
+            continue
         if not cupom_compativel(c, precos_mod.get(m, {}).get(lc), m)[0]:
             continue
         if marca in restritos.get(m, set()) and not c.especifico:
@@ -1145,27 +1385,62 @@ def _modelos_do_cupom(c: Cupom, lc: str, marca: str, precos_mod: dict[str, dict[
 
 def _tv_la(lc: str, servem: list[str], precos_mod: dict[str, dict[str, float]], em_jogo: list[str]) -> str:
     """" · TV lá: R$ X" (só a 55C6K em jogo, como antes) ou " · TV lá: R$ X (55\") · R$ Y (65\")", e " — só 65\""
-    quando o cupom serve para um modelo só."""
-    if len(em_jogo) == 1:
-        pl = precos_mod.get(em_jogo[0], {}).get(lc)
-        return f" · TV lá: {fmt_preco(pl)}" if pl else ""
-    partes = [f"{fmt_preco(precos_mod[m][lc])} ({POLEGADAS[m]}\")" for m in servem if precos_mod.get(m, {}).get(lc)]
-    txt = f" · TV lá: {' · '.join(partes)}" if partes else ""
-    if len(servem) < len(em_jogo):
-        txt += " — só " + " e ".join(f"{POLEGADAS[m]}\"" for m in servem)
+    quando o cupom serve para um modelo só. Os produtos que não são TV vão em " · serve para: PS5 Digital R$ X, GTA 6
+    Code in Box" (com o preço deles na loja, quando há)."""
+    tvs_jogo = [m for m in em_jogo if produtos.eh_tv(m)]
+    tvs = [m for m in servem if produtos.eh_tv(m)]
+    outros = [m for m in servem if not produtos.eh_tv(m)]
+    txt = ""
+    if tvs and len(tvs_jogo) == 1:
+        pl = precos_mod.get(tvs_jogo[0], {}).get(lc)
+        txt = f" · TV lá: {fmt_preco(pl)}" if pl else ""
+    elif tvs:
+        partes = [f"{fmt_preco(precos_mod[m][lc])} ({POLEGADAS[m]}\")" for m in tvs if precos_mod.get(m, {}).get(lc)]
+        txt = f" · TV lá: {' · '.join(partes)}" if partes else ""
+        if len(tvs) < len(tvs_jogo):
+            txt += " — só " + " e ".join(f"{POLEGADAS[m]}\"" for m in tvs)
+    if outros:
+        partes = [f"{produtos.curto(m)} {fmt_preco(precos_mod[m][lc])}" if precos_mod.get(m, {}).get(lc)
+                  else produtos.curto(m) for m in outros]
+        txt += " · serve para: " + ", ".join(partes)
     return txt
 
 
+# Lojas que vendem o PS5/GTA 6 (pesquisa de 03/10) mesmo quando a rodada não trouxe preço delas: o cupom delas pode
+# virar alerta desses produtos (como _LOJAS_COM_TV nas TVs)
+_LOJAS_COM_GAMES = {"Amazon", "Magazine Luiza", "Mercado Livre", "KaBuM!", "Casas Bahia", "Netshoes", "Carrefour",
+                    "Americanas", "Fast Shop", "Mais Correios"}   # PS Store, Nuuvem e Hype: só digital e gift card
+
+
+def _lojas_base(m: str) -> set[str]:
+    """Lojas que vendem o produto que não é TV mesmo sem preço na rodada: o digital só na PS Store; o gift card nas
+    lojas oficiais (decisão do usuário); o resto nas lojas de games conhecidas."""
+    p = produtos.produto(m)
+    if p is not None and p.digital:
+        return {"PlayStation Store"}
+    if m == "GIFT_CARD_PSN":
+        return set(produtos.LOJAS_GIFT_OFICIAIS)
+    return set(_LOJAS_COM_GAMES)
+
+
 def _precos_por_modelo(estado: Optional[Estado], ofertas: list[Oferta], diretas: Optional[set[str]],
-                       em_jogo: list[str]) -> tuple[dict[str, dict[str, float]], set[str]]:
-    """({modelo: {loja: preço da TV}}, lojas que vendem alguma das TVs) para os cupons (ver _precos_da_tv)."""
+                       em_jogo: list[str]) -> tuple[dict[str, dict[str, float]], dict[str, set[str]]]:
+    """({produto: {loja: preço dele}}, {produto: lojas que o vendem}) para os cupons (ver _precos_da_tv). TV: as lojas
+    que vendem alguma das TVs (como antes); os outros: as que vendem o produto (_lojas_base) mais as da rodada,
+    inclusive as das postagens dele."""
     precos: dict[str, dict[str, float]] = {}
-    com_tv: set[str] = set()
+    lojas: dict[str, set[str]] = {}
+    lojas_tv: set[str] = set()
     for m in em_jogo:
         subs = _substitutas(estado, ofertas, diretas, m) if estado is not None and diretas is not None else []
-        precos[m], tv = _precos_da_tv(ofertas, diretas, subs, modelo=m)
-        com_tv |= tv
-    return precos, com_tv
+        precos[m], lojas_m = _precos_da_tv(ofertas, diretas, subs, modelo=m)
+        if produtos.eh_tv(m):
+            lojas_tv |= lojas_m
+            lojas[m] = lojas_tv   # o mesmo conjunto para as duas TVs (a união, como antes)
+        else:
+            lojas[m] = set(precos[m]) | _lojas_base(m) | \
+                {loja_canonica(o.loja) for o in ofertas if modelo_de(o) == m and o.ativo}
+    return precos, lojas
 
 
 _RE_PARCELA_TXT = re.compile(r"(\d{1,2})x\s*(?:de\s*)?R\$\s?([\d.]+(?:,\d{2})?)", re.I)
@@ -1177,7 +1452,8 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
     Nasceu de um caso real: a página esgotada da Casas Bahia fez o coletor pegar o preço de uma
     Hisense do carrossel de recomendados (R$ 2.189) como se fosse a 55C6K.
     Duas checagens: parcelamento que não fecha com o preço, e preço fora da faixa das outras lojas DO MESMO MODELO
-    (a 65" custa ~30% mais: misturar as duas puxaria a mediana para o meio).
+    (a 65" custa ~30% mais: misturar as duas puxaria a mediana para o meio). PS5/GTA 6 (03/10): também o preço fora da
+    faixa plausível do produto no catálogo.
     """
     from statistics import median
 
@@ -1198,8 +1474,30 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
             o.extra["parcelado_descartado"] = o.parcelado
             o.parcelado = None
 
-    # 2) preço muito fora da faixa das demais lojas do mesmo modelo
-    for modelo in MODELOS:
+    # 2) produto que não é TV com preço fora da faixa plausível dele (o catálogo: um "PS5" de R$ 400 é um jogo ou um
+    #    acessório que a fonte confundiu; um GTA de R$ 3.000 é um console). A postagem assim sai da rodada (o "preço"
+    #    é de um cupom, de um resumo de ofertas: "R$ 22 OFF em Gift Card" com R$ 0,01)
+    fora_da_faixa: list[Oferta] = []
+    for o in ofertas:
+        m = modelo_de(o)
+        p = o.melhor_preco
+        if not o.ativo or not p or produtos.eh_tv(m) or produtos.preco_plausivel(m, p):
+            continue
+        a, b = produtos.faixa(m)
+        avisos.append(f"{o.loja}: {fmt_preco(p)} fora da faixa do {produtos.nome(m)} ({fmt_preco(a)} a "
+                      f"{fmt_preco(b)}) — {'postagem ignorada' if o.tipo == 'post' else 'descartado'}")
+        if o.tipo == "post":
+            fora_da_faixa.append(o)
+            continue
+        o.ativo = False
+        o.extra["descartado"] = f"fora da faixa do produto ({a:.0f} a {b:.0f})"
+    if fora_da_faixa:
+        ofertas = [o for o in ofertas if not any(o is x for x in fora_da_faixa)]
+
+    # 3) preço muito fora da faixa das demais lojas do mesmo produto (kit e gift card misturam valores: sem essa conta)
+    for modelo in produtos.IDS:
+        if not (produtos.produto(modelo).compara_preco):
+            continue
         do_modelo = [o for o in ofertas if modelo_de(o) == modelo]
         precos = [o.melhor_preco for o in do_modelo if o.tipo == "loja" and o.ativo and o.melhor_preco]
         if len(precos) < 4:
@@ -1216,10 +1514,11 @@ def sanear(ofertas: list[Oferta]) -> tuple[list[Oferta], list[str]]:
     return ofertas, avisos
 
 
-def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Optional[Estado] = None) -> list[Cupom]:
-    """Só cupons de lojas que vendem a TV e cuja regra cabe no preço de alguma das TVs (para o painel e o resumo).
+def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Optional[Estado] = None,
+                      vigia: bool = False) -> list[Cupom]:
+    """Só cupons de lojas que vendem algum produto em jogo e cuja regra cabe no preço dele (para o painel e o resumo).
     Com o estado, um código que outro anúncio já visto diz ser de outra categoria também fica fora."""
-    em_jogo = modelos_em_jogo(ofertas)
+    em_jogo = modelos_em_jogo(ofertas, vigia)
     diretas = estado.lojas_diretas_conhecidas(ofertas) if estado is not None else lojas_diretas(ofertas)
     precos_mod, lojas_com_tv = _precos_por_modelo(estado, ofertas, diretas, em_jogo)
     vistos_estado = estado.cupons_vistos() if estado else []
@@ -1229,12 +1528,12 @@ def cupons_aplicaveis(ofertas: list[Oferta], cupons: list[Cupom], estado: Option
     vistos: set[str] = set()
     for c in cupons:
         lc = loja_canonica(c.loja)
-        if lc not in lojas_com_tv and not c.especifico:
+        if not c.especifico and not any(lc in lojas_com_tv.get(m, ()) for m in em_jogo):
             continue
         if confianca.cupom_barrado(c, ofertas, auto):
             continue
         marca = marca_cupom(lc, c.codigo)
-        if not _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo):
+        if not _modelos_do_cupom(c, lc, marca, precos_mod, restritos, em_jogo, lojas_com_tv):
             continue
         if marca in vistos:
             continue
@@ -1320,9 +1619,60 @@ def _linhas_do_resumo(estado: Estado, ofertas: list[Oferta], diretas: set[str], 
     return itens
 
 
-def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) -> str:
-    """Resumo das 9h: um bloco por modelo (a 55C6K como sempre; a 65C6K quando há preço ou mínimo dela)."""
+def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -> list[str]:
+    """Bloco do PS5 e do GTA 6 no resumo: uma linha por produto com o melhor preço da rodada (loja), a meta e a distância
+    até ela, e o menor já visto; no GTA 6, o melhor por custo final (com a entrega)."""
+    linhas: list[str] = []
+    gift = produtos.desconto_gift_card(ofertas)
+    for sec in (produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6):
+        bloco: list[str] = []
+        for pid in produtos.por_secao(sec):
+            cands = [o for o in ofertas if modelo_de(o) == pid and conta_como_preco(o, diretas)]
+            m = estado.minimo_geral(diretas, pid)
+            if not cands and not m:
+                continue
+            txt = f"• <b>{_esc(produtos.curto(pid))}</b>: "
+            if cands:
+                o = min(cands, key=lambda x: produtos.preco_comparavel(x, gift[0] if gift else None) or 9e9)
+                p = produtos.preco_comparavel(o, gift[0] if gift else None)
+                quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
+                txt += f"{fmt_preco(p)} ({_esc(quem)})"
+                if p and o.melhor_preco and abs(p - o.melhor_preco) > 0.5:
+                    txt += f" com gift card (na loja {fmt_preco(o.melhor_preco)})"
+                alvo_pix, _ap = alvos_de(o)
+                dist = produtos.distancia(p, alvo_pix)
+                if alvo_pix:
+                    txt += f" · meta {fmt_preco(alvo_pix)}" + (f" ({_esc(dist)})" if dist else "")
+                e = produtos.entrega(o)
+                if e:
+                    txt += f" · {_esc(e.texto.replace('📦 Entrega: ', 'entrega: '))}"
+            else:
+                txt += "sem preço de loja nesta rodada"
+            if m:
+                txt += f" · menor já visto {fmt_preco(float(m['preco']))}"
+            bloco.append(txt)
+        if bloco:
+            linhas.append(f"\n🎮 <b>{produtos.SECOES[sec]}</b>")
+            linhas += bloco
+    if gift:
+        d, og = gift
+        custos = produtos.custo_digital_com_gift(d)
+        linhas.append(f"💳 Gift card PlayStation a {d * 100:.0f}% ({_esc(og.loja)}): GTA 6 digital sairia por "
+                      f"{fmt_preco(custos.get('GTA6_DIGITAL'))}")
+    return linhas
+
+
+def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom], vigia: bool = False) -> str:
+    """Resumo das 9h: um bloco por modelo de TV (a 55C6K como sempre; a 65C6K quando há preço ou mínimo dela) e o bloco
+    do PS5 e do GTA 6 (quando há preço ou mínimo deles). No modo vigia, sem as TVs."""
     diretas = estado.lojas_diretas_conhecidas(ofertas)
+    if vigia:
+        linhas = ["☀️ <b>Resumo diário — PS5 e GTA 6</b> (TVs em modo vigia)"] + \
+            _resumo_produtos(estado, ofertas, diretas)
+        if cupons:
+            cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
+            linhas.append(f"Cupons ativos: {_esc(cods)}")
+        return "\n".join(linhas)
     linhas = ["☀️ <b>Resumo diário — TCL 55C6K</b>"]
     itens = _linhas_do_resumo(estado, ofertas, diretas, MODELO_PADRAO)
     if itens:
@@ -1347,6 +1697,7 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom]) ->
                           f"({_esc(m['loja'])}, {m['quando'][:10]})")
         linhas.append(f"Alvo ({POLEGADAS[modelo]}\"): Pix {fmt_preco(config.alvo_pix(modelo))} · parcelado "
                       f"{fmt_preco(config.alvo_parcelado(modelo))}")
+    linhas += _resumo_produtos(estado, ofertas, diretas)
     if cupons:
         cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
         linhas.append(f"Cupons ativos: {_esc(cods)}")
@@ -1359,6 +1710,8 @@ def mensagem_bootstrap(ofertas: list[Oferta], cupons: list[Cupom], modo: str,
     desta rodada. `modelos`: None na partida geral (as duas TVs); ['65C6K'] quando só a 65" começa neste modo."""
     if diretas is None:
         diretas = lojas_diretas(ofertas)
+    if modelos is not None and any(not produtos.eh_tv(m) for m in modelos):
+        return _bootstrap_produtos(ofertas, cupons, modo, diretas, modelos)
     blocos = [m for m in MODELOS if modelos is None or m in modelos]
     linhas = [f"✅ <b>Monitor da {' e da '.join(rotulo_modelo(m) for m in blocos)} iniciado</b> (modo {modo})"]
     for modelo in blocos:
@@ -1374,6 +1727,29 @@ def mensagem_bootstrap(ofertas: list[Oferta], cupons: list[Cupom], modo: str,
             linhas.append(f"• {_esc(quem)}: <b>{fmt_preco(o.melhor_preco)}</b>" + (f" · {_esc(o.parcelado)}" if o.parcelado else ""))
     posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in blocos]
     linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só chegam novidades.")
+    return "\n".join(linhas)
+
+
+def _bootstrap_produtos(ofertas: list[Oferta], cupons: list[Cupom], modo: str, diretas: set[str],
+                        modelos: list[str]) -> str:
+    """Mensagem de início dos produtos que começam neste modo (PS5, GTA 6...; as TVs junto, se for o caso): o melhor
+    preço de loja de cada um, com a meta, e as postagens antigas registradas sem alerta."""
+    secoes = [produtos.SECOES[s] for s in (produtos.FAMILIA_TV, produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6)
+              if any(produtos.secao(m) == s for m in modelos)]
+    linhas = [f"✅ <b>Monitor de {' e '.join(secoes)} iniciado</b> (modo {modo})"]
+    for m in [x for x in produtos.IDS if x in modelos]:
+        lojas = sorted([o for o in ofertas if o.tipo == "loja" and modelo_de(o) == m and conta_como_preco(o, diretas)],
+                       key=lambda o: o.melhor_preco or 0)
+        if not lojas:
+            continue
+        o = lojas[0]
+        quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
+        alvo_pix, _ap = alvos_de(o)
+        linhas.append(f"• {_esc(rotulo_modelo(m))}: <b>{fmt_preco(o.melhor_preco)}</b> ({_esc(quem)})"
+                      + (f" · meta {fmt_preco(alvo_pix)}" if alvo_pix else ""))
+    posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in modelos]
+    linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só "
+                  "chegam novidades (toda postagem nova de PS5/GTA 6 vira alerta, com a meta e a distância até ela).")
     return "\n".join(linhas)
 
 

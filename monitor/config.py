@@ -1,16 +1,19 @@
-"""Configuração central. Tudo que é específico da TV e das fontes fica aqui."""
+"""Configuração central: alvos, endereços das fontes, canais e lojas. O catálogo dos produtos (ids, nomes, metas
+padrão, termos de busca, EANs, ids por loja) fica em monitor/produtos.py; os valores das TVs daqui saem dele."""
 
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 DIR_DADOS = RAIZ / "docs" / "data"
 
-# Produtos monitorados: a TCL 55C6K (desde 13/09) e a TCL 65C6K (pedido de 26/09/2026), só esses dois modelos.
-# Os nomes e as polegadas ficam em monitor/models.py (MODELOS, POLEGADAS); aqui ficam alvos e endereços por modelo.
+# Produtos monitorados: a TCL 55C6K (desde 13/09), a TCL 65C6K (26/09/2026) e, desde 03/10/2026, o PS5 e o GTA 6 em
+# todas as versões/formas (monitor/produtos.py). MODELOS são as duas TVs (as fontes e o carrinho das TVs usam isso).
 from .models import MODELO_55 as MODELO, MODELO_65, MODELOS  # noqa: E402  (MODELO: o de sempre; dado sem o campo é dele)
+from . import produtos as _produtos  # noqa: E402
 
 MARCA = "TCL"
 
@@ -20,11 +23,23 @@ def _env(nome: str, padrao: str) -> str:
     return v.strip() if v and v.strip() else padrao
 
 
+def _alvo_padrao(pid: str, campo: str) -> str:
+    return str(getattr(_produtos.PRODUTOS[pid], campo))
+
+
 # Alvos de preço. Podem ser sobrescritos por variável de ambiente.
-ALVO_PIX = float(_env("ALVO_PIX", "2900"))          # 55C6K: à vista / Pix
-ALVO_PARCELADO = float(_env("ALVO_PARCELADO", "3000"))  # 55C6K: total parcelado sem juros
-ALVO_PIX_65 = float(_env("ALVO_PIX_65", "3300"))          # 65C6K: à vista / Pix (decisão do usuário em 26/09)
-ALVO_PARCELADO_65 = float(_env("ALVO_PARCELADO_65", "3500"))  # 65C6K: total parcelado sem juros
+ALVO_PIX = float(_env("ALVO_PIX", _alvo_padrao(MODELO, "alvo_pix")))          # 55C6K: à vista / Pix
+ALVO_PARCELADO = float(_env("ALVO_PARCELADO", _alvo_padrao(MODELO, "alvo_parcelado")))  # 55C6K: total parcelado
+ALVO_PIX_65 = float(_env("ALVO_PIX_65", _alvo_padrao(MODELO_65, "alvo_pix")))  # 65C6K: Pix (decisão do usuário em 26/09)
+ALVO_PARCELADO_65 = float(_env("ALVO_PARCELADO_65", _alvo_padrao(MODELO_65, "alvo_parcelado")))
+# Os outros produtos (metas aprovadas pelo usuário em 03/10; catálogo em monitor/produtos.py): ALVO_PIX_<ID> e
+# ALVO_PARCELADO_<ID> por variável (ex.: ALVO_PIX_PS5_DIGITAL=3400). Kit e gift card têm a meta calculada por oferta.
+ALVOS_PRODUTOS: dict[str, dict[str, float | None]] = {
+    pid: {"pix": float(_env(f"ALVO_PIX_{pid}", str(p.alvo_pix))) if p.alvo_pix is not None else None,
+          "parcelado": float(_env(f"ALVO_PARCELADO_{pid}", str(p.alvo_parcelado)))
+          if p.alvo_parcelado is not None else None}
+    for pid, p in _produtos.PRODUTOS.items() if p.familia != _produtos.FAMILIA_TV
+}
 QUEDA_MINIMA_PCT = float(_env("QUEDA_MINIMA_PCT", "2"))  # queda vs. última coleta que gera alerta
 
 # Modo vigia (03/10/2026): o usuário COMPROU a 65C6K por R$ 3.527 (Pelando, Mais Correios / Ponto Frio). Até VIGIA_ATE só
@@ -37,7 +52,8 @@ VIGIA_ATE = _env("VIGIA_ATE", "2026-10-17")   # inclusive; ajustar para 7 dias d
 
 
 def modo_vigia(hoje_iso: str | None = None) -> bool:
-    """Ainda dentro da janela de vigia da TV comprada? (vazio em VIGIA_ATE desliga o modo)."""
+    """Ainda dentro da janela de vigia da TV comprada? (vazio em VIGIA_ATE desliga o modo). A vigia vale SÓ para as
+    TVs (vigia_afeta): PS5, GTA 6 e o resto do catálogo continuam com alertas, cupons e testador."""
     if not VIGIA_ATE:
         return False
     from datetime import date
@@ -45,28 +61,60 @@ def modo_vigia(hoje_iso: str | None = None) -> bool:
     return d <= VIGIA_ATE
 
 
-def alvo_pix(modelo: str | None = None) -> float:
-    """Alvo do Pix/à vista do modelo (sem modelo: o da 55C6K). Lê o valor do módulo na hora (os testes trocam)."""
-    return ALVO_PIX_65 if modelo == MODELO_65 else ALVO_PIX
+def vigia_afeta(produto: str | None) -> bool:
+    """O modo vigia muda o tratamento deste produto? Só as TVs (a família da TV comprada)."""
+    return _produtos.eh_tv(produto or MODELO)
 
 
-def alvo_parcelado(modelo: str | None = None) -> float:
-    """Alvo do total parcelado sem juros do modelo (sem modelo: o da 55C6K)."""
-    return ALVO_PARCELADO_65 if modelo == MODELO_65 else ALVO_PARCELADO
+def alvo_pix(modelo: str | None = None) -> float | None:
+    """Alvo do Pix/à vista do produto (sem produto: o da 55C6K). Lê o valor do módulo na hora (os testes trocam). Kit e
+    gift card: None (a meta é por oferta: produtos.alvos_da_oferta)."""
+    if modelo == MODELO_65:
+        return ALVO_PIX_65
+    if modelo in ALVOS_PRODUTOS:
+        return ALVOS_PRODUTOS[modelo]["pix"]
+    return ALVO_PIX
 
 
-def alvos() -> dict[str, dict[str, float]]:
-    """{modelo: {'pix': alvo, 'parcelado': alvo}} (vai para o latest_<modo>.json e o painel)."""
+def alvo_parcelado(modelo: str | None = None) -> float | None:
+    """Alvo do total parcelado sem juros do produto (sem produto: o da 55C6K)."""
+    if modelo == MODELO_65:
+        return ALVO_PARCELADO_65
+    if modelo in ALVOS_PRODUTOS:
+        return ALVOS_PRODUTOS[modelo]["parcelado"]
+    return ALVO_PARCELADO
+
+
+def alvos() -> dict[str, dict[str, float | None]]:
+    """{modelo de TV: {'pix': alvo, 'parcelado': alvo}} (vai para o latest_<modo>.json e o painel, como antes). As metas
+    dos outros produtos vão no catálogo do latest ('produtos', produtos.para_painel) e em alvos_produtos()."""
     return {m: {"pix": alvo_pix(m), "parcelado": alvo_parcelado(m)} for m in MODELOS}
 
 
-# Termos de busca usados nos sites de promoção (BUSCAS é o da 55C6K, como antes)
-BUSCAS = ["55c6k", "tcl 55c6k", "tcl c6k 55"]
-BUSCAS_65 = ["65c6k", "tcl 65c6k", "tcl c6k 65"]
+def alvos_produtos() -> dict[str, dict[str, float | None]]:
+    """{produto: {'pix', 'parcelado'}} de todo o catálogo (as TVs primeiro; kit e gift card: None, a meta é por oferta)."""
+    return {m: {"pix": alvo_pix(m), "parcelado": alvo_parcelado(m)} for m in _produtos.IDS}
+
+
+# CEP de entrega do usuário (prazo do GTA 6): SÓ da variável de ambiente CEP_ENTREGA (.env do PC, secret do GitHub).
+# Nunca vai para código, log, teste, docs/data nem anotações. Sem ele, o CEP de referência (centro de São Paulo, o
+# mesmo da pesquisa de 03/10) e o prazo sai marcado como aproximado (Oferta.extra['cep_referencia'] = True).
+CEP_REFERENCIA = "01310100"
+
+
+def cep_entrega() -> tuple[str, bool]:
+    """(CEP só com dígitos, é o de referência?). Não imprimir o CEP."""
+    cep = re.sub(r"\D", "", os.environ.get("CEP_ENTREGA", ""))
+    return (cep, False) if len(cep) == 8 else (CEP_REFERENCIA, True)
+
+
+# Termos de busca usados nos sites de promoção (BUSCAS é o da 55C6K, como antes). Do catálogo (monitor/produtos.py)
+BUSCAS = _produtos.termos_do_produto(MODELO, "promobit")
+BUSCAS_65 = _produtos.termos_do_produto(MODELO_65, "promobit")
 BUSCAS_POR_MODELO = {MODELO: BUSCAS, MODELO_65: BUSCAS_65}
 
 # Código de barras (EAN) de cada modelo: identifica o tamanho mesmo quando o título do anúncio diz outra coisa
-EAN_POR_MODELO = {"7899968301747": MODELO, "7899968301754": MODELO_65}
+EAN_POR_MODELO = _produtos.eans_por_produto([_produtos.FAMILIA_TV])
 
 # --- Lojas com acesso direto (rodam na nuvem) ---
 URL_ZOOM = "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k"
@@ -91,7 +139,7 @@ URL_MAGALU_PRODUTO_65 = (
 )
 # Descoberta de TODOS os anúncios do Magalu (19/09): várias buscas + anúncios vistos nos últimos 14 dias. A busca da
 # 65" (26/09) vem logo depois da principal da 55": ela traz o 1P, a Colombo, a Leonfer e a Webcontinental da 65".
-MAGALU_TERMOS = ["tcl 55c6k", "tcl 65c6k", "55c6k", "tcl c6k 55", "smart tv tcl 55 mini led"]
+MAGALU_TERMOS = _produtos.termos("magalu", [_produtos.FAMILIA_TV])  # 55" e 65" intercaladas (catálogo)
 MAGALU_MAX_BUSCAS = 6            # páginas de busca por rodada (uma por termo + 1 página seguinte)
 MAGALU_MAX_REQUISICOES = 16      # teto de requisições ao magazinevoce por rodada (buscas + anúncios; 12 antes da 65")
 MAGALU_PAUSA_S = float(_env("MAGALU_PAUSA_S", "1.5"))
@@ -164,6 +212,8 @@ URLS_SHOPEE_BUSCA = {MODELO: URL_SHOPEE_BUSCA, MODELO_65: URL_SHOPEE_BUSCA_65}
 PROMOBIT_CUPONS_LOJAS = [
     "magazine-luiza", "amazon", "mercado-livre", "kabum", "casas-bahia",
     "fastshop", "aliexpress", "shopee",
+    # lojas do PS5 / GTA 6 / gift card (pesquisa de 03/10/2026; "mais-correios" dá 404 no Promobit)
+    "netshoes", "americanas", "nuuvem", "hype-games",
 ]
 PELANDO_CUPONS_LOJAS = ["magalu", "amazon", "mercado-livre", "aliexpress", "shopee"]
 
@@ -223,4 +273,10 @@ LOJAS_CANONICAS = {
     "webcontinental": "Webcontinental", "maiscorreios": "Mais Correios", "mais correios": "Mais Correios", "maiscorreios.com.br": "Mais Correios",
     "ponto": "Ponto", "pontofrio": "Ponto", "ponto frio": "Ponto", "extra": "Extra",
     "carrefour": "Carrefour", "americanas": "Americanas",
+    # PS5 e GTA 6 (pesquisa de 03/10/2026): lojas confiáveis e as que só aparecem pelas postagens
+    "netshoes": "Netshoes", "playstation store": "PlayStation Store", "ps store": "PlayStation Store",
+    "store.playstation.com": "PlayStation Store", "nuuvem": "Nuuvem", "hype games": "Hype", "hypegames": "Hype",
+    "sams club": "Sam's Club", "sam's club": "Sam's Club", "samsclub": "Sam's Club", "terabyte": "Terabyte",
+    "terabyteshop": "Terabyte", "inpower": "Inpower", "havan": "Havan", "loja vivo": "Loja Vivo",
+    "pichau": "Pichau", "ibyte": "iBYTE", "eneba": "Eneba", "ubiqplay": "UbiqPlay", "tiktok shop": "TikTok Shop",
 }

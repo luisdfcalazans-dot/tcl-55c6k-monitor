@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TCL C6K · painel</title>
+<title>Monitor de preços · painel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -59,6 +59,14 @@
   .chip { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
   .ok { background:var(--ok-bg); color:var(--ok); } .warn { background:var(--warn-bg); color:var(--warn); } .bad { background:var(--bad-bg); color:var(--bad); } .mute { background:var(--mute-bg); color:var(--ink-2); }
   .m55 { background:var(--m55-bg); color:var(--m55); } .m65 { background:var(--m65-bg); color:var(--m65); }
+  .mp { background:var(--mute-bg); color:var(--ink-2); }
+  nav.secoes { display:flex; flex-wrap:wrap; gap:6px 14px; margin:2px 0 10px; font-size:13.5px; }
+  details.prod { border:1px solid var(--line); border-radius:8px; background:var(--surface); margin:10px 0; }
+  details.prod > summary { cursor:pointer; padding:10px 12px; font-weight:600; list-style-position:inside; }
+  details.prod > summary .sub2 { display:inline; margin-left:8px; font-weight:400; }
+  details.prod .corpo { padding:0 10px 10px; }
+  details.prod .tbl, details.prod .chart-wrap { border:0; }
+  td.ok-t { color:var(--ok); } td.bad-t { color:var(--bad); }
   .best td { background:var(--accent-soft); }
   .velho td, .velho td.num b { color:var(--ink-3); }
   .sus td, .sus td.num b { color:var(--ink-3); } .sus td.num b { text-decoration:line-through; }
@@ -80,8 +88,9 @@
 <body>
 <div class="page">
   <div class="eyebrow">Monitor de preço · atualizado <span id="quando">—</span></div>
-  <h1>TCL C6K · 55" e 65"</h1>
-  <p class="sub">QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+  <h1>TCL C6K · PS5 · GTA 6</h1>
+  <nav class="secoes"><a href="#tvs">TVs</a><a href="#secao-PS5">PS5</a><a href="#secao-GTA6">GTA 6</a><a href="#cupons">Cupons e postagens</a></nav>
+  <p class="sub" id="tvs">TVs QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
 
   <h3 class="modelo-cab"><span class="chip m55">55"</span> TCL 55C6K</h3>
   <div class="facts">
@@ -117,7 +126,11 @@
   <h2>Histórico da 65C6K</h2>
   <div class="chart-wrap"><canvas id="chart-65" width="1060" height="300"></canvas><div class="legend" id="legend-65"></div></div>
 
-  <div class="cols">
+  <!-- PS5 e GTA 6 (03/10/2026): uma seção por família, montada pelo catálogo do latest ('produtos') -->
+  <section id="secao-PS5"></section>
+  <section id="secao-GTA6"></section>
+
+  <div class="cols" id="cupons">
     <div>
       <h2>Cupons ativos</h2>
       <ul class="lista" id="l-cupons"></ul>
@@ -141,12 +154,18 @@ const dt = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ?
 const dias = s => { if (!s) return null; const d = new Date(s); return isNaN(d) ? null : (Date.now() - d) / 864e5; };
 
 // Duas TVs (26/09/2026): a 55C6K e a 65C6K. Registro sem o campo 'modelo' (latest/histórico antigos) é da 55C6K.
+// Desde 03/10/2026 o campo guarda o id de qualquer produto do catálogo (PS5, GTA 6...): o catálogo vem no latest
+// ('produtos', monitor/produtos.py) e o painel monta uma seção por família com ele; latest antigo, sem ele: só as TVs.
 const MODELOS = ['55C6K', '65C6K'], POL = {'55C6K': 55, '65C6K': 65};
-const modeloDe = o => { const m = String(o?.modelo || '').trim().toUpperCase(); return MODELOS.includes(m) ? m : '55C6K'; };
-const chipModelo = m => `<span class="chip m${POL[m]}">${POL[m]}"</span>`;
-// "menor já visto" de cada modelo no latest: 'minimo' (55C6K, a chave de sempre) e 'minimo_65C6K'
+let CATALOGO = {};
+const ehTV = m => MODELOS.includes(m);
+const modeloDe = o => { const m = String(o?.modelo || '').trim().toUpperCase(); return MODELOS.includes(m) || CATALOGO[m] ? m : '55C6K'; };
+const chipModelo = m => ehTV(m) ? `<span class="chip m${POL[m]}">${POL[m]}"</span>` : `<span class="chip mp">${esc(CATALOGO[m]?.curto || m)}</span>`;
+// "menor já visto" de cada produto no latest: 'minimo' (55C6K, a chave de sempre), 'minimo_65C6K', 'minimo_PS5_DIGITAL'...
 const chaveMin = m => m === '55C6K' ? 'minimo' : 'minimo_' + m;
-const alvosDe = (f, m) => (f?.alvos && f.alvos[m]) || (m === '55C6K' && f ? {pix: f.alvo_pix, parcelado: f.alvo_parcelado} : null);
+const alvosDe = (f, m) => (f?.alvos && f.alvos[m])
+  || (f?.produtos?.[m] ? {pix: f.produtos[m].alvo_pix, parcelado: f.produtos[m].alvo_parcelado} : null)
+  || (m === '55C6K' && f ? {pix: f.alvo_pix, parcelado: f.alvo_parcelado} : null);
 
 // Zoom/Buscapé é agregador, não loja: o preço que ele mostra para uma loja pode ficar parado por dias
 // (ex.: Amazon a R$ 3.279 em 81 coletas seguidas, com a loja a R$ 4.034,50). O monitor marca extra.agregador;
@@ -247,7 +266,7 @@ function painelDoModelo(modelo, ctx) {
     .sort((a, b) => (a.pc.total - b.pc.total) || (b.pc.semJuros - a.pc.semJuros) || (!!a.pc.condicao - !!b.pc.condicao));
   const melhorParc = comParc[0] || null;
   const tabela = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : suspeito(o) ? 'sus' : o._velho ? 'velho' : ''}">
-    <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}</td>
+    <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}${ehTV(modelo) ? '' : infoProduto(o)}</td>
     <td class="num">${fmt(o.preco)}</td>
     <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
     <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
@@ -312,12 +331,84 @@ function comparacao(res) {
     : '<tr><td colspan="7" class="empty">Nenhum preço de loja ainda.</td></tr>';
 }
 
+// ---- PS5 e GTA 6 (03/10/2026): o que a coleta gravou no extra (monitor/produtos.py, anota): a meta desta oferta, a
+// entrega do GTA 6 (chega a tempo?), os extras do kit, o valor de face do gift card
+function infoProduto(o) {
+  const ex = o?.extra || {}, partes = [];
+  if (ex.entrega?.texto) partes.push(ex.entrega.texto.replace(/^📦\s*/, ''));
+  const det = ex.produto || {};
+  if (det.extras?.length) partes.push('extras: ' + det.extras.map(e => e.nome || e.tipo).join(', '));
+  if (det.valor_face && o.melhor_preco) partes.push(`vale ${fmt(det.valor_face)} (${Math.round((1 - o.melhor_preco / det.valor_face) * 100)}% de desconto)`);
+  if (ex.alvo?.pix != null) partes.push(`meta ${fmt(ex.alvo.pix)}${ex.alvo.nota ? ' · ' + ex.alvo.nota : ''}`);
+  return partes.map(p => `<span class="sub2">${esc(p)}</span>`).join('');
+}
+
+// distância do preço até a meta: "R$ 49,00 acima" / "R$ 51,00 abaixo"
+const distMeta = (v, meta) => v == null || !meta ? '—' : (v - meta > 0.5 ? `${fmt(v - meta)} acima` : v - meta < -0.5 ? `${fmt(meta - v)} abaixo` : 'na meta');
+const ENTREGA_CLASSE = {a_tempo: 'ok', digital: 'ok', no_dia: 'warn', depois: 'bad', desconhecida: 'mute'};
+const ENTREGA_ROTULO = {a_tempo: 'chega até 18/11', digital: 'digital (00:00 de 19/11)', no_dia: 'chega 19/11', depois: 'chega depois', desconhecida: 'prazo ?'};
+const linhaPost = p => `<li>${chipModelo(modeloDe(p))} ${p.ativo === false ? '<span class="chip mute">expirada</span> ' : ''}<b>${fmt(p.melhor_preco)}</b> · ${esc(p.loja)}${p.cupom ? ` · <code>${esc(p.cupom)}</code>` : ''}<br>${esc(String(p.titulo || '').slice(0, 110))}<span class="meta"><br>${esc(p.fonte)} · ${dt(p.publicado || p.primeira_vez)} · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir</a></span></li>`;
+
+// Uma seção por família (PS5, GTA 6): resumo por produto (meta, melhor à vista e parcelado agora, menor já visto,
+// distância da meta), a tabela de preços por loja e o gráfico de cada produto, as postagens recentes e, no GTA 6, todas
+// as formas pelo custo final (com a entrega). Devolve o HTML e os gráficos a desenhar.
+function secaoFamilia(sec, titulo, ctx, posts, gtaFinal) {
+  const ids = Object.keys(CATALOGO).filter(id => CATALOGO[id].secao === sec && !ehTV(id));
+  if (!ids.length) return {html: '', graficos: []};
+  const graficos = [], resumo = [], detalhes = [];
+  for (const id of ids) {
+    const p = CATALOGO[id], r = painelDoModelo(id, ctx);
+    const meta = {pix: p.alvo_pix, parcelado: p.alvo_parcelado};
+    const metaOferta = r.melhor?.extra?.alvo?.pix ?? meta.pix;
+    resumo.push(`<tr><td><b>${esc(p.nome)}</b></td>
+      <td class="num">${meta.pix != null ? fmt(meta.pix) : '<span class="sub2">por oferta</span>'}${meta.parcelado != null && meta.parcelado !== meta.pix ? `<span class="sub2">parc. ${fmt(meta.parcelado)}</span>` : ''}${p.alvo_pix_tardio ? `<span class="sub2">chega depois: ${fmt(p.alvo_pix_tardio)}</span>` : ''}</td>
+      <td class="num"><b>${r.melhor ? fmt(r.melhor.melhor_preco) : '—'}</b>${r.melhor ? `<span class="sub2">${esc(quem(r.melhor))}</span>` : ''}</td>
+      <td class="num"><b>${r.melhorParc ? fmt(r.melhorParc.pc.total) : '—'}</b>${r.melhorParc ? `<span class="sub2">${esc(quem(r.melhorParc.o))}</span>` : ''}</td>
+      <td class="num">${r.min ? fmt(r.min.preco) : '—'}${r.min ? `<span class="sub2">${esc(r.min.loja || '')}</span>` : ''}</td>
+      <td class="num ${r.melhor && metaOferta && r.melhor.melhor_preco <= metaOferta ? 'ok-t' : ''}">${distMeta(r.melhor?.melhor_preco, metaOferta)}</td></tr>`);
+    if (!r.lojas.length && !Object.keys(r.serie).length) continue;
+    const idc = 'chart-' + id, idl = 'legend-' + id;
+    detalhes.push(`<details class="prod" id="prod-${esc(id)}"><summary>${esc(p.nome)}<span class="sub2">${r.melhor ? 'melhor ' + fmt(r.melhor.melhor_preco) + ' · ' + esc(quem(r.melhor)) : 'sem coleta recente'}</span></summary><div class="corpo">
+      <div class="tbl"><table><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado (total)</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody>${r.tabela}</tbody></table></div>
+      <div class="chart-wrap"><canvas id="${idc}" width="1060" height="260"></canvas><div class="legend" id="${idl}"></div></div></div></details>`);
+    graficos.push([idc, idl, r.serie, meta.pix]);
+  }
+  let html = `<h2>${esc(titulo)}</h2>
+    <div class="tbl"><table><thead><tr><th>Produto</th><th>Meta à vista</th><th>Melhor à vista agora</th><th>Melhor parcelado agora</th><th>Menor já visto</th><th>Distância da meta</th></tr></thead><tbody>${resumo.join('')}</tbody></table></div>
+    <p class="nota">Metas aprovadas em 03/10 (Pix / total parcelado sem juros). Kit e edição especial: meta do console-base mais o valor do extra; gift card: 15% de desconto ou mais em loja oficial.</p>`;
+  if (gtaFinal) html += gtaFinal;
+  html += detalhes.join('');
+  const recentes = posts.filter(p => CATALOGO[modeloDe(p)]?.secao === sec).slice(0, 10);
+  html += `<h3 class="modelo-cab">Últimas postagens · ${esc(titulo)}</h3><ul class="lista">${recentes.length ? recentes.map(linhaPost).join('') : '<li class="empty">Nenhuma postagem registrada.</li>'}</ul>`;
+  return {html, graficos};
+}
+
+// GTA 6 em todas as formas pelo custo final (latest.gta6_custo_final, calculado no monitor com o melhor gift card de loja
+// oficial visto): o mais barato primeiro, com a entrega (precisa chegar até 18/11 para jogar à meia-noite de 19/11)
+function tabelaCustoFinal(fontes) {
+  const vistos = new Map();
+  for (const f of fontes) for (const r of (f.gta6_custo_final || [])) {
+    const k = [r.produto, normLoja(r.loja), r.url].join('|'), atual = vistos.get(k);
+    if (!atual || r.custo_final < atual.custo_final) vistos.set(k, r);
+  }
+  const linhas = [...vistos.values()].filter(r => r.custo_final != null).sort((a, b) => a.custo_final - b.custo_final).slice(0, 12);
+  if (!linhas.length) return '';
+  return `<h3 class="modelo-cab">Todas as formas pelo custo final</h3><div class="tbl"><table><thead><tr><th>Forma</th><th>Loja</th><th>Custo final</th><th>Meta</th><th>Entrega</th><th></th></tr></thead><tbody>${linhas.map(r => `<tr>
+    <td>${esc(r.forma)}</td><td>${esc(r.loja || '?')}${r.tipo === 'post' ? '<span class="sub2">postagem</span>' : ''}</td>
+    <td class="num"><b>${fmt(r.custo_final)}</b>${r.preco && Math.abs(r.preco - r.custo_final) > 0.5 ? `<span class="sub2">preço ${fmt(r.preco)}</span>` : ''}</td>
+    <td class="num ${r.meta && r.custo_final <= r.meta ? 'ok-t' : ''}">${r.meta ? fmt(r.meta) : '—'}</td>
+    <td>${r.entrega ? `<span class="chip ${ENTREGA_CLASSE[r.entrega] || 'mute'}" title="${esc(r.entrega_texto || '')}">${esc(ENTREGA_ROTULO[r.entrega] || r.entrega)}</span>` : '—'}</td>
+    <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">abrir</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
 (async () => {
   const [cloud, pc, csv1, csv2] = await Promise.all([
     getJson('data/latest_cloud.json'), getJson('data/latest_pc.json'),
     getText('data/historico_cloud.csv'), getText('data/historico_pc.csv')]);
   const fontes = [cloud, pc].filter(Boolean);
   if (!fontes.length) { document.getElementById('quando').textContent = 'ainda sem dados'; return; }
+  // catálogo dos produtos (os dois modos; latest antigo não tem): define as seções do PS5 e do GTA 6
+  CATALOGO = Object.assign({}, ...fontes.map(f => (f.produtos && typeof f.produtos === 'object') ? f.produtos : {}));
   const ultimo = fontes.map(f => f.atualizado).sort().pop();
   document.getElementById('quando').textContent = dt(ultimo);
   const alvos = Object.fromEntries(MODELOS.map(m => [m, alvosDe(cloud, m) || alvosDe(pc, m) || {}]));
@@ -376,8 +467,9 @@ function comparacao(res) {
   posts.sort((a, b) => (b.publicado || b.primeira_vez || '').localeCompare(a.publicado || a.primeira_vez || ''));
   const recentes = posts.filter(p => { const d = dias(p.publicado || p.primeira_vez); return d != null && d <= 7; });
   document.getElementById('f-posts').textContent = recentes.length;
-  document.getElementById('f-posts-s').textContent = recentes[0] ? `última: ${POL[modeloDe(recentes[0])]}" ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana';
-  document.getElementById('l-posts').innerHTML = posts.length ? posts.slice(0, 30).map(p => `<li>${chipModelo(modeloDe(p))} ${p.ativo === false ? '<span class="chip mute">expirada</span> ' : ''}<b>${fmt(p.melhor_preco)}</b> · ${esc(p.loja)}${p.cupom ? ` · <code>${esc(p.cupom)}</code>` : ''}<br>${esc(p.titulo.slice(0, 110))}<span class="meta"><br>${esc(p.fonte)} · ${dt(p.publicado || p.primeira_vez)} · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir</a></span></li>`).join('') : '<li class="empty">Nenhuma postagem registrada.</li>';
+  const rotuloCurto = m => ehTV(m) ? `${POL[m]}"` : (CATALOGO[m]?.curto || m);
+  document.getElementById('f-posts-s').textContent = recentes[0] ? `última: ${rotuloCurto(modeloDe(recentes[0]))} ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana';
+  document.getElementById('l-posts').innerHTML = posts.length ? posts.slice(0, 30).map(linhaPost).join('') : '<li class="empty">Nenhuma postagem registrada.</li>';
 
   // ---- saúde das fontes
   const saude = Object.assign({}, cloud?.saude || {}, pc?.saude || {});
@@ -385,7 +477,16 @@ function comparacao(res) {
     const f = s.falhas || 0; const cls = f === 0 ? 'ok' : f < 3 ? 'warn' : 'bad'; const lab = f === 0 ? 'OK' : `${f} falhas`;
     return `<tr><td>${esc(n)}</td><td><span class="chip ${cls}">${lab}</span></td><td class="num">${dt(s.ultimo_ok)}</td><td class="sub2">${esc((s.ultimo_erro || '').slice(0, 120))}</td></tr>`; }).join('');
 
-  // ---- gráficos: um por modelo (a 65" custa ~30% mais: juntas, as duas linhas achatariam o gráfico)
+  // ---- PS5 e GTA 6: uma seção por família, com o resumo, a tabela e o gráfico de cada produto
+  const graficosProdutos = [];
+  for (const [sec, titulo] of [['PS5', 'PS5'], ['GTA6', 'GTA 6']]) {
+    const s = secaoFamilia(sec, titulo, ctx, posts, sec === 'GTA6' ? tabelaCustoFinal(fontes) : '');
+    document.getElementById('secao-' + sec).innerHTML = s.html;
+    graficosProdutos.push(...s.graficos);
+  }
+
+  // ---- gráficos: um por produto (a 65" custa ~30% mais: juntas, as duas linhas achatariam o gráfico)
+  for (const g of graficosProdutos) grafico(...g);
   grafico('chart-65', 'legend-65', r65.serie, alvos['65C6K'].pix);
   desenha(r55.serie, alvos['55C6K'].pix);
 })();
