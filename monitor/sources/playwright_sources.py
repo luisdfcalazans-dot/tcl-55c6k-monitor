@@ -13,7 +13,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable
 
-from .. import config
+from .. import config, produtos
 from ..filtro import eh_modelo, modelo_do_titulo
 from ..models import MODELO_PADRAO, Oferta
 from ..util import fmt_preco, jsonld_produtos, limpa_html, loja_canonica, parse_preco, precos_no_texto
@@ -168,6 +168,16 @@ def _abrir(url: str, esperar: str | None = None, capturar: list[str] | None = No
         s.fechar()
 
 
+def _avaliar(js: str, arg: Any = None, perfil: str = "default") -> Any:
+    """Roda a função JavaScript `js` (com o argumento `arg`) na aba da sessão aberta do `perfil`, depois de um _abrir
+    dentro de `with sessao(perfil)`, e devolve o resultado. Serve para pedir as APIs da própria loja de dentro da página
+    (o navegador manda os cookies e o sensor do Akamai: preço da Netshoes, CEP da Amazon). Nos testes é trocado."""
+    s = _SESSOES.get(perfil)
+    if s is None or s.page is None:
+        raise RuntimeError("nenhuma página aberta nesta sessão do Chrome")
+    return s.page.evaluate(js, arg)
+
+
 _RE_FIM_BLOCO = re.compile(
     r"Descri[çc][ãa]o do produto|Produtos? relacionad|Produtos? patrocinad|Quem (?:viu|comprou)|Recomenda|"
     r"Compre junto|Voc[êe] tamb[ée]m pode gostar|"
@@ -257,11 +267,19 @@ def _esgotado_jsonld(html: str) -> bool:
     return False
 
 
+def _e_do_produto(titulo: str, modelo: str, loja: str = "", id_loja: str | None = None) -> bool:
+    """O título é do `modelo`? TV: o filtro de sempre (eh_modelo). PS5/GTA 6 (03/10): o classificador do catálogo, com o
+    id do anúncio na loja quando se sabe (recusa usado, estrangeiro, acessório)."""
+    if produtos.eh_tv(modelo):
+        return eh_modelo(titulo, modelo)
+    return produtos.classifica(titulo, loja or None, id_loja=id_loja).produto == modelo
+
+
 def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str,
                    modelo: str = MODELO_PADRAO) -> Oferta | None:
     for prod in jsonld_produtos(html):
         nome = prod.get("name") or ""
-        if not eh_modelo(nome, modelo):
+        if not _e_do_produto(nome, modelo, loja, oid):
             continue
         ean = str(prod.get("gtin13") or prod.get("gtin") or prod.get("gtin14") or "").strip().lstrip("0").zfill(13)
         if config.EAN_POR_MODELO.get(ean) not in (None, modelo):
@@ -286,6 +304,23 @@ def _oferta_jsonld(html: str, fonte: str, loja: str, url: str, oid: str,
 _ID_CASASBAHIA = "55069456"
 _RE_CB_CARTAO = re.compile(r"^[^\n]*?R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2})[^\n]*cart[ãa]o de cr[ée]dito", re.I | re.M)
 _RE_CB_PIX = re.compile(r"R\$\s?([\d.]+,\d{2})\s*(?:no|à vista no|via)?\s*pix", re.I)
+
+
+# quando a Casas Bahia bloqueou nesta execução (time.time()): a fonte do PS5 não abre mais páginas logo depois
+_CB_BLOQUEADA_EM: float | None = None
+
+
+def _marca_cb_bloqueada() -> None:
+    import time as _t
+
+    global _CB_BLOQUEADA_EM
+    _CB_BLOQUEADA_EM = _t.time()
+
+
+def _cb_bloqueada_ha_pouco(janela_s: float = 30 * 60) -> bool:
+    import time as _t
+
+    return _CB_BLOQUEADA_EM is not None and _t.time() - _CB_BLOQUEADA_EM < janela_s
 
 
 def _cb_bloqueio(html: str, texto: str) -> bool:
@@ -471,6 +506,7 @@ class CasasBahia(Fonte):
                 if modelo == MODELO_PADRAO:
                     html, texto, _ = _abrir(url, esperar="h1")
                     if self._bloqueou(html, texto):
+                        _marca_cb_bloqueada()
                         raise RuntimeError("Casas Bahia bloqueou (Akamai)")
                 else:
                     try:
@@ -533,7 +569,7 @@ class CasasBahia(Fonte):
             return []  # a página é de outro item
         m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
         titulo = limpa_html(m.group(1)) if m else ""
-        if titulo and not eh_modelo(titulo, modelo):
+        if titulo and not _e_do_produto(titulo, modelo, "Casas Bahia", sku):
             return []
         if not titulo and "application/ld+json" not in html and '"ProductPrice":' not in html:
             # a página não trouxe nada do produto (nem título, nem JSON-LD, nem o estado embutido): é falha de carga,
@@ -547,7 +583,8 @@ class CasasBahia(Fonte):
         vid = eleito["id"] if eleito else (str(sp["sellerId"]) if sp.get("sellerId") else None)
 
         def base(**kw) -> Oferta:
-            o = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo or f"Smart TV TCL {modelo}",
+            padrao = f"Smart TV TCL {modelo}" if produtos.eh_tv(modelo) else produtos.nome(modelo)
+            o = Oferta(fonte="casasbahia", tipo="loja", loja="Casas Bahia", titulo=titulo or padrao,
                        url=url, id=_cb_id(sku, vid, eleito["nome"] if eleito else None),
                        vendedor=eleito["nome"] if eleito else None, modelo=modelo, **kw)
             o.extra.update({"anuncio": sku, "sku": sku, "vendedor_id": vid})
@@ -804,7 +841,7 @@ def _titulo_de_outro_produto(titulo: str | None, modelo: str = MODELO_PADRAO) ->
     Só derruba quando o texto parece mesmo nome de produto (tem cara de título e não passa no filtro do modelo).
     Rótulo curto do buy box ("Melhor preço", "Parcelamento sem juros") ou texto vazio não derruba opção legítima."""
     t = (titulo or "").strip()
-    if not t or eh_modelo(t, modelo):
+    if not t or _e_do_produto(t, modelo, "Mercado Livre"):
         return False
     parece_titulo = len(t.split()) >= 4 or re.search(r"\b(tv|televis|polegada|monitor|smart)\b", t, re.I)
     return bool(parece_titulo)
@@ -979,14 +1016,15 @@ class MercadoLivre(Fonte):
         return out + aceitos, cargas + usadas, False
 
     def _ofertas_do_catalogo(self, html: str, texto: str, capt: list[Any], modelo: str = MODELO_PADRAO) -> list[Oferta]:
-        """Uma Oferta por opção de compra do catálogo do `modelo` (buy box e "Outras opções de compra")."""
-        cat_id = config.ML_CATALOGOS.get(modelo, config.ML_CATALOGO_ID)
+        """Uma Oferta por opção de compra do catálogo do `modelo` (buy box e "Outras opções de compra"). Também os
+        catálogos do PS5 (config.ML_CATALOGOS_PRODUTOS, fonte MercadoLivreProdutos)."""
+        cat_id = {**config.ML_CATALOGOS, **config.ML_CATALOGOS_PRODUTOS}.get(modelo, config.ML_CATALOGO_ID)
         url_cat = config.URLS_ML_CATALOGO.get(modelo) or f"https://www.mercadolivre.com.br/p/{cat_id}"
         o = _oferta_jsonld(html, "mercadolivre", "Mercado Livre", url_cat, cat_id, modelo)
         if o is None:
             m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
             titulo = limpa_html(m.group(1)) if m else ""
-            if eh_modelo(titulo, modelo):
+            if _e_do_produto(titulo, modelo, "Mercado Livre", cat_id):
                 mp = re.search(r'"price":\s*([\d.]+)', html)
                 preco = parse_preco(mp.group(1)) if mp else None
                 if not preco:
@@ -1310,6 +1348,85 @@ class Shopee(Fonte):
                                                preco=preco, vendedor=b.get("shop_name") or None, modelo=modelo)
                 if not out and ("login" in texto.lower()[:2000] or "entrar" in texto.lower()[:2000]):
                     raise RuntimeError("Shopee exigiu login para buscar")
+        return list(out.values()), []
+
+
+class CasasBahiaProdutos(Fonte):
+    """PS5 na Casas Bahia (03/10/2026): a página de cada item do catálogo (monitor/produtos.py, ids da "Casas Bahia"), até
+    config.CASASBAHIA_MAX_CARGAS_PRODUTOS, na mesma janela. A URL precisa de um slug qualquer antes do /p/<sku> (só
+    "/p/<sku>" dá 404). Os PS5 de lá são quase todos de parceiros (Loja Gazin, Game Play Fulfillment): a confiança
+    decide. Bloqueio do Akamai no 1º item derruba a fonte (como na das TVs); nos outros, vai para o log."""
+
+    nome = "casasbahia.produtos"
+    modo = "pc"
+
+    def coletar(self) -> Resultado:
+        if _cb_bloqueada_ha_pouco():
+            raise Pular("a Casas Bahia bloqueou nesta rodada (Akamai): nada de abrir mais páginas")
+        skus = list(produtos.ids_da_loja("Casas Bahia", config._NAO_TV).items())[:config.CASASBAHIA_MAX_CARGAS_PRODUTOS]
+        out: dict[str, Oferta] = {}
+        with sessao("default"):
+            for i, (sku, modelo) in enumerate(skus):
+                url = f"https://www.casasbahia.com.br/console-playstation-5/p/{sku}"
+                try:
+                    html, texto, _ = _abrir(url, esperar="h1", ocioso_ms=6000)
+                except Pular:
+                    raise
+                except Exception as e:  # noqa: BLE001
+                    if i == 0:
+                        raise
+                    print(f"[casasbahia.produtos] item {sku} falhou: {type(e).__name__}: {str(e)[:120]}")
+                    continue
+                if _cb_bloqueio(html, texto):
+                    if i == 0:
+                        _marca_cb_bloqueada()
+                        raise RuntimeError("Casas Bahia bloqueou (Akamai)")
+                    print(f"[casasbahia.produtos] item {sku}: página bloqueada")
+                    continue
+                for o in CasasBahia._do_produto(html, texto, url, sku, modelo):
+                    o.fonte = self.nome
+                    out.setdefault(o.id, o)
+        return list(out.values()), []
+
+
+class MercadoLivreProdutos(Fonte):
+    """Catálogo do PS5 no Mercado Livre (config.ML_CATALOGOS_PRODUTOS), no perfil do ML, depois das TVs: só a página do
+    catálogo (a lista/busca do ML pede verificação). Com o ML "de castigo" (logs/ml_bloqueado_em), espera; bloqueio aqui
+    também põe o castigo de 2 h (o perfil foi marcado). Sem aviso de falha: o PS5 do ML também vem da vitrine da loja
+    oficial (nuvem) e das postagens."""
+
+    nome = "mercadolivre.produtos"
+    modo = "pc"
+    alerta_falha = False
+
+    def coletar(self) -> Resultado:
+        import shutil
+        import time as _t
+
+        if MARCA_BLOQUEIO_ML.exists():
+            restante = ESPERA_ML_SEGUNDOS - (_t.time() - MARCA_BLOQUEIO_ML.stat().st_mtime)
+            if restante > 0:
+                raise Pular(f"bloqueado pelo ML; nova tentativa em {restante/60:.0f} min")
+        out: dict[str, Oferta] = {}
+        bloqueado = False
+        coletor = MercadoLivre()
+        with sessao("ml"):
+            for modelo, cat in config.ML_CATALOGOS_PRODUTOS.items():
+                html, texto, capt = _abrir(f"https://www.mercadolivre.com.br/p/{cat}",
+                                           esperar=".ui-pdp-price, .andes-money-amount", capturar=["/p/api/deferred"],
+                                           perfil="ml", ocioso_ms=8000)
+                if coletor._bloqueado(html, texto) or coletor._pede_login(html, texto):
+                    bloqueado = True
+                    break
+                for o in coletor._ofertas_do_catalogo(html, texto, capt, modelo):
+                    o.fonte = self.nome
+                    out.setdefault(o.id, o)
+        if bloqueado:
+            shutil.rmtree(_dir_perfil("ml"), ignore_errors=True)
+            MARCA_BLOQUEIO_ML.parent.mkdir(exist_ok=True)
+            MARCA_BLOQUEIO_ML.write_text(_t.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
+            if not out:
+                raise RuntimeError("Mercado Livre pediu verificação anti-bot no catálogo do PS5; próxima tentativa em 2 h")
         return list(out.values()), []
 
 

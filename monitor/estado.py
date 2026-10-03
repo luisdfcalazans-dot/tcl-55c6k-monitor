@@ -7,6 +7,10 @@ Dois modelos (26/09/2026): 55C6K e 65C6K. Registro de oferta e linha do históri
 campo é da 55C6K; nada é reescrito à mão). O "menor já visto" é por modelo: 'minimo' (55C6K, a chave de sempre) e
 'minimo_65C6K' no state e no latest (chave_minimo). A primeira rodada em que um modelo aparece num modo é a partida
 ("bootstrap") desse modelo: registra tudo, sem alerta dele.
+
+Desde 03/10/2026 'modelo' é o id de qualquer produto do catálogo (monitor/produtos.py: PS5, GTA 6, gift card, leitor):
+mínimo ('minimo_<id>'), histórico, partida e resumo por produto, do mesmo jeito. Kit e gift card não têm "menor já
+visto" (misturam valores: edição/extra, valor de face).
 """
 
 from __future__ import annotations
@@ -18,13 +22,17 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
-from . import config
+from . import config, produtos
 from .confianca import (
     REPROVADO, e_do_reprovado_auto, fora_de_preco, identidade_em_duvida, motivo_bloqueio, reprovados_auto_do_estado,
     reprovados_para_painel, veredito_de,
 )
 from .models import MODELO_PADRAO, MODELOS, Cupom, Oferta, modelo_de
 from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
+
+# todos os produtos do catálogo (as TVs primeiro); MODELOS continua sendo só as duas TVs
+PRODUTOS = produtos.IDS
+POSTS_NO_LATEST = 120   # postagens recentes no latest (as TVs, o PS5 e o GTA 6 dividem a lista)
 
 # 'modelo' no fim (26/09): o CSV antigo ganha a coluna só no cabeçalho, e as linhas antigas (sem ela) são da 55C6K
 CAMPOS_HISTORICO = [
@@ -36,9 +44,16 @@ JANELA_CUPOM_DIAS = 30
 
 
 def chave_minimo(modelo: str = MODELO_PADRAO) -> str:
-    """Chave do "menor já visto" do modelo no state e no latest: 'minimo' (55C6K, a de sempre) ou 'minimo_65C6K'."""
+    """Chave do "menor já visto" do produto no state e no latest: 'minimo' (55C6K, a de sempre), 'minimo_65C6K',
+    'minimo_PS5_DIGITAL'..."""
     m = modelo_de({"modelo": modelo})
     return "minimo" if m == MODELO_PADRAO else f"minimo_{m}"
+
+
+def _tem_minimo(modelo: str) -> bool:
+    """O produto tem "menor já visto"? Não o kit/edição especial nem o gift card (um mínimo misturaria valores)."""
+    p = produtos.produto(modelo)
+    return p is None or p.compara_preco
 
 
 def _linha_csv_valida(cab: list[str], row: list[str]) -> bool:
@@ -203,21 +218,30 @@ class Estado:
         iniciados = self.dados.get("modelos_iniciados")
         self._modelos_conhecidos = {MODELO_PADRAO} | \
             {modelo_de(r) for r in self.dados["ofertas"].values() if isinstance(r, dict)} | \
-            {m for m in (iniciados if isinstance(iniciados, list) else []) if m in MODELOS}
+            {m for m in (iniciados if isinstance(iniciados, list) else []) if m in PRODUTOS}
         self._historico_purgado = False
         self._purga_reprovados()
 
     def bootstrap_modelo(self, modelo: str) -> bool:
-        """Primeira rodada deste modo com o `modelo` (a partida geral, ou a 65C6K entrando num state que já existia):
-        registra ofertas e postagens sem alertar (senão as postagens antigas da 65" viram uma enxurrada de 📣) e manda
-        a mensagem de início do modelo."""
-        return self.bootstrap or modelo_de({"modelo": modelo}) not in self._modelos_conhecidos
+        """Primeira rodada deste modo com o produto `modelo` (a partida geral, a 65C6K entrando num state que já existia
+        ou, em 03/10, o PS5 e o GTA 6): registra ofertas e postagens sem alertar (senão as postagens antigas viram uma
+        enxurrada de 📣) e manda a mensagem de início. Nas TVs, por modelo (como antes); nos outros, pela SEÇÃO do
+        painel (PS5 com o leitor; GTA 6 com o gift card): depois da partida da seção, o produto que aparece pela primeira
+        vez (um kit, o primeiro gift card) já é novidade e alerta."""
+        m = modelo_de({"modelo": modelo})
+        if self.bootstrap:
+            return True
+        if produtos.eh_tv(m):
+            return m not in self._modelos_conhecidos
+        return not any(p in self._modelos_conhecidos for p in produtos.por_secao(produtos.secao(m)) if p not in MODELOS)
 
     def marca_modelos_iniciados(self, modelos: set[str]) -> None:
-        """Os modelos que tiveram oferta registrada nesta rodada deixam de estar na partida (vale na próxima rodada)."""
+        """Os produtos que tiveram oferta registrada nesta rodada deixam de estar na partida (vale na próxima rodada)."""
         atuais = self.dados.get("modelos_iniciados")
-        atuais = [m for m in atuais if m in MODELOS] if isinstance(atuais, list) else []
-        self.dados["modelos_iniciados"] = sorted(set(atuais) | {m for m in modelos if m in MODELOS})
+        atuais = [m for m in atuais if m in PRODUTOS] if isinstance(atuais, list) else []
+        novos = set(atuais) | {m for m in modelos if m in PRODUTOS}
+        # na ordem do catálogo (as TVs primeiro), como antes
+        self.dados["modelos_iniciados"] = [m for m in PRODUTOS if m in novos]
 
     # ---- confiança: vendedor/anúncio reprovado some do estado, do mínimo e do histórico ----
     def reprovados_auto(self) -> list[dict]:
@@ -251,7 +275,7 @@ class Estado:
             partes = ([f"{len(reprovados)} de vendedor/anúncio reprovado"] if reprovados else []) + \
                 ([f"{len(suspeitos)} de anúncio suspeito na rodada anterior"] if suspeitos else [])
             print(f"[confiança] state_{self.modo}: registro(s) removido(s): {' e '.join(partes)}")
-        for modelo in MODELOS:
+        for modelo in PRODUTOS:
             chave = chave_minimo(modelo)
             m = self.dados.get(chave)
             if _preco_do_minimo(m) and self._bloqueado(m):
@@ -573,6 +597,8 @@ class Estado:
     def minimo_geral(self, diretas: set[str] | None = None, modelo: str = MODELO_PADRAO) -> dict | None:
         """Menor preço já visto do `modelo` considerando os dois modos (cloud e pc), como o painel mostra. `diretas`:
         ver lojas_diretas_conhecidas (None: calcula sem as ofertas da rodada)."""
+        if not _tem_minimo(modelo):
+            return None
         if diretas is None:
             diretas = self.lojas_diretas_conhecidas()
         candidatos = [self._minimo_proprio(diretas, modelo)] + \
@@ -591,6 +617,8 @@ class Estado:
         if not p or not conta_como_preco(o, diretas):
             return False
         modelo = modelo_de(o)
+        if not _tem_minimo(modelo):
+            return False
         chave = chave_minimo(modelo)
         m = self.dados.get(chave)
         if diretas is not None and _preco_do_minimo(m) and not _minimo_conta(m, diretas, self._bloqueado):
@@ -642,7 +670,9 @@ class Estado:
             return self._bloqueado(r) or not any(e_do_reprovado_auto(e, r) for e in liberados)
 
         diretas = self.lojas_diretas_conhecidas()
-        for modelo in MODELOS:
+        for modelo in PRODUTOS:
+            if not _tem_minimo(modelo):
+                continue
             chave = chave_minimo(modelo)
             m = self._minimo_do_historico(diretas, fora, modelo)
             atual = _preco_do_minimo(self.dados.get(chave))
@@ -715,21 +745,30 @@ class Estado:
     def escreve_latest(self, ofertas: list[Oferta], cupons: list[Cupom]) -> None:
         lojas = [o.to_dict() for o in ofertas if o.tipo == "loja"]
         lojas.sort(key=lambda d: (d["melhor_preco"] is None, d["melhor_preco"] or 0))
-        # posts: os desta execução + os recentes já conhecidos (as duas TVs dividem a lista)
+        # posts: os desta execução + os recentes já conhecidos (TVs, PS5 e GTA 6 dividem a lista)
         posts_conhecidos = [r for r in self.dados["ofertas"].values() if r.get("tipo") == "post"]
         posts_conhecidos.sort(key=lambda r: r.get("publicado") or r.get("primeira_vez") or "", reverse=True)
         cupons_ativos = [c.to_dict() for c in cupons]
         posts_conhecidos = [r for r in posts_conhecidos if not self._bloqueado(r)]
+        # GTA 6 em todas as formas pelo custo final (preços de loja desta rodada + postagens ativas dos últimos 7 dias,
+        # que trazem também o gift card com desconto)
+        recentes = [r for r in posts_conhecidos if r.get("ativo", True)
+                    and (dias_desde(r.get("publicado") or r.get("primeira_vez")) or 0) <= 7]
+        gta = produtos.custo_final_gta([d for d in lojas if not fora_de_preco(d)] + recentes)
         latest = {
             "modo": self.modo,
             "atualizado": agora_iso(),
-            # alvo_pix/alvo_parcelado/minimo: os da 55C6K (nomes de sempre); os de cada modelo em alvos/minimo_<modelo>
+            # alvo_pix/alvo_parcelado/minimo: os da 55C6K (nomes de sempre); os de cada produto em alvos/minimo_<id>
             "alvo_pix": config.ALVO_PIX,
             "alvo_parcelado": config.ALVO_PARCELADO,
             "alvos": config.alvos(),
-            **{chave_minimo(m): self.dados.get(chave_minimo(m)) for m in MODELOS},
+            # o catálogo resumido (nome, família, seção, metas) para o painel montar uma seção por família
+            "produtos": produtos.para_painel(),
+            **{chave_minimo(m): self.dados.get(chave_minimo(m)) for m in PRODUTOS
+               if m in MODELOS or self.dados.get(chave_minimo(m))},
             "ofertas_loja": lojas,
-            "posts": posts_conhecidos[:80],
+            "posts": posts_conhecidos[:POSTS_NO_LATEST],
+            "gta6_custo_final": gta,
             "cupons": cupons_ativos,
             "saude": self.dados["saude"],
             # o painel esconde linhas antigas (latest/histórico) de vendedor/anúncio reprovado com esta lista

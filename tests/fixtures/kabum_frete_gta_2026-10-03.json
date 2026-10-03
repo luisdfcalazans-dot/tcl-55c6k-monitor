@@ -1,0 +1,40 @@
+{
+ "quotes": [
+  {
+   "seller_id": "kabum",
+   "seller_name": "KaBuM!",
+   "deliveries": [
+    {
+     "code": 35,
+     "name": "Entrega Econômica",
+     "price": 12.87,
+     "original_price": 8.48,
+     "parameterized_price": 11.7,
+     "max_days": 29,
+     "type": "T",
+     "arrival_date": "17/11/2026",
+     "expected_arrival_date": "até 17/11/2026",
+     "arrives_tomorrow": false,
+     "is_flash": false,
+     "is_fallback": false
+    },
+    {
+     "delivery_date": "25/01/2027",
+     "expected_arrival_date": "até 25/01/2027",
+     "days": 74,
+     "code": 35,
+     "name": "Entrega Agendada",
+     "type": "AGENDADO",
+     "max_days": 74,
+     "price": 12.87,
+     "original_price": 8.48,
+     "parameterized_price": 11.7,
+     "is_flash": false,
+     "is_fallback": false,
+     "arrives_tomorrow": false
+    }
+   ],
+   "observation": "Produto em Pré-Venda, o prazo de entrega começa a contar a partir de: 12/11/26"
+  }
+ ]
+}

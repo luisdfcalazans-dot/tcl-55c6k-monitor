@@ -197,6 +197,7 @@ def precos_no_texto(texto: str) -> list[float]:
 # o menor "fraco" >= piso.
 
 PISO_PRECO_TV = 1500.0  # abaixo disso nenhum valor é o preço da 55C6K nem da 65C6K (peça, acessório, parcela, desconto)
+# (os outros produtos têm o próprio piso no catálogo: monitor/produtos.py, piso(); PS5 R$ 2.500, GTA 6 R$ 200...)
 _RE_VALOR_POST = re.compile(r"R\$\s*" + _NUM_BRL)  # aceita "R$  3.599" (espaço duplo, comum nos canais)
 _SETA = r"(?:-+>|=+>|>>|➡️|➡|→|⏩|⇒|➔|➜|⟶)"
 _RE_SETA_ANTES = re.compile(r"(?:" + _SETA + r"|(?<![<>!=])=)\s*$")  # "= R$ 2.899" também é o resultado
@@ -261,7 +262,8 @@ _RE_CONTEXTO_CUPOM = re.compile(r"cupo(?:m|ns)\s*:?\s*[a-z]*\d|\boff\b|descont|v
 _RE_CUPOM_FORTE = re.compile(r"cupo(?:m|ns)\s*:?\s*[a-z]*\d|cupo(?:m|ns)\s+de\s+(?:r\$\s*)?\d|"
                              r"r\$\s*\d[\d.,]*\s*\)?\s*(?:off\b|de\s+desconto)")
 _RE_SEP_FRASE = re.compile(r"[|•·;/(]|\s[-—–]\s")
-_RE_MODELO_NA_FRASE = re.compile(r"c6k(?![a-z0-9])")
+# o produto citado na frase (a TV, e desde 03/10 o PS5 e o GTA 6): "PS5 Slim a partir de R$ 3.599" é o preço dele
+_RE_MODELO_NA_FRASE = re.compile(r"c6k(?![a-z0-9])|\bps5\b|\bplaystation\s?5\b|\bgta\s?(?:6|vi)\b|grand theft auto")
 # linha de cupom pelo emoji de ingresso ("🎟️ 10% OFF, a partir de R$ 2.500"): com OFF/%/desconto antes, o "a partir
 # de" é o mínimo do cupom, mesmo sem a palavra "cupom"
 _RE_LINHA_INGRESSO = re.compile("^[^\\w\\n]*[\U0001F39F\U0001F3AB]")
@@ -276,8 +278,9 @@ _RE_FAIXA_ANTES = re.compile(r"r\$\s*(\d[\d.,]*)(\s*(?:a|ate|-|–)\s*)$")
 _RE_DESCONTO_DO_CUPOM = re.compile(r"\bcupo(?:m|ns)\s+de\s+r\$\s*\d[\d.,]*(?:\s*(?:off\b|de\s+desconto))?|"
                                    r"r\$\s*\d[\d.,]*\s*\)?\s*(?:off\b|de\s+desconto)|"
                                    r"\b(?:ganhe|economize)\s+(?:ate\s+)?r\$\s*\d[\d.,]*")
-# o texto entre o desconto e o valor fala da própria TV (não da compra): o valor é o preço dela
-_RE_A_PROPRIA_TV = re.compile(r"\b(?:tvs?|smart|tcl|c6k|55c6k|65c6k|televis\w*)\b")
+# o texto entre o desconto e o valor fala do próprio produto (não da compra): o valor é o preço dele ("R$ 300 OFF
+# nesta TV de R$ 3.599", "R$ 300 OFF no PS5 de R$ 3.899")
+_RE_A_PROPRIA_TV = re.compile(r"\b(?:tvs?|smart|tcl|c6k|55c6k|65c6k|televis\w*|ps5|playstation|consoles?|gta)\b")
 # ... ou fala da compra (mínimo do cupom mesmo com ':' antes do valor)
 _RE_TERMO_DE_COMPRA = re.compile(r"\bcompra|\bpedido|\bgast|\bacima|\bminim|\bmin\b|\bvalid|\bsuperior|\bpartir")
 _RE_SEP_CLAUSULA = re.compile(r"[|•·;()\[\]/,]|\s[-—–]\s|[.!?](?=\s|$)")
