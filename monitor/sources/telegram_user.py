@@ -6,10 +6,9 @@ e TELEGRAM_CHATS_USUARIO="@canal1,https://t.me/+convite,-1001234567890" no .env 
 
 from __future__ import annotations
 
-from .. import config
-from ..filtro import eh_modelo
-from ..models import MODELO_PADRAO, MODELOS, Oferta
-from ..util import cupom_no_texto, loja_canonica, parcelado_no_texto, precos_no_texto
+from .. import config, produtos
+from ..models import MODELO_PADRAO, Oferta
+from ..util import cupom_no_texto, loja_canonica, parcelado_no_texto, preco_postagem
 from . import Fonte, Resultado
 from .telegram_public import loja_no_texto
 
@@ -37,20 +36,22 @@ class TelegramUsuario(Fonte):
                         texto = m.message or ""
                         if not texto:
                             continue
-                        for modelo in MODELOS:  # a 55C6K e a 65C6K (a mesma mensagem pode citar as duas)
-                            if not eh_modelo(texto, modelo):
-                                continue
-                            precos = [p for p in precos_no_texto(texto) if p >= 1000]
-                            titulo = next((l for l in texto.splitlines() if "c6k" in l.lower()), texto.splitlines()[0])
+                        loja = loja_canonica(loja_no_texto(texto, []))
+                        # um bloco por produto do catálogo (as TVs, o PS5, o GTA 6...), como nos canais públicos
+                        for produto, (titulo, trecho, preambulo, detalhes) in produtos.extrai_produtos(texto, loja).items():
                             link = f"https://t.me/{nome}/{m.id}" if getattr(ent, "username", None) else f"tg://privatepost?channel={abs(ent.id)}&post={m.id}"
                             mid = f"{ent.id}/{m.id}"
+                            extra = {"canal": nome, "texto": texto[:600]}
+                            if detalhes:
+                                extra["produto"] = detalhes
                             out.append(Oferta(
-                                fonte="telegram", tipo="post", loja=loja_canonica(loja_no_texto(texto, [])),
+                                fonte="telegram", tipo="post", loja=loja,
                                 titulo=f"[{nome}] {titulo[:140]}", url=link,
-                                id=mid if modelo == MODELO_PADRAO else f"{mid}#{modelo}",
-                                preco=min(precos) if precos else None, parcelado=parcelado_no_texto(texto),
-                                cupom=cupom_no_texto(texto), publicado=m.date.isoformat(timespec="seconds") if m.date else None,
-                                extra={"canal": nome, "texto": texto[:600]}, modelo=modelo,
+                                id=mid if produto == MODELO_PADRAO else f"{mid}#{produto}",
+                                preco=preco_postagem(trecho, produtos.piso(produto)), parcelado=parcelado_no_texto(trecho),
+                                cupom=cupom_no_texto(trecho) or cupom_no_texto(preambulo),
+                                publicado=m.date.isoformat(timespec="seconds") if m.date else None,
+                                extra=extra, modelo=produto,
                             ))
                 except Exception as e:
                     print(f"[telegram.usuario] {chat}: {e}")
