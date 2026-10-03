@@ -756,9 +756,13 @@ def _leitor_ou_console(t: str, temas: set[str]) -> None:
     if _RE_LEITOR_RECURSO.search(t[:m.start()]) or produtos.papel_do_leitor(t) == "console":
         temas.discard("leitor")
         return
-    cw = _RE_CONSOLE_PALAVRA_CUPOM.search(t)
-    if cw and cw.start() < m.start():
-        return
+    for cw in _RE_CONSOLE_PALAVRA_CUPOM.finditer(t):
+        # "consoles e leitores", "Leitor de Disco e Console PS5": o console também é alvo -> o cupom serve para os dois.
+        # "Leitor de Disco para Console PS5": ali o console é só a plataforma do leitor (conferência de 03/10)
+        antes = t[max(0, cw.start() - 25):cw.start()]
+        if cw.start() < m.start() or not re.search(r"(?:para|pra|p/|compativel com|do|da|de)\s+(?:o\s+|a\s+|os\s+)?$",
+                                                   antes):
+            return
     temas.discard("console")
 
 

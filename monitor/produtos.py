@@ -547,6 +547,11 @@ _RE_GIFT_OUTRA_LOJA = re.compile(r"\bxbox\b|\bnintendo\b|\bsteam\b|\bgoogle play
                                  r"\bblizzard\b|\brazer\b|\bamazon\b|\bep?ic games\b")
 # console: evidência forte (palavra console, armazenamento, Slim, Pro) e marcas de versão
 _RE_CONSOLE_PALAVRA = re.compile(r"\bconsoles?\b|\bvideo\s?games?\b")
+# o PS5 do título é o produto (pacote), não a plataforma de uma peça: capacidade do console, ou "+ GTA"/"com GTA" logo
+# depois do PS5 ("PS5 Slim 1TB + GTA 6 + Controle", "PlayStation 5 Digital + GTA VI") — conferência de 03/10
+_RE_IDENTIDADE_CONSOLE = re.compile(
+    r"\b(?:825\s?gb|1\s?tb|2\s?tb)\b|" + _PS5 + r"(?:\s+(?:slim|digital|pro))*(?:\s+edicao\s+digital)?\s*(?:\+|com|e)\s*"
+    r"(?:o\s+)?(?:jogo\s+)?(?:gta|grand theft)")
 _RE_CONSOLE_FORTE = re.compile(
     r"\bconsoles?\b|\bvideo\s?games?\b|\b825\s?gb\b|\b1\s?tb\b|\b2\s?tb\b|\bslim\b|" + _PS5 + r"\s+pro\b|"
     r"\bcfi[\s-]?\d{4}|\b1000046552\b")
@@ -753,7 +758,7 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         return _r("acessório: " + m.group(1))
     # o brinde do jogo ("GTA VI PS5 Pré-venda Mídia Física Brinde Mapa") não é o produto temático
     sem_brinde = _RE_BRINDE_DO_JOGO.sub(" ", t)
-    if gta and not _RE_CONSOLE_PALAVRA.search(t):
+    if gta and not _RE_CONSOLE_PALAVRA.search(t) and not _RE_IDENTIDADE_CONSOLE.search(t):
         # a peça ou o produto temático em qualquer ponto de um título do GTA sem a palavra console ("GTA VI Mousepad
         # Gamer 90x40", "GTA VI Caneca PS5 Slim": o "PS5 Slim" ali é a plataforma da peça, não um pacote com o console)
         mp = _RE_PECA_COM_GTA.search(sem_brinde)
@@ -773,13 +778,23 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         if not re.search(r"\bplaystation\b|\bpsn\b|\bps store\b|\bsony\b|\bps5\b", t):
             return _r("sem produto")
         return _ok("GIFT_CARD_PSN", valor_face=valor_face(t))
-    console_forte = bool(_RE_CONSOLE_FORTE.search(t))
+    # "PS5 Digital + GTA VI" (sem a palavra console) é o pacote, não o jogo digital: a identidade do console conta aqui
+    console_forte = bool(_RE_CONSOLE_FORTE.search(t)) or bool(gta and _RE_IDENTIDADE_CONSOLE.search(t))
     if _RE_GTA_OUTRO.search(t) and not gta and not console_forte:
         # outro GTA (V, Trilogy, San Andreas...) antes do "para PS5" ("Jogo Grand Theft Auto 5 Para PS5" é outro jogo,
         # não acessório)
         return _r("outro jogo: " + _RE_GTA_OUTRO.search(t).group(0))
-    if _RE_PARA_PS5.search(t) and not _RE_CONSOLE_PALAVRA.search(t[:_RE_PARA_PS5.search(t).start()]):
-        return _r("acessório: " + _RE_PARA_PS5.search(t).group(0))
+    m_para = _RE_PARA_PS5.search(t)
+    if m_para and not _RE_CONSOLE_PALAVRA.search(t[:m_para.start()]):
+        # "Jogo GTA VI para PS5", "Grand Theft Auto VI para PlayStation 5": o GTA antes do "para PS5" é o próprio jogo e
+        # o PS5 é a plataforma (peças com o GTA no nome já saíram acima: mousepad, capa, controle...). 03/10: esses
+        # títulos comuns de loja eram descartados como acessório.
+        m_gta = _RE_GTA6.search(t)
+        if not (m_gta and m_gta.start() < m_para.start()):
+            return _r("acessório: " + m_para.group(0))
+        if _RE_GTA_DE_BRINDE.search(t) or _RE_OUTRO_PRODUTO_COM_GTA.search(t):
+            return _r("o GTA 6 é brinde/parte de outro produto")
+        return _classifica_gta(t, loja)   # "GTA 6 para PS5 e PS5 Pro": o "PS5 Pro" é plataforma, não um pacote
     outro = _RE_OUTRO_APARELHO.search(t)
     if outro and not (_RE_PS5.search(t) and (console_forte or gta)):
         return _r("outro aparelho: " + outro.group(0))
