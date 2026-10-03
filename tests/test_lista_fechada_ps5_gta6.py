@@ -277,3 +277,135 @@ def test_cupom_do_leitor_continua_so_do_leitor(loja, codigo, titulo):
 @pytest.mark.parametrize("titulo", ["10% OFF em consoles e leitores de disco", "R$ 150 OFF em Consoles e Leitores"])
 def test_cupom_de_consoles_e_leitores_serve_para_os_dois(titulo):
     assert _servem(_cupom("KaBuM!", "X", titulo)) == set(CONSOLES) | {"LEITOR_PS5"}
+
+
+# ------------------------------------------------------------------------------------------------
+# P4. acessórios e produtos temáticos do GTA e outros jogos: recusados pelo classificador
+# ------------------------------------------------------------------------------------------------
+
+# (título, loja): os da busca do Magalu de 03/10 (ANOTACOES), os do pedido e variações com a peça depois do nome
+ACESSORIOS_E_TEMATICOS_GTA = [
+    ("Mousepad Gamer Grande - GTA VI PAISAGEM 2 - 90x40", "Magazine Luiza"),          # Head Glitch Store
+    ("Mousepad Gamer Grande - GTA VI PAISAGEM 2 - 90x40 - PS5", "Magazine Luiza"),
+    ("Suporte para Controle Gamer GTA VI Edição Exclusiva", "Magazine Luiza"),         # mi7computadores
+    ("Suporte para Controle Gamer GTA VI Edição Exclusiva PS5", "Magazine Luiza"),
+    ("Pôster GTA VI Vice City 60x90", ""),
+    ("Poster GTA 6 Lucia e Jason", ""),
+    ("Camiseta GTA VI Vice City Unissex", ""),
+    ("Camiseta Grand Theft Auto VI", ""),
+    ("Caneca GTA 6 Porcelana 325ml", ""),
+    ("Caneca Personalizada GTA VI PS5", ""),
+    ("Chaveiro GTA VI Logo Metal", ""),
+    ("Quadro Decorativo GTA VI 30x40", ""),
+    ("Funko Pop GTA VI Lucia", ""),
+    # a peça depois do nome do jogo (antes viravam o Code in Box ou o pacote com o PS5)
+    ("GTA VI Mousepad Gamer Grande 90x40", ""),
+    ("Grand Theft Auto VI Suporte de Controle", ""),
+    ("Grand Theft Auto VI - Suporte para Controle Gamer", ""),
+    ("GTA 6 Skin PS5 Slim", ""),
+    ("GTA VI Headset Gamer", ""),
+    ("GTA VI Teclado Mecânico", ""),
+    ("GTA VI Caneca PS5 Slim", ""),
+    ("GTA VI - Camiseta Vice City", ""),
+    # temáticos que faltavam na lista
+    ("Lençol GTA VI Vice City", ""),
+    ("Moletom GTA VI", ""),
+    ("Pelúcia GTA VI", ""),
+    ("Relógio GTA VI", ""),
+    ("Camisa GTA VI Lucia", ""),
+    ("Estátua GTA VI Jason", ""),
+    ("Quebra-Cabeça GTA VI 1000 peças", ""),
+    # títulos reais da busca do Magalu por "gta vi" (03/10/2026): só o Code in Box do Magalu é o jogo
+    ("Mouse pad Gamer Grande - GTA VI PAISAGEM 1 - 90x40 80x40 60x40 70x30", "Magazine Luiza"),     # Head Glitch Store
+    ("Mouse pad Gamer Grande - GTA VI PAISAGEM COM MULHER 1 - 90x40 80x40 60x40 70x30", "Magazine Luiza"),
+    ("Suporte para Controle Gamer GTA VI  Edição Exclusiva", "Magazine Luiza"),                     # mi7computadores
+    ("Placa Decorativa GTA VI  Edição Exclusiva Fan Art", "Magazine Luiza"),
+    ("Cofrinho GTA VI  Economize com estilo de jogador", "Magazine Luiza"),
+    ("Capa Case Antipoeira Ps5 Protetora Console PS5 Fat GTA VI", "Magazine Luiza"),
+    ("Capa Case Antipoeira Ps5 Prot PS5 FAT DIGITAL/DISCO GTA VI", "Magazine Luiza"),
+    ("Kit GTA VI Caneca de Cerâmica + Garrafa Squeeze Exclusivo", "Magazine Luiza"),
+    ("Caneca de Porcelana Lançamento Jogo GTA VI Vice City 325mL", "Magazine Luiza"),
+    ("Caneca Jogo GTA VI 6 Gamer Presente Geek Videogame Decoração -", "Magazine Luiza"),
+    ("Pôster Decorativo GTA VI Jason e Lucia - Arte A - 50cm x 70cm", "Magazine Luiza"),
+    ("Pôsterzine PLAY Games - Grand Theft Auto VI - Cover - 50cm x 70cm", "Magazine Luiza"),
+    ("Pôster Gigante - Grand Theft Auto VI", "Magazine Luiza"),
+    ("Quadro Decorativo Grand Theft Auto VI geek.frame - 7898960704198", "Magazine Luiza"),
+    ("Decoração Logo GTA VI para decorar quarto", "Magazine Luiza"),
+    ("Camiseta Unissex Grand Theft Auto GTA VI - Premium Tamanho:PPCor:Preto", "Magazine Luiza"),
+    ("Camiseta Manga Longa Grand Theft Auto GTA VI - Premium Tamanho:12Cor:Preto", "Magazine Luiza"),
+]
+
+OUTROS_JOGOS_GTA = [
+    "Grand Theft Auto V PS5",
+    "Grand Theft Auto V - PlayStation 5",
+    "Jogo Grand Theft Auto V - PS5 Mídia Física",
+    "GTA V Premium Edition PS5",
+    "GTA V Premium",
+    "Grand Theft Auto V Edição Premium Online",
+    "Jogo GTA 5 Edição Premium PS5 Mídia Física",
+    "Jogo Grand Theft Auto 5 Para PS5",
+    "GTA Trilogy PS5",
+    "GTA Trilogy Definitive Edition - PlayStation 5",
+    "Grand Theft Auto: The Trilogy - The Definitive Edition PS5",
+    "Grand Theft Auto: A Trilogia – Edição Definitiva",
+    "GTA San Andreas PS5",
+    "GTA Vice City",
+    # reais da busca do Magalu por "gta vi" (03/10/2026, vendedor nocnocestadosunidos)
+    "Jogo de Vídeo Game Take 2 Interactive Grand Theft Auto 5 para PS5",
+    "Jogo de Vídeo Rockstar Games GTA Trilogy Definitiva PS4",
+    "Jogo de Vídeo Game Aeuln Grand Theft Auto V Edição Premium",
+    "Videojogo Rockstar Games GTA V Premium Online Edition",
+    "Videojogo Rockstar Games Grand Theft Auto V Premium",
+]
+
+
+@pytest.mark.parametrize("titulo,loja", ACESSORIOS_E_TEMATICOS_GTA)
+def test_acessorio_ou_tematico_do_gta_e_recusado_pelo_classificador(titulo, loja):
+    c = produtos.classifica(titulo, loja or None)
+    assert c.produto is None, c
+    assert c.motivo.startswith(("acessório", "produto temático")), c
+
+
+@pytest.mark.parametrize("titulo", OUTROS_JOGOS_GTA)
+def test_outro_jogo_do_gta_e_recusado_pelo_classificador(titulo):
+    c = produtos.classifica(titulo, "Magazine Luiza")
+    assert c.produto is None and c.motivo.startswith("outro jogo"), c
+
+
+@pytest.mark.parametrize("titulo,esperado", [
+    # o jogo continua sendo o jogo (títulos reais dos caches/latest de 03/10 e os brindes do próprio jogo)
+    ("Jogo Grand Theft Auto VI (GTA 6) PS5 - Code in Box Pré-venda - Lançamento 19/11", "GTA6_CODE_IN_BOX"),
+    ("Jogo Grand Theft Auto VI GTA 6 PS5 Code In Box Pré-venda Lançamento Preto", "GTA6_CODE_IN_BOX"),
+    ("[pelandobr] [Pré venda] Jogo Grand Theft Auto VI GTA 6 - PS5 - Mídia Física", "GTA6_CODE_IN_BOX"),
+    ("Grand Theft Auto VI - PlayStation 5", "GTA6_CODE_IN_BOX"),
+    ("GTA VI PS5 Pré-venda Mídia Física Brinde Mapa", "GTA6_CODE_IN_BOX"),
+    ("Jogo GTA VI PS5 Code in Box + Brinde Mapa de Vice City", "GTA6_CODE_IN_BOX"),
+    ("GTA 6 PS5 com brinde camiseta", "GTA6_CODE_IN_BOX"),
+    ("GTA VI Edição Standard PS5 Digital", "GTA6_DIGITAL"),
+    ("[Pré-venda] Grand Theft Auto VI: Ultimate Edition", "GTA6_ULTIMATE"),
+    ("Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7", "PS5_DIGITAL_GTA6"),
+    ("[pelandobr] GTA VI + PS5 Slim Disk + Astro Bot + GT7", "PS5_DISCO_GTA6"),
+])
+def test_o_jogo_e_os_pacotes_continuam(titulo, esperado):
+    assert produtos.classifica(titulo).produto == esperado
+
+
+@pytest.mark.parametrize("msg", [
+    "🔥 GTA VI\nMousepad Gamer Grande 90x40\n💰 R$ 249",
+    "Mousepad Gamer Grande - GTA VI PAISAGEM 2 - 90x40\n💰 R$ 249,90\nMagalu",
+    "GTA VI Mousepad Gamer Grande 90x40 R$ 249",
+    "Grand Theft Auto VI - Suporte para Controle Gamer\nR$ 259",
+])
+def test_mensagem_do_canal_com_acessorio_do_gta_nao_vira_o_jogo(msg):
+    assert not any(p.startswith("GTA6") for p in produtos.extrai_produtos(msg))
+
+
+def test_mensagem_do_jogo_com_descricao_continua_o_jogo():
+    r = produtos.extrai_produtos("GTA VI PS5 Code in Box\n💰 R$ 339\n✅ Suporte a legendas em português")
+    assert "GTA6_CODE_IN_BOX" in r
+
+
+def test_mensagem_com_o_gta_6_e_outro_gta_separa_os_blocos():
+    # a linha de outro GTA abre o bloco de outro produto: o preço dele não entra no do GTA 6
+    r = produtos.extrai_produtos("GTA VI PS5 Code in Box\n💰 R$ 339\nGrand Theft Auto V para PS5\n💰 R$ 59")
+    assert "R$ 59" not in r["GTA6_CODE_IN_BOX"].trecho and "R$ 339" in r["GTA6_CODE_IN_BOX"].trecho

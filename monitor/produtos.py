@@ -435,14 +435,36 @@ _ACESSORIOS = (
     r"bones?|quadros?|capinhas?|copos?|garrafas?|almofadas?|luminarias?|placas?|"
     # vistos na busca do Magalu/nocnoc em 03/10: decoração, cofrinho, pôster, capa em espanhol
     r"decoracao|decoracoes|cofrinhos?|posterzines?|cubiertas?|carcacas?|reemplazos?|artefatos?|resfriamento|"
-    r"refrigeracao|ventilacao")
+    r"refrigeracao|ventilacao|"
+    # produtos temáticos do GTA que faltavam (lista fechada de 03/10)
+    r"camisas?|moletom|pelucias?|relogios?|lencol|lencois|toalhas?|travesseiros?|cobertor(?:es)?|mantas?|"
+    r"jaquetas?|pijamas?|bermudas?|estatu(?:a|eta)s?|miniaturas?|replicas?|quebra[\s-]?cabecas?|cartaz(?:es)?|"
+    r"pulseiras?")
 _PREFIXO_TITULO = r"^[^a-z0-9]*(?:\[[^\]]*\]\s*)?(?:(?:novo|nova|original|oficial|sony|playstation|ps5|\d+\s*(?:x|un\w*)?|kit)\s+)*"
 _RE_INICIO_ACESSORIO = re.compile(_PREFIXO_TITULO + rf"({_ACESSORIOS})(?![a-z0-9])")
 _RE_PARA_PS5 = re.compile(r"\b(?:para|pra|p/|compativel com|compativeis com)\s+(?:o\s+|a\s+|os\s+)?"
                           r"(?:consoles?\s+)?(?:ps5|playstation)")
 _RE_TEMATICO = re.compile(r"\b(?:camisetas?|canecas?|posters?|livros?|guias?|mapas?|funkos?|action figures?|bonecos?|"
                           r"chaveiros?|moletons?|bones?|quadros?|almofadas?|luminarias?|copos?|trilha sonora|"
-                          r"steelbook|artbook|decoracao|decoracoes|decorativ[oa]s?|cofrinhos?|posterzines?|adesivos?)\b")
+                          r"steelbook|artbook|decoracao|decoracoes|decorativ[oa]s?|cofrinhos?|posterzines?|adesivos?|"
+                          # os que faltavam (lista fechada de 03/10): roupa, cama e mesa, colecionáveis
+                          r"camisas?|moletom|pelucias?|relogios?|lencol|lencois|toalhas?|travesseiros?|"
+                          r"cobertor(?:es)?|mantas?|jaquetas?|pijamas?|bermudas?|estatu(?:a|eta)s?|miniaturas?|"
+                          r"replicas?|quebra[\s-]?cabecas?|cartaz(?:es)?|pulseiras?)\b")
+# peça/acessório citado DEPOIS do nome do GTA 6 ("GTA VI Mousepad Gamer 90x40", "Grand Theft Auto VI Suporte de
+# Controle", "GTA 6 Skin PS5 Slim"): é o produto (lista fechada de 03/10; a busca do Magalu por "gta vi" traz mousepad e
+# suporte de controle). Só as peças que nunca descrevem o jogo: "suporte a legendas", "skins exclusivas" (bônus do jogo),
+# "capa exclusiva" e o controle (kit, visto à parte) não entram
+_RE_PECA_COM_GTA = re.compile(
+    r"\bmouse\s?pads?\b|\bmouses?\b|\bteclados?\b|\bheadsets?\b|\bfones?\s+(?:de\s+ouvido|gamer|bluetooth|sem fio)\b|"
+    r"\bskins?\s+(?:adesiv\w*\s+)?(?:(?:para|pra|p/)\s+(?:o\s+)?)?(?:ps5|playstation|consoles?|controles?|dualsense)\b|"
+    r"\bpeliculas?\b|\bcoolers?\b|\bventoinhas?\b|"
+    r"\bsuportes?\s+(?:gamer\b|(?:para|pra|p/|de|do|da)\s+(?:o\s+|a\s+)?(?:controles?|headsets?|fones?|consoles?|ps5|"
+    r"playstation|parede|tv|mesa|jogos?|games?)\b)|"
+    r"\bcapas?\s+(?:protetora|(?:para|pra|p/|de|do|da)\s+(?:o\s+|a\s+)?(?:controles?|consoles?|ps5|playstation|"
+    r"headsets?|fones?))\b|\bcapinhas?\b|"
+    r"\bcabos?\b|\bcarregador(?:es)?\b|\bcadeiras?\b|\bmesas?\s+gamer\b|\btapetes?\b|\bmochilas?\b|\bbolsas?\b|"
+    r"\bbase\s+(?:carregadora|de carregamento|vertical)\b|\bestac(?:ao|oes)\s+de\s+carregamento\b")
 # jogo: o título começa por "jogo"/"game" ou é "<nome> - PlayStation 5" sem nada de console
 _RE_INICIO_JOGO = re.compile(_PREFIXO_TITULO + r"(?:jogos?|games?|midia fisica|pre[\s-]?venda)\b")
 # leitor de disco avulso no começo do título
@@ -729,8 +751,15 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         return _r("acessório: " + m.group(1))
     # o brinde do jogo ("GTA VI PS5 Pré-venda Mídia Física Brinde Mapa") não é o produto temático
     sem_brinde = _RE_BRINDE_DO_JOGO.sub(" ", t)
-    if _RE_TEMATICO.search(sem_brinde) and gta and not _RE_CONSOLE_FORTE.search(t):
-        return _r("produto temático: " + _RE_TEMATICO.search(sem_brinde).group(0))
+    if gta and not _RE_CONSOLE_PALAVRA.search(t):
+        # a peça ou o produto temático em qualquer ponto de um título do GTA sem a palavra console ("GTA VI Mousepad
+        # Gamer 90x40", "GTA VI Caneca PS5 Slim": o "PS5 Slim" ali é a plataforma da peça, não um pacote com o console)
+        mp = _RE_PECA_COM_GTA.search(sem_brinde)
+        if mp:
+            return _r("acessório: " + mp.group(0))
+        mt = _RE_TEMATICO.search(sem_brinde)
+        if mt:
+            return _r("produto temático: " + mt.group(0))
     # gift card (sem console no título: "Console PS5 + gift card de R$ 500" e "Kit PS5 Digital com R$ 500 em créditos
     # PS Store" são kit)
     console_no_titulo = bool(_RE_CONSOLE_FORTE.search(t)) or bool(
@@ -742,10 +771,14 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         if not re.search(r"\bplaystation\b|\bpsn\b|\bps store\b|\bsony\b|\bps5\b", t):
             return _r("sem produto")
         return _ok("GIFT_CARD_PSN", valor_face=valor_face(t))
+    console_forte = bool(_RE_CONSOLE_FORTE.search(t))
+    if _RE_GTA_OUTRO.search(t) and not gta and not console_forte:
+        # outro GTA (V, Trilogy, San Andreas...) antes do "para PS5" ("Jogo Grand Theft Auto 5 Para PS5" é outro jogo,
+        # não acessório)
+        return _r("outro jogo: " + _RE_GTA_OUTRO.search(t).group(0))
     if _RE_PARA_PS5.search(t) and not _RE_CONSOLE_PALAVRA.search(t[:_RE_PARA_PS5.search(t).start()]):
         return _r("acessório: " + _RE_PARA_PS5.search(t).group(0))
     outro = _RE_OUTRO_APARELHO.search(t)
-    console_forte = bool(_RE_CONSOLE_FORTE.search(t))
     if outro and not (_RE_PS5.search(t) and (console_forte or gta)):
         return _r("outro aparelho: " + outro.group(0))
     if gta and not console_forte:
@@ -754,8 +787,6 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         if _RE_GTA_DE_BRINDE.search(t) or _RE_OUTRO_PRODUTO_COM_GTA.search(t):
             return _r("o GTA 6 é brinde/parte de outro produto")
         return _classifica_gta(t, loja)   # o jogo (sem console no título); com console é o pacote
-    if _RE_GTA_OUTRO.search(t) and not gta and not console_forte:
-        return _r("outro jogo: " + _RE_GTA_OUTRO.search(t).group(0))
     if not tem_ps:
         return _r("sem produto")
     if _RE_INICIO_JOGO.search(t) and not _RE_CONSOLE_PALAVRA.search(t):
@@ -878,7 +909,10 @@ _RE_LINHA_OUTRO = re.compile(
     r"motorola|xiaomi|airpods|echo dot|cadeira|mesa|geladeira|fogao|micro-?ondas|air\s*fryer|lavadora|"
     r"ar[\s-]condicionado|ventilador|aspirador|cafeteira|monitor|fones?|headset|mouse|teclado|ssd|hd externo|"
     r"pendrive|xbox|nintendo|kindle|smartwatch|relogio|caixa de som|impressora|roteador|camera|projetor|"
-    r"placa de video|tenis|perfume|smart\s*tv|tv\b|televisor|controle|dualsense|jogo|game|soundbar)\b")
+    r"placa de video|tenis|perfume|smart\s*tv|tv\b|televisor|controle|dualsense|jogo|game|soundbar|"
+    # peças que abrem a linha de outro produto na mensagem do GTA ("🔥 GTA VI / Mousepad Gamer Grande 90x40 / R$ 249")
+    r"mouse\s?pads?|peliculas?|skins?\s+(?:adesiv\w*\s+)?(?:(?:para|pra|p/)\s+)?(?:ps5|playstation|consoles?|controles?)|"
+    r"suportes?\s+(?:gamer|(?:para|pra|p/|de)\s+(?:o\s+)?(?:controles?|headsets?|fones?|consoles?)))\b")
 
 
 _RE_LINHA_OUTRO_APARELHO = re.compile(
@@ -894,7 +928,8 @@ def _linha_dona(linha: str, loja: str) -> tuple[Optional[str], Classificacao]:
     if c.produto and not eh_tv(c.produto):
         return c.produto, c
     n = normaliza(linha)
-    if c.produto or c.motivo.startswith(("acessório", "TV de outro modelo", "produto temático")) \
+    # "outro jogo: gta" (GTA V, Trilogy...) também abre o bloco de outro produto ("Grand Theft Auto V para PS5")
+    if c.produto or c.motivo.startswith(("acessório", "TV de outro modelo", "produto temático", "outro jogo: ")) \
             or _RE_LINHA_OUTRO.search(n) or _RE_LINHA_OUTRO_APARELHO.search(n):
         return "outro", c
     return None, c
@@ -971,6 +1006,8 @@ def extrai_produtos(texto: str, loja: Any = None) -> dict[str, Trecho]:
         nt = normaliza(trecho)
         if _RE_ESTADO.search(nt) or _RE_ESTRANGEIRO.search(nt) or _RE_COLECIONADOR.search(nt) or _RE_CONTA.search(nt):
             continue   # usado, caixa aberta, versão estrangeira, conta compartilhada: não é o produto novo e nacional
+        if familia(pid) == FAMILIA_GTA6 and _RE_PECA_COM_GTA.search(_RE_BRINDE_DO_JOGO.sub(" ", nt)):
+            continue   # o bloco do GTA fala de uma peça ("🔥 GTA VI" / "Tapete Gamer 90x40" / "R$ 249"): o preço é dela
         if multi and not _tem_preco(trecho, pid):
             continue   # o preço dele pode estar no bloco de outro produto: sem preço, nada de alerta
         if _so_preco_abaixo(trecho, pid):
