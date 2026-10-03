@@ -122,3 +122,107 @@ def test_simula_prazo_com_inicio_nao_conta_em_dobro(monkeypatch, hoje_03_10):
         monkeypatch.setattr(vtex.requests, "post", lambda *a, sim=sim, **k: _Resp(sim))
         assert vtex.simula_prazo("https://x", "1", "1", "01310100") == sem, est
         assert vtex.simula_prazo("https://x", "1", "1", "01310100", inicio=date(2026, 11, 12)) == com, est
+
+
+# ------------------------------------------------------------------------------------------------
+# P2. PS5 com leitor sem "Console" antes do leitor é o console; o leitor avulso é o assunto do título
+# ------------------------------------------------------------------------------------------------
+
+# o console com leitor (o leitor é uma característica dele): os da 2ª conferência e os reais dos caches/latest de 03/10
+CONSOLES_COM_LEITOR = [
+    "PlayStation 5 Slim 1TB Leitor de Disco Branco",
+    "PS5 Slim Leitor de Disco 1TB + 2 Jogos",
+    "PS5 Slim Leitor de Disco 1TB",
+    "Playstation 5 Slim Leitor De Disco 1tb Branco",
+    "PlayStation 5 Slim - Leitor de Disco - 1TB - Sony",
+    "Sony Playstation 5 Slim Leitor de Disco Branco",
+    "PlayStation 5 Slim Leitor de Disco 1TB 2 Jogos",
+    "PS5 Slim Mídia Física Leitor de Disco",
+    "PS5 Slim Standard (Leitor de Disco) 1TB",
+    "PS5 Leitor de Disco 1TB Slim",
+    # reais (caches e latest de 03/10)
+    "Console PlayStation 5 Slim 1TB SSD com Leitor de Disco - Sony",
+    "Console PlayStation 5 Sony, SSD 1TB, Leitor de Discos, Controle DualSense, Astro's Playroom, Branco - 1000049892",
+    "Console Sony PlayStation 5 Com Leitor De Discos SSD 1TB Controle Sem Fio Dualsense - 2 Jogos Branco",
+    "Console Sony PlayStation 5 Slim 1TB Leitor de Discos",
+    "[REGIONAL] Console Sony PlayStation 5 Slim 1TB Leitor de Discos",
+    "[pelandobr] 🌡️ 211° - PlayStation 5 com leitor de disco , 1TB, DualSense",
+    "[pelandobr] 🌡️ 225° - PlayStation 5 com leitor de disco e 1 TB de armazenamento",
+    "Console Sony Playstation 5 Standard 825GB e leitor de blue ray",
+    "Console PlayStation 5 Slim Leitor de Disco 1TB Branco",
+    "PlayStation®5 Slim com leitor de disco",
+]
+
+# o leitor avulso (o assunto do título): reais dos caches/latest de 03/10, os da 1ª revisão e os do pedido
+LEITORES_AVULSOS = [
+    "(Saldo MP / Meli+) Unidade De Disco Leitor Playstation 5 Slim / Pro",
+    "15% OFF no Leitor de Disco PS5 Slim",
+    "15% OFF no leitor de disco para PlayStation 5 Slim e PS5 Pro",
+    "Leitor Disco Playstation 5 Slim PS5 Pro Sony Branco",
+    "Leitor de Disco PS5 Slim Pro Digital Branco CFI-2000",
+    "Leitor de Disco PS5 Sony - Compatível Slim/Pro",
+    "Leitor de Disco Para Playstation 5 Slim, PS5 Pro Sony, Edição digital, Branco - CFI-2000 - slim",
+    "Leitor de Disco Sony PS5 Slim/Pro Branco",
+    "Unidade de disco Leitor PS5 Edição Digital PS5 Pro",
+    "Unidade de disco para PS5® digital/slim ou PS5 Pro",
+    "[PRIME] Leitor de Disco Para Playstation 5 Slim, PS5 Pro Sony, Edição digital",
+    "[pelandobr] 🌡️ 228° - Leitor de Disco PS5 Slim Pro Digital Branco CFI-2000",
+    # 1ª revisão (o nome oficial da Sony e "Console" depois do leitor)
+    "Unidade de Disco para Consoles PS5 Digital Edition - Sony",
+    "Leitor de Disco Ultra HD Blu-ray Console PS5 Slim",
+    "Sony - Leitor de Disco Console PS5 Slim",
+    "Drive de Disco para Console PlayStation 5 Pro",
+    # os do pedido: o leitor "para" o PS5, mesmo com o PS5 escrito antes
+    "Leitor de Disco para PS5 Digital/Pro",
+    "Unidade de Disco Blu-ray para console PS5",
+    "Unidade de Disco Sony para console PS5 Digital Edition",
+    "Sony PS5 Unidade de Disco para PS5 Slim Digital e PS5 Pro",
+    "PS5 Leitor de Disco para Console Digital",
+    # a versão que não tem leitor (Pro, Digital) seguida do leitor, sem nada de console: a peça para ela
+    "PlayStation 5 Pro Leitor de Disco",
+    "PS5 Slim Digital Leitor de Disco Sony",
+]
+
+
+@pytest.mark.parametrize("titulo", CONSOLES_COM_LEITOR)
+def test_console_com_leitor_sem_console_antes_e_ps5_disco(titulo):
+    c = produtos.classifica(titulo)
+    assert c.produto == "PS5_DISCO", c
+
+
+@pytest.mark.parametrize("titulo", LEITORES_AVULSOS)
+def test_leitor_avulso_continua_leitor(titulo):
+    c = produtos.classifica(titulo)
+    assert c.produto == "LEITOR_PS5", c
+
+
+@pytest.mark.parametrize("titulo", ["PS5 Slim Leitor de Disco 1TB", "Playstation 5 Slim Leitor De Disco 1tb Branco",
+                                    "PlayStation 5 Slim - Leitor de Disco - 1TB - Sony"])
+def test_console_com_leitor_abaixo_da_meta_nao_some_no_sanear(titulo):
+    c = produtos.classifica(titulo)
+    o = Oferta("promobit", "post", "Amazon", titulo, "https://p/x", "x", preco=3799.0, modelo=c.produto,
+               publicado=agora_iso())
+    fica, avisos = sanear([o])
+    assert fica and fica[0].modelo == "PS5_DISCO", avisos
+
+
+@pytest.mark.parametrize("titulo,esperado", [
+    # kits e consoles que já davam certo continuam
+    ("Console PS5 Slim Digital + Leitor de Disco Sony", "PS5_KIT"),
+    ("PlayStation 5 Slim Digital + Unidade de Disco", "PS5_KIT"),
+    ("Console PS5 Pro + Leitor de Disco + GTA VI", "PS5_KIT"),
+    ("Leitor de Disco + Console PS5 Digital", "PS5_DIGITAL"),
+    ("PS5 Pro 2TB com Unidade de Disco", "PS5_PRO"),
+    ("PlayStation 5 Pro Console 2TB (sem leitor de disco)", "PS5_PRO"),
+    ("PS5 Slim c/ Leitor de Disco 1TB", "PS5_DISCO"),
+])
+def test_kits_e_versoes_com_leitor_nao_mudam(titulo, esperado):
+    assert produtos.classifica(titulo).produto == esperado
+
+
+def test_leitor_da_pessoa_no_carrinho_continua_fora_dos_principais():
+    from monitor.carrinho import modelo_da_linha, produto_do_titulo
+
+    # a defesa do carrinho (1ª revisão) não muda: uma linha que cita o leitor como peça nunca é um principal
+    for t in LEITORES_AVULSOS[:16]:
+        assert produto_do_titulo(t) is None and modelo_da_linha(t) is None, t

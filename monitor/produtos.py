@@ -458,6 +458,16 @@ _RE_LEITOR_PECA = re.compile(
 _RE_CONSOLE_NUCLEO = re.compile(r"\bconsoles?\b|\bvideo\s?games?\b|\b825\s?gb\b|\b1\s?tb\b|\b2\s?tb\b|\bcfi[\s-]?\d{4}")
 # "Leitor de Disco + Console PS5 Digital": o kit (o console vem junto)
 _RE_LEITOR_COM_CONSOLE = re.compile(r"(?:\+|\bcom\b|\bmais\b)\s*(?:o\s+|um\s+)?console\b")
+# o leitor "para" o PS5 logo depois dele ("Leitor de Disco para PS5 Digital/Pro", "Unidade de Disco Blu-ray para console
+# PS5", "PS5 Leitor de Disco para Console Digital"): é a peça, mesmo com o PS5 escrito antes
+_RE_LEITOR_PARA = re.compile(r"\s*(?:[a-z0-9-]+\s+){0,3}?(?:para|pra|p/|compativel com|compativeis com)\s+"
+                             r"(?:o\s+|a\s+|os\s+)?(?:consoles?\b|ps5\b|playstation\b)")
+# o leitor como assunto de uma frase ("15% OFF no Leitor de Disco PS5", "desconto na Unidade de Disco"): a peça
+_RE_PREPOSICAO_ANTES = re.compile(r"\b(?:no|na|nos|nas|em|do|da|dos|das|ao|pelo|pela)\s+$")
+# o nome do PS5 escrito antes do leitor ("PS5 Slim Leitor de Disco 1TB"): o leitor descreve o console
+_RE_PS5_ANTES = re.compile(r"\bps5\b|\bplaystation\b")
+# a versão citada antes do leitor não tem leitor (Pro, Digital): "PlayStation 5 Pro Leitor de Disco" é a peça para ela
+_RE_VERSAO_SEM_LEITOR = re.compile(r"\bpro\b|\bdigital\b")
 
 
 def cita_leitor_avulso(texto: Any) -> bool:
@@ -468,15 +478,30 @@ def cita_leitor_avulso(texto: Any) -> bool:
 
 
 def _e_o_leitor(t: str) -> bool:
-    """O título é do leitor de disco avulso: o leitor-peça vem ANTES de qualquer núcleo de console (palavra console,
-    armazenamento, código CFI) e o título não junta um console a ele ("Leitor + Console PS5")."""
+    """O título é do leitor de disco avulso: o leitor é o ASSUNTO do título, não uma característica do console.
+
+    - não é o leitor: "com/sem/c/ / + / e leitor" (o console ou o kit; _RE_LEITOR_PECA), o título que junta um console
+      a ele ("Leitor + Console PS5") e o núcleo de console (palavra console, armazenamento, código CFI) antes dele
+      ("Console PS5 Slim Leitor de Disco 1TB");
+    - é o leitor: "leitor para o PS5" ("Leitor de Disco para PS5 Digital/Pro", "PS5 Leitor de Disco para Console
+      Digital"), o leitor depois de preposição ("15% OFF no Leitor de Disco PS5"), o leitor antes do nome do PS5
+      ("Leitor de Disco PS5 Slim", "Sony - Leitor de Disco Console PS5 Slim", "Unidade de Disco para Consoles PS5") e a
+      versão sem leitor (Pro, Digital) seguida do leitor, sem nada de console depois ("PlayStation 5 Pro Leitor de
+      Disco");
+    - o nome do PS5 antes do leitor, sem nada disso, é o console com leitor ("PS5 Slim Leitor de Disco 1TB + 2 Jogos",
+      "PlayStation 5 Slim - Leitor de Disco - 1TB"). 2ª conferência de 03/10: esses títulos viravam o leitor e o sanear
+      descartava o console abaixo da meta (fora da faixa do leitor)."""
     ml = _RE_LEITOR_PECA.search(t)
     if not ml:
         return False
-    mc = _RE_CONSOLE_NUCLEO.search(t)
-    if mc is not None and mc.start() < ml.start():
+    antes, depois = t[:ml.start()], t[ml.end():]
+    if _RE_LEITOR_COM_CONSOLE.search(depois) or _RE_CONSOLE_NUCLEO.search(antes):
         return False
-    return not _RE_LEITOR_COM_CONSOLE.search(t[ml.end():])
+    if _RE_LEITOR_PARA.match(depois) or _RE_PREPOSICAO_ANTES.search(antes):
+        return True
+    if not _RE_PS5_ANTES.search(antes):
+        return True
+    return bool(_RE_VERSAO_SEM_LEITOR.search(antes)) and not _RE_CONSOLE_NUCLEO.search(depois)
 # gift card / cartão presente da PlayStation
 _RE_GIFT = re.compile(
     r"\bgift\s?cards?\b|\bcart(?:ao|oes) (?:presente|psn|playstation|ps store|pre-?pago)\b|\bvale[\s-]presentes?\b|"
