@@ -188,6 +188,7 @@ TELEGRAM_CANAIS_PUBLICOS = [
     "LOOPechinchas",        # Loop Ofertas
     "ofertasmundoconectado",  # Ofertas Mundo Conectado
     "cacadoresofertas",     # Caçadores de Ofertas
+    "pelandobr",            # canal OFICIAL do Pelando: repete os posts (lido da nuvem; o site bloqueia datacenter)
     # @ENVOLTOTECH é grupo e @AquiSuaPromoBot é bot: só via conta (TELEGRAM_CHATS_USUARIO, no PC)
 ]
 # Canais extras podem ser adicionados sem mexer no código: TELEGRAM_CANAIS_EXTRA="canal1,canal2"
