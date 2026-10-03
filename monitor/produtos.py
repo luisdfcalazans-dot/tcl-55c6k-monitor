@@ -52,6 +52,9 @@ SECOES = {FAMILIA_TV: "TVs", FAMILIA_PS5: "PS5", FAMILIA_GTA6: "GTA 6"}
 
 LANCAMENTO_GTA6 = "2026-11-19"      # 00:00 de Brasília (digital); Code in Box a partir de 12/11
 ENTREGA_LIMITE_GTA6 = "2026-11-18"  # chegar até aqui = jogar à meia-noite do lançamento
+# a Rockstar libera as caixas do Code in Box em 12/11 (pré-carregamento): na pré-venda, nenhuma caixa sai da loja antes
+# disso, e o prazo da loja conta a partir daí (KaBuM: "o prazo começa a contar a partir de 12/11/26")
+INICIO_ENVIO_GTA6 = "2026-11-12"
 DESCONTO_GIFT_MINIMO = 0.15         # gift card da PlayStation: alerta (🎯) com 15% de desconto ou mais, em loja oficial
 # lojas oficiais para gift card (decisão do usuário em 03/10): loja oficial PlayStation no Mercado Livre, Hype, Nuuvem e
 # a própria PS Store. Eneba/UbiqPlay e afins: a postagem sai, sem 🎯
@@ -389,15 +392,23 @@ _RE_GTA_OUTRO = re.compile(r"\bgta\b|\bgrand theft auto\b")
 _RE_ESTADO = re.compile(
     r"\busad[oa]s?\b|\bseminov[oa]s?\b|\bsemi[\s-]nov[oa]s?\b|\brecondicionad[oa]s?\b|\brecertificad[oa]s?\b|"
     r"\brefurbished\b|\brenovad[oa]s?\b|\bvitrine\b|\bmostruario\b|\bcaixa aberta\b|\bopen\s?box\b|"
-    r"\bembalagem (?:aberta|danificada|violada|avariada)\b|\bquase novo\b|\bgrade [bc]\b|\bdefeito\b|\bnao liga\b|"
+    r"\bembalagem (?:aberta|danificada|violada|avariada)\b|\bquase novo\b|\bgrade [abc]\b|\bdefeito\b|\bnao liga\b|"
     r"\bretirada de pecas\b|\breembalad[oa]s?\b|\bproduto de exposicao\b|\bavaria\b|\bsem caixa\b")
+# conta compartilhada ("GTA 6 PS5 Conta Secundária", "Mídia Digital Primária", "conta alugada"): acesso à conta de outra
+# pessoa, não o jogo (nem o Code in Box nem a compra na PS Store)
+_RE_CONTA = re.compile(r"\bprimari[ao]s?\b|\bsecundari[ao]s?\b|\bconta (?:compartilhada|alugada|parceira)\b|"
+                       r"\baluguel de conta\b|\bconta (?:psn )?(?:de terceiros|offline)\b")
+# serviço vendido com o nome do produto ("Garantia Estendida - Console PS5", "Seguro Roubo e Furto Console PS5")
+_RE_SERVICO_INICIO = re.compile(r"^[^a-z0-9]*(?:\[[^\]]*\]\s*)?(?:garantia|seguro|protecao|instalacao|servicos?|"
+                                r"assistencia)\b")
 _RE_ESTRANGEIRO = re.compile(
     r"\bksa\b|\binternational\b|\binternacional\b|\bimportad[oa]s?\b|\bversao (?:americana|europeia|japonesa|"
     r"asiatica|arabe|estrangeira|importada|chinesa)\b|\b(?:us|usa|eu|uk|jp|asia) version\b|\bjapan\b|"
     r"\bhong kong\b|\barabia saudita\b|\bsaudi\b|"
     # Amazon, 03/10: "Sony PlayStation 5 Slim Digital Edition Console - 825GB - Middle East"
     r"\bmiddle east\b|\boriente medio\b|\bgcc\b|\buae\b|\bemirados\b")
-_RE_COLECIONADOR = re.compile(r"\b30\s?(?:o|th)?\s*aniversario\b|\b30th anniversary\b|\banniversary edition\b")
+_RE_COLECIONADOR = re.compile(r"\b30\s?(?:o|th)?\s*aniversario\b|\b30th anniversary\b|\banniversary edition\b|"
+                              r"\b30\s+anos\b")
 # resumo de várias ofertas num título só ("ACHADOS MAGALU! PS5 Slim R$ 4.875, Galaxy S24 Ultra R$ 5.099 e Lavadora...",
 # "SUPER OFERTAS SHOPEE com Até 70% OFF! Smart TV, GTA 6, Playstation 5 e Muito Mais!"): o preço não é de um produto
 _RE_RESUMO = re.compile(r"\bachados\b|\bsuper ofertas\b|\be muito mais\b|\bofertas (?:do dia|imperdiveis|da semana)\b|"
@@ -416,7 +427,8 @@ _RE_ASSINATURA = re.compile(r"\bps\s?plus\b|\bplaystation plus\b|\bgame pass\b|\
 _ACESSORIOS = (
     r"controles?|joysticks?|dualsense|dual sense|dualshock|capas?|cases?|bolsas?|mochilas?|suportes?|bases?|"
     r"coolers?|ventoinhas?|ventiladores?|headsets?|fones?|cabos?|carregador(?:es)?|estac(?:ao|oes)|docks?|"
-    r"peliculas?|skins?|adesivos?|grips?|volantes?|teclados?|mouses?|cameras?|microfones?|luvas?|protetor(?:es)?|"
+    r"peliculas?|skins?|adesivos?|grips?|volantes?|teclados?|mouse\s?pads?|mouses?|cameras?|microfones?|luvas?|"
+    r"protetor(?:es)?|"
     r"tampas?|faceplates?|covers?|tapetes?|ssds?|hds?|cartao de memoria|memorias?|baterias?|fontes?|kit de "
     r"(?:acessorios|limpeza)|pulse|charging|stand|organizador(?:es)?|racks?|nichos?|mesas?|cadeiras?|"
     r"camisetas?|canecas?|posters?|livros?|guias?|mapas?|funkos?|action figures?|bonecos?|chaveiros?|moletons?|"
@@ -427,7 +439,7 @@ _ACESSORIOS = (
 _PREFIXO_TITULO = r"^[^a-z0-9]*(?:\[[^\]]*\]\s*)?(?:(?:novo|nova|original|oficial|sony|playstation|ps5|\d+\s*(?:x|un\w*)?|kit)\s+)*"
 _RE_INICIO_ACESSORIO = re.compile(_PREFIXO_TITULO + rf"({_ACESSORIOS})(?![a-z0-9])")
 _RE_PARA_PS5 = re.compile(r"\b(?:para|pra|p/|compativel com|compativeis com)\s+(?:o\s+|a\s+|os\s+)?"
-                          r"(?:console\s+)?(?:ps5|playstation)")
+                          r"(?:consoles?\s+)?(?:ps5|playstation)")
 _RE_TEMATICO = re.compile(r"\b(?:camisetas?|canecas?|posters?|livros?|guias?|mapas?|funkos?|action figures?|bonecos?|"
                           r"chaveiros?|moletons?|bones?|quadros?|almofadas?|luminarias?|copos?|trilha sonora|"
                           r"steelbook|artbook|decoracao|decoracoes|decorativ[oa]s?|cofrinhos?|posterzines?|adesivos?)\b")
@@ -435,7 +447,36 @@ _RE_TEMATICO = re.compile(r"\b(?:camisetas?|canecas?|posters?|livros?|guias?|map
 _RE_INICIO_JOGO = re.compile(_PREFIXO_TITULO + r"(?:jogos?|games?|midia fisica|pre[\s-]?venda)\b")
 # leitor de disco avulso no começo do título
 _RE_LEITOR = re.compile(r"\b(?:leitor|unidade|drive)\s+(?:de\s+)?(?:disco|midia|blu[\s-]?ray)\b|\bdisc drive\b")
-_RE_INICIO_LEITOR = re.compile(_PREFIXO_TITULO + r"(?:leitor|unidade|drive|disc drive)\b")
+# o leitor como PEÇA (o produto em si), não como descrição do console: "com leitor", "sem leitor", "e leitor", "+ leitor"
+# e "c/ leitor" descrevem o console (ou o kit Digital + leitor). Revisão de 03/10: o nome oficial da Sony é "Unidade de
+# Disco para Consoles PS5 Digital Edition" e há "Leitor de Disco Ultra HD Blu-ray Console PS5 Slim": a palavra console
+# no título não faz do leitor um console
+_RE_LEITOR_PECA = re.compile(
+    r"(?<!\bcom )(?<!\bsem )(?<!\be )(?<!\+ )(?<!\+)(?<!\bc/ )(?<!\bc/)"
+    r"\b(?:leitor(?:es)?|unidades?|drives?)\s+(?:de\s+)?(?:dis[ck]os?|midias?|blu[\s-]?e?[\s-]?ray)\b|\bdisc drive\b")
+# o núcleo "console" do título (o que aparece antes decide se o título é do console ou do leitor)
+_RE_CONSOLE_NUCLEO = re.compile(r"\bconsoles?\b|\bvideo\s?games?\b|\b825\s?gb\b|\b1\s?tb\b|\b2\s?tb\b|\bcfi[\s-]?\d{4}")
+# "Leitor de Disco + Console PS5 Digital": o kit (o console vem junto)
+_RE_LEITOR_COM_CONSOLE = re.compile(r"(?:\+|\bcom\b|\bmais\b)\s*(?:o\s+|um\s+)?console\b")
+
+
+def cita_leitor_avulso(texto: Any) -> bool:
+    """O texto cita o leitor de disco como peça ("Leitor de Disco ... Console PS5", "Unidade de Disco para Consoles
+    PS5"), não como descrição do console ("com leitor", "+ leitor"). O carrinho usa: uma linha assim nunca é um
+    produto principal (o leitor da pessoa não pode virar o console do robô)."""
+    return bool(_RE_LEITOR_PECA.search(normaliza(texto)))
+
+
+def _e_o_leitor(t: str) -> bool:
+    """O título é do leitor de disco avulso: o leitor-peça vem ANTES de qualquer núcleo de console (palavra console,
+    armazenamento, código CFI) e o título não junta um console a ele ("Leitor + Console PS5")."""
+    ml = _RE_LEITOR_PECA.search(t)
+    if not ml:
+        return False
+    mc = _RE_CONSOLE_NUCLEO.search(t)
+    if mc is not None and mc.start() < ml.start():
+        return False
+    return not _RE_LEITOR_COM_CONSOLE.search(t[ml.end():])
 # gift card / cartão presente da PlayStation
 _RE_GIFT = re.compile(
     r"\bgift\s?cards?\b|\bcart(?:ao|oes) (?:presente|psn|playstation|ps store|pre-?pago)\b|\bvale[\s-]presentes?\b|"
@@ -457,18 +498,23 @@ _RE_DIGITAL = re.compile(r"\bdigital\b|\bsem leitor\b|\b825\s?gb\b|\bcfi[\s-]?2\
 _RE_DIGITAL_FORTE = re.compile(r"\bdigital\b|\bsem leitor\b|\bcfi[\s-]?2\d{3}\s?b|\bdigital edition\b")
 _RE_DISCO = re.compile(r"\bcom leitor\b|\bleitor de dis[ck]o\b|\bmidia fisica\b|\bdis[ck]\b|\bdisco\b|\bstandard\b|"
                        r"\bcfi[\s-]?2\d{3}\s?a\b|\b1\s?tb\b|\bleitor de blu[\s-]?e?[\s-]?ray\b")
-# extras de kit / edição especial. "+ 1 Controle" é o controle que já vem com o console (Netshoes, 03/10: "PlayStation 5
-# Slim Disk 1TB + 1 Controle Sony"); "+ Controle", "+ 2 Controles" e "controle extra" são a mais
+# extras de kit / edição especial. O controle que já vem com o console NÃO é extra: "+ 1 Controle Sony" (Netshoes,
+# 03/10), "+ Controle Sem Fio DualSense Branco" (Shopee e Inpower: o console comum, revisão de 03/10) e "+ Controle"
+# no singular, sem número. A mais: "+ 2 Controles", "com 2 controles", "+ mais um controle", "controle extra/adicional"
+# e o DualSense Edge (nunca vem com o console)
 _RE_EXTRA_CONTROLE = re.compile(
-    r"\+\s*(?:[2-9]\s+|mais\s+um\s+)?(?:controles?|dualsense|dual sense)\b|"
+    r"\+\s*(?:[2-9]|dois|tres)\s+(?:controles|dualsense|dual sense)\b|"
+    r"\b(?:mais|outro)\s+(?:um\s+)?controle\b|"
     r"\b(?:2|dois|two)\s+(?:controles|dualsense|dual sense|wireless controllers|controllers)\b|"
-    r"\bcontroles?\s+(?:extras?|adiciona(?:l|is))\b|"
-    r"\bcom\s+(?:2|dois)\s+(?:controles|dualsense)\b")
+    r"\bcontroles?\s+(?:[a-z]+\s+){0,3}?(?:extras?|adiciona(?:l|is)|a mais)\b|"
+    r"\bcom\s+(?:2|dois)\s+(?:controles|dualsense)\b|"
+    r"\bdual\s?sense edge\b|\bcontrole edge\b")
 _RE_EXTRA_LEITOR = re.compile(r"\+\s*(?:o\s+|um\s+)?(?:leitor|unidade|drive)\b|\be\s+leitor de dis[ck]o\b")
+# crédito no kit: o da PS Store e o vale da própria loja ("+ Gift Card KaBuM: 500 Reais", rodada seca de 03/10)
 _RE_EXTRA_CREDITO = re.compile(
     r"(?:vale|credito|creditos|gift\s?card|saldo|voucher|cartao presente)\s+(?:de\s+|em\s+|na\s+|da\s+)?"
-    r"(?:ps store\s+|playstation store\s+)?(?:r\$\s?)?(\d{2,4})|r\$\s?(\d{2,4})\s+(?:em|de)\s+"
-    r"(?:creditos?|saldo|vale|gift\s?card)")
+    r"(?:(?:ps store|playstation store|playstation|psn|kabum|loja)\s*:?\s+)?(?:r\$\s?)?(\d{2,4})|"
+    r"r\$\s?(\d{2,4})\s+(?:em|de)\s+(?:creditos?|saldo|vale|gift\s?card)")
 _RE_EXTRA_HEADSET = re.compile(r"\+\s*(?:headset|fone|pulse)\b")
 _RE_EDICAO = re.compile(r"\bwolverine\b|\bghost of yotei\b|\bfortnite\b|\bedicao (?:limitada|especial|colecionador)\b|"
                         r"\blimited edition\b|\bspecial edition\b|\bcobalt\b|\bmidnight black\b|\bchroma\b|"
@@ -487,6 +533,14 @@ _RE_DIGITAL_GTA = re.compile(r"\bdigital\b|\bpsn\b|\bplaystation store\b|\bps st
 _RE_FISICO_GTA = re.compile(r"\bcode in box\b|\bcodigo na caixa\b|\bmidia fisica\b|\bfisic[oa]\b|\bcaixa\b|\bbox\b")
 _RE_KIT_GTA_ACESSORIO = re.compile(r"\+\s*(?:controle|dualsense|headset|fone|capa)\b|\bcom controle\b|"
                                    r"\b(?:e|com) dualsense\b")
+# o brinde que acompanha o jogo ("Brinde Mapa", "+ brinde pôster e mapa"): sai antes de procurar produto temático
+_RE_BRINDE_DO_JOGO = re.compile(r"(?:\bcom\s+|\+\s*)?\bbrindes?\b\s*:?\s*(?:exclusivos?\s+)?(?:[a-z]+\s*){1,3}")
+# o GTA 6 é o brinde de outra compra
+_RE_GTA_DE_BRINDE = re.compile(
+    r"\b(?:gta\s?(?:6|vi)|grand theft auto\s*:?\s*(?:6|vi))\s+(?:de\s+|como\s+)?(?:brinde|gratis)\b|"
+    r"\bganhe\s+(?:o\s+)?(?:jogo\s+)?(?:gta|grand theft)|\bbrindes?\s*:?\s+(?:o\s+)?(?:jogo\s+)?(?:gta|grand theft)")
+_RE_OUTRO_PRODUTO_COM_GTA = re.compile(_RE_OUTRO_PRODUTO_NO_TITULO.pattern +
+                                       r"|\bplaca de video\b|\brtx\s?\d|\bprocessador\b|\bpc gamer\b|\bmonitor\b")
 
 _RE_VALOR_FACE = re.compile(r"r\$\s?(\d{2,4})(?:[.,]00)?(?!\s*(?:off|de desconto))|\b(\d{2,4})\s*(?:reais|brl)\b")
 
@@ -536,11 +590,18 @@ def _extras_do_console(t: str, base: str, generico: bool = True) -> list[dict]:
         limpo = _RE_JOGOS_DA_BASE.sub(" ", t)
         for m in _RE_OUTRO_EXTRA.finditer(limpo):
             resto = m.group(1).strip()
+            # sobra do que já saiu como "da base" ("+ Controle Dualsense E 2 Jogos" -> "e"; "+ Jogo ASTRO BOT + Gran
+            # Turismo 7" -> "jogo"): conectivo ou a palavra jogo sozinha não é outro jogo (rodada seca de 03/10)
+            if re.fullmatch(r"(?:(?:e|com|mais|de|do|da|o|a|um|uma|jogos?)\b\s*)+", resto):
+                continue
             # o que sobra de "+ 1 Controle Sony" (o controle que acompanha) também não é extra; nem a versão escrita
             # depois do pacote ("... DualSense + 2 Jogos Digitais Edição Digital", Magalu 240590700, 03/10)
+            # "+ Controle", "+ Controle Sem Fio DualSense Branco": o controle que acompanha (os extras de controle já
+            # foram vistos acima)
             if _RE_GTA6.match(resto) or re.match(r"(?:ps5|playstation|console|slim|digital|pro\b|r\$|\d|sony\b|"
                                                  r"branc[oa]\b|pret[oa]\b|bivolt\b|cor\b|edicao\b|edition\b|"
-                                                 r"versao\b|standard\b|bundle\b|pacote\b)", resto):
+                                                 r"versao\b|standard\b|bundle\b|pacote\b|controles?\b|"
+                                                 r"dual\s?sense\b|sem fio\b)", resto):
                 continue
             out.append({"tipo": "jogo", "valor": VALOR_EXTRA["jogo"], "nome": resto[:40]})
             break
@@ -606,8 +667,12 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
     gift = bool(_RE_GIFT.search(t))
     if not (tem_ps or gta or gift or _RE_GTA_OUTRO.search(t) or _RE_LEITOR.search(t)):
         return _r("sem produto")
+    if _RE_SERVICO_INICIO.search(t):
+        return _r("serviço: " + _RE_SERVICO_INICIO.search(t).group(0).strip(" -[]"))
     if _RE_ESTADO.search(t):
         return _r("estado: " + _RE_ESTADO.search(t).group(0))
+    if _RE_CONTA.search(t):
+        return _r("conta compartilhada: " + _RE_CONTA.search(t).group(0))
     if _RE_ESTRANGEIRO.search(t):
         return _r("versão estrangeira: " + _RE_ESTRANGEIRO.search(t).group(0))
     if _RE_COLECIONADOR.search(t):
@@ -616,8 +681,8 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         return _r("resumo de várias ofertas")
     if _RE_ASSINATURA.search(t) and not _RE_CONSOLE_PALAVRA.search(t):
         return _r("assinatura: " + _RE_ASSINATURA.search(t).group(0))
-    # leitor de disco avulso (o substantivo do título é o leitor)
-    if _RE_INICIO_LEITOR.search(t) and _RE_LEITOR.search(t) and not _RE_CONSOLE_PALAVRA.search(t):
+    # leitor de disco avulso (o leitor-peça vem antes de qualquer núcleo de console, mesmo com "Console(s) PS5" depois)
+    if _e_o_leitor(t):
         if not tem_ps:
             return _r("sem produto")
         return _ok("LEITOR_PS5")
@@ -626,8 +691,10 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
         if _RE_TEMATICO.match(m.group(1)) and gta:
             return _r("produto temático: " + m.group(1))
         return _r("acessório: " + m.group(1))
-    if _RE_TEMATICO.search(t) and gta and not _RE_CONSOLE_FORTE.search(t):
-        return _r("produto temático: " + _RE_TEMATICO.search(t).group(0))
+    # o brinde do jogo ("GTA VI PS5 Pré-venda Mídia Física Brinde Mapa") não é o produto temático
+    sem_brinde = _RE_BRINDE_DO_JOGO.sub(" ", t)
+    if _RE_TEMATICO.search(sem_brinde) and gta and not _RE_CONSOLE_FORTE.search(t):
+        return _r("produto temático: " + _RE_TEMATICO.search(sem_brinde).group(0))
     # gift card (sem console no título: "Console PS5 + gift card de R$ 500" e "Kit PS5 Digital com R$ 500 em créditos
     # PS Store" são kit)
     console_no_titulo = bool(_RE_CONSOLE_FORTE.search(t)) or bool(
@@ -646,6 +713,10 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
     if outro and not (_RE_PS5.search(t) and (console_forte or gta)):
         return _r("outro aparelho: " + outro.group(0))
     if gta and not console_forte:
+        # o GTA 6 de brinde na compra de outro produto ("Notebook Gamer + GTA VI de brinde", "Ganhe GTA VI na compra de
+        # Placa de Vídeo"): o preço é do outro produto
+        if _RE_GTA_DE_BRINDE.search(t) or _RE_OUTRO_PRODUTO_COM_GTA.search(t):
+            return _r("o GTA 6 é brinde/parte de outro produto")
         return _classifica_gta(t, loja)   # o jogo (sem console no título); com console é o pacote
     if _RE_GTA_OUTRO.search(t) and not gta and not console_forte:
         return _r("outro jogo: " + _RE_GTA_OUTRO.search(t).group(0))
@@ -705,7 +776,8 @@ def classifica(titulo: Any, loja: Any = None, ean: Any = None, id_loja: Any = No
         t = normaliza(titulo)
         if not eh_tv(hint):
             for rx, rot in ((_RE_ESTADO, "estado"), (_RE_ESTRANGEIRO, "versão estrangeira"),
-                            (_RE_COLECIONADOR, "edição de colecionador revendida")):
+                            (_RE_COLECIONADOR, "edição de colecionador revendida"), (_RE_CONTA, "conta compartilhada"),
+                            (_RE_SERVICO_INICIO, "serviço")):
                 m = rx.search(t)
                 if m:
                     return _r(f"{rot}: {m.group(0)}")
@@ -861,8 +933,8 @@ def extrai_produtos(texto: str, loja: Any = None) -> dict[str, Trecho]:
         bloco = [l for l, d in zip(linhas, dono_linha) if d == pid or (not multi and d == "antes")]
         trecho = "\n".join(bloco)
         nt = normaliza(trecho)
-        if _RE_ESTADO.search(nt) or _RE_ESTRANGEIRO.search(nt) or _RE_COLECIONADOR.search(nt):
-            continue   # usado, caixa aberta, versão estrangeira: o bloco não é o produto novo e nacional
+        if _RE_ESTADO.search(nt) or _RE_ESTRANGEIRO.search(nt) or _RE_COLECIONADOR.search(nt) or _RE_CONTA.search(nt):
+            continue   # usado, caixa aberta, versão estrangeira, conta compartilhada: não é o produto novo e nacional
         if multi and not _tem_preco(trecho, pid):
             continue   # o preço dele pode estar no bloco de outro produto: sem preço, nada de alerta
         if _so_preco_abaixo(trecho, pid):
@@ -948,8 +1020,16 @@ def entrega(o: Any) -> Optional[Entrega]:
     ref = bool(extra.get("cep_referencia"))
     data = str(extra.get("entrega_prevista") or "")[:10] or None
     if data and re.match(r"\d{4}-\d\d-\d\d$", data):
+        if data < INICIO_ENVIO_GTA6:
+            # antes de as caixas existirem (12/11): é o prazo contado a partir do dia da leitura, não a entrega da
+            # pré-venda (as fontes já reprojetam; isto é a rede de segurança para dado gravado sem o ajuste)
+            return Entrega("desconhecida", None, "loja", ref,
+                           f"📦 Entrega: a loja mostrou {_data_br(data)}, antes de as caixas saírem (12/11) — "
+                           "prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)")
         classe = _classe_da_data(data)
-        return Entrega(classe, data, "loja", ref, _texto_entrega(classe, data, "loja", ref))
+        # prazo da loja reprojetado a partir de 12/11 (sources/entrega.ajusta_pre_venda): a mensagem diz
+        nota = "contado a partir de 12/11" if "12/11" in str(extra.get("entrega_origem") or "") else ""
+        return Entrega(classe, data, "loja", ref, _texto_entrega(classe, data, "loja", ref, nota))
     ate = extra.get("entrega_ate_lancamento")
     if isinstance(ate, bool):
         classe = "a_tempo" if ate else "depois"
@@ -965,8 +1045,10 @@ def entrega(o: Any) -> Optional[Entrega]:
     return Entrega("desconhecida", None, "", ref, _texto_entrega("desconhecida", None, "", ref))
 
 
-def _texto_entrega(classe: str, data: Optional[str], origem: str, ref: bool) -> str:
+def _texto_entrega(classe: str, data: Optional[str], origem: str, ref: bool, nota: str = "") -> str:
     quando = f"previsão {_data_br(data)}" if data else ""
+    if nota:
+        quando = (quando + " " if quando else "") + f"({nota})"
     if origem == "estimativa":
         quando = (quando + " " if quando else "") + "(estimativa da pesquisa de 03/10)"
     elif ref:
@@ -1132,20 +1214,47 @@ def preco_com_cupom_do_anuncio(o: Any) -> Optional[tuple[float, str]]:
     except (TypeError, ValueError):
         v = None
     p = _melhor_preco(o)
-    codigo = str((o.get("cupom") if isinstance(o, dict) else getattr(o, "cupom", "")) or "").strip()
+    # o código é o do cupom que deu o preço (o anúncio pode ter um percentual antes); registro antigo: o cupom da oferta
+    codigo = str(extra.get("cupom_preco") or (o.get("cupom") if isinstance(o, dict) else getattr(o, "cupom", ""))
+                 or "").strip()
     if not v or not p or v >= p or not codigo or not preco_plausivel(pid, v):
         return None
-    if exige_assinatura(o) or _RE_SO_ASSINANTE.search(normaliza(extra.get("cupom_regra") or "")):
+    regra = normaliza(extra.get("cupom_regra") or "")
+    if exige_assinatura(o) or _RE_SO_ASSINANTE.search(regra):
         return None
+    validade = str(extra.get("cupom_validade") or "")[:10]
+    if validade and validade < date.today().isoformat():
+        return None   # o cupom do anúncio venceu
+    m = _RE_COMPRA_MINIMA.search(regra)
+    if m:
+        from .util import parse_preco
+
+        minimo = parse_preco(m.group(1))
+        if minimo and minimo > p:
+            return None   # compra mínima acima do preço do produto
     return round(v, 2), codigo
+
+
+_RE_COMPRA_MINIMA = re.compile(r"(?:acima de|a partir de|minim[oa] de|compras? de)\s*r\$\s*([\d.,]+)")
+
+
+def paga_com_gift_card(o: Any) -> bool:
+    """O gift card da PlayStation paga esta oferta? Só a compra na própria PS Store (o saldo vai para a conta PSN).
+    Chave ou código vendido por outra loja (Eneba, Nuuvem, revendedor do Mercado Livre) se paga com o meio de pagamento
+    dela: o desconto do gift card não vale ali (revisão de 03/10)."""
+    from .util import loja_canonica
+
+    loja = loja_canonica(str((o.get("loja") if isinstance(o, dict) else getattr(o, "loja", "")) or ""))
+    return loja == "PlayStation Store"
 
 
 def preco_comparavel(o: Any, desconto_gift: Optional[float] = None) -> Optional[float]:
     """O preço que se compara com a meta: o melhor preço (Pix/à vista), ou o preço com o cupom da página do anúncio
-    (preco_com_cupom_do_anuncio, só nos produtos que não são TV); no produto digital da PS Store, o custo efetivo
-    pagando com gift card comprado com o maior desconto visto (quando ele existe)."""
+    (preco_com_cupom_do_anuncio, só nos produtos que não são TV); no produto digital vendido na PS Store, o custo
+    efetivo pagando com gift card comprado com o maior desconto visto (quando ele existe). Em outra loja o gift card
+    não paga: vale o preço dela."""
     p = _melhor_preco(o)
-    if p and desconto_gift and produto(_pid(o)) and produto(_pid(o)).digital:
+    if p and desconto_gift and produto(_pid(o)) and produto(_pid(o)).digital and paga_com_gift_card(o):
         return round(p * (1 - desconto_gift), 2)
     cc = preco_com_cupom_do_anuncio(o)
     if cc:
@@ -1189,6 +1298,10 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None) 
     valor = preco_comparavel(o, desc)
     if p.digital and desc and valor != _melhor_preco(o):
         out.append(f"💳 Com gift card a {desc * 100:.0f}% de desconto: custo efetivo {_fmt(valor)}")
+    elif p.digital and desc and not paga_com_gift_card(o) and p.preco_oficial:
+        # chave/código de outra loja: o gift card não paga aqui; para comparar, a PS Store com o gift card
+        out.append(f"💳 O gift card PSN só paga na PS Store: lá, com gift card a {desc * 100:.0f}% de desconto, "
+                   f"sai por {_fmt(round(p.preco_oficial * (1 - desc), 2))}")
     cc = preco_com_cupom_do_anuncio(o)
     if cc and valor == cc[0]:
         out.append(f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
@@ -1261,8 +1374,13 @@ def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
         custo = preco_comparavel(o, gift[0] if gift else None)
         cc = preco_com_cupom_do_anuncio(o)
         e = entrega(o)
+        loja = o.get("loja") if isinstance(o, dict) else o.loja
+        forma = nome(pid)
+        if produto(pid).digital and not paga_com_gift_card(o):
+            # chave/código de outra loja: não é a compra na PS Store (o gift card não paga ali)
+            forma = f"{forma.replace(' (PS Store)', '')} (código vendido por {loja})"
         linhas.append({
-            "produto": pid, "forma": nome(pid), "loja": (o.get("loja") if isinstance(o, dict) else o.loja),
+            "produto": pid, "forma": forma, "loja": loja,
             "tipo": (o.get("tipo") if isinstance(o, dict) else o.tipo),
             "url": (o.get("url") if isinstance(o, dict) else o.url), "preco": p, "custo_final": custo,
             "cupom": cc[1] if cc and custo == cc[0] else None,

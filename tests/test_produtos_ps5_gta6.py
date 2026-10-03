@@ -172,7 +172,9 @@ def test_nunca_vira_o_produto(titulo, motivo):
     ("Console PlayStation 5 Digital Edição Limitada Wolverine", "PS5_DIGITAL", 200.0),
     ("Console PS5 Slim Digital 1TB + 2 Controles", "PS5_DIGITAL", 300.0),
     ("Kit PS5 Digital com R$ 500 em créditos PS Store", "PS5_DIGITAL", 400.0),
-    ("Console Playstation 5 Pro Branco de 2TB + Controle sem fio DualSense Branco", "PS5_PRO", 300.0),
+    # revisão de 03/10: "+ Controle sem fio DualSense Branco" (Inpower) é o controle que acompanha o Pro, não um extra;
+    # extra é o controle "a mais" (extra, adicional, 2 controles)
+    ("Console Playstation 5 Pro Branco de 2TB + Controle sem fio DualSense Extra", "PS5_PRO", 300.0),
     ("Console PlayStation 5 Slim Edição Digital + Leitor de Disco", "PS5_DIGITAL", 300.0),
     ("Console PS5 Slim Digital + EA Sports FC 26", "PS5_DIGITAL", 200.0),
 ])

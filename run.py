@@ -34,14 +34,18 @@ def carrega_env() -> None:
 
 
 def limita_alertas(msgs: list[str], estado, maximo: int) -> list[str]:
-    """Corta as mensagens da rodada no limite. Se a de cupons fica de fora, os cupons dela não foram alertados."""
+    """Corta as mensagens da rodada no limite. Ficam primeiro as que batem a meta (🎯) e as de menor preço (🏆), depois
+    as outras, sempre na ordem original (revisão de 03/10: um 🎯 do GTA vindo do Telegram, a última fonte, ia para o
+    "… e mais N"). Se a de cupons fica de fora, os cupons dela não foram alertados."""
     if len(msgs) <= maximo:
         return msgs
-    from monitor.regras import e_mensagem_de_cupons
+    from monitor.regras import e_mensagem_de_cupons, prioridade_do_alerta
 
-    if any(e_mensagem_de_cupons(m) for m in msgs[maximo:]):
+    ordem = sorted(range(len(msgs)), key=lambda i: (prioridade_do_alerta(msgs[i]), i))
+    ficam = sorted(ordem[:maximo])
+    if any(e_mensagem_de_cupons(msgs[i]) for i in ordem[maximo:]):
         estado.esquece_alertas_de_cupom_da_rodada()
-    return msgs[:maximo] + [f"… e mais {len(msgs) - maximo} alertas nesta rodada (veja o painel)."]
+    return [msgs[i] for i in ficam] + [f"… e mais {len(msgs) - maximo} alertas nesta rodada (veja o painel)."]
 
 
 def main() -> int:
@@ -201,6 +205,10 @@ def main() -> int:
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
+    # postagens antigas de PS5/GTA 6 que não apareceram nesta rodada saem do state (as das TVs ficam como sempre)
+    podadas = estado.poda_postagens(chaves_vistas)
+    if podadas:
+        print(f"[estado] {podadas} postagem(ns) antiga(s) de PS5/GTA 6 fora do state")
     # o modelo que teve oferta ou postagem registrada nesta rodada já fez a partida dele neste modo
     estado.marca_modelos_iniciados({modelo_de(o) for o in ofertas})  # type: ignore[arg-type]
     # histórico/gráfico: só preços ativos (esgotado ou descartado pelo sanear não é preço da TV)

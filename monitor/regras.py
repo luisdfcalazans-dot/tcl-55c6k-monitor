@@ -710,6 +710,9 @@ _RE_JOGOS_GENERICO = re.compile(r"\b(?:em|nos|de|para|todos os)\s+(?:todos\s+os\
                                 r"(?!\s+(?:de\s+|para\s+|da\s+|do\s+)?(?:tabuleiro|mobile|pc|xbox|nintendo|switch|celular|"
                                 r"publisher|editora|franquia|serie|colecao))")
 _RE_JOGO_CITADO = re.compile(r"\bjogos?\b")
+_RE_CONSOLE_PALAVRA_CUPOM = re.compile(r"\bconsoles?\b|\bvideo\s?games?\b")
+# "games" como categoria (jogos, consoles e acessórios), não "games de PC/Xbox/mobile"
+_RE_GAMES_CATEGORIA = re.compile(r"\bgames\b(?!\s+(?:de\s+|para\s+)?(?:pc|mobile|xbox|nintendo|switch|celular))")
 # o usuário só tem Nubank/NuPay (decisão de 03/10): cupom exclusivo de assinatura (Prime, Meli+) não vale para ele
 _RE_ASSINANTE = re.compile(r"\bprime\b|\bmeli\s?\+|\bmeli mais\b|\bassinantes?\b|\bninja\b")
 _MARCAS_OUTRAS_JOGOS = [m for m in _MARCAS_OUTRAS if m not in ("ps5", "playstation", "gta", "gamer")] + [
@@ -742,6 +745,12 @@ def _temas_do_texto(t: str) -> set[str]:
     temas = {nome for nome, rx in _TEMAS_CUPOM if rx.search(t)}
     if "gta" in temas:
         return {"gta"}
+    if "leitor" in temas and "console" in temas and not _RE_CONSOLE_PALAVRA_CUPOM.search(t):
+        # "R$ 62 OFF no Leitor de Disco PS5" (LEITOR62): o PS5 é a plataforma do leitor, não o console (revisão de 03/10)
+        temas.discard("console")
+    if "console" in temas and _RE_GAMES_CATEGORIA.search(t):
+        # "10% OFF em Games e Consoles" (GAMES10): a categoria toda de games (jogos inclusive), não só o console
+        temas.discard("console")
     if _RE_JOGOS_GENERICO.search(t):
         temas.add("jogo")
     elif _RE_JOGO_CITADO.search(t):
@@ -1109,6 +1118,23 @@ def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = Non
     return "\n".join(linhas)
 
 
+def _origem_do_post(o: Oferta) -> str:
+    """Onde a postagem saiu: o canal do Telegram ("[pelandobr] ..." no título) ou a fonte (pelando, promobit)."""
+    m = re.match(r"\[([^\]]{1,40})\]", o.titulo or "")
+    return m.group(1) if m else (o.fonte or "?")
+
+
+def prioridade_do_alerta(m: str) -> int:
+    """Ordem de corte quando a rodada passa do limite de mensagens (run.limita_alertas): o que bate a meta (🎯) fica
+    primeiro, depois o menor preço já visto (🏆), depois o resto; entre iguais, a ordem de sempre."""
+    cab = (m or "").split("\n", 1)[0]
+    if "🎯" in cab:
+        return 0
+    if "🏆" in cab:
+        return 1
+    return 2
+
+
 def alvos_de(o: Oferta) -> tuple[Optional[float], Optional[float]]:
     """(meta do Pix/à vista, meta do total parcelado) desta oferta: a do modelo nas TVs (config, como antes); nos outros
     produtos, a da oferta (produtos.alvos_da_oferta: entrega do GTA, extra do kit, valor de face do gift card)."""
@@ -1269,6 +1295,10 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
     # "⚠️ confira", sem 🎯. Toda postagem nova de PS5/GTA 6 sai (como as das TVs), com a meta e a distância até ela
     ref_confiavel: dict[str, Optional[float]] = {}
     auto = _reprovados_auto(estado)
+    # a mesma oferta de PS5/GTA 6 repostada em vários canais na mesma rodada (mesmo produto, loja, preço e resultado)
+    # vira UM alerta com "também postado em" (revisão de 03/10: 5 alertas iguais do PS5 da Amazon a R$ 3.889). As TVs
+    # seguem como antes (uma mensagem por post)
+    repetidos: dict[tuple, tuple[int, list[str]]] = {}
     for o in posts:
         modelo = modelo_de(o)
         if estado.oferta_anterior(o.chave) is not None:
@@ -1296,7 +1326,20 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
             et.append("🎯")
         nota = f"⚠️ confira: {barrada}" if barrada else \
             "⚠️ confira: preço muito abaixo das lojas confiáveis" if muito_abaixo else None
+        rep = None
+        if not produtos.eh_tv(modelo) and o.melhor_preco:
+            rep = (modelo, loja_canonica(o.loja), round(o.melhor_preco, 2), tuple(et), nota)
+            if rep in repetidos:
+                repetidos[rep][1].append(_origem_do_post(o))
+                continue
         msgs.append(_msg_oferta(et, o, nota=nota, gift=gift))
+        if rep is not None:
+            repetidos[rep] = (len(msgs) - 1, [])
+    for idx, outros in repetidos.values():
+        if outros:
+            nomes = list(dict.fromkeys(outros))
+            msgs[idx] += "\n🔁 também postado em: " + ", ".join(_esc(n) for n in nomes[:8]) + \
+                (f" e mais {len(nomes) - 8}" if len(nomes) > 8 else "")
 
     # ---- cupons ----
     em_jogo = modelos_em_jogo(ofertas, vigia)

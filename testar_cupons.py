@@ -108,6 +108,7 @@ from monitor.carrinho import (  # noqa: E402
 )
 from monitor.models import Cupom  # noqa: E402
 from monitor.filtro import eh_55c6k  # noqa: E402
+from monitor.sources import entrega as _entrega  # noqa: E402
 from monitor.trava import PerfilOcupado, trava_perfil  # noqa: E402
 from monitor.util import TZ_BR, agora, agora_iso, fmt_preco, hoje, loja_canonica  # noqa: E402
 
@@ -1268,6 +1269,10 @@ def _entrega_do_carrinho(loja: LojaCarrinho, page, a: Anuncio, r: ResultadoCupom
         quando = loja.ler_entrega(page)
     except Exception:  # noqa: BLE001 - leitura extra: nunca atrapalha o teste do cupom
         quando = None
+    if not quando:
+        return
+    # pré-venda: data antes de as caixas saírem (12/11) é o prazo contado de hoje; o trânsito passa a contar de 12/11
+    quando, _ajustou = _entrega.ajusta_pre_venda(quando, base=agora().astimezone(TZ_BR).date())
     if not quando:
         return
     o = {"modelo": a.modelo, "loja": loja.loja_canonica, "vendedor": a.vendedor,

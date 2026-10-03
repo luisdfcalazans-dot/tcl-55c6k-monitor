@@ -57,6 +57,12 @@ CATALOGOS_ML_PRODUTOS: dict[str, str] = {
     c.upper(): pid for c in _produtos.CATALOGOS_ML_EXTRA
     for pid in [_produtos.produto_por_id_loja("Mercado Livre", c)] if pid}
 _RE_TEXTO_DE_PRODUTO = re.compile(r"\bps\s?5\b|playstation|\bgta\b|grand theft auto", re.I)
+# peça/acessório citado em qualquer ponto da linha do carrinho ("Console PS5 Slim Digital - Capa Protetora"): o título
+# do console de verdade não fala dessas peças. No carrinho, na dúvida, a linha não é um principal (revisão de 03/10)
+_RE_PECA_NA_LINHA = re.compile(r"\b(?:capas?|cases?|suportes?|skins?|adesivos?|pel[íi]culas?|coolers?|ventoinhas?|"
+                               r"bolsas?|mochilas?|protetor(?:es)?|organizador(?:es)?|tampas?|faceplates?|covers?|"
+                               r"base (?:vertical|carregadora|de carregamento)|estac[aã]o de carregamento|"
+                               r"carregador(?:es)?|grips?)\b", re.I)
 
 
 def eh_tv(produto: Optional[str]) -> bool:
@@ -155,6 +161,12 @@ def produto_do_titulo(texto: str) -> Optional[str]:
     achados: set = set()
     for linha in [l.strip() for l in t.splitlines() if l.strip()][:8]:
         if not _RE_TEXTO_DE_PRODUTO.search(linha) or len(linha) < 8:
+            continue
+        if _produtos.cita_leitor_avulso(linha) or _RE_PECA_NA_LINHA.search(linha):
+            # o leitor de disco como peça ("Unidade de Disco para Consoles PS5", "Leitor de Disco ... Console PS5 Slim")
+            # ou outra peça citada na linha: nunca é um principal, mesmo que o título também diga console (revisão de
+            # 03/10: o leitor da pessoa saía da sacola como se fosse o PS5 do robô)
+            achados.add("peça")
             continue
         c = _produtos.classifica(linha)
         if c.produto:

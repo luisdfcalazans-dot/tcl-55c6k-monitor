@@ -60,6 +60,48 @@ def soma_dias_uteis(inicio: date, n: int) -> date:
     return d
 
 
+def dias_uteis_entre(inicio: date, fim: date) -> int:
+    """Quantos dias úteis há depois de `inicio` até `fim` (inclusive): o inverso de soma_dias_uteis."""
+    n, d = 0, inicio
+    while d < fim:
+        d += timedelta(days=1)
+        if e_dia_util(d):
+            n += 1
+    return n
+
+
+def inicio_pre_venda(envio: Any = None) -> date:
+    """Primeiro dia em que a caixa do GTA 6 pode sair da loja: 12/11 (a Rockstar libera as caixas para o
+    pré-carregamento) ou a data de envio que a loja informa ("envio a partir de 16/11"), a que for mais tarde."""
+    d = date.fromisoformat(produtos.INICIO_ENVIO_GTA6)
+    try:
+        return max(d, date.fromisoformat(str(envio)[:10])) if envio else d
+    except ValueError:
+        return d
+
+
+def ajusta_pre_venda(data_iso: Any, base: Optional[date] = None,
+                     inicio: Optional[date] = None) -> tuple[Optional[str], bool]:
+    """(data, ajustou?) da entrega de um GTA 6 físico na pré-venda. Antes de 12/11 (ou da data de envio informada) a
+    caixa não existe: uma data anterior é o prazo da loja contado a partir de HOJE (estimativa da VTEX, cartão da
+    Amazon, carrinho). O trânsito (dias úteis de `base`/hoje até ela, pelo menos 1) passa a contar do início do envio.
+    Revisão de 03/10: "5bd" na Americanas virava "previsão 09/10 — chega a tempo"; o certo é 19/11 (no dia)."""
+    if not data_iso:
+        return None, False
+    try:
+        d = date.fromisoformat(str(data_iso)[:10])
+    except ValueError:
+        return None, False
+    ini = inicio or inicio_pre_venda()
+    h = base or hoje()
+    if d >= ini or h >= ini:
+        return d.isoformat(), False
+    if d >= date.fromisoformat(produtos.INICIO_ENVIO_GTA6):
+        # depois de 12/11, mas antes do envio que a própria loja informou: chega, no mínimo, 1 dia útil depois dele
+        return soma_dias_uteis(ini, 1).isoformat(), True
+    return soma_dias_uteis(ini, max(1, dias_uteis_entre(h, d))).isoformat(), True
+
+
 def data_da_estimativa(estimativa: Any, base: Optional[date] = None) -> Optional[str]:
     """Prazo da VTEX ("39bd" = 39 dias úteis, "5d" = 5 dias corridos, "12h") em data ISO a partir de `base` (hoje)."""
     m = _RE_ESTIMATIVA.match(str(estimativa or ""))
@@ -119,12 +161,18 @@ def chega_a_tempo(data_iso: Optional[str]) -> Optional[bool]:
 
 
 def marca(o: Any, data_iso: Optional[str], referencia: bool, origem: str = "") -> None:
-    """Grava o prazo na oferta (só no que traz o GTA 6 físico). `data_iso` None não apaga nada."""
+    """Grava o prazo na oferta (só no que traz o GTA 6 físico). `data_iso` None não apaga nada. Data antes de as
+    caixas existirem (12/11, ou o envio que a loja informa) é reprojetada a partir delas (ajusta_pre_venda)."""
     if not data_iso or not precisa(getattr(o, "modelo", None)):
         return
-    o.extra["entrega_prevista"] = data_iso[:10]
-    o.extra["entrega_ate_lancamento"] = chega_a_tempo(data_iso)
+    data, ajustou = ajusta_pre_venda(data_iso, inicio=inicio_pre_venda(o.extra.get("envio_a_partir")))
+    if not data:
+        return
+    o.extra["entrega_prevista"] = data
+    o.extra["entrega_ate_lancamento"] = chega_a_tempo(data)
     o.extra["cep_referencia"] = bool(referencia)
+    if ajustou:
+        origem = (origem + " " if origem else "") + "(prazo contado a partir de 12/11, quando saem as caixas)"
     if origem:
         o.extra["entrega_origem"] = origem
 

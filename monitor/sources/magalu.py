@@ -31,7 +31,7 @@ import requests
 from .. import config, produtos
 from ..filtro import eh_tv_c6k, modelo_do_titulo
 from ..models import MODELO_PADRAO, MODELO_POR_POLEGADA, Cupom, Oferta
-from ..util import dias_desde, get_html, iso_normaliza, next_data, parse_preco
+from ..util import agora, dias_desde, get_html, iso_normaliza, next_data, parse_preco
 from . import Fonte, Pular, Resultado
 
 BASE_MV = "https://www.magazinevoce.com.br/magazinecanaltechbr"
@@ -295,17 +295,26 @@ def _cupons(p: dict, modelo: str | None = None) -> list[Cupom]:
 
 
 def _aplica_cupom(o: Oferta, p: dict, cupons: list[Cupom]) -> None:
-    """Cupom do anúncio na oferta e o preço estimado com o primeiro cupom de valor absoluto."""
+    """Cupom do anúncio na oferta e o preço estimado com o primeiro cupom de valor absoluto (o que ainda não venceu,
+    quando há mais de um). O código, a regra e a validade gravados são os DESSE cupom (revisão de 03/10: com um cupom
+    percentual antes, o alerta mostrava o código de um com o desconto de outro)."""
     if not cupons:
         return
     o.cupom = cupons[0].codigo
-    for tag in (p.get("seller") or {}).get("tags") or []:
-        if tag.get("type") == "coupon" and tag.get("discountType") == "absolute" and tag.get("discountValue"):
-            base = o.preco_pix or o.preco
-            if base:
-                o.extra["preco_com_cupom"] = round(base - float(tag["discountValue"]), 2)
-                o.extra["cupom_regra"] = cupons[0].regra
-            break
+    absolutos = [t for t in (p.get("seller") or {}).get("tags") or []
+                 if t.get("type") == "coupon" and t.get("discountType") == "absolute" and t.get("discountValue")
+                 and t.get("code")]
+    if not absolutos:
+        return
+    hoje_ = agora().date().isoformat()
+    tag = next((t for t in absolutos if str(iso_normaliza(t.get("endDate")) or "9999")[:10] >= hoje_), absolutos[0])
+    base = o.preco_pix or o.preco
+    if base:
+        o.extra["preco_com_cupom"] = round(base - float(tag["discountValue"]), 2)
+        o.extra["cupom_preco"] = tag["code"]
+        o.extra["cupom_regra"] = tag.get("message") or next((c.regra for c in cupons if c.codigo == tag["code"]), "")
+        if tag.get("endDate"):
+            o.extra["cupom_validade"] = iso_normaliza(tag.get("endDate"))
 
 
 def _dados(html: str) -> dict:

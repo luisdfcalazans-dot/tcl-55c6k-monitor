@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import re
 import time
+from datetime import date
 from typing import Iterable, Optional
 
 import requests
@@ -159,20 +160,24 @@ def url_por_ean(base: str, eans: Iterable[str]) -> str:
     return f"{base}/api/catalog_system/pub/products/search?{q}&_from=0&_to=49"
 
 
-def simula_prazo(base: str, sku: str, vendedor: str, cep: str, timeout: int = 20) -> Optional[str]:
+def simula_prazo(base: str, sku: str, vendedor: str, cep: str, timeout: int = 20,
+                 inicio: Optional[date] = None) -> Optional[str]:
     """Prazo de entrega (data ISO) do item no CEP pela simulação do checkout (sem carrinho, sem login). A menor
-    estimativa entre as opções de entrega (retirada não conta). None quando a loja não responde ou não entrega."""
+    estimativa entre as opções de entrega (retirada não conta). None quando a loja não responde ou não entrega.
+    `inicio`: pré-venda (GTA 6 físico): o prazo em dias conta a partir do envio (12/11 ou o informado), não de hoje."""
     h = dict(HEADERS_JSON)
     h["Content-Type"] = "application/json"
     corpo = {"items": [{"id": str(sku), "quantity": 1, "seller": str(vendedor)}], "postalCode": cep, "country": "BRA"}
     r = requests.post(f"{base}/api/checkout/pub/orderForms/simulation?sc=1", json=corpo, headers=h, timeout=timeout)
     r.raise_for_status()
     datas = []
+    hoje = entrega.hoje()
+    a_partir = max(hoje, inicio) if inicio else None
     for li in (r.json() or {}).get("logisticsInfo") or []:
         for s in li.get("slas") or []:
             if str(s.get("deliveryChannel") or "delivery") != "delivery":
                 continue
-            d = entrega.data_da_estimativa(s.get("shippingEstimate"))
+            d = entrega.data_da_estimativa(s.get("shippingEstimate"), a_partir)
             if d:
                 datas.append(d)
     return min(datas) if datas else None
@@ -191,7 +196,9 @@ def completa_entrega(ofertas: list[Oferta], base: str, nome: str, maximo: int = 
             entrega.marca_envio_tardio(o)
             continue
         try:
-            data = simula_prazo(base, o.extra["sku"], o.extra.get("seller_id") or "1", cep)
+            # pré-venda: o prazo da VTEX (dias úteis) conta a partir de 12/11 (ou do envio informado), não de hoje
+            data = simula_prazo(base, o.extra["sku"], o.extra.get("seller_id") or "1", cep,
+                                inicio=entrega.inicio_pre_venda(envio))
         except Exception as e:  # noqa: BLE001 - o prazo é extra: a oferta continua sem ele
             print(f"[{nome}] simulação de frete de {o.id} falhou: {type(e).__name__}")
             continue

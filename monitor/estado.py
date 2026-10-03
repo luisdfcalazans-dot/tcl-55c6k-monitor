@@ -32,7 +32,14 @@ from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
 
 # todos os produtos do catálogo (as TVs primeiro); MODELOS continua sendo só as duas TVs
 PRODUTOS = produtos.IDS
-POSTS_NO_LATEST = 120   # postagens recentes no latest (as TVs, o PS5 e o GTA 6 dividem a lista)
+POSTS_NO_LATEST = 120   # postagens recentes das TVs no latest (como antes do PS5)
+# PS5, GTA 6, gift card e leitor têm a cota deles (revisão de 03/10: o volume novo empurrava as postagens das TVs para
+# fora da lista durante a vigia); o painel mostra 10 por seção e 30 no geral
+POSTS_NAO_TV_NO_LATEST = 40
+# postagem de PS5/GTA 6 publicada há mais que isto (e que não apareceu na rodada) sai do state: postagem com mais de 3
+# dias já não alerta, e o volume novo (Telegram com busca, Promobit e Pelando com mais termos) fazia o state crescer sem
+# fim. As das TVs ficam como sempre
+DIAS_POSTS_NAO_TV = 21
 
 # 'modelo' no fim (26/09): o CSV antigo ganha a coluna só no cabeçalho, e as linhas antigas (sem ela) são da 55C6K
 CAMPOS_HISTORICO = [
@@ -423,6 +430,21 @@ class Estado:
             reg["preco_alertado"] = alertado_preco
         self.dados["ofertas"][o.chave] = reg
 
+    def poda_postagens(self, chaves_vistas: set[str], dias: float = DIAS_POSTS_NAO_TV) -> int:
+        """Tira do state as postagens de PS5/GTA 6 (e do gift card e do leitor) publicadas há mais de `dias` dias que
+        não apareceram nesta rodada. Não voltam a alertar se reaparecerem (postagem com mais de 3 dias não alerta);
+        postagem sem data de publicação fica. As das TVs não mudam. Devolve quantas saíram."""
+        fora = []
+        for chave, r in self.dados["ofertas"].items():
+            if not isinstance(r, dict) or r.get("tipo") != "post" or chave in chaves_vistas or produtos.eh_tv(modelo_de(r)):
+                continue
+            d = dias_desde(r.get("publicado"))
+            if d is not None and d > dias:
+                fora.append(chave)
+        for chave in fora:
+            del self.dados["ofertas"][chave]
+        return len(fora)
+
     def marca_inativas(self, chaves_vistas: set[str], fontes_executadas: set[str]) -> None:
         """Ofertas de loja que não apareceram desta vez (na fonte que rodou) ficam inativas."""
         for chave, reg in self.dados["ofertas"].items():
@@ -777,6 +799,11 @@ class Estado:
         recentes = [r for r in posts_conhecidos if r.get("ativo", True)
                     and (dias_desde(r.get("publicado") or r.get("primeira_vez")) or 0) <= 7]
         gta = produtos.custo_final_gta([d for d in lojas if not fora_de_preco(d)] + recentes)
+        # as TVs com a lista de sempre (até POSTS_NO_LATEST); os outros produtos com a cota deles, sem tirar as das TVs
+        posts_tv = [r for r in posts_conhecidos if produtos.eh_tv(modelo_de(r))][:POSTS_NO_LATEST]
+        posts_outros = [r for r in posts_conhecidos if not produtos.eh_tv(modelo_de(r))][:POSTS_NAO_TV_NO_LATEST]
+        ids_no_latest = {id(r) for r in posts_tv + posts_outros}
+        posts_latest = [r for r in posts_conhecidos if id(r) in ids_no_latest]
         latest = {
             "modo": self.modo,
             "atualizado": agora_iso(),
@@ -789,7 +816,7 @@ class Estado:
             **{chave_minimo(m): self.dados.get(chave_minimo(m)) for m in PRODUTOS
                if m in MODELOS or self.dados.get(chave_minimo(m))},
             "ofertas_loja": lojas,
-            "posts": posts_conhecidos[:POSTS_NO_LATEST],
+            "posts": posts_latest,
             "gta6_custo_final": gta,
             "cupons": cupons_ativos,
             "saude": self.dados["saude"],

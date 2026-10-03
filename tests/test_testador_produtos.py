@@ -332,9 +332,11 @@ def test_tv_no_carrinho_durante_a_vigia_nao_e_tocada(amb, vigia):
 
 
 def test_isolar_o_produto_tira_os_outros_e_o_fim_devolve(amb):
-    # só o PS5 tem cupom pendente: o GTA sai para medir e volta no passo final
+    # só o PS5 tem cupom pendente: o GTA sai para medir e volta no passo final. (Desde a revisão de 03/10 o GAMES10, "em
+    # Games e Consoles", também vale para o GTA: aqui ele já foi recusado no GTA há pouco.)
     _latest(amb, [O_PS5D, O_GTA], cupons=CUPONS[:1])
-    estado = {"magalu": {"cupons": {f"GTA60@{K_GTA}": _rec("recusado", FIXO.replace(hour=14))}}}
+    estado = {"magalu": {"cupons": {f"GTA60@{K_GTA}": _rec("recusado", FIXO.replace(hour=14)),
+                                    f"GAMES10@{K_GTA}": _rec("recusado", FIXO.replace(hour=14))}}}
     loja = CarrinhoProdutos(amb.pasta, carrinho=[K_PS5D, K_GTA])
     _rodar(amb, loja, estado)
     assert [e for e in loja.eventos if e[0] == "aplicar"] == [("aplicar", (K_PS5D,), "GAMES10")]
