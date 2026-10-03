@@ -28,11 +28,11 @@ from urllib.parse import quote_plus
 
 import requests
 
-from .. import config
+from .. import config, produtos
 from ..filtro import eh_tv_c6k, modelo_do_titulo
 from ..models import MODELO_PADRAO, MODELO_POR_POLEGADA, Cupom, Oferta
-from ..util import dias_desde, get_html, iso_normaliza, next_data, parse_preco
-from . import Fonte, Resultado
+from ..util import agora, dias_desde, get_html, iso_normaliza, next_data, parse_preco
+from . import Fonte, Pular, Resultado
 
 BASE_MV = "https://www.magazinevoce.com.br/magazinecanaltechbr"
 _RE_ID = re.compile(r"/p/([0-9a-z]+)(?:/|$|\?)", re.I)
@@ -295,17 +295,26 @@ def _cupons(p: dict, modelo: str | None = None) -> list[Cupom]:
 
 
 def _aplica_cupom(o: Oferta, p: dict, cupons: list[Cupom]) -> None:
-    """Cupom do anúncio na oferta e o preço estimado com o primeiro cupom de valor absoluto."""
+    """Cupom do anúncio na oferta e o preço estimado com o primeiro cupom de valor absoluto (o que ainda não venceu,
+    quando há mais de um). O código, a regra e a validade gravados são os DESSE cupom (revisão de 03/10: com um cupom
+    percentual antes, o alerta mostrava o código de um com o desconto de outro)."""
     if not cupons:
         return
     o.cupom = cupons[0].codigo
-    for tag in (p.get("seller") or {}).get("tags") or []:
-        if tag.get("type") == "coupon" and tag.get("discountType") == "absolute" and tag.get("discountValue"):
-            base = o.preco_pix or o.preco
-            if base:
-                o.extra["preco_com_cupom"] = round(base - float(tag["discountValue"]), 2)
-                o.extra["cupom_regra"] = cupons[0].regra
-            break
+    absolutos = [t for t in (p.get("seller") or {}).get("tags") or []
+                 if t.get("type") == "coupon" and t.get("discountType") == "absolute" and t.get("discountValue")
+                 and t.get("code")]
+    if not absolutos:
+        return
+    hoje_ = agora().date().isoformat()
+    tag = next((t for t in absolutos if str(iso_normaliza(t.get("endDate")) or "9999")[:10] >= hoje_), absolutos[0])
+    base = o.preco_pix or o.preco
+    if base:
+        o.extra["preco_com_cupom"] = round(base - float(tag["discountValue"]), 2)
+        o.extra["cupom_preco"] = tag["code"]
+        o.extra["cupom_regra"] = tag.get("message") or next((c.regra for c in cupons if c.codigo == tag["code"]), "")
+        if tag.get("endDate"):
+            o.extra["cupom_validade"] = iso_normaliza(tag.get("endDate"))
 
 
 def _dados(html: str) -> dict:
@@ -596,4 +605,80 @@ class Magalu(Fonte):
               + (f" ({por_modelo})" if por_modelo else "") + (f", {len(erros)} erros" if erros else ""))
         if not ofertas and erros:
             raise RuntimeError(f"Magalu: nenhuma oferta; {erros[0]}")
+        return ofertas, list(cupons.values())
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# PS5, GTA 6, leitor e gift card (03/10/2026)
+# ---------------------------------------------------------------------------------------------------------------------
+
+def produto_nao_tv(p: dict) -> tuple[str | None, dict]:
+    """(produto, detalhes) de um anúncio que não é TV, pelo classificador do catálogo com o id do anúncio (monitor/
+    produtos.py: recusa acessório, outro jogo, PS4/PS3, importado...); (None, {}) para o resto."""
+    titulo = p.get("title") or ""
+    vid = str(p.get("variationId") or "") or id_anuncio(p.get("path") or p.get("url") or "")
+    c = produtos.classifica(titulo, "Magazine Luiza", id_loja=vid or None)
+    if c.produto and not produtos.eh_tv(c.produto):
+        return c.produto, dict(c.detalhes)
+    return None, {}
+
+
+def parse_busca_produtos(html: str, fonte: str = "magalu.produtos") -> tuple[list[Oferta], list[Cupom]]:
+    """Ofertas de PS5/GTA 6 da busca do magazinevoce e os cupons dos anúncios (a busca traz seller.tags: LU325, GTA60)."""
+    ofertas: list[Oferta] = []
+    cupons: dict[str, Cupom] = {}
+    for p in info_busca(html)[0]:
+        pid, det = produto_nao_tv(p)
+        if not pid or not p.get("available", True):
+            continue
+        o = _oferta(p, pid)
+        if not o:
+            continue
+        o.fonte = fonte
+        if det:
+            o.extra["produto"] = det
+        cps = _cupons(p, pid)
+        for c in cps:
+            _guarda_cupom(cupons, c)
+        _aplica_cupom(o, p, cps)
+        ofertas.append(o)
+    return ofertas, list(cupons.values())
+
+
+class MagaluProdutos(Fonte):
+    """PS5, GTA 6 e o resto do catálogo que não é TV no Magalu (magazinevoce): só as buscas (config.MAGALU_TERMOS_
+    PRODUTOS). A busca já traz preço, Pix, parcelado, vendedor e o cupom do anúncio; os vendedores novos passam pela
+    checagem de confiança de sempre. Pedidos próprios (config.MAGALU_PRODUTOS_MAX_REQUISICOES), depois da coleta das TVs;
+    se o magazinevoce bloqueou há pouco, espera a próxima rodada."""
+
+    nome = "magalu.produtos"
+
+    def coletar(self) -> Resultado:
+        if bloqueio_recente():
+            raise Pular("o magazinevoce bloqueou há pouco (403/429): nova tentativa na próxima rodada")
+        orc = _Orcamento(config.MAGALU_PRODUTOS_MAX_REQUISICOES, config.MAGALU_PAUSA_S)
+        por_id: dict[str, Oferta] = {}
+        cupons: dict[str, Cupom] = {}
+        erros: list[str] = []
+        for termo in config.MAGALU_TERMOS_PRODUTOS:
+            try:
+                html = orc.get(f"{BASE_MV}/busca/{quote_plus(termo)}/")
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"{termo}: {type(e).__name__}: {str(e)[:120]}")
+                if orc.bloqueado:
+                    break
+                continue
+            if not html:
+                continue
+            ofs, cps = parse_busca_produtos(html, self.nome)
+            for o in ofs:
+                _guarda(por_id, o)
+            for c in cps:
+                _guarda_cupom(cupons, c)
+        ofertas = list(por_id.values())
+        por_produto = ", ".join(f"{sum(o.modelo == m for o in ofertas)} {m}" for m in sorted({o.modelo for o in ofertas}))
+        print(f"[magalu.produtos] {orc.usadas} buscas, {len(ofertas)} ofertas" + (f" ({por_produto})" if por_produto else "")
+              + (f", {len(cupons)} cupons" if cupons else "") + (f", {len(erros)} erros" if erros else ""))
+        if not ofertas and erros:
+            raise RuntimeError(f"Magalu (PS5/GTA 6): nenhuma oferta; {erros[0]}")
         return ofertas, list(cupons.values())

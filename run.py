@@ -34,14 +34,18 @@ def carrega_env() -> None:
 
 
 def limita_alertas(msgs: list[str], estado, maximo: int) -> list[str]:
-    """Corta as mensagens da rodada no limite. Se a de cupons fica de fora, os cupons dela não foram alertados."""
+    """Corta as mensagens da rodada no limite. Ficam primeiro as que batem a meta (🎯) e as de menor preço (🏆), depois
+    as outras, sempre na ordem original (revisão de 03/10: um 🎯 do GTA vindo do Telegram, a última fonte, ia para o
+    "… e mais N"). Se a de cupons fica de fora, os cupons dela não foram alertados."""
     if len(msgs) <= maximo:
         return msgs
-    from monitor.regras import e_mensagem_de_cupons
+    from monitor.regras import e_mensagem_de_cupons, prioridade_do_alerta
 
-    if any(e_mensagem_de_cupons(m) for m in msgs[maximo:]):
+    ordem = sorted(range(len(msgs)), key=lambda i: (prioridade_do_alerta(msgs[i]), i))
+    ficam = sorted(ordem[:maximo])
+    if any(e_mensagem_de_cupons(msgs[i]) for i in ordem[maximo:]):
         estado.esquece_alertas_de_cupom_da_rodada()
-    return msgs[:maximo] + [f"… e mais {len(msgs) - maximo} alertas nesta rodada (veja o painel)."]
+    return [msgs[i] for i in ficam] + [f"… e mais {len(msgs) - maximo} alertas nesta rodada (veja o painel)."]
 
 
 def main() -> int:
@@ -53,7 +57,7 @@ def main() -> int:
     ap.add_argument("--resumo", action="store_true")
     args = ap.parse_args()
 
-    from monitor import config, notificar
+    from monitor import config, notificar, produtos
     from monitor.estado import Estado
     from monitor.models import MODELOS, modelo_de
     from monitor.regras import (
@@ -136,37 +140,45 @@ def main() -> int:
 
     vigia = config.modo_vigia(hoje())
     if vigia:
-        # TV comprada (03/10): só a 65C6K abaixo do limite gera alerta; sem cupons, sem 55C6K, sem resumo diário
+        # TV comprada (03/10): das TVs, só a 65C6K abaixo do limite gera alerta (sem cupons, sem 55C6K, sem resumo das
+        # TVs). A vigia vale SÓ para as TVs: PS5, GTA 6 e o resto do catálogo seguem com alertas e cupons
         config.ALVO_PIX_65 = config.ALVO_PARCELADO_65 = config.VIGIA_LIMITE
         candidatas = [o for o in ofertas if modelo_de(o) == config.VIGIA_MODELO  # type: ignore[arg-type]
                       and o.melhor_preco and o.melhor_preco <= config.VIGIA_LIMITE]  # type: ignore[union-attr]
-        print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; alerta só da {config.VIGIA_MODELO} até "
-              f"R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s)")
-        msgs, alertados = gerar_alertas(estado, candidatas, [])  # type: ignore[arg-type]
-        avisos = []
+        outras = [o for o in ofertas if not config.vigia_afeta(modelo_de(o))]  # type: ignore[arg-type]
+        print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; das TVs, alerta só da {config.VIGIA_MODELO} até "
+              f"R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s); "
+              f"{len(outras)} oferta(s)/postagem(ns) de PS5/GTA 6 seguem normais")
+        msgs, alertados = gerar_alertas(estado, candidatas + outras, cupons, vigia=True)  # type: ignore[arg-type]
     else:
         msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
+    # cupons para o painel e o resumo: os das TVs continuam no painel durante a vigia (como antes)
     aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
     # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço
     diretas = estado.lojas_diretas_conhecidas(ofertas)  # type: ignore[arg-type]
 
-    if vigia:
-        pass  # modo vigia: sem mensagem de início nem resumo diário
-    elif estado.bootstrap and (ofertas or cupons):
-        msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas)]  # type: ignore[arg-type]
+    if estado.bootstrap and (ofertas or cupons):
+        if not vigia:
+            msgs = [mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas)]  # type: ignore[arg-type]
     elif not estado.bootstrap:
-        # partida de um modelo que entrou num state que já existia (26/09: a 65C6K): gerar_alertas não alertou nada
-        # dele; sai a mensagem de início só dele, com os preços de agora
-        for modelo in MODELOS:
-            if estado.bootstrap_modelo(modelo) and any(modelo_de(o) == modelo for o in ofertas):  # type: ignore[arg-type]
-                msgs.append(mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas, [modelo]))  # type: ignore[arg-type]
+        # partida de um produto que entrou num state que já existia (26/09: a 65C6K; 03/10: o PS5 e o GTA 6):
+        # gerar_alertas não alertou nada dele; sai UMA mensagem de início com os que começam agora, com os preços de
+        # agora (no modo vigia, sem as TVs)
+        novos = [m for m in produtos.IDS if estado.bootstrap_modelo(m) and not (vigia and config.vigia_afeta(m))
+                 and any(modelo_de(o) == m for o in ofertas)]  # type: ignore[arg-type]
+        tvs = [m for m in novos if m in MODELOS]
+        for modelo in tvs:  # as TVs, como antes (uma mensagem por modelo)
+            msgs.append(mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas, [modelo]))  # type: ignore[arg-type]
+        outros = [m for m in novos if m not in MODELOS]
+        if outros:
+            msgs.append(mensagem_bootstrap(ofertas, aplicaveis, args.mode, diretas, outros))  # type: ignore[arg-type]
 
-    # resumo diário
+    # resumo diário (no modo vigia, só o PS5 e o GTA 6)
     h = agora().hour
-    if not vigia and (args.resumo or (config.HORA_RESUMO_DIARIO >= 0 and h >= config.HORA_RESUMO_DIARIO
-                       and estado.dados.get("ultimo_resumo") != hoje() and args.mode != "pc")):
+    if args.resumo or (config.HORA_RESUMO_DIARIO >= 0 and h >= config.HORA_RESUMO_DIARIO
+                       and estado.dados.get("ultimo_resumo") != hoje() and args.mode != "pc"):
         if not estado.bootstrap:
-            msgs.append(resumo_diario(estado, ofertas, aplicaveis))  # type: ignore[arg-type]
+            msgs.append(resumo_diario(estado, ofertas, aplicaveis, vigia))  # type: ignore[arg-type]
         estado.dados["ultimo_resumo"] = hoje()
 
     msgs = limita_alertas(avisos + msgs, estado, config.MAX_ALERTAS_POR_EXECUCAO)
@@ -179,6 +191,10 @@ def main() -> int:
             estado.esquece_alertas_de_cupom_da_rodada()  # não chegou ao Telegram: os cupons não foram alertados
         enviados += 1
 
+    # o que o painel e o resumo usam nos produtos que não são TV (meta desta oferta, entrega do GTA 6, detalhes do kit e
+    # do gift card), gravado no extra antes de ir para o state/latest
+    produtos.anota(ofertas)
+
     # persistência
     chaves_vistas = set()
     for o in ofertas:  # type: ignore[assignment]
@@ -189,6 +205,10 @@ def main() -> int:
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
     estado.marca_inativas(chaves_vistas, executadas)
+    # postagens antigas de PS5/GTA 6 que não apareceram nesta rodada saem do state (as das TVs ficam como sempre)
+    podadas = estado.poda_postagens(chaves_vistas)
+    if podadas:
+        print(f"[estado] {podadas} postagem(ns) antiga(s) de PS5/GTA 6 fora do state")
     # o modelo que teve oferta ou postagem registrada nesta rodada já fez a partida dele neste modo
     estado.marca_modelos_iniciados({modelo_de(o) for o in ofertas})  # type: ignore[arg-type]
     # histórico/gráfico: só preços ativos (esgotado ou descartado pelo sanear não é preço da TV)
@@ -200,11 +220,12 @@ def main() -> int:
     n_loja = sum(1 for o in ofertas if o.tipo == "loja")  # type: ignore[union-attr]
     n_post = len(ofertas) - n_loja
     melhores = []
-    for modelo in MODELOS:
-        melhor = min([o.melhor_preco for o in ofertas  # type: ignore[union-attr]
-                      if o.tipo == "loja" and modelo_de(o) == modelo and o.ativo and o.melhor_preco
-                      and not confianca.fora_de_preco(o)] or [0])
-        melhores.append(f"{modelo} {melhor:.2f}")
+    for modelo in produtos.IDS:
+        precos = [o.melhor_preco for o in ofertas  # type: ignore[union-attr]
+                  if o.tipo == "loja" and modelo_de(o) == modelo and o.ativo and o.melhor_preco
+                  and not confianca.fora_de_preco(o)]
+        if precos or modelo in MODELOS:   # as TVs sempre (como antes); os outros quando há preço de loja
+            melhores.append(f"{modelo} {min(precos or [0]):.2f}")
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
           f"{enviados} alertas, melhor preço {' / '.join(melhores)}, {time.time()-t0:.0f}s")
     return 0

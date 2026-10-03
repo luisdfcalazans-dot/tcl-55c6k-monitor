@@ -1,6 +1,6 @@
 {
  "_sobre": [
-  "Listas curadas de confiança dos vendedores da TV (lidas por monitor/confianca.py).",
+  "Listas curadas de confiança dos vendedores (TVs, PS5, GTA 6; lidas por monitor/confianca.py).",
   "confiaveis: vendedor conhecido; o alerta sai na hora, sem checagem nenhuma.",
   "reprovados: descartado de cara (sem alerta, mínimo, histórico, painel nem carrinho).",
   "Cada entrada: ids (id do vendedor na loja), nomes (nome como a loja mostra), anuncios (ids de anúncio, só em",
@@ -25,7 +25,11 @@
    {"ids": ["lojawebcontinentalmarketplace"], "nomes": ["Webcontinental Marketplace"],
     "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-14"},
    {"ids": ["lojatclsemp"], "nomes": ["Loja TCL Semp", "TCL Semp"], "motivo": "loja oficial do fabricante (TCL SEMP)",
-    "desde": "2026-09-13"}
+    "desde": "2026-09-13"},
+   {"ids": ["oficialamericanas"], "nomes": ["Oficial Americanas", "Americanas"],
+    "motivo": "varejista grande vendendo no Magalu (PS5, pesquisa de 03/10)", "desde": "2026-10-03"},
+   {"ids": ["gazin"], "nomes": ["Gazin", "Lojas Gazin"], "motivo": "varejista grande vendendo no Magalu (PS5, pesquisa de 03/10)",
+    "desde": "2026-10-03"}
   ],
   "Amazon": [
    {"ids": ["A1ZZFT5FULY4LN"], "nomes": ["Amazon.com.br", "Amazon"], "motivo": "a própria loja (1P)",
@@ -47,12 +51,16 @@
    {"ids": ["3328858476"], "nomes": ["TCL", "Loja oficial TCL"], "motivo": "loja oficial do fabricante no Mercado Livre",
     "desde": "2026-09-22"},
    {"nomes": ["Casas Bahia", "Loja oficial Casas Bahia"], "motivo": "loja oficial da Casas Bahia no Mercado Livre",
-    "desde": "2026-09-21"}
+    "desde": "2026-09-21"},
+   {"ids": ["1047493289"], "nomes": ["PlayStation", "Loja oficial PlayStation"],
+    "motivo": "loja oficial da PlayStation no Mercado Livre (official_store_id 1473; pesquisa de 03/10)", "desde": "2026-10-03"}
   ],
   "Casas Bahia": [
    {"ids": ["10037"], "nomes": ["Casas Bahia"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
    {"ids": ["115221"], "nomes": ["LOJAS COLOMBO", "Lojas Colombo"], "motivo": "varejista grande de eletro",
-    "desde": "2026-09-19"}
+    "desde": "2026-09-19"},
+   {"ids": ["35072"], "nomes": ["LOJA GAZIN", "Loja Gazin"],
+    "motivo": "varejista grande; lojista 35072 na Casas Bahia (PS5, visto em 03/10)", "desde": "2026-10-03"}
   ],
   "KaBuM!": [
    {"nomes": ["KaBuM!", "KaBuM"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
@@ -60,7 +68,42 @@
     "motivo": "varejista grande de eletro; seller_id 4269 no marketplace da KaBuM (visto em 26/09)", "desde": "2026-09-13"},
    {"nomes": ["FAST SHOP", "Fast Shop"], "motivo": "varejista grande (loja própria na VTEX)", "desde": "2026-09-21"},
    {"ids": ["1000"], "nomes": ["Magalu"],
-    "motivo": "Magazine Luiza vendendo no marketplace da KaBuM; seller_id 1000 (visto em 26/09)", "desde": "2026-09-26"}
+    "motivo": "Magazine Luiza vendendo no marketplace da KaBuM; seller_id 1000 (visto em 26/09)", "desde": "2026-09-26"},
+   {"nomes": ["Loja Gazin", "Gazin"], "motivo": "varejista grande no marketplace da KaBuM (PS5, pesquisa de 03/10)",
+    "desde": "2026-10-03"}
+  ],
+  "Netshoes": [
+   {"ids": ["29198"], "nomes": ["Magalu Oficial", "Netshoes"],
+    "motivo": "estoque do próprio Magalu vendido na Netshoes (grupo Magalu; sellerId 29198, pesquisa de 03/10)",
+    "desde": "2026-10-03"}
+  ],
+  "Americanas": [
+   {"ids": ["1"], "nomes": ["AMERICANAS SA", "Americanas"], "motivo": "a própria loja (1P; pesquisa de 03/10)",
+    "desde": "2026-10-03"},
+   {"ids": ["magazineluiza"], "nomes": ["Magazine Luiza", "Magalu"], "motivo": "Magazine Luiza vendendo na Americanas",
+    "desde": "2026-10-03"},
+   {"nomes": ["Lojas Colombo SA", "Lojas Colombo"],
+    "motivo": "varejista grande de eletro vendendo na Americanas (TVs, visto em 03/10)", "desde": "2026-10-03"}
+  ],
+  "Carrefour": [
+   {"nomes": ["Carrefour"], "motivo": "a própria loja (vendido e entregue por Carrefour; pesquisa de 03/10)",
+    "desde": "2026-10-03"}
+  ],
+  "Sam's Club": [
+   {"nomes": ["Sam's Club", "Sams Club"], "motivo": "a própria loja (pesquisa de 03/10)", "desde": "2026-10-03"}
+  ],
+  "Mais Correios": [
+   {"ids": ["MCR010"], "nomes": ["Ponto Frio", "Ponto"], "motivo": "grupo Casas Bahia no marketplace dos Correios",
+    "desde": "2026-10-03"},
+   {"ids": ["MCR007"], "nomes": ["Casas Bahia"], "motivo": "varejista grande no marketplace dos Correios",
+    "desde": "2026-10-03"},
+   {"ids": ["MCR211"], "nomes": ["Lojas Colombo"], "motivo": "varejista grande no marketplace dos Correios",
+    "desde": "2026-10-03"},
+   {"ids": ["MCR008"], "nomes": ["Webcontinental Marketplace"],
+    "motivo": "varejista grande (loja própria na VTEX) no marketplace dos Correios", "desde": "2026-10-03"}
+  ],
+  "PlayStation Store": [
+   {"nomes": ["PlayStation Store", "Sony", "PlayStation"], "motivo": "loja oficial digital da Sony", "desde": "2026-10-03"}
   ],
   "AliExpress": [
    {"nomes": ["Magalu Store"], "motivo": "loja do Magazine Luiza no AliExpress (visto em 26/09)", "desde": "2026-09-26"}
@@ -69,7 +112,9 @@
    {"nomes": ["Fast Shop"], "motivo": "a própria loja (1P)", "desde": "2026-09-13"},
    {"nomes": ["Casas Bahia"], "motivo": "varejista grande (parceiro da Fast Shop)", "desde": "2026-09-15"},
    {"nomes": ["Ponto"], "motivo": "varejista grande (grupo Casas Bahia; parceiro da Fast Shop)", "desde": "2026-09-15"},
-   {"nomes": ["TCL SEMP"], "motivo": "fabricante (parceiro da Fast Shop)", "desde": "2026-09-13"}
+   {"nomes": ["TCL SEMP"], "motivo": "fabricante (parceiro da Fast Shop)", "desde": "2026-09-13"},
+   {"nomes": ["Webcontinental Marketplace"], "motivo": "varejista grande (loja própria na VTEX), parceiro da Fast Shop",
+    "desde": "2026-10-03"}
   ],
   "Loja TCL": [
    {"nomes": ["TCL - Brasil", "Loja TCL"], "motivo": "loja oficial do fabricante", "desde": "2026-09-13"}

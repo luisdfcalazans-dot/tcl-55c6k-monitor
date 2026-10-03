@@ -1,9 +1,13 @@
-# Monitor TCL 55C6K e 65C6K
+# Monitor TCL 55C6K e 65C6K, PS5 e GTA 6
 
-Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e de 65" (65C6K)** em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e de 65" (65C6K)**, do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
 
-- **Nuvem (GitHub Actions, a cada 15 min):** Promobit, Zoom, Magazine Luiza, KaBuM!, Fast Shop, Loja TCL, Webcontinental, canais públicos do Telegram, cupons.
-- **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
+O catálogo dos produtos fica em `monitor/produtos.py` (a fonte única de ids, nomes, metas, termos de busca, códigos de barras, ids por loja e regras do classificador). Cada oferta guarda o id do produto no campo `modelo` (`55C6K`, `65C6K`, `PS5_DIGITAL`, `GTA6_CODE_IN_BOX`...).
+
+- **Nuvem (GitHub Actions, a cada 15 min):** Promobit (busca e as categorias TV e PlayStation 5), Zoom, Magazine Luiza, KaBuM! (anúncios das TVs, lista de consoles PlayStation e o GTA 6), Fast Shop, Loja TCL, Webcontinental, Mais Correios e Americanas (pelo código de barras de todo o catálogo), Carrefour, PlayStation Store, vitrine da loja oficial PlayStation no Mercado Livre, canais públicos do Telegram (no canal oficial do Pelando, `@pelandobr`, também a busca por termo de cada produto, para pegar a postagem que saiu da 1ª página entre uma rodada e outra), cupons.
+- **PC (tarefa agendada, a cada 30 min):** Pelando (bloqueia IPs de datacenter), Amazon (TVs e, em fonte própria, PS5 e GTA 6), Casas Bahia (idem), Netshoes (melhor esforço: o Akamai pode recusar o Chrome automatizado), Mercado Livre (catálogos das TVs e do PS5), AliExpress, Shopee e, opcionalmente, grupos privados do Telegram com a sua conta.
+
+Prazo de entrega do GTA 6 (Code in Box e pacotes): KaBuM (cotação de frete), lojas VTEX (simulação de frete), Netshoes (cotação da página) e Amazon (CEP da sessão do Chrome) usam o CEP da variável `CEP_ENTREGA` (`.env` do PC e secret do GitHub; ele nunca vai para log, painel nem dados). Sem ela, vale um CEP de referência de São Paulo e o prazo sai marcado como aproximado. Quando o anúncio diz "envio a partir de 19/11" (ou depois), a oferta já sai como "chega depois do lançamento".
 
 O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO.md).
 
@@ -20,6 +24,30 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 | Todo dia às 9h | ☀️ resumo com todos os preços |
 
 Todo alerta diz o modelo. Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO` (55C6K) e `ALVO_PIX_65` e `ALVO_PARCELADO_65` (65C6K). O painel mostra as duas TVs, uma tabela com quanto a 65" custa a mais que a 55" na mesma loja (à vista e parcelado) e um gráfico de histórico por modelo.
+
+### PS5 e GTA 6
+
+| Produto | Meta Pix | Meta parcelado (total) |
+|---|---|---|
+| PS5 Slim Digital (com ou sem os 2 jogos digitais) | R$ 3.550 | R$ 3.700 |
+| PS5 Slim com leitor | R$ 3.950 | R$ 4.150 |
+| PS5 Pro | R$ 5.950 | R$ 6.100 |
+| Pacote PS5 Digital + GTA 6 | R$ 4.000 | R$ 4.150 |
+| Pacote PS5 com leitor + GTA 6 | R$ 4.300 | R$ 4.450 |
+| Edição especial / kit | meta do console-base + valor do extra | idem |
+| GTA 6 Code in Box que chega até 18/11 | R$ 345 | R$ 370 |
+| GTA 6 Code in Box que chega depois | R$ 300 | R$ 320 |
+| GTA 6 digital Standard / Ultimate / upgrade (custo efetivo, com gift card) | R$ 365 / R$ 450 / R$ 85 | idem |
+| Gift card PlayStation em loja oficial | 15% de desconto ou mais | idem |
+| Leitor de disco avulso | R$ 300 | R$ 320 |
+
+O GTA 6 sai em 19/11/2026; a "versão física" no Brasil é Code in Box (caixa com código, sem disco). Para jogar à meia-noite a caixa tem de chegar até 18/11: todo alerta do GTA físico traz a entrega prevista e se chega a tempo (o prazo vem da loja quando a fonte o lê; sem ele, uma estimativa por loja marcada como aproximada). Toda postagem nova de PS5/GTA 6 vira alerta, com a meta e a distância até ela. Metas por variável: `ALVO_PIX_<ID>` e `ALVO_PARCELADO_<ID>` (ex.: `ALVO_PIX_PS5_DIGITAL`). O painel tem uma seção por família (TVs, PS5, GTA 6) com o melhor à vista e parcelado de cada produto, a tabela por loja, um gráfico por produto e, no GTA 6, todas as formas comparadas pelo custo final, nas duas edições: a Standard (Code in Box e digital) e a Ultimate (só digital no Brasil), que também sai pela Standard + o upgrade de R$ 100 na PS Store. O alerta e o resumo do GTA 6 trazem a Ultimate digital × Standard + upgrade pelo custo final. O modo vigia das TVs não afeta o PS5 nem o GTA 6.
+
+No PS5 e no GTA 6, o preço com o cupom da página do próprio anúncio (ex.: o cupom do anúncio no Magalu) conta para a meta, para o custo final e para o resumo, e o alerta diz o código; cupom só de assinante não conta. Nas TVs nada muda: o cupom da página é conferido pelo testador no carrinho. No histórico (CSV), as linhas do PS5/GTA 6 entram quando o preço muda e na primeira rodada do dia (o gráfico, que usa o menor preço de cada loja por dia, fica igual); as das TVs, toda rodada, como antes.
+
+### Testador de cupons no carrinho (PC)
+
+`testar_cupons.py` testa, com a conta logada (perfil próprio do Chrome), os cupons conhecidos de cada loja no carrinho do Magalu e do Mercado Livre (na Amazon, só leitura da página do anúncio). Cada cupom é medido com o produto sozinho no carrinho (o cupom vale para o pedido) e só nos produtos em que a regra do cupom cabe (cupom de moda, de TV ou só do GTA 6 não é testado no console). No fim da rodada o carrinho fica com **1 unidade de cada produto principal** que a loja tem: as TVs, o PS5 Digital, o PS5 com leitor, o PS5 Pro e o GTA 6 Code in Box, com o cupom de maior economia. Pacote PS5 + GTA 6, kit/edição especial e gift card da PlayStation só são testados quando são o caminho mais barato para um principal (o preço menos o valor do extra; no gift card, o GTA 6 digital pago com ele) e nunca ficam no carrinho. O robô nunca põe outro produto, nunca mexe em item que não é dos monitorados, nunca passa de 1 unidade por produto e nunca finaliza a compra. A mensagem traz, por produto, o preço + frete, a meta e, no GTA 6, a entrega (a data que o carrinho logado mostra, quando aparece; senão a estimativa da coleta). No modo vigia das TVs o testador continua rodando para o PS5 e o GTA 6; a TV que saiu do carrinho fica fora (não volta durante a vigia).
 
 ### Confiança nos vendedores (antes de qualquer alerta de preço)
 
@@ -45,7 +73,7 @@ No Magalu, vendedor novo que ficou sem checagem nesta rodada (403, limite de 2 v
 
 ### 2. GitHub
 1. Crie um repositório **público** e envie este projeto (`git push`).
-2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
+2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` e (opcional) `CEP_ENTREGA`, o CEP de entrega para o prazo do GTA 6.
 3. (Opcional) **Variables**: `ALVO_PIX`, `ALVO_PARCELADO`, `ALVO_PIX_65`, `ALVO_PARCELADO_65`, `TELEGRAM_CANAIS_EXTRA` (canais públicos separados por vírgula), `MAGALU_ANUNCIOS_EXTRA` (links de anúncios do Magalu que a busca não mostra, separados por vírgula).
 4. **Settings → Pages → Source: Deploy from a branch → main / docs**. O painel fica em `https://<usuário>.github.io/<repo>/`.
 5. **Actions → monitor 55C6K → Run workflow** para a primeira coleta. A primeira rodada só registra o que existe (uma mensagem de "monitor iniciado"); a partir da segunda chegam as novidades.
@@ -80,12 +108,15 @@ python -m pytest -q                         # testes com páginas salvas
 ## Estrutura
 ```
 monitor/config.py        URLs, alvos, canais, lojas
+monitor/produtos.py      catálogo dos produtos (TVs, PS5, GTA 6...) e o classificador de títulos e de mensagens
 monitor/filtro.py        aceita só 55C6K e 65C6K e diz qual (rejeita 75/85C6K, vizinhos como 65C7K, combos, acessórios, usados)
-monitor/sources/*.py     um coletor por fonte
+monitor/sources/*.py     um coletor por fonte (entrega.py: prazo de entrega do GTA 6, dias úteis, datas por extenso)
 monitor/regras.py        o que vira alerta
 monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
 monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
+monitor/carrinho.py      adaptadores do carrinho (Magalu, Mercado Livre, Amazon só leitura) do testador de cupons
+testar_cupons.py         testador de cupons no carrinho (TVs, PS5, GTA 6)
 docs/index.html          painel (GitHub Pages)
 tests/                   testes com HTML/JSON reais salvos
 ```

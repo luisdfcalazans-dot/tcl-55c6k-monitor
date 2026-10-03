@@ -23,20 +23,29 @@ class Fonte:
 
 
 def todas() -> list[Fonte]:
-    from . import amazon, kabum, magalu, pelando, playwright_sources, promobit, telegram_public, telegram_user, vtex, zoom
+    from .. import config
+    from . import (amazon, carrefour, kabum, magalu, mercadolivre_loja, netshoes, pelando, playwright_sources, promobit,
+                   psstore, telegram_public, telegram_user, vtex, zoom)
 
     fontes: list[Fonte] = [
-        promobit.PromobitBusca(), promobit.PromobitCategoriaTV(), promobit.PromobitCupons(),
+        promobit.PromobitBusca(), promobit.PromobitCategoriaTV(), promobit.PromobitCategoriaPS5(),
+        promobit.PromobitCupons(),
         pelando.PelandoBusca(), pelando.PelandoCupons(),
         zoom.Zoom(),
-        magalu.Magalu(),
-        kabum.KaBuM(),
+        magalu.Magalu(), magalu.MagaluProdutos(),
+        kabum.KaBuM(), kabum.KaBuMProdutos(),
         vtex.Vtex("Fast Shop"), vtex.Vtex("Loja TCL"), vtex.Vtex("Webcontinental"),
+        # PS5/GTA 6 (03/10/2026) e as lojas novas: Mais Correios e Americanas pelo EAN do catálogo todo (TVs também)
+        *[vtex.VtexEan(nome) for nome in config.LOJAS_VTEX_EAN],
+        carrefour.Carrefour(),
+        psstore.PlayStationStore(),
+        mercadolivre_loja.MercadoLivreLojaPlayStation(),
         telegram_public.TelegramPublico(),
         # ---- só no PC ----
-        amazon.Amazon(),
-        playwright_sources.CasasBahia(),
-        playwright_sources.MercadoLivre(),
+        amazon.Amazon(), amazon.AmazonProdutos(),
+        playwright_sources.CasasBahia(), playwright_sources.CasasBahiaProdutos(),
+        netshoes.Netshoes(),
+        playwright_sources.MercadoLivre(), playwright_sources.MercadoLivreProdutos(),
         playwright_sources.AliExpress(),
         playwright_sources.Shopee(),
         telegram_user.TelegramUsuario(),
