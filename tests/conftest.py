@@ -30,3 +30,15 @@ def _sem_modo_vigia(monkeypatch):
     from monitor import config
 
     monkeypatch.setattr(config, "VIGIA_ATE", "")
+
+
+@pytest.fixture(autouse=True)
+def _amazon_sem_rede(monkeypatch):
+    """A fonte do PS5 na Amazon abre o painel de ofertas por HTTP (amazon.get_html): nenhum teste vai à rede. Sem o
+    painel falso do teste, o HTTP "falha" e a fonte cai no Chrome falso (ou fica com o cartão da busca)."""
+    from monitor.sources import amazon
+
+    def sem_rede(url, *a, **k):
+        raise ConnectionError(f"teste sem rede: {url}")
+
+    monkeypatch.setattr(amazon, "get_html", sem_rede)

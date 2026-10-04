@@ -363,6 +363,62 @@ JS_CEP = """async ({cep}) => {
 }"""
 
 
+def _vendedores_da_busca(achados: dict[str, Oferta], erros: list[str], _abrir) -> int:
+    """O cartão da busca não diz quem vende (id '<ASIN>-destaque'): sem o vendedor não há checagem de confiança. Abre o
+    painel de ofertas dos ASINs sem vendedor (por HTTP; no Chrome se o HTTP falhar), primeiro o mais barato de cada
+    produto e depois os outros, do mais perto da meta ao mais longe, até config.AMAZON_MAX_PAINEIS_PRODUTOS, e troca o
+    cartão pelos vendedores do painel (com as avaliações e o Full de cada um). O do destaque (o vendedor do cartão)
+    herda do cartão o preço no cartão, o parcelado e o prazo quando o preço é o mesmo. Devolve quantos painéis abriu."""
+    def perto_da_meta(o: Oferta) -> float:
+        a = produtos.alvos_da_oferta(o)
+        meta = a.pix or a.parcelado
+        return (o.preco_pix or o.preco) / meta if meta else float("inf")
+
+    sem = [o for o in achados.values() if not o.vendedor and not o.extra.get("vendedor_id") and o.ativo
+           and (o.preco_pix or o.preco)]
+    sem.sort(key=lambda o: o.preco_pix or o.preco)
+    primeiros, resto, vistos = [], [], set()
+    for o in sem:
+        (resto if o.modelo in vistos else primeiros).append(o)
+        vistos.add(o.modelo)
+    abertos = 0
+    fila = sorted(primeiros, key=perto_da_meta) + sorted(resto, key=perto_da_meta)
+    for o in fila[:config.AMAZON_MAX_PAINEIS_PRODUTOS]:
+        asin = o.extra.get("asin")
+        url = config.URL_AMAZON_OFERTAS.format(asin=asin)
+        abertos += 1
+        try:
+            html = get_html(url, tentativas=1)
+        except Exception:  # noqa: BLE001 - o painel por HTTP às vezes dá 503: no Chrome ele vem
+            try:
+                html = _abrir(url, esperar="#aod-offer, #aod-pinned-offer", ocioso_ms=4000)[0]
+            except Pular:
+                raise
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"painel de ofertas {asin}: {type(e).__name__}: {e}"[:160])
+                continue
+        try:
+            painel = parse_ofertas(html or "", asin, titulo=o.titulo, modelo=o.modelo)
+        except RuntimeError as e:  # captcha
+            erros.append(f"painel de ofertas {asin}: {e}")
+            continue
+        if not painel:
+            continue
+        cartao = o.preco_pix or o.preco
+        for p in painel:
+            if o.extra.get("produto"):
+                p.extra["produto"] = dict(o.extra["produto"])
+            if p.extra.get("destaque") and abs((p.preco_pix or p.preco or 0) - cartao) <= 0.01:
+                if p.preco_pix and not p.preco and o.preco and o.preco > p.preco_pix + 0.005:
+                    p.preco = o.preco
+                p.parcelado = p.parcelado or o.parcelado
+                if o.extra.get("entrega_texto"):
+                    p.extra["entrega_texto"] = o.extra["entrega_texto"]
+            achados.setdefault(p.id, p)
+        achados.pop(o.id, None)
+    return abertos
+
+
 class Amazon(Fonte):
     nome = "amazon"
     modo = "pc"
@@ -498,7 +554,8 @@ class AmazonProdutos(Fonte):
     """PS5 e GTA 6 na Amazon, no Chrome do PC (fonte própria: as cargas das TVs ficam como antes), até
     config.AMAZON_MAX_CARGAS_PRODUTOS páginas: a do GTA 6 (B0H6KT2RWH: vendedor, cartão, Pix, parcelado e o prazo de
     entrega; antes, o CEP de entrega na sessão, recarregando a página se ele mudou) e as buscas
-    (config.URLS_AMAZON_BUSCA_PRODUTOS: os pacotes com o GTA 6 e os consoles, com o prazo do cartão da busca). O prazo é
+    (config.URLS_AMAZON_BUSCA_PRODUTOS: os pacotes com o GTA 6 e os consoles, com o prazo do cartão da busca), e o painel
+    de ofertas dos ASINs da busca, que dá o vendedor de cada preço (_vendedores_da_busca). O prazo é
     o do CEP da sessão: o de config.cep_entrega() quando a troca deu certo (sem a variável, o de referência), senão
     marcado como aproximado."""
 
@@ -557,12 +614,13 @@ class AmazonProdutos(Fonte):
                     # o ASIN já lido na página do produto (com o vendedor) vale mais que o cartão da busca
                     if not any(x.extra.get("asin") == o.extra.get("asin") for x in achados.values()):
                         achados.setdefault(o.id, o)
+            paineis = _vendedores_da_busca(achados, erros, _abrir)
             for o in achados.values():
                 txt = o.extra.pop("entrega_texto", None)
                 if txt and entrega.precisa(o.modelo):
                     entrega.marca(o, entrega.data_por_extenso(txt), ref, "página da Amazon")
                 por_id.setdefault(o.id, o)
-            print(f"[amazon.produtos] {len(achados)} ofertas em {cargas} páginas")
+            print(f"[amazon.produtos] {len(achados)} ofertas em {cargas} páginas e {paineis} painéis de ofertas")
         for o in por_id.values():
             o.fonte = self.nome
         if erros:

@@ -1307,8 +1307,10 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
         p = o.melhor_preco
         if confianca.veredito_de(o) == confianca.SUSPEITO:
             # vendedor não confiável com sinais de golpe: uma mensagem de aviso (sem repetir a cada rodada), sem
-            # 🎯/🏆/🔻, e não conta como preço (mínimo, histórico, painel, resumo, carrinho)
-            if o.ativo and p and not boot[modelo] and confianca.deve_avisar(estado, o):
+            # 🎯/🏆/🔻, e não conta como preço (mínimo, histórico, painel, resumo, carrinho). Linha sem vendedor (busca
+            # da Amazon): fora de tudo nesta rodada, sem o aviso (não é sinal de golpe)
+            if o.ativo and p and not boot[modelo] and not confianca.so_sem_vendedor(o) \
+                    and confianca.deve_avisar(estado, o):
                 msgs.append(mensagem_suspeito(o))
             continue
         # inativa, sem preço, ou agregador (Zoom) de loja com fonte direta conhecida: não gera alerta de preço

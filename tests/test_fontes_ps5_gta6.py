@@ -522,7 +522,8 @@ def test_amazon_produtos_troca_o_cep_da_sessao_e_marca_o_prazo(monkeypatch, hoje
     ofs, _ = amazon.AmazonProdutos().coletar()
     assert avaliados == [{"cep": CEP_FALSO}]
     assert cargas[:2] == ["https://www.amazon.com.br/dp/B0H6KT2RWH"] * 2   # recarrega depois de trocar o CEP
-    assert len(cargas) <= config.AMAZON_MAX_CARGAS_PRODUTOS
+    # o painel de ofertas (vendedor dos preços da busca) tem o próprio limite, config.AMAZON_MAX_PAINEIS_PRODUTOS
+    assert len([u for u in cargas if "aodAjax" not in u]) <= config.AMAZON_MAX_CARGAS_PRODUTOS
     por_id = {o.id: o for o in ofs}
     g = por_id["B0H6KT2RWH-A1ZZFT5FULY4LN"]
     assert (g.extra["entrega_prevista"], g.extra["entrega_ate_lancamento"], g.extra["cep_referencia"]) == (

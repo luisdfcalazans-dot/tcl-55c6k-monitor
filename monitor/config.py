@@ -251,6 +251,7 @@ URLS_AMAZON_BUSCA_PRODUTOS = (
     "https://www.amazon.com.br/s?k=console+playstation+5",
 )
 AMAZON_MAX_CARGAS_PRODUTOS = 4  # páginas do PS5/GTA 6 por rodada (a do GTA e as buscas), além das das TVs
+AMAZON_MAX_PAINEIS_PRODUTOS = 6  # painéis de ofertas (vendedor de cada preço da busca) por rodada; por HTTP, Chrome só se falhar
 CASASBAHIA_MAX_CARGAS_PRODUTOS = 3
 # catálogos do ML abertos no Chrome do PC depois dos das TVs (só se a rodada não levou bloqueio)
 ML_CATALOGOS_PRODUTOS = {"PS5_DIGITAL": "MLB57081243"}

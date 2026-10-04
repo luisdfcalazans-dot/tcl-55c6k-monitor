@@ -78,6 +78,10 @@ AVALIACOES_REF_MINIMAS = 100  # "0 avaliações" só pesa quando o anúncio da l
 VENDAS_MINIMAS = 50
 VENDEDOR_NOVO_DIAS = 90
 AVALIACOES_VENDEDOR_MINIMAS = 20  # Amazon: avaliações do vendedor
+# Amazon: % de avaliações positivas do vendedor (últimos 12 meses). Lá até as grandes ficam baixas (03/10: Magalu. 60%,
+# TCL 63%, Lojas Colombo 70%), e os vendedores do PS5 mais barato tinham 40-49%. Abaixo disto, com preço que daria
+# alerta (abaixo da loja confiável mais barata ou na meta): sinal forte; com preço comum, fraco (fica na linha 🔎)
+POSITIVAS_MINIMAS_PCT = 50
 
 TTL_VEREDITO_DIAS = 3        # veredito "sem_risco_aparente" guardado no state
 TTL_CATALOGO_DIAS = 7        # catálogo do vendedor (página da loja dele) guardado no state
@@ -103,12 +107,12 @@ PESO_MINIMO_POR_FAMILIA = {produtos.FAMILIA_TV: PESO_MINIMO_KG, produtos.FAMILIA
 # vira reprovado automático. Preço (muito abaixo, "preço cheio" copiado) sozinho nunca reprova de vez.
 SINAIS_DE_IDENTIDADE = frozenset({"anatel_diferente", "tamanho_diferente", "catalogo_sem_tv", "catalogo_sem_games"})
 # sinal forte que segura o preço nesta rodada mas não é prova de nada: nunca conta para o reprovado automático
-SINAIS_SEM_PROVA = frozenset({"nao_checado"})
+SINAIS_SEM_PROVA = frozenset({"nao_checado", "sem_vendedor"})
 
 # campos da ficha do anúncio guardados no state (confianca.fichas) para as rodadas em que a coleta vem sem ficha. A
 # razão social fica de fora: o state é público e ela só serve ao sinal fraco de "outro ramo"
 CAMPOS_FICHA = ("anatel", "modelo", "tamanho", "peso_kg", "avaliacoes", "full", "vendedor_desde", "vendas_vendedor",
-                "avaliacoes_vendedor", "nota_vendedor")
+                "avaliacoes_vendedor", "nota_vendedor", "positivas_pct")
 
 # lojas em que Oferta.preco pode ser o preço "de" (riscado) e não o do cartão desta oferta: no ML, a opção com desconto
 # guarda o original em .preco. Nelas não há como saber se o desconto é "só no Pix/1x".
@@ -754,6 +758,11 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
         feitas.append("avaliações do vendedor")
         if aval_v < AVALIACOES_VENDEDOR_MINIMAS:
             s.append(Sinal("vendedor_sem_historico", False, f"vendedor com {int(aval_v)} avaliações"))
+        pos = ficha.get("positivas_pct")
+        if isinstance(pos, (int, float)) and aval_v >= AVALIACOES_VENDEDOR_MINIMAS and pos < POSITIVAS_MINIMAS_PCT:
+            s.append(Sinal("vendedor_mal_avaliado", _preco_de_alerta(o, ref),
+                           f"vendedor com só {int(pos)}% de avaliações positivas ({int(aval_v):,} avaliações)"
+                           .replace(",", ".")))
 
     # 4) catálogo do vendedor (página da loja dele; só com checagem de rede)
     if catalogo and catalogo.get("total") and tv:
@@ -779,6 +788,37 @@ def sinais_da_oferta(o: Any, ref: Referencias, catalogo: Optional[dict] = None,
                            f"a loja do vendedor tem {total:,} itens e só {games} de games ({games / total * 100:.1f}%)"
                            .replace(",", ".") + (f"; vende sobretudo {principais}" if principais else "")))
     return s, feitas
+
+
+def _preco_de_alerta(o: Any, ref: Referencias) -> bool:
+    """O preço daria alerta: abaixo da loja confiável mais barata do produto ou na meta (sem referência, só a meta)."""
+    p = melhor_preco(o)
+    if not p:
+        return False
+    alvo = _alvo_da_oferta(o)
+    return (ref.menor is not None and p < ref.menor[0]) or (alvo is not None and p <= alvo)
+
+
+def _sinal_sem_vendedor(o: Any, ref: Referencias) -> Optional[Sinal]:
+    """Linha da busca da Amazon sem o vendedor (o painel de ofertas dela não abriu ou ficou além do limite da rodada)
+    com preço que daria alerta: sem saber quem vende não há o que checar. Segura 🎯/🏆/🔻, mínimo e carrinho nesta
+    rodada, sem ser prova (reavaliada na próxima) e sem o aviso ⚠️ (é dado que falta, não sinal de golpe; ver
+    so_sem_vendedor)."""
+    if not _preco_de_alerta(o, ref):
+        return None
+    p = melhor_preco(o)
+    onde = (f"abaixo da loja confiável mais barata ({_fmt(ref.menor[0])}, {ref.menor[1]})"
+            if ref.menor is not None and p < ref.menor[0] else "na meta")
+    return Sinal("sem_vendedor", True, f"a busca da Amazon não diz quem vende e o preço {_fmt(p)} está {onde}; nova "
+                                      "tentativa na próxima rodada")
+
+
+def so_sem_vendedor(o: Any) -> bool:
+    """Suspeito só porque a linha não diz quem vende (busca da Amazon sem o painel de ofertas): fica fora de tudo nesta
+    rodada, mas sem a mensagem ⚠️ de possível golpe."""
+    c = _extra(o).get("confianca")
+    codigos = c.get("codigos") if isinstance(c, dict) else None
+    return bool(codigos) and set(codigos) <= {"sem_vendedor"}
 
 
 def decide(sinais: list[Sinal]) -> str:
@@ -1206,6 +1246,10 @@ def _avalia_desconhecidas(estado: Any, bloco: dict, desconhecidas: list, refs: d
                       "limite de checagens da rodada" if usadas >= MAX_VENDEDORES_COM_REDE else
                       "a página não trouxe os dados")
             falta = _sinal_sem_checagem(o, ref, cat, porque)
+            if falta:
+                sinais.append(falta)
+        if loja == "Amazon" and not chave and not any(x.forte for x in sinais):
+            falta = _sinal_sem_vendedor(o, ref)
             if falta:
                 sinais.append(falta)
         veredito = decide(sinais)
