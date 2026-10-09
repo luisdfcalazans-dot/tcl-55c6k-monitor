@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-08T18:19:03-03:00",
+ "atualizado": "2026-10-08T21:41:22-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -253,14 +253,14 @@
   "modelo": "PS5_DISCO"
  },
  "minimo_PS5_PRO": {
-  "preco": 7299.0,
-  "loja": "KaBuM!",
-  "quando": "2026-10-03T20:59:19-03:00",
-  "url": "https://www.kabum.com.br/produto/636960",
-  "titulo": "Console PlayStation 5 Pro Sony, SSD 2TB, Com Controle Sem Fio DualSense, Branco - 1000046552",
-  "vendedor": "KaBuM!",
-  "vendedor_id": null,
-  "chave": "kabum.produtos:636960",
+  "preco": 7160.07,
+  "loja": "Magazine Luiza",
+  "quando": "2026-10-08T21:41:21-03:00",
+  "url": "https://www.magazineluiza.com.br/playstation-5-pro-2024-2tb-1-controle-branco-sony/p/238767700/ga/gapo/",
+  "titulo": "PlayStation 5 Pro 2024 2TB 1 Controle Branco Sony",
+  "vendedor": "Magalu",
+  "vendedor_id": "magazineluiza",
+  "chave": "magalu.produtos:238767700-magazineluiza",
   "modelo": "PS5_PRO"
  },
  "minimo_GTA6_CODE_IN_BOX": {
@@ -308,48 +308,6 @@
   "modelo": "LEITOR_PS5"
  },
  "ofertas_loja": [
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Videogame PlayStation 5 The Callisto Protocol Day One Edition",
-   "url": "https://www.magazineluiza.com.br/videogame-playstation-5-the-callisto-protocol-day-one-edition-krafton/p/jkehe6d5fc/ga/jgpn/",
-   "id": "jkehe6d5fc-nocnocestadosunidos",
-   "preco": 233.22,
-   "preco_pix": 221.56,
-   "parcelado": "7x R$ 33,32 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 248.53,
-    "1p": false,
-    "anuncio": "jkehe6d5fc",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.091,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 60000,
-     "nota_vendedor": 4.4
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": true
-    },
-    "descartado": "fora da faixa do produto (2500 a 7000)",
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:jkehe6d5fc-nocnocestadosunidos",
-   "melhor_preco": 221.56
-  },
   {
    "fonte": "magalu.produtos",
    "tipo": "loja",
@@ -457,7 +415,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-17",
+    "entrega_prevista": "2026-12-16",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "simulação de frete",
@@ -476,10 +434,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-17",
+     "data": "2026-12-16",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 17/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -944,6 +902,45 @@
    "melhor_preco": 3587.08
   },
   {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
+   "id": "kc7h6f4k4b-lojascolombooficial",
+   "preco": 3987.2,
+   "preco_pix": 3588.48,
+   "parcelado": "10x R$ 398,72 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 3987.2,
+    "1p": false,
+    "anuncio": "kc7h6f4k4b",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3758,
+     "peso_kg": 17.2,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 60000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
+   "melhor_preco": 3588.48
+  },
+  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -1037,45 +1034,6 @@
    },
    "modelo": "55C6K",
    "chave": "zoom:1561988278",
-   "melhor_preco": 3747.97
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
-   "id": "kc7h6f4k4b-lojascolombooficial",
-   "preco": 3987.2,
-   "preco_pix": 3747.97,
-   "parcelado": "10x R$ 398,72 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 3987.2,
-    "1p": false,
-    "anuncio": "kc7h6f4k4b",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3758,
-     "peso_kg": 17.2,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 60000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 3747.97
   },
   {
@@ -1250,6 +1208,45 @@
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:hg9286bd4c-negociunoficial",
    "melhor_preco": 3970.17
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
+   "id": "jcefd125c3-lojascolombooficial",
+   "preco": 4443.0,
+   "preco_pix": 3998.7,
+   "parcelado": "10x R$ 444,30 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 4443.0,
+    "1p": false,
+    "anuncio": "jcefd125c3",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3746,
+     "peso_kg": 22.9,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 60000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:jcefd125c3-lojascolombooficial",
+   "melhor_preco": 3998.7
   },
   {
    "fonte": "zoom",
@@ -1563,6 +1560,45 @@
    "melhor_preco": 4099.0
   },
   {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-65-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-65c6k/p/dc6h768g22/et/elit/",
+   "id": "dc6h768g22-fastshop2",
+   "preco": 4563.9,
+   "preco_pix": 4107.51,
+   "parcelado": "10x R$ 456,39 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 5389.0,
+    "1p": false,
+    "anuncio": "dc6h768g22",
+    "vendedor_id": "fastshop2",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3746,
+     "peso_kg": 22.9,
+     "razao_social": "FAST SHOP S A",
+     "vendedor_desde": "2020-08-19",
+     "vendas_vendedor": 300000,
+     "nota_vendedor": 4
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:dc6h768g22-fastshop2",
+   "melhor_preco": 4107.51
+  },
+  {
    "fonte": "maiscorreios",
    "tipo": "loja",
    "loja": "Mais Correios",
@@ -1663,45 +1699,6 @@
    "melhor_preco": 4176.42
   },
   {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
-   "id": "jcefd125c3-lojascolombooficial",
-   "preco": 4443.0,
-   "preco_pix": 4176.42,
-   "parcelado": "10x R$ 444,30 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 4443.0,
-    "1p": false,
-    "anuncio": "jcefd125c3",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3746,
-     "peso_kg": 22.9,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 60000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "magalu:jcefd125c3-lojascolombooficial",
-   "melhor_preco": 4176.42
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -1788,45 +1785,6 @@
    "modelo": "65C6K",
    "chave": "vtex:Loja TCL-32586-1",
    "melhor_preco": 4231.08
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-65-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-65c6k/p/dc6h768g22/et/elit/",
-   "id": "dc6h768g22-fastshop2",
-   "preco": 4563.9,
-   "preco_pix": 4244.43,
-   "parcelado": "10x R$ 456,39 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Fast Shop",
-   "extra": {
-    "preco_de": 5389.0,
-    "1p": false,
-    "anuncio": "dc6h768g22",
-    "vendedor_id": "fastshop2",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3746,
-     "peso_kg": 22.9,
-     "razao_social": "FAST SHOP S A",
-     "vendedor_desde": "2020-08-19",
-     "vendas_vendedor": 300000,
-     "nota_vendedor": 4
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "magalu:dc6h768g22-fastshop2",
-   "melhor_preco": 4244.43
   },
   {
    "fonte": "kabum.produtos",
@@ -1997,6 +1955,66 @@
    "modelo": "PS5_DIGITAL",
    "chave": "americanas:Americanas-8299907-magazineluiza",
    "melhor_preco": 4369.05
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console PlayStation 5 Slim Disk 1TB Físico com Controle DualSense Branco Sony",
+   "url": "https://www.magazineluiza.com.br/console-playstation-5-slim-disk-1tb-fisico-com-controle-dualsense-branco-sony/p/ch30jc3c3j/ga/pltt/",
+   "id": "ch30jc3c3j-negociunoficial",
+   "preco": 4699.0,
+   "preco_pix": 4370.07,
+   "parcelado": "10x R$ 469,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Negociun Oficial",
+   "extra": {
+    "preco_de": 5889.0,
+    "1p": false,
+    "anuncio": "ch30jc3c3j",
+    "vendedor_id": "negociunoficial",
+    "ficha": {
+     "avaliacoes": 500,
+     "peso_kg": 4.9,
+     "razao_social": "negociunoficial",
+     "vendedor_desde": "2025-03-17",
+     "vendas_vendedor": 90000,
+     "nota_vendedor": 4.3
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas",
+      "catálogo da loja"
+     ],
+     "sinais": [],
+     "codigos": [],
+     "catalogo": {
+      "total": 641,
+      "tv": 42,
+      "games": 19
+     }
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "magalu.produtos:ch30jc3c3j-negociunoficial",
+   "melhor_preco": 4370.07
   },
   {
    "fonte": "magalu.produtos",
@@ -3369,6 +3387,50 @@
    "melhor_preco": 6015.15
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Pro 2024 2TB 1 Controle Branco Sony",
+   "url": "https://www.magazineluiza.com.br/playstation-5-pro-2024-2tb-1-controle-branco-sony/p/238767700/ga/gapo/",
+   "id": "238767700-magazineluiza",
+   "preco": 7699.0,
+   "preco_pix": 7160.07,
+   "parcelado": "10x R$ 769,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 7999.9,
+    "1p": true,
+    "anuncio": "238767700",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 207,
+     "peso_kg": 4.95,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 5950.0,
+     "parcelado": 6100.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_PRO",
+   "chave": "magalu.produtos:238767700-magazineluiza",
+   "melhor_preco": 7160.07
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -3405,6 +3467,129 @@
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-08T21:41:21-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "[tecnoarthardware] EAI, BORA JOGAR GTA 6?",
+   "url": "https://t.me/tecnoarthardware/45351",
+   "id": "tecnoarthardware/45351#GTA6_CODE_IN_BOX",
+   "preco": 350.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "PRIMEGAME5",
+   "publicado": "2026-10-08T21:05:24-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnoarthardware",
+    "links": [
+     "https://aoferta.net/001B3W2k-Amazon"
+    ],
+    "texto": "EAI, BORA JOGAR GTA 6?\n🔥  Grand Theft Auto VI - PlayStation 5\n💵  R$ 350,00 no PIX com cupom:  PRIMEGAME5  ou resgate no anúncio\n🔗  Link do produto:\nhttps://aoferta.net/001B3W2k-Amazon\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:tecnoarthardware/45351#GTA6_CODE_IN_BOX",
+   "melhor_preco": 350.0,
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
+   "ultimo_preco": 350.0,
+   "menor_preco": 350.0
+  },
+  {
+   "primeira_vez": "2026-10-08T21:41:21-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.promobit.com.br/oferta/sony-playstation-5-edicao-digital-825gb-1-controle-3097759/",
+   "id": "3097759",
+   "preco": 3979.55,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-08T20:48:29-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "APPROVED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3097759",
+   "melhor_preco": 3979.55,
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
+   "ultimo_preco": 3979.55,
+   "menor_preco": 3979.55
+  },
+  {
+   "primeira_vez": "2026-10-08T21:41:21-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "KaBuM!",
+   "titulo": "Console PlayStation 5 Sony Edição Digital Marvel's Wolverine Pacote de Edição Limitada 825 GB Amarelo - 1000056865",
+   "url": "https://www.promobit.com.br/oferta/console-playstation-5-sony-edicao-digital-marvels-wolverine-pacote-de-edicao-limitada-825-gb-amarelo-1000056865-3097585/",
+   "id": "3097585",
+   "preco": 4742.07,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-08T20:04:43-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 5482.8,
+    "status": "APPROVED",
+    "produto": {
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3750.0,
+     "parcelado": 3900.0,
+     "nota": "meta do PS5 Slim Digital + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "promobit:3097585",
+   "melhor_preco": 4742.07,
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
+   "ultimo_preco": 4742.07,
+   "menor_preco": 4742.07
+  },
   {
    "primeira_vez": "2026-10-08T12:14:27-03:00",
    "preco_alertado": null,
@@ -3607,7 +3792,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3095328",
    "melhor_preco": 330.92,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 330.92,
    "menor_preco": 330.92
   },
@@ -3710,7 +3895,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3094916",
    "melhor_preco": 3587.08,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-08T04:46:34-03:00",
@@ -3911,7 +4096,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3094832",
    "melhor_preco": 332.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 332.0,
    "menor_preco": 332.0
   },
@@ -4283,7 +4468,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3094400",
    "melhor_preco": 334.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:21:38-03:00",
@@ -4323,7 +4508,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3094347",
    "melhor_preco": 333.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:21:38-03:00",
@@ -4395,7 +4580,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3094135",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:21:38-03:00",
@@ -4502,7 +4687,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3094162",
    "melhor_preco": 7160.07,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 7160.07,
    "menor_preco": 7160.07
   },
@@ -4544,7 +4729,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3093995",
    "melhor_preco": 313.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 313.0,
    "menor_preco": 313.0
   },
@@ -4617,7 +4802,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3093933",
    "melhor_preco": 3670.17,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3670.17,
    "menor_preco": 3670.17
   },
@@ -4723,7 +4908,7 @@
    "modelo": "65C6K",
    "chave": "telegram:achadosdotb/11737#65C6K",
    "melhor_preco": 3784.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3784.05,
    "menor_preco": 3784.05
   },
@@ -4758,7 +4943,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3093785",
    "melhor_preco": 3670.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-07T18:40:00-03:00",
@@ -5054,112 +5239,6 @@
    "menor_preco": 4742.9
   },
   {
-   "primeira_vez": "2026-10-08T11:59:43-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "PS5 Console Sony PlayStation 5 Slim Digital 825GB Branco",
-   "url": "https://www.promobit.com.br/oferta/ps5-console-sony-playstation-5-slim-digital-825gb-branco-3093204/",
-   "id": "3093204",
-   "preco": 3689.1,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "game",
-   "publicado": "2026-10-07T14:50:10-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": null,
-    "status": "TOP_OFFER",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3093204",
-   "melhor_preco": 3689.1,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-07T18:40:00-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[promotop] Console Sony PlayStation 5 Edição Digital Slim, SSD 825GB, Controle DualSense, Astro's Playroom, Branco - CFI 2114B",
-   "url": "https://t.me/promotop/259845",
-   "id": "promotop/259845#PS5_DIGITAL",
-   "preco": 3678.28,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "PEGAOPLAY",
-   "publicado": "2026-10-07T14:47:41-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "promotop",
-    "links": [
-     "https://i.promotop.net/Edcxi"
-    ],
-    "texto": "Console Sony PlayStation 5 Edição Digital Slim, SSD 825GB, Controle DualSense, Astro's Playroom, Branco - CFI 2114B\n🔥  Por:  R$ 3.678,28  via Pix\n🎯  Usem o cupom:  PEGAOPLAY\n🛒  Link:  https://i.promotop.net/Edcxi",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:promotop/259845#PS5_DIGITAL",
-   "melhor_preco": 3678.28,
-   "ultima_vez": "2026-10-07T18:54:44-03:00",
-   "ultimo_preco": 3678.28,
-   "menor_preco": 3678.28
-  },
-  {
-   "primeira_vez": "2026-10-07T18:40:00-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "PlayStation 5 Digital Slim 825GB DualSense Branco",
-   "url": "https://www.promobit.com.br/oferta/playstation-5-digital-slim-825gb-dualsense-branco-3093179/",
-   "id": "3093179",
-   "preco": 3678.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "PEGAOPLAY",
-   "publicado": "2026-10-07T14:45:21-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4699.0,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3093179",
-   "melhor_preco": 3678.0,
-   "ultima_vez": "2026-10-08T12:14:27-03:00",
-   "ultimo_preco": 3678.0,
-   "menor_preco": 3678.0
-  },
-  {
    "primeira_vez": "2026-10-07T14:31:51-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -5212,7 +5291,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3092748",
    "melhor_preco": 0.01,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-07T13:47:24-03:00",
@@ -5299,7 +5378,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3091466",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3859.05,
    "menor_preco": 3859.05
   },
@@ -5391,7 +5470,7 @@
    "modelo": "55C6K",
    "chave": "telegram:achadosdotb/11736",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5486,7 +5565,7 @@
    "modelo": "55C6K",
    "chave": "telegram:ctofertaseletroetv/23752",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5513,7 +5592,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3090157",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5570,7 +5649,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3089608",
    "melhor_preco": 3739.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3739.0,
    "menor_preco": 3739.0
   },
@@ -5597,7 +5676,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3089490",
    "melhor_preco": 3784.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3784.05,
    "menor_preco": 3784.05
   },
@@ -5627,7 +5706,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -5654,7 +5733,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3089334",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -5738,7 +5817,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3086466",
    "melhor_preco": 3744.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3744.0,
    "menor_preco": 3744.0
   },
@@ -5765,7 +5844,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3085764",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-10-04T21:04:09-03:00",
@@ -6103,7 +6182,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3081680",
    "melhor_preco": 3869.1,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3869.1,
    "menor_preco": 3869.1
   },
@@ -6190,7 +6269,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3079526",
    "melhor_preco": 3146.68,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3146.68,
    "menor_preco": 3146.68
   },
@@ -6312,7 +6391,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -6372,7 +6451,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -6459,7 +6538,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3074165",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -6486,7 +6565,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3073443",
    "melhor_preco": 3999.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3999.05,
    "menor_preco": 3999.05
   },
@@ -6512,7 +6591,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -6750,7 +6829,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00"
+   "ultima_vez": "2026-10-08T21:41:21-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -6903,7 +6982,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -6930,7 +7009,7 @@
    },
    "chave": "promobit:3024500",
    "melhor_preco": 2840.14,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2840.14,
    "menor_preco": 2840.14,
    "modelo": "55C6K"
@@ -6957,7 +7036,7 @@
    },
    "chave": "promobit:3021754",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -7065,7 +7144,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92403",
    "melhor_preco": 2785.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2785.0,
    "menor_preco": 2785.0
   },
@@ -7095,7 +7174,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92392",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0
   },
@@ -7176,7 +7255,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90687#65C6K",
    "melhor_preco": 3229.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3229.05,
    "menor_preco": 3229.05
   },
@@ -7207,7 +7286,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90672#65C6K",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3514.0,
    "menor_preco": 3514.0
   },
@@ -7238,7 +7317,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90249#65C6K",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3389.0,
    "menor_preco": 3389.0
   },
@@ -7269,7 +7348,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90130#65C6K",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3350.0,
    "menor_preco": 3350.0
   },
@@ -7300,7 +7379,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90118#65C6K",
    "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3440.0,
    "menor_preco": 3440.0
   },
@@ -7331,7 +7410,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89501#65C6K",
    "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3509.0,
    "menor_preco": 3509.0
   },
@@ -7362,7 +7441,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89493#65C6K",
    "melhor_preco": 3695.12,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3695.12,
    "menor_preco": 3695.12
   },
@@ -7393,7 +7472,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89395#65C6K",
    "melhor_preco": 3775.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3775.0,
    "menor_preco": 3775.0
   },
@@ -7424,7 +7503,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89364#65C6K",
    "melhor_preco": 3845.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3845.0,
    "menor_preco": 3845.0
   },
@@ -7455,7 +7534,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89215#65C6K",
    "melhor_preco": 3884.81,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3884.81,
    "menor_preco": 3884.81
   },
@@ -7486,7 +7565,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/89164",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2784.0,
    "menor_preco": 2784.0
   },
@@ -7517,7 +7596,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/88827",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2879.0,
    "menor_preco": 2879.0
   },
@@ -7548,7 +7627,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/88383#65C6K",
    "melhor_preco": 3780.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3780.0,
    "menor_preco": 3780.0
   },
@@ -7579,7 +7658,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/87687",
    "melhor_preco": 2990.33,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2990.33,
    "menor_preco": 2990.33
   },
@@ -7610,7 +7689,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86871",
    "melhor_preco": 2775.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2775.0,
    "menor_preco": 2775.0
   },
@@ -7641,7 +7720,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86842",
    "melhor_preco": 2910.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2910.0,
    "menor_preco": 2910.0
   },
@@ -7672,7 +7751,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85905",
    "melhor_preco": 2869.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2869.0,
    "menor_preco": 2869.0
   },
@@ -7703,7 +7782,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85691",
    "melhor_preco": 2849.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2849.0,
    "menor_preco": 2849.0
   },
@@ -7734,7 +7813,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85060",
    "melhor_preco": 2659.76,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2659.76,
    "menor_preco": 2659.76
   },
@@ -7765,7 +7844,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85042",
    "melhor_preco": 2754.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2754.0,
    "menor_preco": 2754.0
   },
@@ -7796,7 +7875,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/84986",
    "melhor_preco": 2754.05,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2754.05,
    "menor_preco": 2754.05
   },
@@ -7827,7 +7906,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/82358#65C6K",
    "melhor_preco": 3399.1,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3399.1,
    "menor_preco": 3399.1
   },
@@ -7858,7 +7937,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81975",
    "melhor_preco": 2396.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2396.0,
    "menor_preco": 2396.0
   },
@@ -7889,7 +7968,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81375",
    "melhor_preco": 2376.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2376.0,
    "menor_preco": 2376.0
   },
@@ -7920,7 +7999,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81351",
    "melhor_preco": 2386.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2386.0,
    "menor_preco": 2386.0
   },
@@ -7951,7 +8030,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81183",
    "melhor_preco": 2399.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2399.0,
    "menor_preco": 2399.0
   },
@@ -7982,7 +8061,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81180",
    "melhor_preco": 2419.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2419.0,
    "menor_preco": 2419.0
   },
@@ -8013,7 +8092,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/81170",
    "melhor_preco": 2569.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 2569.0,
    "menor_preco": 2569.0
   },
@@ -8044,7 +8123,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/81128#65C6K",
    "melhor_preco": 3049.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3049.0,
    "menor_preco": 3049.0
   },
@@ -8106,7 +8185,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/80103#65C6K",
    "melhor_preco": 3588.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3588.0,
    "menor_preco": 3588.0
   },
@@ -8137,7 +8216,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/78272#65C6K",
    "melhor_preco": 3175.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3175.0,
    "menor_preco": 3175.0
   },
@@ -8169,7 +8248,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/78126#65C6K",
    "melhor_preco": 3139.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3139.0,
    "menor_preco": 3139.0
   },
@@ -8200,7 +8279,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/78010#65C6K",
    "melhor_preco": 3232.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3232.0,
    "menor_preco": 3232.0
   },
@@ -8231,7 +8310,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/77900#65C6K",
    "melhor_preco": 3338.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3338.0,
    "menor_preco": 3338.0
   },
@@ -8261,7 +8340,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/76072#65C6K",
    "melhor_preco": 3607.0,
-   "ultima_vez": "2026-10-08T18:19:03-03:00",
+   "ultima_vez": "2026-10-08T21:41:21-03:00",
    "ultimo_preco": 3607.0,
    "menor_preco": 3607.0
   }
@@ -8987,6 +9066,20 @@
   },
   {
    "fonte": "promobit",
+   "loja": "Amazon",
+   "codigo": "VOCEPRIME",
+   "titulo": "Compre com código promocional Amazon e economize 10%",
+   "url": "https://www.promobit.com.br/cupons/loja/amazon/",
+   "id": "70459",
+   "regra": "produtos Amazon Economize até 10% ao usar o código promocional no carrinho de compras em compras acima de R$150 (máx R$30).",
+   "validade": null,
+   "publicado": "2026-10-08T18:37:22-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70459"
+  },
+  {
+   "fonte": "promobit",
    "loja": "Mercado Livre",
    "codigo": "MELIPROMOBIT",
    "titulo": "Use cupom Mercado Livre e tenha desconto de 12% OFF",
@@ -9549,102 +9642,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:17:32-03:00",
+   "ultimo_ok": "2026-10-08T21:39:30-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:17:34-03:00",
+   "ultimo_ok": "2026-10-08T21:39:32-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:17:43-03:00",
+   "ultimo_ok": "2026-10-08T21:39:40-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:17:44-03:00",
+   "ultimo_ok": "2026-10-08T21:39:41-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:17-03:00",
+   "ultimo_ok": "2026-10-08T21:40:20-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:24-03:00",
+   "ultimo_ok": "2026-10-08T21:40:32-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:30-03:00",
+   "ultimo_ok": "2026-10-08T21:40:40-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:33-03:00",
+   "ultimo_ok": "2026-10-08T21:40:43-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:36-03:00",
+   "ultimo_ok": "2026-10-08T21:40:47-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:19:00-03:00",
+   "ultimo_ok": "2026-10-08T21:41:11-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:17:35-03:00",
+   "ultimo_ok": "2026-10-08T21:39:33-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:21-03:00",
+   "ultimo_ok": "2026-10-08T21:40:29-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:28-03:00",
+   "ultimo_ok": "2026-10-08T21:40:36-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:37-03:00",
+   "ultimo_ok": "2026-10-08T21:40:48-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:38-03:00",
+   "ultimo_ok": "2026-10-08T21:40:49-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:40-03:00",
+   "ultimo_ok": "2026-10-08T21:40:50-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:41-03:00",
+   "ultimo_ok": "2026-10-08T21:40:51-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 52,
+   "falhas": 53,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-08T18:18:47-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-08T21:40:57-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:49-03:00",
+   "ultimo_ok": "2026-10-08T21:41:00-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-08T18:18:50-03:00",
+   "ultimo_ok": "2026-10-08T21:41:01-03:00",
    "ultimo_erro": null
   }
  },
