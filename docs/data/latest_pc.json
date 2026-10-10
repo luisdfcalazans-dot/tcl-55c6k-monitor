@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-10-10T13:16:24-03:00",
+ "atualizado": "2026-10-10T18:48:33-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -351,6 +351,58 @@
    "melhor_preco": 110.69
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI - PlayStation 5",
+   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=AZZ688ELLHQK2",
+   "id": "B0H6KT2RWH-AZZ688ELLHQK2",
+   "preco": null,
+   "preco_pix": 395.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Gamer Place",
+   "extra": {
+    "anuncio": "B0H6KT2RWH",
+    "asin": "B0H6KT2RWH",
+    "vendedor_id": "AZZ688ELLHQK2",
+    "disponibilidade": "este produto será lançado em 19/novembro/2026. reserve o seu na pré-venda.",
+    "destaque": true,
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "entrega_prevista": "2026-11-13",
+    "entrega_ate_lancamento": true,
+    "cep_referencia": false,
+    "entrega_origem": "página da Amazon",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-13",
+     "origem": "loja",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: previsão 13/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "amazon.produtos:B0H6KT2RWH-AZZ688ELLHQK2",
+   "melhor_preco": 395.9
+  },
+  {
    "fonte": "netshoes",
    "tipo": "loja",
    "loja": "Netshoes",
@@ -396,53 +448,6 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "netshoes:POE-0002-006-29198",
    "melhor_preco": 404.91
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Grand Theft Auto VI - PlayStation 5",
-   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
-   "id": "B0H6KT2RWH-A1ZZFT5FULY4LN",
-   "preco": null,
-   "preco_pix": 418.4,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Amazon.com.br",
-   "extra": {
-    "anuncio": "B0H6KT2RWH",
-    "asin": "B0H6KT2RWH",
-    "vendedor_id": "A1ZZFT5FULY4LN",
-    "disponibilidade": "este produto será lançado em 19/novembro/2026. reserve o seu na pré-venda.",
-    "destaque": true,
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "entrega_prevista": "2026-11-16",
-    "entrega_ate_lancamento": true,
-    "cep_referencia": false,
-    "entrega_origem": "página da Amazon",
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "loja",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "amazon.produtos:B0H6KT2RWH-A1ZZFT5FULY4LN",
-   "melhor_preco": 418.4
   },
   {
    "fonte": "amazon.produtos",
@@ -590,8 +595,8 @@
     "vendedor_id": "A1Y0ELKDUA6NH4",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 191,
-     "positivas_pct": 80,
+     "avaliacoes_vendedor": 192,
+     "positivas_pct": 81,
      "enviado_por": "Amazon",
      "full": true
     },
@@ -805,7 +810,7 @@
     "vendedor_id": "ACUNARZFR75ET",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 3841,
+     "avaliacoes_vendedor": 3862,
      "positivas_pct": 61,
      "enviado_por": "Magalu.",
      "full": false
@@ -855,58 +860,56 @@
    "tipo": "loja",
    "loja": "Mercado Livre",
    "titulo": "Smart Tv Tcl 55 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 55c6k",
-   "url": "https://www.mercadolivre.com.br/p/MLB48808732?pdp_filters=item_id%3AMLB5417889802",
-   "id": "MLB5417889802",
-   "preco": 3225.71,
-   "preco_pix": 3128.94,
+   "url": "https://www.mercadolivre.com.br/p/MLB48808732?pdp_filters=item_id%3AMLB5249073715",
+   "id": "MLB5249073715",
+   "preco": 3400.0,
+   "preco_pix": 3230.0,
    "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Mercado Livre",
+   "vendedor": "Magalu",
    "extra": {
     "opcao_ml": "BEST_PRICE",
-    "anuncio": "MLB5417889802",
-    "item_id": "MLB5417889802",
+    "anuncio": "MLB5249073715",
+    "item_id": "MLB5249073715",
     "catalogo": "MLB48808732",
-    "opcoes_no_catalogo": 8,
-    "vendedor_id": "480263032",
-    "vendas_vendedor": 1000000,
+    "opcoes_no_catalogo": null,
+    "vendedor_id": "3592255542",
+    "vendas_vendedor": 250000,
     "confianca": {
      "veredito": "confiavel"
     }
    },
    "modelo": "55C6K",
-   "chave": "mercadolivre:MLB5417889802",
-   "melhor_preco": 3128.94
+   "chave": "mercadolivre:MLB5249073715",
+   "melhor_preco": 3230.0
   },
   {
    "fonte": "mercadolivre",
    "tipo": "loja",
    "loja": "Mercado Livre",
    "titulo": "Smart Tv Tcl 55 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 55c6k",
-   "url": "https://www.mercadolivre.com.br/p/MLB48808732?pdp_filters=item_id%3AMLB7574364080",
-   "id": "MLB7574364080",
+   "url": "https://click1.mercadolivre.com.br/mclics/clicks/external/MLB/count",
+   "id": ".com.br/mclics/clicks/external/MLB/count",
    "preco": 3400.0,
    "preco_pix": 3230.0,
-   "parcelado": "10x R$ 340,00 sem juros",
+   "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Loja oficial Magalu",
+   "vendedor": "Magalu",
    "extra": {
-    "opcao_ml": "BEST_INSTALLMENTS",
-    "anuncio": "MLB7574364080",
-    "item_id": "MLB7574364080",
-    "catalogo": "MLB48808732",
-    "opcoes_no_catalogo": 8,
+    "item_id": null,
+    "anuncio": ".com.br/mclics/clicks/external/MLB/count",
     "vendedor_id": null,
+    "vendedor_conferido": false,
     "confianca": {
      "veredito": "confiavel"
     }
    },
    "modelo": "55C6K",
-   "chave": "mercadolivre:MLB7574364080",
+   "chave": "mercadolivre:.com.br/mclics/clicks/external/MLB/count",
    "melhor_preco": 3230.0
   },
   {
@@ -957,8 +960,8 @@
     "vendedor_id": "A3R1Z59ZORN2J9",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 86,
-     "positivas_pct": 65,
+     "avaliacoes_vendedor": 87,
+     "positivas_pct": 66,
      "enviado_por": "Amazon",
      "full": true
     },
@@ -1023,7 +1026,7 @@
     "vendedor_id": "ACUNARZFR75ET",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 3841,
+     "avaliacoes_vendedor": 3862,
      "positivas_pct": 61,
      "enviado_por": "Magalu.",
      "full": false
@@ -1035,6 +1038,45 @@
    "modelo": "65C6K",
    "chave": "amazon:B0F7K7B2PD-ACUNARZFR75ET",
    "melhor_preco": 3654.15
+  },
+  {
+   "fonte": "casasbahia.produtos",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Console PlayStation 5 Edição Digital 825GB –ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.casasbahia.com.br/console-playstation-5/p/1582493592",
+   "id": "1582493592-232923",
+   "preco": 4299.0,
+   "preco_pix": 3869.1,
+   "parcelado": "6x R$ 716,50 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Game Play Fulfillment",
+   "extra": {
+    "anuncio": "1582493592",
+    "sku": "1582493592",
+    "vendedor_id": "232923",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "casasbahia.produtos:1582493592-232923",
+   "melhor_preco": 3869.1
   },
   {
    "fonte": "amazon.produtos",
@@ -1107,7 +1149,7 @@
     "anuncio": "MLB6713012362",
     "item_id": "MLB6713012362",
     "catalogo": "MLB48808732",
-    "opcoes_no_catalogo": 8,
+    "opcoes_no_catalogo": null,
     "vendedor_id": null,
     "parcelado_descartado": "10x R$ 389,90 sem juros",
     "confianca": {
@@ -1243,6 +1285,32 @@
    "melhor_preco": 3919.0
   },
   {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV TCL 65 Polegadas 65C6K QD-Mini LED 4K UHD Google TV 144Hz HDR10+",
+   "url": "https://www.casasbahia.com.br/smart-tv-65-tcl-65c6k-4k-qd-mini-led-144hz-com-sistema-operacional-google-tv/p/55069453",
+   "id": "55069453-10037",
+   "preco": 4354.44,
+   "preco_pix": 3919.0,
+   "parcelado": "10x R$ 435,44 sem juros (cartão Casas Bahia)",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Casas Bahia",
+   "extra": {
+    "anuncio": "55069453",
+    "sku": "55069453",
+    "vendedor_id": "10037",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "casasbahia:55069453-10037",
+   "melhor_preco": 3919.0
+  },
+  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
@@ -1270,7 +1338,7 @@
       "preço"
      ],
      "sinais": [
-      "a busca da Amazon não diz quem vende e o preço R$ 3.979,55 está abaixo da loja confiável mais barata (R$ 4.089,00, KaBuM!); nova tentativa na próxima rodada"
+      "a busca da Amazon não diz quem vende e o preço R$ 3.979,55 está abaixo da loja confiável mais barata (R$ 4.047,08, Casas Bahia/LOJA GAZIN); nova tentativa na próxima rodada"
      ],
      "codigos": [
       "sem_vendedor"
@@ -1285,6 +1353,84 @@
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
    "melhor_preco": 3979.55
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
+   "id": "B0FPGF9J2J-destaque",
+   "preco": 4009.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0FPGF9J2J",
+    "asin": "B0FPGF9J2J",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "suspeito",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [
+      "a busca da Amazon não diz quem vende e o preço R$ 4.009,00 está abaixo da loja confiável mais barata (R$ 4.047,08, Casas Bahia/LOJA GAZIN); nova tentativa na próxima rodada"
+     ],
+     "codigos": [
+      "sem_vendedor"
+     ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0FPGF9J2J-destaque",
+   "melhor_preco": 4009.0
+  },
+  {
+   "fonte": "casasbahia.produtos",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Console PlayStation 5 Slim Digital 825GB SSD 1 Controle DualSense",
+   "url": "https://www.casasbahia.com.br/console-playstation-5/p/1581976879",
+   "id": "1581976879-35072",
+   "preco": 4399.0,
+   "preco_pix": 4047.08,
+   "parcelado": "6x R$ 733,17 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "LOJA GAZIN",
+   "extra": {
+    "anuncio": "1581976879",
+    "sku": "1581976879",
+    "vendedor_id": "35072",
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "casasbahia.produtos:1581976879-35072",
+   "melhor_preco": 4047.08
   },
   {
    "fonte": "amazon.produtos",
@@ -1315,7 +1461,7 @@
      "versao_incerta": false
     },
     "confianca": {
-     "veredito": "suspeito",
+     "veredito": "sem_risco_aparente",
      "checagens": [
       "preço",
       "Full",
@@ -1369,7 +1515,7 @@
      "versao_incerta": false
     },
     "confianca": {
-     "veredito": "suspeito",
+     "veredito": "sem_risco_aparente",
      "checagens": [
       "preço",
       "Full",
@@ -1393,46 +1539,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0CQKJN2C6-A5AWFXGJJU4NV",
    "melhor_preco": 4084.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation®5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
-   "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
-   "id": "B0FPGF9J2J-destaque",
-   "preco": 4089.0,
-   "preco_pix": null,
-   "parcelado": "12x R$ 340,75 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0FPGF9J2J",
-    "asin": "B0FPGF9J2J",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0FPGF9J2J-destaque",
-   "melhor_preco": 4089.0
   },
   {
    "fonte": "netshoes",
@@ -1667,8 +1773,8 @@
     "vendedor_id": "A3R1Z59ZORN2J9",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 86,
-     "positivas_pct": 65,
+     "avaliacoes_vendedor": 87,
+     "positivas_pct": 66,
      "enviado_por": "TCLSEMP.",
      "full": false
     },
@@ -1859,7 +1965,7 @@
     "vendedor_id": "APJANL1RGWUHD",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 718,
+     "avaliacoes_vendedor": 720,
      "positivas_pct": 57,
      "enviado_por": "Amazon",
      "full": true
@@ -1907,7 +2013,7 @@
     "vendedor_id": "A3391ZCWNCQKXA",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 113,
+     "avaliacoes_vendedor": 114,
      "positivas_pct": 58,
      "enviado_por": "META SHOPPE",
      "full": false
@@ -2161,7 +2267,7 @@
     "vendedor_id": "ACUNARZFR75ET",
     "destaque": true,
     "ficha": {
-     "avaliacoes_vendedor": 3841,
+     "avaliacoes_vendedor": 3862,
      "positivas_pct": 61,
      "enviado_por": "Magalu.",
      "full": false
@@ -2431,52 +2537,6 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Bundle PlayStation 5 Slim Disk Pacote Edição Limitada Wolverine + Figura Marvel Legends Hasbro Wolverine",
-   "url": "https://www.amazon.com.br/dp/B0HFY2Z4VV",
-   "id": "B0HFY2Z4VV-destaque",
-   "preco": 5361.6,
-   "preco_pix": 4985.7,
-   "parcelado": "10x R$ 536,16 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0HFY2Z4VV",
-    "asin": "B0HFY2Z4VV",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "edicao",
-       "valor": 200.0
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0HFY2Z4VV-destaque",
-   "melhor_preco": 4985.7
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
    "titulo": "Bundle GTA VI + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
    "url": "https://www.amazon.com.br/dp/B0H6LPVFWQ?smid=A1ZZFT5FULY4LN",
    "id": "B0H6LPVFWQ-A1ZZFT5FULY4LN",
@@ -2636,6 +2696,86 @@
    "melhor_preco": 5299.0
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7",
+   "id": "B0CM9VHGY7-destaque",
+   "preco": 5599.8,
+   "preco_pix": 5319.9,
+   "parcelado": "12x R$ 466,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-destaque",
+   "melhor_preco": 5319.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Stea PlayStation®5 console (slim)",
+   "url": "https://www.amazon.com.br/dp/B0CL61F39H",
+   "id": "B0CL61F39H-destaque",
+   "preco": 5599.8,
+   "preco_pix": 5319.9,
+   "parcelado": "12x R$ 466,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0CL61F39H",
+    "asin": "B0CL61F39H",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0CL61F39H-destaque",
+   "melhor_preco": 5319.9
+  },
+  {
    "fonte": "amazon",
    "tipo": "loja",
    "loja": "Amazon",
@@ -2683,6 +2823,46 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
+   "titulo": "Console PlayStation 5",
+   "url": "https://www.amazon.com.br/dp/B09FGC9T19",
+   "id": "B09FGC9T19-destaque",
+   "preco": 5999.88,
+   "preco_pix": 5699.9,
+   "parcelado": "12x R$ 499,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B09FGC9T19",
+    "asin": "B09FGC9T19",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": true
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B09FGC9T19-destaque",
+   "melhor_preco": 5699.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
    "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
    "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=APJANL1RGWUHD",
    "id": "B0GWNFMG5L-APJANL1RGWUHD",
@@ -2699,7 +2879,7 @@
     "vendedor_id": "APJANL1RGWUHD",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 718,
+     "avaliacoes_vendedor": 720,
      "positivas_pct": 57,
      "enviado_por": "Amazon",
      "full": true
@@ -2874,9 +3054,9 @@
    "titulo": "PlayStation®5 Pro",
    "url": "https://www.amazon.com.br/dp/B0DH8J5YGH?smid=A1ZZFT5FULY4LN",
    "id": "B0DH8J5YGH-A1ZZFT5FULY4LN",
-   "preco": 7299.0,
+   "preco": 6932.0,
    "preco_pix": null,
-   "parcelado": "12x R$ 608,25 sem juros",
+   "parcelado": "12x R$ 577,66 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -2904,7 +3084,7 @@
    },
    "modelo": "PS5_PRO",
    "chave": "amazon.produtos:B0DH8J5YGH-A1ZZFT5FULY4LN",
-   "melhor_preco": 7299.0
+   "melhor_preco": 6932.0
   },
   {
    "fonte": "amazon.produtos",
@@ -2966,7 +3146,7 @@
     "vendedor_id": "A3391ZCWNCQKXA",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 113,
+     "avaliacoes_vendedor": 114,
      "positivas_pct": 58,
      "enviado_por": "META SHOPPE",
      "full": false
@@ -3124,7 +3304,7 @@
     "vendedor_id": "AJILT5RJ3RSVK",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 742,
+     "avaliacoes_vendedor": 743,
      "positivas_pct": 93,
      "enviado_por": "Fênix PP",
      "full": false
@@ -3203,9 +3383,104 @@
    "modelo": "PS5_PRO",
    "chave": "amazon.produtos:B0DH8J5YGH-AW2UCHLYAE4ZY",
    "melhor_preco": 8693.35
+  },
+  {
+   "fonte": "casasbahia",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Smart TV 55” TCL 55C6K 4K QD-Mini Led 144Hz Sistema Operacional Google TV",
+   "url": "https://www.casasbahia.com.br/smart-tv-55-tcl-55c6k-4k-qd-mini-led-144hz-sistema-operacional-google-tv/p/55069456",
+   "id": "55069456-destaque",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "55069456",
+    "sku": "55069456",
+    "vendedor_id": null,
+    "motivo": "esgotado"
+   },
+   "modelo": "55C6K",
+   "chave": "casasbahia:55069456-destaque",
+   "melhor_preco": null
+  },
+  {
+   "fonte": "casasbahia.produtos",
+   "tipo": "loja",
+   "loja": "Casas Bahia",
+   "titulo": "Console Playstation 5 Pro Ssd 2Tb Branco",
+   "url": "https://www.casasbahia.com.br/console-playstation-5/p/1582830969",
+   "id": "1582830969-destaque",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "1582830969",
+    "sku": "1582830969",
+    "vendedor_id": null,
+    "motivo": "esgotado",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 5950.0,
+     "parcelado": 6100.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_PRO",
+   "chave": "casasbahia.produtos:1582830969-destaque",
+   "melhor_preco": null
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-10T18:48:33-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "GTA VI + PS5 Slim Digital 825 GB + Astro Bot",
+   "url": "https://www.pelando.com.br/d/gta-vi-ps5-slim-digital-825-gb-astro-bot-d88f",
+   "id": "a3bb2dcc-4f59-4422-aa52-153276c36af2",
+   "preco": 4151.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-10T13:42:42-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "-98°",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 4000.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "PS5_DIGITAL_GTA6",
+   "chave": "pelando:a3bb2dcc-4f59-4422-aa52-153276c36af2",
+   "melhor_preco": 4151.0,
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
+  },
   {
    "primeira_vez": "2026-10-10T13:16:24-03:00",
    "preco_alertado": null,
@@ -3219,11 +3494,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T13:07:39-03:00",
-   "ativo": true,
+   "publicado": "2026-10-10T12:42:39-03:00",
+   "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "95°",
+    "temperatura": "921°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -3243,7 +3518,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:d7a1adc5-e8b4-4191-ba94-8f83b45ee957",
    "melhor_preco": 309.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 309.0,
    "menor_preco": 309.0
   },
@@ -3286,7 +3561,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T08:12:40-03:00",
+   "publicado": "2026-10-10T07:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3310,7 +3585,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:045742e2-f9b8-492d-a028-e11ed664849b",
    "melhor_preco": 328.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-10T10:16:58-03:00",
@@ -3325,11 +3600,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T00:12:41-03:00",
+   "publicado": "2026-10-10T00:42:41-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "649°",
+    "temperatura": "1031°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -3349,7 +3624,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:11d6af5f-6373-4dfb-9515-d30f844429e9",
    "melhor_preco": 332.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 332.0,
    "menor_preco": 332.0
   },
@@ -3528,7 +3803,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-08T13:12:40-03:00",
+   "publicado": "2026-10-08T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3552,7 +3827,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:903a8939-3ccc-4cff-93d8-fd2622cc0e11",
    "melhor_preco": 333.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-08T23:20:33-03:00",
@@ -3567,11 +3842,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-08T13:12:40-03:00",
+   "publicado": "2026-10-08T18:42:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "2693°",
+    "temperatura": "2701°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -3591,7 +3866,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:9e611623-0866-45ac-a280-627873b3071a",
    "melhor_preco": 332.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 332.0,
    "menor_preco": 332.0
   },
@@ -3608,7 +3883,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-08T13:12:40-03:00",
+   "publicado": "2026-10-08T18:42:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3632,9 +3907,38 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:16c18aa7-39c9-4685-9ca6-d2805247246f",
    "melhor_preco": 330.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 330.0,
    "menor_preco": 330.0
+  },
+  {
+   "primeira_vez": "2026-10-07T22:52:00-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Desconto de 10% em Gift Card PSN - ENEBA",
+   "url": "https://www.pelando.com.br/d/desconto-de-10porcento-em-gift-card-psn-07-out-2026-52af",
+   "id": "0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-07T18:42:40-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "308°",
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "sem o valor de face"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
+   "melhor_preco": null,
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3649,7 +3953,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3673,7 +3977,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:19ebf784-e14b-425c-a533-219c5735ba64",
    "melhor_preco": 313.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3688,7 +3992,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3712,7 +4016,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:d1319954-d376-43f1-b6fe-806eb69c2e22",
    "melhor_preco": 313.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3727,7 +4031,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3744,7 +4048,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:01ef7d76-0e47-4ebc-9df4-e172e5fd136e",
    "melhor_preco": 90.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 90.0,
    "menor_preco": 90.0
   },
@@ -3761,7 +4065,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3775,36 +4079,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:970fff40-f5a3-4441-b43d-f47543943dfc",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-07T22:52:00-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Desconto de 10% em Gift Card PSN - ENEBA",
-   "url": "https://www.pelando.com.br/d/desconto-de-10porcento-em-gift-card-psn-07-out-2026-52af",
-   "id": "0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
-   "preco": null,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "308°",
-    "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "sem o valor de face"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "pelando:0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
-   "melhor_preco": null,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3819,7 +4094,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3836,7 +4111,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:4248f3c9-0cc7-4ccd-b2de-4999fdc83d4a",
    "melhor_preco": 46.6,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3851,7 +4126,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T13:12:40-03:00",
+   "publicado": "2026-10-07T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3868,7 +4143,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:a0a1963b-2f04-4728-889b-699006c4531e",
    "melhor_preco": 238.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -3917,7 +4192,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T13:12:41-03:00",
+   "publicado": "2026-10-06T18:42:41-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3934,7 +4209,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "pelando:160b28c1-a885-4db0-89e3-335934a442bb",
    "melhor_preco": 3779.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 3779.0,
    "menor_preco": 3779.0
   },
@@ -3951,16 +4226,16 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T13:12:39-03:00",
+   "publicado": "2026-10-06T18:42:38-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "2367°"
+    "temperatura": "2387°"
    },
    "modelo": "55C6K",
    "chave": "pelando:d263bf7b-bb57-4327-bb4f-90c04e900933",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -4011,11 +4286,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-05T13:12:40-03:00",
+   "publicado": "2026-10-05T18:42:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "4413°",
+    "temperatura": "4425°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -4035,7 +4310,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:c3a3a585-b7f5-4472-b062-f2941f3c737f",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 350.0,
    "menor_preco": 350.0
   },
@@ -4052,7 +4327,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-05T13:12:40-03:00",
+   "publicado": "2026-10-05T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4076,7 +4351,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:16230c9f-e5ea-41d5-acf0-0885b8abf4f3",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-05T00:17:49-03:00",
@@ -4146,7 +4421,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:cdf3d517-82e3-4ba4-ac22-86ec8ec66b12",
    "melhor_preco": 508.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4175,7 +4450,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:3a258b98-3fc7-4e78-afa3-b5cb7afe088a",
    "melhor_preco": 492.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4204,7 +4479,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:e40f265a-24f5-41ce-884f-8234fcdc0416",
    "melhor_preco": 483.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4233,7 +4508,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:0ddcb5a9-7688-4fda-8961-ac853e5071eb",
    "melhor_preco": 476.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4262,7 +4537,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:5f38f66d-2002-475c-93cb-ab16a7704a17",
    "melhor_preco": 482.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4291,7 +4566,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:2a864078-1f1c-44d4-a0c8-a69bbb867744",
    "melhor_preco": 399.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4320,7 +4595,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:c9c183ee-2dc1-4d47-ae30-d36fa78aa5a4",
    "melhor_preco": 399.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4349,7 +4624,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:86661b39-5fdb-46cd-9e5a-4a2dbbc762e9",
    "melhor_preco": 459.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4378,7 +4653,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:3e6c133c-e99b-4f3d-bc8f-1c234e07e065",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4407,7 +4682,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:42dba13f-35a3-4ff3-9f9f-27d38237e8bc",
    "melhor_preco": 452.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4436,7 +4711,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:dbe60dba-bb8e-46ae-be47-300304301ef9",
    "melhor_preco": 460.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -4485,7 +4760,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-01T13:12:40-03:00",
+   "publicado": "2026-10-01T18:42:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4509,7 +4784,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:e848cddb-48df-41ee-9dae-38cef39c423d",
    "melhor_preco": 341.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T11:49:22-03:00",
@@ -4524,7 +4799,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-01T13:12:39-03:00",
+   "publicado": "2026-10-01T18:42:38-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4533,7 +4808,7 @@
    "modelo": "65C6K",
    "chave": "pelando:7c1f38b6-7aee-4e95-bfc7-44c0d93c44e5",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T11:49:22-03:00",
@@ -4548,7 +4823,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-30T13:12:39-03:00",
+   "publicado": "2026-09-30T18:42:38-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4557,7 +4832,7 @@
    "modelo": "55C6K",
    "chave": "pelando:1a00be38-6cc1-41a5-b000-a5e73e08fea5",
    "melhor_preco": 3024.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4581,7 +4856,7 @@
    "modelo": "55C6K",
    "chave": "pelando:ba600c39-982c-43e9-b7e0-40c5b0c669b5",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4605,7 +4880,7 @@
    "modelo": "55C6K",
    "chave": "pelando:b675e6ae-d3cc-4411-b3e9-f6d5e4145174",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4629,7 +4904,7 @@
    "modelo": "55C6K",
    "chave": "pelando:f49fed6c-c920-4eeb-96aa-c5e691d4b3b7",
    "melhor_preco": 2990.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4653,7 +4928,7 @@
    "modelo": "55C6K",
    "chave": "pelando:95e0b0ce-a976-4e63-825a-c8b03291b27c",
    "melhor_preco": 3100.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4677,7 +4952,7 @@
    "modelo": "55C6K",
    "chave": "pelando:92eac6e1-7d1c-4d8d-861c-4d186147205e",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4773,7 +5048,7 @@
    "modelo": "65C6K",
    "chave": "pelando:4ee745f4-b964-411e-986e-fb615254c408",
    "melhor_preco": 3289.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4797,7 +5072,7 @@
    "modelo": "65C6K",
    "chave": "pelando:5325809a-bc01-4f44-92e9-593b64559b83",
    "melhor_preco": 3149.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4821,7 +5096,7 @@
    "modelo": "65C6K",
    "chave": "pelando:efd762ee-bb79-47ad-8b0b-0492d2da0602",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -4845,7 +5120,7 @@
    "modelo": "65C6K",
    "chave": "pelando:c8ada64f-f164-421b-8ab3-5e01d3b66db8",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5013,7 +5288,7 @@
    "modelo": "65C6K",
    "chave": "pelando:823e2314-b26b-4640-9268-10d84740cd36",
    "melhor_preco": 3581.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5037,7 +5312,7 @@
    "modelo": "65C6K",
    "chave": "pelando:59057492-7ac4-4ecc-abd2-a0f61c82eb91",
    "melhor_preco": 3229.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5061,7 +5336,7 @@
    "modelo": "65C6K",
    "chave": "pelando:6e63a033-93ff-4f60-8626-22da5e809f43",
    "melhor_preco": 3395.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5085,7 +5360,7 @@
    "modelo": "65C6K",
    "chave": "pelando:33e44122-f76b-4f5b-b7af-d3f4856c65f1",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5109,7 +5384,7 @@
    "modelo": "65C6K",
    "chave": "pelando:633a9135-e86c-4790-8f2a-0c65b177be6e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5133,7 +5408,7 @@
    "modelo": "65C6K",
    "chave": "pelando:77c4745b-4850-4f78-8800-e707847e216e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5157,7 +5432,7 @@
    "modelo": "65C6K",
    "chave": "pelando:882d170a-08e5-4517-adf0-b019113db009",
    "melhor_preco": 3459.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5181,7 +5456,7 @@
    "modelo": "65C6K",
    "chave": "pelando:ff5596ef-8e6f-46c5-883e-d455e2c032c0",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -5196,7 +5471,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-24T13:12:40-03:00",
+   "publicado": "2026-09-24T18:42:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5210,46 +5485,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:8a3d084a-cfa6-4399-bf26-e4582195927e",
    "melhor_preco": 395.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-03T20:48:01-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "Jogo Grand Theft Auto VI Standard PS5",
-   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-standard-ps5-05b4",
-   "id": "3a667c02-29d0-4a9a-8d2c-e4f072421b07",
-   "preco": 346.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-09-23T13:12:42-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1540°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:3a667c02-29d0-4a9a-8d2c-e4f072421b07",
-   "melhor_preco": 346.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
@@ -5264,7 +5500,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-23T13:12:40-03:00",
+   "publicado": "2026-09-23T18:42:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5288,39 +5524,46 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:99efbf95-ba0c-4a1c-91a9-8a44cb37bae6",
    "melhor_preco": 318.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-10-03T20:48:01-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Sony PlayStation Store Gift Card R$ 100 (Digital)",
-   "url": "https://www.pelando.com.br/d/sony-playstation-store-gift-card-rdollar-100-digital-40a9",
-   "id": "ba7c58de-f4e7-4b0b-baa8-4b26cfe9f6d2",
-   "preco": 85.0,
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Standard PS5",
+   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-vi-standard-ps5-05b4",
+   "id": "3a667c02-29d0-4a9a-8d2c-e4f072421b07",
+   "preco": 346.0,
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-23T13:12:40-03:00",
+   "publicado": "2026-09-23T18:42:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "823°",
+    "temperatura": "1540°",
     "produto": {
-     "valor_face": 100.0
+     "plataforma_incerta": false
     },
     "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "loja não oficial para gift card"
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "pelando:ba7c58de-f4e7-4b0b-baa8-4b26cfe9f6d2",
-   "melhor_preco": 85.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00"
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:3a667c02-29d0-4a9a-8d2c-e4f072421b07",
+   "melhor_preco": 346.0,
+   "ultima_vez": "2026-10-10T18:48:33-03:00"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -5343,7 +5586,7 @@
    },
    "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 2799.0,
    "menor_preco": 2799.0,
    "modelo": "55C6K"
@@ -5369,7 +5612,7 @@
    },
    "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0,
    "modelo": "55C6K"
@@ -5395,7 +5638,7 @@
    },
    "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
    "melhor_preco": 3010.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 3010.0,
    "menor_preco": 3010.0,
    "modelo": "55C6K"
@@ -5421,7 +5664,7 @@
    },
    "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
    "melhor_preco": 2957.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 2957.0,
    "menor_preco": 2957.0,
    "modelo": "55C6K"
@@ -5447,27 +5690,13 @@
    },
    "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
    "melhor_preco": 2969.0,
-   "ultima_vez": "2026-10-10T13:16:24-03:00",
+   "ultima_vez": "2026-10-10T18:48:33-03:00",
    "ultimo_preco": 2969.0,
    "menor_preco": 2969.0,
    "modelo": "55C6K"
   }
  ],
  "gta6_custo_final": [
-  {
-   "produto": "GTA6_CODE_IN_BOX",
-   "edicao": "Standard",
-   "forma": "GTA 6 PS5 Code in Box",
-   "loja": "Shopee",
-   "tipo": "post",
-   "url": "https://www.pelando.com.br/d/gta-vi-edicao-standard-ps5-pre-venda-44d8",
-   "preco": 309.0,
-   "custo_final": 309.0,
-   "cupom": null,
-   "entrega": "depois",
-   "entrega_texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
-   "meta": 300.0
-  },
   {
    "produto": "GTA6_CODE_IN_BOX",
    "edicao": "Standard",
@@ -5542,6 +5771,20 @@
    "produto": "GTA6_CODE_IN_BOX",
    "edicao": "Standard",
    "forma": "GTA 6 PS5 Code in Box",
+   "loja": "Amazon",
+   "tipo": "loja",
+   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=AZZ688ELLHQK2",
+   "preco": 395.9,
+   "custo_final": 395.9,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "📦 Entrega: previsão 13/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 345.0
+  },
+  {
+   "produto": "GTA6_CODE_IN_BOX",
+   "edicao": "Standard",
+   "forma": "GTA 6 PS5 Code in Box",
    "loja": "Netshoes",
    "tipo": "loja",
    "url": "https://www.netshoes.com.br/p/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-prevenda-lancamento-1911-POE-0002-006",
@@ -5557,29 +5800,15 @@
    "via": "GTA6_CODE_IN_BOX",
    "edicao": "Ultimate",
    "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
-   "loja": "Shopee",
-   "tipo": "calculo",
-   "url": "https://www.pelando.com.br/d/gta-vi-edicao-standard-ps5-pre-venda-44d8",
-   "preco": 409.0,
-   "custo_final": 409.0,
-   "cupom": null,
-   "entrega": "depois",
-   "entrega_texto": "Code in Box R$ 309,00 em Shopee + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
-   "meta": 450.0
-  },
-  {
-   "produto": "GTA6_CODE_IN_BOX",
-   "edicao": "Standard",
-   "forma": "GTA 6 PS5 Code in Box",
    "loja": "Amazon",
-   "tipo": "loja",
-   "url": "https://www.amazon.com.br/dp/B0H6KT2RWH?smid=A1ZZFT5FULY4LN",
-   "preco": 418.4,
-   "custo_final": 418.4,
+   "tipo": "calculo",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-923e",
+   "preco": 430.0,
+   "custo_final": 430.0,
    "cupom": null,
    "entrega": "a_tempo",
-   "entrega_texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)",
-   "meta": 345.0
+   "entrega_texto": "Code in Box R$ 330,00 em Amazon + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 450.0
   },
   {
    "produto": "GTA6_ULTIMATE",
@@ -5599,13 +5828,41 @@
   {
    "fonte": "pelando",
    "loja": "Magazine Luiza",
+   "codigo": "INFLUDUPLA16H",
+   "titulo": "Cupom Magalu: R$150 OFF acima de R$1.000",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
+   "id": "9fed8188-1d77-4811-9421-e241878ea01b",
+   "regra": "R$150 OFF acima de R$1.000",
+   "validade": null,
+   "publicado": "2026-10-10T15:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:9fed8188-1d77-4811-9421-e241878ea01b"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Magazine Luiza",
+   "codigo": "INFLUDUPLA14H",
+   "titulo": "Magalu: R$320 OFF em compras a partir de R$3.000",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
+   "id": "656f83d6-cc07-4199-b73c-3ff6a01763ff",
+   "regra": "R$320 OFF em compras a partir de R$3.000",
+   "validade": null,
+   "publicado": "2026-10-10T13:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:656f83d6-cc07-4199-b73c-3ff6a01763ff"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Magazine Luiza",
    "codigo": "SSG300",
    "titulo": "Cupom Magalu R$ 300 acima de R$ 3000 em itens Samsung",
    "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
    "id": "db9c2b06-16dd-4c37-9257-eb4005e98d13",
    "regra": "Precisa ser vendido pela Magalu e entregue por ela",
    "validade": null,
-   "publicado": "2026-10-10T11:12:43-03:00",
+   "publicado": "2026-10-10T10:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:db9c2b06-16dd-4c37-9257-eb4005e98d13"
@@ -5619,7 +5876,7 @@
    "id": "1372cfa1-9cdf-4dbe-80b3-208b442bc54a",
    "regra": "Válido no APP....",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:1372cfa1-9cdf-4dbe-80b3-208b442bc54a"
@@ -5633,7 +5890,7 @@
    "id": "92c42610-b28e-475c-b1a9-bb4598da474d",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por Lojas Parceiras.",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:92c42610-b28e-475c-b1a9-bb4598da474d"
@@ -5647,7 +5904,7 @@
    "id": "325c3771-f373-459b-a6ae-3830ddca26b4",
    "regra": "Cupom Magalu 15% OFF em compras de ate R$ 500",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:325c3771-f373-459b-a6ae-3830ddca26b4"
@@ -5661,7 +5918,7 @@
    "id": "9464a583-08d9-4ac7-b10b-eed8bd441324",
    "regra": "No app com cupom",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:9464a583-08d9-4ac7-b10b-eed8bd441324"
@@ -5675,7 +5932,7 @@
    "id": "26b40379-bb45-4cda-9aaa-6a68026963fc",
    "regra": "Válido em itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-10-06T13:12:43-03:00",
+   "publicado": "2026-10-06T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:26b40379-bb45-4cda-9aaa-6a68026963fc"
@@ -5689,7 +5946,7 @@
    "id": "99b91170-bc17-41bd-9ad1-2522dbd9919a",
    "regra": "Válido em itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-10-06T13:12:43-03:00",
+   "publicado": "2026-10-06T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:99b91170-bc17-41bd-9ad1-2522dbd9919a"
@@ -5703,7 +5960,7 @@
    "id": "bac7044e-ecc5-4f90-9088-d46eda2a9ec3",
    "regra": "Válido em itens vendidos por Magazine Luiza",
    "validade": null,
-   "publicado": "2026-10-06T13:12:43-03:00",
+   "publicado": "2026-10-06T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:bac7044e-ecc5-4f90-9088-d46eda2a9ec3"
@@ -5717,7 +5974,7 @@
    "id": "391f280e-6fbc-45d5-9fd1-91b1877f204e",
    "regra": "Ganhe R$ 50 em itens acima de R$ 400 vendidos e entregues por Lojas Parceiras",
    "validade": null,
-   "publicado": "2026-09-30T13:12:43-03:00",
+   "publicado": "2026-09-30T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:391f280e-6fbc-45d5-9fd1-91b1877f204e"
@@ -5731,24 +5988,122 @@
    "id": "6e16c343-f626-4cf5-817f-86a8c183e31e",
    "regra": "Valido para lojas Parceiras",
    "validade": null,
-   "publicado": "2026-09-30T13:12:43-03:00",
+   "publicado": "2026-09-30T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:6e16c343-f626-4cf5-817f-86a8c183e31e"
   },
   {
    "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "DESCONTA100",
-   "titulo": "Cupom Magazine Luiza R$ 100 OFF acima de R$ 1000",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "b111e880-7617-4776-8711-e7f3fe0ca4e4",
-   "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por lojas parceiras.",
+   "loja": "Amazon",
+   "codigo": "MAIS10DO10",
+   "titulo": "(Prime) Cupom Amazon oferece 10% OFF, máximo R$ 30, em R$ 150",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "660eec65-da31-4a12-9086-826dbea36b21",
+   "regra": "pedido mínimo R$ 150",
    "validade": null,
-   "publicado": "2026-09-25T13:12:43-03:00",
+   "publicado": "2026-10-10T17:42:42-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "pelando:b111e880-7617-4776-8711-e7f3fe0ca4e4"
+   "chave": "pelando:660eec65-da31-4a12-9086-826dbea36b21"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "15OFF10DO10",
+   "titulo": "(Prime) Cupom Amazon oferece 15% OFF, máximo R$ 15, em R$ 50",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "6e315b92-51ff-4da4-8bad-93e3ae2f5fab",
+   "regra": "pedido mínimo R$ 50",
+   "validade": null,
+   "publicado": "2026-10-10T17:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:6e315b92-51ff-4da4-8bad-93e3ae2f5fab"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "10DO10LEGAL",
+   "titulo": "[Prime] Cupom Amazon 10% OFF acima de R$100 (limite R$20)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "83245d9b-7a3a-4662-83fd-f5afbe61429d",
+   "regra": "Válido somente para produtos vendidos e entregues pela Amazon, exceto a categoria Livros",
+   "validade": null,
+   "publicado": "2026-10-10T16:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:83245d9b-7a3a-4662-83fd-f5afbe61429d"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "CUPOMPRAVC",
+   "titulo": "(Prime) Cupom Amazon oferece 15% OFF, máximo R$ 50, em R$ 50",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "6a863420-d0a4-4052-a8da-fb165d7ac3a3",
+   "regra": "pedido mínimo R$ 50",
+   "validade": null,
+   "publicado": "2026-10-10T15:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:6a863420-d0a4-4052-a8da-fb165d7ac3a3"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "EBA10DO10",
+   "titulo": "[Prime] Cupom Amazon 10% OFF acima de R$250 (limite R$50)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "510d68a8-4ca6-45ac-9908-6bd9cea51959",
+   "regra": "Válido somente para produtos vendidos e entregues pela Amazon, exceto a categoria Livros",
+   "validade": null,
+   "publicado": "2026-10-10T15:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:510d68a8-4ca6-45ac-9908-6bd9cea51959"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "AMAZON10DO10",
+   "titulo": "(Prime) Cupom Amazon oferece 10% OFF, máximo R$ 30, em R$ 150",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "df65a352-d1a4-4094-bef3-82d61a8c7439",
+   "regra": "pedido mínimo R$ 150",
+   "validade": null,
+   "publicado": "2026-10-10T14:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:df65a352-d1a4-4094-bef3-82d61a8c7439"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "NODIA10DO10",
+   "titulo": "[Prime] Cupom Amazon 10% OFF acima de R$150 (limite R$30)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "3c861026-b4c1-4984-bd78-2db9a8036342",
+   "regra": "10% OFF acima de R$150 (limite R$30)",
+   "validade": null,
+   "publicado": "2026-10-10T14:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:3c861026-b4c1-4984-bd78-2db9a8036342"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Amazon",
+   "codigo": "10DO10AGORA",
+   "titulo": "[Prime] Cupom Amazon 10% OFF acima de R$100 (limite R$20)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/amazon",
+   "id": "4f120cad-dea8-4ef9-8009-2e099013b849",
+   "regra": "[Prime] Cupom Amazon 10% OFF acima de R$100 (limite R$20)",
+   "validade": null,
+   "publicado": "2026-10-10T13:42:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:4f120cad-dea8-4ef9-8009-2e099013b849"
   },
   {
    "fonte": "pelando",
@@ -5759,7 +6114,7 @@
    "id": "2e2f4771-3d0e-45ac-825e-9d8526c303b6",
    "regra": "10% OFF acima de R$80 (limite R$15)",
    "validade": null,
-   "publicado": "2026-10-10T12:17:43-03:00",
+   "publicado": "2026-10-10T12:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2e2f4771-3d0e-45ac-825e-9d8526c303b6"
@@ -5773,7 +6128,7 @@
    "id": "afa2b665-448f-437f-bf6e-355135be5b7b",
    "regra": "10% OFF acima de R$200 (limite R$40)",
    "validade": null,
-   "publicado": "2026-10-10T11:12:43-03:00",
+   "publicado": "2026-10-10T11:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:afa2b665-448f-437f-bf6e-355135be5b7b"
@@ -5787,7 +6142,7 @@
    "id": "6f4acffd-9e98-438b-a253-ecdaae195fdf",
    "regra": "Apens usando cartao porto bank",
    "validade": null,
-   "publicado": "2026-10-10T10:12:43-03:00",
+   "publicado": "2026-10-10T10:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:6f4acffd-9e98-438b-a253-ecdaae195fdf"
@@ -5801,7 +6156,7 @@
    "id": "04226b4f-c2ba-4658-a7b5-245d008de904",
    "regra": "Valor mt bommmmm",
    "validade": null,
-   "publicado": "2026-10-10T10:12:43-03:00",
+   "publicado": "2026-10-10T10:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:04226b4f-c2ba-4658-a7b5-245d008de904"
@@ -5815,7 +6170,7 @@
    "id": "7bd947eb-04e8-4a96-a13e-126eba830958",
    "regra": "Válido para membros prime",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:7bd947eb-04e8-4a96-a13e-126eba830958"
@@ -5829,7 +6184,7 @@
    "id": "804af576-f65d-4b50-8f7e-a394757574bd",
    "regra": "Apenas para Membros Prime\n\n[Prime] Cupom Amazon 10% OFF acima de R$ 100 (limitado a R$ 20 OFF)",
    "validade": null,
-   "publicado": "2026-10-07T13:12:43-03:00",
+   "publicado": "2026-10-07T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:804af576-f65d-4b50-8f7e-a394757574bd"
@@ -5843,7 +6198,7 @@
    "id": "2a3c8c13-f144-4703-97e5-f7e0750bae2e",
    "regra": "Exclusivo Prime: Só no App: 15% off em itens ElectroluxExpira em: domingo 11 de outubro de 2026",
    "validade": null,
-   "publicado": "2026-10-05T13:12:43-03:00",
+   "publicado": "2026-10-05T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2a3c8c13-f144-4703-97e5-f7e0750bae2e"
@@ -5857,10 +6212,66 @@
    "id": "a54d7f06-90fc-4d4f-a30f-dc6e2ee47a9b",
    "regra": "Acima de R$ 50\n15% off com cartão Amazon Prime. Até R$ 50 de desconto\n\nCupom de desconto: CARTAOPRIME\n\nEsta oferta é aplicável somente utilizando o Cartão Amazon Prime como forma de pagamento, não sendo válida para o Cartão Amazon.",
    "validade": null,
-   "publicado": "2026-10-05T13:12:43-03:00",
+   "publicado": "2026-10-05T18:42:42-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:a54d7f06-90fc-4d4f-a30f-dc6e2ee47a9b"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "OFERTAMELI",
+   "titulo": "Cupom Mercado Livre oferece 15% OFF, máximo R$ 60, em R$ 79",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "5f716634-ef2a-4af9-a31d-abbc2a8fc5fa",
+   "regra": "pedido mínimo R$ 79",
+   "validade": null,
+   "publicado": "2026-10-10T15:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:5f716634-ef2a-4af9-a31d-abbc2a8fc5fa"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "QUINZEOFF",
+   "titulo": "Cupom Mercado Livre oferece 15% OFF, máximo R$ 115, em R$ 699",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "1f98d3b6-8b8b-4fd2-83b4-e761a8a59b3d",
+   "regra": "pedido mínimo R$ 699",
+   "validade": null,
+   "publicado": "2026-10-10T13:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:1f98d3b6-8b8b-4fd2-83b4-e761a8a59b3d"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "HOJEPROMO20",
+   "titulo": "Cupom Mercado Livre oferece 20% OFF, máximo R$ 60, em R$ 79",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "037ebbac-0b45-4d0e-956b-c5be3d486e3d",
+   "regra": "pedido mínimo R$ 79",
+   "validade": null,
+   "publicado": "2026-10-10T13:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:037ebbac-0b45-4d0e-956b-c5be3d486e3d"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "COMPRAPREFERIDA",
+   "titulo": "Cupom Mercado Livre 15% OFF acima de R$ 149 (limitado a R$ 150 OFF)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "139c3187-8bbe-409c-9087-fd2f4181543b",
+   "regra": "Cupom Mercado Livre 15% OFF acima de R$ 149 (limitado a R$ 150 OFF)",
+   "validade": null,
+   "publicado": "2026-10-10T13:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:139c3187-8bbe-409c-9087-fd2f4181543b"
   },
   {
    "fonte": "pelando",
@@ -5871,7 +6282,7 @@
    "id": "4c5a4a5a-bbda-41ec-89bd-478802656cd7",
    "regra": "pedido mínimo R$ 249 para membros Meli+ e diz ser TODO O SITE",
    "validade": null,
-   "publicado": "2026-10-10T12:16:43-03:00",
+   "publicado": "2026-10-10T12:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4c5a4a5a-bbda-41ec-89bd-478802656cd7"
@@ -5885,10 +6296,24 @@
    "id": "cc41852a-9aca-47ec-a46d-bd2bcaa866a7",
    "regra": "pedido mínimo R$ 899",
    "validade": null,
-   "publicado": "2026-10-10T12:14:43-03:00",
+   "publicado": "2026-10-10T12:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:cc41852a-9aca-47ec-a46d-bd2bcaa866a7"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "SEMPREOFF",
+   "titulo": "Cupom Mercado Livre 10% OFF acima de R$ 149 (limitado a R$ 200 OFF)",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "a23615a8-b5cc-4900-b602-b3a7e2b1f589",
+   "regra": "Cupom Mercado Livre 10% OFF acima de R$ 149 (limitado a R$ 200 OFF)",
+   "validade": null,
+   "publicado": "2026-10-10T11:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:a23615a8-b5cc-4900-b602-b3a7e2b1f589"
   },
   {
    "fonte": "pelando",
@@ -5899,7 +6324,7 @@
    "id": "c7bf1375-18c1-4024-8752-22d79c8f2a98",
    "regra": "Cupom Mercado Livre 20% OFF acima de R$ 79 (limitado a R$ 80 OFF)",
    "validade": null,
-   "publicado": "2026-10-10T11:12:43-03:00",
+   "publicado": "2026-10-10T11:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:c7bf1375-18c1-4024-8752-22d79c8f2a98"
@@ -5913,24 +6338,10 @@
    "id": "88f140ea-4b37-4f1b-b242-92a62d8bd2ec",
    "regra": "Cupom Mercado Livre 20% OFF acima de R$ 79 (limitado a R$ 60 OFF) em Auto Peças",
    "validade": null,
-   "publicado": "2026-10-10T11:12:43-03:00",
+   "publicado": "2026-10-10T11:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:88f140ea-4b37-4f1b-b242-92a62d8bd2ec"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "SEMPREOFF",
-   "titulo": "Cupom Mercado Livre 10% OFF acima de R$ 149 (limitado a R$ 200 OFF)",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "a23615a8-b5cc-4900-b602-b3a7e2b1f589",
-   "regra": "Cupom Mercado Livre 10% OFF acima de R$ 149 (limitado a R$ 200 OFF)",
-   "validade": null,
-   "publicado": "2026-10-10T11:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:a23615a8-b5cc-4900-b602-b3a7e2b1f589"
   },
   {
    "fonte": "pelando",
@@ -5941,24 +6352,10 @@
    "id": "2b9ae1c9-e8c1-4f9d-853e-4135c5b99c06",
    "regra": "Vai escotar rapido.",
    "validade": null,
-   "publicado": "2026-10-10T00:12:43-03:00",
+   "publicado": "2026-10-10T00:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2b9ae1c9-e8c1-4f9d-853e-4135c5b99c06"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "resgateddlojas",
-   "titulo": "Cupom Mercado Livre - 30% OFF  acima de R$89 Limitado a R$50 em LojasOficais",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "f59f861e-8549-494a-ae5e-251745a331dd",
-   "regra": "Em itens SelecionadosVálido Somente pra quem Resgatou !!",
-   "validade": null,
-   "publicado": "2026-10-10T00:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:f59f861e-8549-494a-ae5e-251745a331dd"
   },
   {
    "fonte": "pelando",
@@ -5969,52 +6366,10 @@
    "id": "49b8ce87-501e-4839-bbae-86a731b107cf",
    "regra": "Cupom Mercado Livre 10% OFF acima de R$ 149 (limitado a R$ 200 OFF)",
    "validade": null,
-   "publicado": "2026-10-10T00:12:43-03:00",
+   "publicado": "2026-10-10T00:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:49b8ce87-501e-4839-bbae-86a731b107cf"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "MELILOW",
-   "titulo": "Cupom Mercado Livre - R$10 off acima de R$79 em Todo Site",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "ed21ad63-d5f8-4574-ab97-d66c8e2360e2",
-   "regra": "Cupom Diz Todo Site, confiram",
-   "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:ed21ad63-d5f8-4574-ab97-d66c8e2360e2"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "SITETODOPREDD",
-   "titulo": "Cupom Mercado Livre - R$60 off acima de R$499 em Todo Site",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "4837958f-d8c4-47b3-8a81-7f3871cbdceb",
-   "regra": "Cupom Diz Todo Site, confiram",
-   "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:4837958f-d8c4-47b3-8a81-7f3871cbdceb"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "TODOSITE0910",
-   "titulo": "Cupom Mercado Livre - R$30 off acima de R$250 em Todo Site",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "a6feada4-d62d-4aff-a106-0d780ea9f257",
-   "regra": "Cupom Diz Todo Site, confiram",
-   "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:a6feada4-d62d-4aff-a106-0d780ea9f257"
   },
   {
    "fonte": "pelando",
@@ -6025,7 +6380,7 @@
    "id": "433cee7c-025a-4410-9a98-fe5b116ab0ec",
    "regra": "pedido mínimo R$ 500",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:433cee7c-025a-4410-9a98-fe5b116ab0ec"
@@ -6039,7 +6394,7 @@
    "id": "b42d9f09-2b63-4a7e-86d7-5619d2fb7f0a",
    "regra": "Cupom Diz Todo Site, confiram",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b42d9f09-2b63-4a7e-86d7-5619d2fb7f0a"
@@ -6053,7 +6408,7 @@
    "id": "54421f5c-bbf4-4612-acfe-0de83859b5b6",
    "regra": "Cupom Mercado Livre 10% OFF acima de R$ 199 (Limitado a R$ 100)",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:54421f5c-bbf4-4612-acfe-0de83859b5b6"
@@ -6067,7 +6422,7 @@
    "id": "43c9e9b8-ea8a-4bd5-8475-6937ed39e626",
    "regra": "Somente pra quem Resgatou as 19h",
    "validade": null,
-   "publicado": "2026-10-08T13:12:43-03:00",
+   "publicado": "2026-10-08T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:43c9e9b8-ea8a-4bd5-8475-6937ed39e626"
@@ -6081,24 +6436,10 @@
    "id": "0a21f06c-638f-4575-bffc-b47cc56e05b1",
    "regra": "Em itens Selecionados",
    "validade": null,
-   "publicado": "2026-09-30T13:12:43-03:00",
+   "publicado": "2026-09-30T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:0a21f06c-638f-4575-bffc-b47cc56e05b1"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "BDBR04",
-   "titulo": "Cupom Aliexpress R$ 22 acima de R$ 195",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "32f34bb9-9bf8-44cc-9753-30c7f73c9381",
-   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
-   "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:32f34bb9-9bf8-44cc-9753-30c7f73c9381"
   },
   {
    "fonte": "pelando",
@@ -6109,7 +6450,7 @@
    "id": "b85f9c7a-46e1-4684-a890-25f27541ff57",
    "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
+   "publicado": "2026-10-09T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b85f9c7a-46e1-4684-a890-25f27541ff57"
@@ -6123,7 +6464,7 @@
    "id": "584b1b5b-1341-4a10-b22f-e46eab217658",
    "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
+   "publicado": "2026-10-09T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:584b1b5b-1341-4a10-b22f-e46eab217658"
@@ -6137,7 +6478,7 @@
    "id": "2c18f284-df91-439b-87aa-163eb2d696a4",
    "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
+   "publicado": "2026-10-09T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2c18f284-df91-439b-87aa-163eb2d696a4"
@@ -6151,10 +6492,24 @@
    "id": "2bd2f703-5c25-4b8c-b714-e32a70c0b86a",
    "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
    "validade": null,
-   "publicado": "2026-10-09T13:12:43-03:00",
+   "publicado": "2026-10-09T18:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:2bd2f703-5c25-4b8c-b714-e32a70c0b86a"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "AliExpress",
+   "codigo": "BDBR04",
+   "titulo": "Cupom Aliexpress R$ 22 acima de R$ 195",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
+   "id": "32f34bb9-9bf8-44cc-9753-30c7f73c9381",
+   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
+   "validade": null,
+   "publicado": "2026-10-09T18:42:43-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:32f34bb9-9bf8-44cc-9753-30c7f73c9381"
   },
   {
    "fonte": "pelando",
@@ -6165,7 +6520,7 @@
    "id": "fe172195-74e8-4ebb-9591-44092bc76993",
    "regra": "R$20 OFF para compras acima de R$110",
    "validade": null,
-   "publicado": "2026-10-10T00:12:44-03:00",
+   "publicado": "2026-10-10T00:42:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:fe172195-74e8-4ebb-9591-44092bc76993"
@@ -6174,62 +6529,62 @@
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:13:17-03:00",
+   "ultimo_ok": "2026-10-10T18:43:19-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
-   "falhas": 5,
-   "ultimo_ok": "2026-10-10T00:15:35-03:00",
-   "ultimo_erro": "2026-10-10T13:14:27-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
+   "falhas": 0,
+   "ultimo_ok": "2026-10-10T18:45:26-03:00",
+   "ultimo_erro": null
   },
   "mercadolivre": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:15:18-03:00",
+   "ultimo_ok": "2026-10-10T18:47:01-03:00",
    "ultimo_erro": null
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:15:59-03:00",
+   "ultimo_ok": "2026-10-10T18:47:46-03:00",
    "ultimo_erro": null
   },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:12:42-03:00",
+   "ultimo_ok": "2026-10-10T18:42:42-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:12:44-03:00",
+   "ultimo_ok": "2026-10-10T18:42:43-03:00",
    "ultimo_erro": null
   },
   "shopee": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:16:00-03:00",
+   "ultimo_ok": "2026-10-10T18:47:47-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:16:00-03:00",
+   "ultimo_ok": "2026-10-10T18:47:47-03:00",
    "ultimo_erro": null
   },
   "amazon.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:14:10-03:00",
+   "ultimo_ok": "2026-10-10T18:44:10-03:00",
    "ultimo_erro": null
   },
   "casasbahia.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T00:16:05-03:00",
+   "ultimo_ok": "2026-10-10T18:45:58-03:00",
    "ultimo_erro": null
   },
   "netshoes": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:14:38-03:00",
+   "ultimo_ok": "2026-10-10T18:46:08-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-10T13:15:29-03:00",
+   "ultimo_ok": "2026-10-10T18:47:12-03:00",
    "ultimo_erro": null
   }
  },
