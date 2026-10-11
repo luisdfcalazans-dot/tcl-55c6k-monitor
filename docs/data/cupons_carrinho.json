@@ -7773,7 +7773,7 @@
     "quantidade": 1
    },
    "RESSACA100@hg9286bd4c-negociunoficial": {
-    "testado_em": "2026-10-09T21:21:18-03:00",
+    "testado_em": "2026-10-10T23:50:22-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "sem mudança no total: Produtos (1): R$ 4.485,00 Frete: R$ 51,90 Tem um código de cupom? Inserir Total: R$ 4.222,95 no PIX ou R$ 4.536,90 no cartão Quer inserir um cupom? Informe",
@@ -7830,7 +7830,7 @@
     "quantidade": 1
    },
    "ALI05@hg9286bd4c-negociunoficial": {
-    "testado_em": "2026-10-09T21:21:37-03:00",
+    "testado_em": "2026-10-10T23:50:04-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom ALI05 não se aplica para este pedido.",
@@ -7849,7 +7849,7 @@
     "quantidade": 1
    },
    "MAIS20@hg9286bd4c-negociunoficial": {
-    "testado_em": "2026-10-09T21:21:43-03:00",
+    "testado_em": "2026-10-10T23:50:10-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom MAIS20 não se aplica para este pedido.",
@@ -7868,7 +7868,7 @@
     "quantidade": 1
    },
    "RESSACA100@240609000-magazineluiza": {
-    "testado_em": "2026-10-09T21:23:53-03:00",
+    "testado_em": "2026-10-10T23:54:39-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "sem mudança no total: Produtos (1): R$ 5.099,00 Frete: Grátis 1 cupom para você. Economize! Ver cupons Total: R$ 4.691,08 no PIX ou R$ 5.099,00 no cartão Quer inserir um cupom? I",
@@ -7944,7 +7944,7 @@
     "quantidade": 1
    },
    "ALI05@240609000-magazineluiza": {
-    "testado_em": "2026-10-09T21:24:47-03:00",
+    "testado_em": "2026-10-10T23:54:27-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom ALI05 não se aplica para este pedido.",
@@ -8609,7 +8609,7 @@
     "quantidade": 1
    },
    "INFLUDUPLA16H@240590700-magazineluiza": {
-    "testado_em": "2026-10-10T19:24:16-03:00",
+    "testado_em": "2026-10-10T23:52:40-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "sem mudança no total: Produtos (1): R$ 4.599,00 Frete: Grátis 1 cupom para você. Economize! Ver cupons Total: R$ 4.461,03 no PIX ou R$ 4.599,00 no cartão Quer inserir um cupom? I",
@@ -8742,7 +8742,7 @@
     "quantidade": 1
    },
    "INFLUDUPLA16H@240590800-magazineluiza": {
-    "testado_em": "2026-10-10T19:29:01-03:00",
+    "testado_em": "2026-10-10T23:56:57-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "sem mudança no total: Produtos (1): R$ 4.999,00 Frete: R$ 38,90 1 cupom para você. Economize! Ver cupons Total: R$ 4.887,93 no PIX ou R$ 5.037,90 no cartão Quer inserir um cupom?",
@@ -8892,10 +8892,67 @@
     "desconto": null,
     "parcelado": "10x R$ 509,90 sem juros",
     "quantidade": 1
+   },
+   "INFLUDUPLA20H@240590700-magazineluiza": {
+    "testado_em": "2026-10-10T23:52:28-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "sem mudança no total: Produtos (1): R$ 4.599,00 Frete: Grátis 1 cupom para você. Economize! Ver cupons Total: R$ 4.461,03 no PIX ou R$ 4.599,00 no cartão Quer inserir um cupom? I",
+    "vendedor": "Magalu",
+    "anuncio": "240590700-magazineluiza",
+    "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos/p/240590700/ga/gap5/",
+    "modelo": "PS5_DIGITAL",
+    "tv_pix": 4461.03,
+    "tv_cartao": 4599.0,
+    "pix_real": true,
+    "total_pix": 4461.03,
+    "total_cartao": 4599.0,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": "10x R$ 509,90 sem juros",
+    "quantidade": 1
+   },
+   "INFLUDUPLA20H@240590800-magazineluiza": {
+    "testado_em": "2026-10-10T23:56:45-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "sem mudança no total: Produtos (1): R$ 4.999,00 Frete: R$ 38,90 1 cupom para você. Economize! Ver cupons Total: R$ 4.887,93 no PIX ou R$ 5.037,90 no cartão Quer inserir um cupom?",
+    "vendedor": "Magalu",
+    "anuncio": "240590800-magazineluiza",
+    "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos/p/240590800/ga/gap5/",
+    "modelo": "PS5_DISCO",
+    "tv_pix": 4849.03,
+    "tv_cartao": 4999.0,
+    "pix_real": true,
+    "total_pix": 4887.93,
+    "total_cartao": 5037.9,
+    "frete": 38.9,
+    "desconto": null,
+    "parcelado": "10x R$ 509,90 sem juros",
+    "quantidade": 1
+   },
+   "EPOCA10@240590800-magazineluiza": {
+    "testado_em": "2026-10-10T23:57:03-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "Este cupom EPOCA10 não se aplica para este pedido.",
+    "vendedor": "Magalu",
+    "anuncio": "240590800-magazineluiza",
+    "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos/p/240590800/ga/gap5/",
+    "modelo": "PS5_DISCO",
+    "tv_pix": 4849.03,
+    "tv_cartao": 4999.0,
+    "pix_real": true,
+    "total_pix": 4887.93,
+    "total_cartao": 5037.9,
+    "frete": 38.9,
+    "desconto": null,
+    "parcelado": "10x R$ 509,90 sem juros",
+    "quantidade": 1
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-10-10T23:25:52-03:00",
+  "ultima_execucao": "2026-10-10T23:58:44-03:00",
   "precos": {
    "240604800-magazineluiza": {
     "vendedor": "Magalu",
@@ -8920,7 +8977,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 0.0,
-    "lido_em": "2026-10-10T23:27:32-03:00",
+    "lido_em": "2026-10-11T00:00:41-03:00",
     "vendedor_id": "magazineluiza",
     "sem_cupom_pix": 4691.08,
     "sem_cupom_cartao": 5099.0
@@ -8934,7 +8991,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 4.9,
-    "lido_em": "2026-10-10T23:27:32-03:00",
+    "lido_em": "2026-10-11T00:00:41-03:00",
     "vendedor_id": "magazineluiza",
     "sem_cupom_pix": 418.41,
     "sem_cupom_cartao": 449.9
@@ -8948,7 +9005,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 0.0,
-    "lido_em": "2026-10-10T19:32:44-03:00",
+    "lido_em": "2026-10-11T00:00:41-03:00",
     "vendedor_id": "magazineluiza",
     "sem_cupom_pix": 4461.03,
     "sem_cupom_cartao": 4599.0
@@ -8962,7 +9019,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 38.9,
-    "lido_em": "2026-10-10T19:32:44-03:00",
+    "lido_em": "2026-10-11T00:00:41-03:00",
     "vendedor_id": "magazineluiza",
     "sem_cupom_pix": 4849.03,
     "sem_cupom_cartao": 4999.0
@@ -9018,13 +9075,13 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 51.9,
-    "lido_em": "2026-10-10T23:27:32-03:00",
+    "lido_em": "2026-10-11T00:00:41-03:00",
     "vendedor_id": "negociunoficial",
     "sem_cupom_pix": 4171.05,
     "sem_cupom_cartao": 4485.0
    }
   },
-  "pausa_ate": "2026-10-10T22:49:29-03:00",
+  "pausa_ate": "2026-10-11T03:00:41-03:00",
   "pausa_motivo": "o Magalu não carregou a sacola (instabilidade ou bloqueio antirrobô)"
  },
  "mercadolivre": {
@@ -19011,7 +19068,7 @@
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-10-10T23:28:24-03:00",
+  "ultima_execucao": "2026-10-11T00:00:42-03:00",
   "precos": {
    "MLB4214670787": {
     "vendedor": "Loja oficial PlayStation",
@@ -19059,14 +19116,14 @@
   "tvs_fora": {
    "PS5_DIGITAL": {
     "desde": "2026-10-10T22:20:59-03:00",
-    "tentativas": 2
+    "tentativas": 3
    }
   }
  },
  "amazon": {
   "cupons": {},
   "aviso_login": null,
-  "ultima_execucao": "2026-10-10T23:18:40-03:00",
+  "ultima_execucao": "2026-10-10T23:48:02-03:00",
   "precos": {
    "B0H6LVH152-A1ZZFT5FULY4LN": {
     "vendedor": "Amazon.com.br Política de devolução",
@@ -19091,7 +19148,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-10-10T23:18:40-03:00",
+    "lido_em": "2026-10-10T23:48:02-03:00",
     "vendedor_id": "ACUNARZFR75ET",
     "sem_cupom_pix": 4589.1,
     "sem_cupom_cartao": null
@@ -19118,7 +19175,7 @@
     "parcelado": "12x R$ 577,74 sem juros",
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-10-10T23:18:40-03:00",
+    "lido_em": "2026-10-10T23:48:02-03:00",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "sem_cupom_pix": 6932.0,
     "sem_cupom_cartao": 6932.0
@@ -19132,7 +19189,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-10-10T23:18:40-03:00",
+    "lido_em": "2026-10-10T23:48:02-03:00",
     "vendedor_id": "A3391ZCWNCQKXA",
     "sem_cupom_pix": 3838.0,
     "sem_cupom_cartao": null
@@ -19146,7 +19203,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-10-10T23:18:40-03:00",
+    "lido_em": "2026-10-10T23:48:02-03:00",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "sem_cupom_pix": 418.4,
     "sem_cupom_cartao": null
