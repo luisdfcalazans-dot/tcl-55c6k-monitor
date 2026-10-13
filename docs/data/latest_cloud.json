@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-12T23:06:34-03:00",
+ "atualizado": "2026-10-13T05:02:56-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -312,24 +312,24 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Videogame 2K Marvel's Midnight Suns Enhanced Edition PS5",
-   "url": "https://www.magazineluiza.com.br/videogame-2k-marvel-s-midnight-suns-enhanced-edition-ps5/p/gf566c6gc5/ga/jgxb/",
-   "id": "gf566c6gc5-nocnocestadosunidos",
-   "preco": 351.9,
-   "preco_pix": 334.31,
-   "parcelado": "7x R$ 50,27 sem juros",
+   "titulo": "Videogame Sony PS5 Diablo IV para Xbox",
+   "url": "https://www.magazineluiza.com.br/videogame-sony-ps5-diablo-iv-para-xbox/p/hh31e551ag/ga/otga/",
+   "id": "hh31e551ag-nocnocestadosunidos",
+   "preco": 387.6,
+   "preco_pix": 368.22,
+   "parcelado": "7x R$ 55,37 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": false,
    "vendedor": "nocnocestadosunidos",
    "extra": {
-    "preco_de": 376.79,
+    "preco_de": 410.14,
     "1p": false,
-    "anuncio": "gf566c6gc5",
+    "anuncio": "hh31e551ag",
     "vendedor_id": "nocnocestadosunidos",
     "ficha": {
      "avaliacoes": 0,
-     "peso_kg": 0.08,
+     "peso_kg": 0.09,
      "razao_social": "nocnoc Estados Unidos",
      "vendedor_desde": "2024-10-29",
      "vendas_vendedor": 70000,
@@ -347,8 +347,8 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:gf566c6gc5-nocnocestadosunidos",
-   "melhor_preco": 334.31
+   "chave": "magalu.produtos:hh31e551ag-nocnocestadosunidos",
+   "melhor_preco": 368.22
   },
   {
    "fonte": "vtex.fastshop.ps5",
@@ -373,10 +373,6 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-15",
-    "entrega_ate_lancamento": false,
-    "cep_referencia": false,
-    "entrega_origem": "simulação de frete",
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
@@ -392,10 +388,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-15",
-     "origem": "loja",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 15/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -480,7 +476,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-11-17",
+    "entrega_prevista": "2026-11-16",
     "entrega_ate_lancamento": true,
     "cep_referencia": false,
     "entrega_origem": "cotação de frete",
@@ -494,10 +490,10 @@
     },
     "entrega": {
      "classe": "a_tempo",
-     "data": "2026-11-17",
+     "data": "2026-11-16",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 17/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -744,7 +740,7 @@
      "anatel": "00738-24-06714",
      "modelo": "55C6K",
      "tamanho": "55\"",
-     "avaliacoes": 3801,
+     "avaliacoes": 3811,
      "peso_kg": 17.2,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -858,119 +854,6 @@
    "modelo": "55C6K",
    "chave": "vtex:Loja TCL-32054-1",
    "melhor_preco": 3587.08
-  },
-  {
-   "fonte": "maiscorreios",
-   "tipo": "loja",
-   "loja": "Mais Correios",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv---55c6k-1108010/p",
-   "id": "Mais Correios-1108010-MCR211",
-   "preco": 4068.6,
-   "preco_pix": 3661.74,
-   "parcelado": "10x R$ 406,86 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo",
-   "extra": {
-    "preco_de": 5696.51,
-    "ref": "1639172_VtexMaisCorreios",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "maiscorreios:Mais Correios-1108010-MCR211",
-   "melhor_preco": 3661.74
-  },
-  {
-   "fonte": "zoom",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K, 55\"",
-   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1561988278",
-   "id": "1561988278",
-   "preco": 3987.2,
-   "preco_pix": 3708.1,
-   "parcelado": "10x R$ 398,72 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "agregador": true,
-    "media_40_dias": 3149.0
-   },
-   "modelo": "55C6K",
-   "chave": "zoom:1561988278",
-   "melhor_preco": 3708.1
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
-   "id": "kc7h6f4k4b-lojascolombooficial",
-   "preco": 3987.2,
-   "preco_pix": 3708.1,
-   "parcelado": "10x R$ 398,72 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo Oficial",
-   "extra": {
-    "preco_de": 3987.2,
-    "1p": false,
-    "anuncio": "kc7h6f4k4b",
-    "vendedor_id": "lojascolombooficial",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 3836,
-     "peso_kg": 17.2,
-     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
-     "vendedor_desde": "2022-06-03",
-     "vendas_vendedor": 60000,
-     "nota_vendedor": 4.6
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
-   "melhor_preco": 3708.1
-  },
-  {
-   "fonte": "americanas",
-   "tipo": "loja",
-   "loja": "Americanas",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.americanas.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k-17r8429d2n426425/p",
-   "id": "Americanas-8392057-TALD54891759267232",
-   "preco": 4150.0,
-   "preco_pix": 3735.0,
-   "parcelado": "8x R$ 518,75 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo SA",
-   "extra": {
-    "preco_de": 4150.0,
-    "ref": "7899968301747",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "americanas:Americanas-8392057-TALD54891759267232",
-   "melhor_preco": 3735.0
   },
   {
    "fonte": "zoom",
@@ -1304,38 +1187,12 @@
    "melhor_preco": 4080.35
   },
   {
-   "fonte": "vtex",
-   "tipo": "loja",
-   "loja": "Webcontinental",
-   "titulo": "Smart TV TCL 65C6K 65 Polegadas 4K Mini LED QLED Preto com Android TV Dolby Vision Dolby Atmos Bivolt",
-   "url": "https://www.webcontinental.com.br/smart-tv-tcl-65c6k-65-polegadas-4k-mini-led-qled-preto-com-android-tv-bivolt-003082004562/p",
-   "id": "Webcontinental-5364479-003082",
-   "preco": 4261.7,
-   "preco_pix": 4080.35,
-   "parcelado": "8x R$ 532,71 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo SA",
-   "extra": {
-    "preco_de": 4533.72,
-    "ref": "7899968301754",
-    "ean": "7899968301754",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "vtex:Webcontinental-5364479-003082",
-   "melhor_preco": 4080.35
-  },
-  {
    "fonte": "maiscorreios",
    "tipo": "loja",
    "loja": "Mais Correios",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-1108013/p",
-   "id": "Mais Correios-1108013-MCR211",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv---55c6k-1108010/p",
+   "id": "Mais Correios-1108010-MCR211",
    "preco": 4533.72,
    "preco_pix": 4080.35,
    "parcelado": "10x R$ 453,37 sem juros",
@@ -1344,15 +1201,15 @@
    "ativo": true,
    "vendedor": "Lojas Colombo",
    "extra": {
-    "preco_de": 7208.14,
-    "ref": "1639174_VtexMaisCorreios",
-    "ean": "7899968301754",
+    "preco_de": 5115.12,
+    "ref": "1639172_VtexMaisCorreios",
+    "ean": "7899968301747",
     "confianca": {
      "veredito": "confiavel"
     }
    },
-   "modelo": "65C6K",
-   "chave": "maiscorreios:Mais Correios-1108013-MCR211",
+   "modelo": "55C6K",
+   "chave": "maiscorreios:Mais Correios-1108010-MCR211",
    "melhor_preco": 4080.35
   },
   {
@@ -1400,7 +1257,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3801,
+     "avaliacoes": 3811,
      "peso_kg": 22.9,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -1446,6 +1303,28 @@
    "melhor_preco": 4084.05
   },
   {
+   "fonte": "zoom",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV ",
+   "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1578143720",
+   "id": "1578143720",
+   "preco": 4089.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 408,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "agregador": true,
+    "media_40_dias": 3149.0
+   },
+   "modelo": "55C6K",
+   "chave": "zoom:1578143720",
+   "melhor_preco": 4089.0
+  },
+  {
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -1482,42 +1361,6 @@
    },
    "modelo": "55C6K",
    "chave": "magalu:ch3bg8ac9d-lojatclsemp",
-   "melhor_preco": 4089.0
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.kabum.com.br/produto/989702",
-   "id": "989702",
-   "preco": 4089.0,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 408,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 4699.0,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:989702",
    "melhor_preco": 4089.0
   },
   {
@@ -1601,9 +1444,9 @@
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
-   "id": "jcefd125c3-lojascolombooficial",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k/p/kc7h6f4k4b/et/elit/",
+   "id": "kc7h6f4k4b-lojascolombooficial",
    "preco": 4443.0,
    "preco_pix": 4131.99,
    "parcelado": "10x R$ 444,30 sem juros",
@@ -1614,14 +1457,14 @@
    "extra": {
     "preco_de": 4443.0,
     "1p": false,
-    "anuncio": "jcefd125c3",
+    "anuncio": "kc7h6f4k4b",
     "vendedor_id": "lojascolombooficial",
     "ficha": {
      "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3824,
-     "peso_kg": 22.9,
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 3836,
+     "peso_kg": 17.2,
      "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
      "vendedor_desde": "2022-06-03",
      "vendas_vendedor": 60000,
@@ -1632,17 +1475,17 @@
      "veredito": "confiavel"
     }
    },
-   "modelo": "65C6K",
-   "chave": "magalu:jcefd125c3-lojascolombooficial",
+   "modelo": "55C6K",
+   "chave": "magalu:kc7h6f4k4b-lojascolombooficial",
    "melhor_preco": 4131.99
   },
   {
    "fonte": "americanas",
    "tipo": "loja",
    "loja": "Americanas",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.americanas.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-178o4m29252b1324/p",
-   "id": "Americanas-8392053-TALD54891759267232",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.americanas.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv-55c6k-17r8429d2n426425/p",
+   "id": "Americanas-8392057-TALD54891759267232",
    "preco": 4624.4,
    "preco_pix": 4161.96,
    "parcelado": "8x R$ 578,05 sem juros",
@@ -1652,69 +1495,15 @@
    "vendedor": "Lojas Colombo SA",
    "extra": {
     "preco_de": 4624.4,
-    "ref": "7899968301754",
-    "ean": "7899968301754",
+    "ref": "7899968301747",
+    "ean": "7899968301747",
     "confianca": {
      "veredito": "confiavel"
     }
    },
-   "modelo": "65C6K",
-   "chave": "americanas:Americanas-8392053-TALD54891759267232",
+   "modelo": "55C6K",
+   "chave": "americanas:Americanas-8392057-TALD54891759267232",
    "melhor_preco": 4161.96
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console PlayStation 5 Slim Digital 825GB com controle Dualsense",
-   "url": "https://www.magazineluiza.com.br/console-playstation-5-slim-digital-825gb-com-controle-dualsense-sony/p/hg9286bd4c/ga/gap5/",
-   "id": "hg9286bd4c-negociunoficial",
-   "preco": 4485.0,
-   "preco_pix": 4171.05,
-   "parcelado": "10x R$ 448,50 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Negociun Oficial",
-   "extra": {
-    "preco_de": 4869.0,
-    "1p": false,
-    "anuncio": "hg9286bd4c",
-    "vendedor_id": "negociunoficial",
-    "ficha": {
-     "avaliacoes": 1087,
-     "peso_kg": 4.1,
-     "razao_social": "negociunoficial",
-     "vendedor_desde": "2025-03-17",
-     "vendas_vendedor": 90000,
-     "nota_vendedor": 3.7
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:hg9286bd4c-negociunoficial",
-   "melhor_preco": 4171.05
   },
   {
    "fonte": "vtex",
@@ -1828,6 +1617,60 @@
    "modelo": "65C6K",
    "chave": "kabum:938060",
    "melhor_preco": 4299.0
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console PlayStation 5 Slim Digital 825GB com controle Dualsense",
+   "url": "https://www.magazineluiza.com.br/console-playstation-5-slim-digital-825gb-com-controle-dualsense-sony/p/hg9286bd4c/ga/gap5/",
+   "id": "hg9286bd4c-negociunoficial",
+   "preco": 4485.0,
+   "preco_pix": 4305.6,
+   "parcelado": "10x R$ 448,50 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Negociun Oficial",
+   "extra": {
+    "preco_de": 4869.0,
+    "1p": false,
+    "anuncio": "hg9286bd4c",
+    "vendedor_id": "negociunoficial",
+    "ficha": {
+     "avaliacoes": 1087,
+     "peso_kg": 4.1,
+     "razao_social": "negociunoficial",
+     "vendedor_desde": "2025-03-17",
+     "vendas_vendedor": 90000,
+     "nota_vendedor": 3.7
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:hg9286bd4c-negociunoficial",
+   "melhor_preco": 4305.6
   },
   {
    "fonte": "americanas",
@@ -2023,60 +1866,6 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
-   "id": "aebh5a7a94-kabum",
-   "preco": 4497.89,
-   "preco_pix": null,
-   "parcelado": "10x R$ 449,79 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_de": 5557.96,
-    "1p": false,
-    "anuncio": "aebh5a7a94",
-    "vendedor_id": "kabum",
-    "ficha": {
-     "avaliacoes": 3426,
-     "peso_kg": 3.808,
-     "razao_social": "KABUM S.A.",
-     "vendedor_desde": "2021-06-30",
-     "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.9
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:aebh5a7a94-kabum",
-   "melhor_preco": 4497.89
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
    "titulo": "Console PlayStation 5 Edição Digital 825GB ASTRO BOT 4 e Gran Turismo 7 Sony",
    "url": "https://www.magazineluiza.com.br/console-playstation-5-edicao-digital-825gb-astro-bot-4-e-gran-turismo-7-sony/p/ac70gdd6je/ga/gap5/",
    "id": "ac70gdd6je-oficialamericanas",
@@ -2258,7 +2047,7 @@
      "anatel": "00738-24-06714",
      "modelo": "55C6K",
      "tamanho": "55\"",
-     "avaliacoes": 3836,
+     "avaliacoes": 3846,
      "peso_kg": 17.2,
      "razao_social": "Webcontinental Ltda",
      "vendedor_desde": "2023-04-18",
@@ -2493,6 +2282,41 @@
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.kabum.com.br/produto/989702",
+   "id": "989702",
+   "preco": 4699.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 469,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 4699.0,
+    "openbox": false,
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:989702",
+   "melhor_preco": 4699.0
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
    "titulo": "Console PlayStation 5 Sony Edição Digital Marvel's Wolverine Pacote de Edição Limitada, 825 GB, Amarelo - 1000056865",
    "url": "https://www.kabum.com.br/produto/1065184",
    "id": "1065184",
@@ -2680,7 +2504,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3824,
+     "avaliacoes": 3834,
      "peso_kg": 22.9,
      "razao_social": "lojatclsemp",
      "vendedor_desde": "2025-02-17",
@@ -2881,6 +2705,58 @@
    "melhor_preco": 4849.03
   },
   {
+   "fonte": "vtex",
+   "tipo": "loja",
+   "loja": "Webcontinental",
+   "titulo": "Smart TV TCL 65C6K 65 Polegadas 4K Mini LED QLED Preto com Android TV Dolby Vision Dolby Atmos Bivolt",
+   "url": "https://www.webcontinental.com.br/smart-tv-tcl-65c6k-65-polegadas-4k-mini-led-qled-preto-com-android-tv-bivolt-003082004562/p",
+   "id": "Webcontinental-5364479-003082",
+   "preco": 5354.72,
+   "preco_pix": 5126.86,
+   "parcelado": "8x R$ 669,34 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo SA",
+   "extra": {
+    "preco_de": 5696.51,
+    "ref": "7899968301754",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "vtex:Webcontinental-5364479-003082",
+   "melhor_preco": 5126.86
+  },
+  {
+   "fonte": "maiscorreios",
+   "tipo": "loja",
+   "loja": "Mais Correios",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-1108013/p",
+   "id": "Mais Correios-1108013-MCR211",
+   "preco": 5696.51,
+   "preco_pix": 5126.86,
+   "parcelado": "10x R$ 569,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo",
+   "extra": {
+    "preco_de": 6626.74,
+    "ref": "1639174_VtexMaisCorreios",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "maiscorreios:Mais Correios-1108013-MCR211",
+   "melhor_preco": 5126.86
+  },
+  {
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -2903,7 +2779,7 @@
      "anatel": "00738-24-06714",
      "modelo": "55C6K",
      "tamanho": "55\"",
-     "avaliacoes": 3836,
+     "avaliacoes": 3846,
      "peso_kg": 17.2,
      "razao_social": "leonfer",
      "vendedor_desde": "2017-07-21",
@@ -2967,6 +2843,99 @@
    "modelo": "PS5_DIGITAL",
    "chave": "maiscorreios:Mais Correios-1474239-MCR008",
    "melhor_preco": 5145.68
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
+   "id": "aebh5a7a94-kabum",
+   "preco": 5168.89,
+   "preco_pix": null,
+   "parcelado": "10x R$ 516,89 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 5168.89,
+    "1p": false,
+    "anuncio": "aebh5a7a94",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 3426,
+     "peso_kg": 3.808,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.9
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:aebh5a7a94-kabum",
+   "melhor_preco": 5168.89
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.magazineluiza.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl/p/jcefd125c3/et/elit/",
+   "id": "jcefd125c3-lojascolombooficial",
+   "preco": 5582.6,
+   "preco_pix": 5191.82,
+   "parcelado": "10x R$ 558,26 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo Oficial",
+   "extra": {
+    "preco_de": 5582.6,
+    "1p": false,
+    "anuncio": "jcefd125c3",
+    "vendedor_id": "lojascolombooficial",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3834,
+     "peso_kg": 22.9,
+     "razao_social": "Lojas Colombo Sa Comercio De Utilidades Domesticas",
+     "vendedor_desde": "2022-06-03",
+     "vendas_vendedor": 60000,
+     "nota_vendedor": 4.6
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:jcefd125c3-lojascolombooficial",
+   "melhor_preco": 5191.82
   },
   {
    "fonte": "vtex.webcontinental.ps5",
@@ -3066,6 +3035,32 @@
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:cheh2k3h3h-multiloja",
    "melhor_preco": 5219.91
+  },
+  {
+   "fonte": "americanas",
+   "tipo": "loja",
+   "loja": "Americanas",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.americanas.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-178o4m29252b1324/p",
+   "id": "Americanas-8392053-TALD54891759267232",
+   "preco": 5810.4,
+   "preco_pix": 5229.36,
+   "parcelado": "8x R$ 726,30 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo SA",
+   "extra": {
+    "preco_de": 5810.4,
+    "ref": "7899968301754",
+    "ean": "7899968301754",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "americanas:Americanas-8392053-TALD54891759267232",
+   "melhor_preco": 5229.36
   },
   {
    "fonte": "americanas",
@@ -3481,7 +3476,7 @@
      "nota_vendedor": 1.3
     },
     "anuncio_exclusivo": false,
-    "descartado": "fora da faixa (mediana 3708.10)"
+    "descartado": "fora da faixa (mediana 3802.77)"
    },
    "modelo": "55C6K",
    "chave": "magalu:fhkcb7aadc-storecomercioeletronic",
@@ -3489,6 +3484,375 @@
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)",
+   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-vi-edicao-standard-ps5-pre-venda-3109564/",
+   "id": "3109564",
+   "preco": 347.7,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:37:14-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 439.99,
+    "status": "APPROVED",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "promobit:3109564",
+   "melhor_preco": 347.7,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.7,
+   "menor_preco": 347.7
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[tecnoarthardware] EAI, BORA JOGAR GTA 6?",
+   "url": "https://t.me/tecnoarthardware/46119",
+   "id": "tecnoarthardware/46119#GTA6_CODE_IN_BOX",
+   "preco": 347.7,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:27:17-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnoarthardware",
+    "links": [
+     "https://s.shopee.com.br/BUXRifGRT",
+     "https://s.shopee.com.br/30oiovUGtk"
+    ],
+    "texto": "EAI, BORA JOGAR GTA 6?\n🔥  Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)\n💵  R$ 347,70 no PIX\n🏷️  Resgate todos os cupons desta página:\nhttps://s.shopee.com.br/BUXRifGRT\n🔗  Link do produto:\nhttps://s.shopee.com.br/30oiovUGtk\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:tecnoarthardware/46119#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.7,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.7,
+   "menor_preco": 347.7
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[hardmob_promo] 💥  Jogo Grand Theft Auto VI Edição Standard PS5 (PRÉ-VENDA)",
+   "url": "https://t.me/hardmob_promo/407999",
+   "id": "hardmob_promo/407999#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:25:21-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "hardmob_promo",
+    "links": [
+     "?q=%23Shopee",
+     "https://s.shopee.com.br/5AtDNvKKpJ?lp=aff",
+     "https://s.shopee.com.br/1qclQRPb50?lp=aff"
+    ],
+    "texto": "💥  Jogo Grand Theft Auto VI Edição Standard PS5 (PRÉ-VENDA)\n✅   Por: R$347,00\n🏪  Loja:  #Shopee\n🔗  PEGAR OFERTA:  👇🏼\nhttps://s.shopee.com.br/5AtDNvKKpJ?lp=aff\n🏷  Resgate todos os cupons aqui:\nhttps://s.shopee.com.br/1qclQRPb50?lp=aff\n⚠️  Ofertas por tempo limitado.\n☕   #publi  · você me paga um café sem custo extra!",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:hardmob_promo/407999#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[ofertasdodia] 💥  Jogo Grand Theft Auto VI Edição Standard PS5 (PRÉ-VENDA)",
+   "url": "https://t.me/OfertasDoDia/420948",
+   "id": "OfertasDoDia/420948#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:25:05-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "ofertasdodia",
+    "links": [
+     "?q=%23Shopee",
+     "https://s.shopee.com.br/5AtDNvKKpJ?lp=aff",
+     "https://s.shopee.com.br/1qclQRPb50?lp=aff"
+    ],
+    "texto": "💥  Jogo Grand Theft Auto VI Edição Standard PS5 (PRÉ-VENDA)\n✅   Por: R$347,00\n🏪  Loja:  #Shopee\n🔗  PEGAR OFERTA:  👇🏼\nhttps://s.shopee.com.br/5AtDNvKKpJ?lp=aff\n🏷  Resgate todos os cupons aqui:\nhttps://s.shopee.com.br/1qclQRPb50?lp=aff\n⚠️  Ofertas por tempo limitado.\n☕   #publi  · você me paga um café sem custo extra!",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:OfertasDoDia/420948#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[tecnoarthardware] 🔥  Grand Theft Auto VI PlayStation 5 Nacional Code In Box",
+   "url": "https://t.me/tecnoarthardware/46115",
+   "id": "tecnoarthardware/46115#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:24:18-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnoarthardware",
+    "links": [
+     "https://s.shopee.com.br/80DOlpIZoU",
+     "https://s.shopee.com.br/7ptyZWNXg1"
+    ],
+    "texto": "🔥  Grand Theft Auto VI PlayStation 5 Nacional Code In Box\n💵  R$ 347,00\n🏷️  Resgate todos os cupons desta página:\nhttps://s.shopee.com.br/80DOlpIZoU\n🔗  Link do produto:\nhttps://s.shopee.com.br/7ptyZWNXg1\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:tecnoarthardware/46115#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[hardmob_promo] 💥  Jogo Grand Theft Auto VI (GTA 6) PS5",
+   "url": "https://t.me/hardmob_promo/407991",
+   "id": "hardmob_promo/407991#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:17:19-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "hardmob_promo",
+    "links": [
+     "?q=%23Shopee",
+     "https://s.shopee.com.br/5AtDNvKKpJ?lp=aff",
+     "https://s.shopee.com.br/3B890FWU9v?lp=aff"
+    ],
+    "texto": "💥  Jogo Grand Theft Auto VI (GTA 6) PS5\n✅   Por: R$347,00  [no pix]\n🏪  Loja:  #Shopee\n🔗  PEGAR OFERTA:  👇🏼\nhttps://s.shopee.com.br/5AtDNvKKpJ?lp=aff\n🏷  Resgate todos os cupons aqui:\nhttps://s.shopee.com.br/3B890FWU9v?lp=aff\n⚠️  Ofertas por tempo limitado.\n☕   #publi  · você me paga um café sem custo extra!",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:hardmob_promo/407991#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[ofertasdodia] 💥  Jogo Grand Theft Auto VI (GTA 6) PS5",
+   "url": "https://t.me/OfertasDoDia/420940",
+   "id": "OfertasDoDia/420940#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:17:03-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "ofertasdodia",
+    "links": [
+     "?q=%23Shopee",
+     "https://s.shopee.com.br/5AtDNvKKpJ?lp=aff",
+     "https://s.shopee.com.br/3B890FWU9v?lp=aff"
+    ],
+    "texto": "💥  Jogo Grand Theft Auto VI (GTA 6) PS5\n✅   Por: R$347,00  [no pix]\n🏪  Loja:  #Shopee\n🔗  PEGAR OFERTA:  👇🏼\nhttps://s.shopee.com.br/5AtDNvKKpJ?lp=aff\n🏷  Resgate todos os cupons aqui:\nhttps://s.shopee.com.br/3B890FWU9v?lp=aff\n⚠️  Ofertas por tempo limitado.\n☕   #publi  · você me paga um café sem custo extra!",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:OfertasDoDia/420940#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
+  {
+   "primeira_vez": "2026-10-13T05:02:55-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Shopee",
+   "titulo": "[tecnanofertas] 💥   😱  Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)",
+   "url": "https://t.me/tecnanofertas/148422",
+   "id": "tecnanofertas/148422#GTA6_CODE_IN_BOX",
+   "preco": 347.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-13T00:12:59-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnanofertas",
+    "links": [
+     "https://s.shopee.com.br/AAHtL8MtYO",
+     "https://s.shopee.com.br/3qNpnUgXJw",
+     "https://tecnan.com.br/"
+    ],
+    "texto": "💥   😱  Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)\n🤑  R$ 347\n🎟️  Resgate todos os cupons desta página:\nhttps://s.shopee.com.br/AAHtL8MtYO\n✅  LINK:  https://s.shopee.com.br/3qNpnUgXJw\n🚀  Conheça nossos canais nichados e de Cupons:\n👉   https://tecnan.com.br\n⚠️  Preço e estoque sujeitos a alteração.\n📢  Anuncio",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
+    },
+    "entrega": {
+     "classe": "depois",
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:tecnanofertas/148422#GTA6_CODE_IN_BOX",
+   "melhor_preco": 347.0,
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
+   "ultimo_preco": 347.0,
+   "menor_preco": 347.0
+  },
   {
    "primeira_vez": "2026-10-12T22:21:38-03:00",
    "preco_alertado": null,
@@ -3523,7 +3887,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "telegram:pelandobr/97377#GIFT_CARD_PSN",
    "melhor_preco": 325.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 325.0,
    "menor_preco": 325.0
   },
@@ -3558,7 +3922,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3107663",
    "melhor_preco": 3865.7,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-12T16:02:57-03:00",
@@ -3594,7 +3958,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/83740#PS5_DIGITAL",
    "melhor_preco": 3865.7,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3865.7,
    "menor_preco": 3865.7
   },
@@ -3636,7 +4000,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "promobit:3108625",
    "melhor_preco": 4695.47,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 4695.47,
    "menor_preco": 4695.47
   },
@@ -3671,7 +4035,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3108624",
    "melhor_preco": 4359.63,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 4359.63,
    "menor_preco": 4359.63
   },
@@ -3706,7 +4070,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3108465",
    "melhor_preco": 4395.09,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-12T22:21:38-03:00",
@@ -3739,7 +4103,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3108442",
    "melhor_preco": 3689.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-12T06:41:20-03:00",
@@ -4353,7 +4717,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3107715",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 350.0,
    "menor_preco": 350.0
   },
@@ -4531,7 +4895,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3107516",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -4764,7 +5128,7 @@
    "modelo": "55C6K",
    "chave": "telegram:cacadoresofertas/75515",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -4794,7 +5158,7 @@
    "modelo": "55C6K",
    "chave": "telegram:vrlofertas/71246",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -4842,333 +5206,6 @@
    "ultima_vez": "2026-10-11T16:57:26-03:00",
    "ultimo_preco": 309.0,
    "menor_preco": 309.0
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "Jogo Grand Theft Auto GTA VI - PS5",
-   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-gta-vi-ps5-3106927/",
-   "id": "3106927",
-   "preco": 309.7,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "D3SC0NT070",
-   "publicado": "2026-10-11T14:36:14-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 439.99,
-    "status": "FINISHED",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "promobit:3106927",
-   "melhor_preco": 309.7,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
-   "ultimo_preco": 309.7,
-   "menor_preco": 309.7
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[IskandarSouza] 🆘   #Shopee  -  Jogo Grand Theft Auto VI Edição Standard",
-   "url": "https://t.me/IskandarSouza/189092",
-   "id": "IskandarSouza/189092#GTA6_CODE_IN_BOX",
-   "preco": 309.7,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "D3SC0NT070",
-   "publicado": "2026-10-11T14:35:41-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "IskandarSouza",
-    "links": [
-     "?q=%23Shopee",
-     "https://ofertei.net/shp/LW3RmBiX",
-     "https://linktr.ee/iskandarsouza"
-    ],
-    "texto": "🆘   #Shopee  -  Jogo Grand Theft Auto VI Edição Standard\n💰 Valor:  R$ 309,70\n🏷  Cupom: D3SC0NT070\n➡️  Link:  https://ofertei.net/shp/LW3RmBiX\n🏷 Resgate o cupom\n🤫 ➡️  Link Geral Todas as Redes:\nhttps://linktr.ee/iskandarsouza\n‼️ Bot de alerta:  @AquiSuaPromoBot\n#anuncio",
-    "produto": {
-     "plataforma_incerta": true
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:IskandarSouza/189092#GTA6_CODE_IN_BOX",
-   "melhor_preco": 309.7,
-   "ultima_vez": "2026-10-11T23:47:28-03:00",
-   "ultimo_preco": 309.7,
-   "menor_preco": 309.7
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[tecnanofertas] 💥   😱  Jogo Grand Theft Auto VI (GTA 6) PS5",
-   "url": "https://t.me/tecnanofertas/148177",
-   "id": "tecnanofertas/148177#GTA6_CODE_IN_BOX",
-   "preco": 309.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "D3SC0NT070",
-   "publicado": "2026-10-11T14:33:02-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnanofertas",
-    "links": [
-     "https://s.shopee.com.br/1B4zjT2Yb",
-     "https://tecnan.com.br/"
-    ],
-    "texto": "💥   😱  Jogo Grand Theft Auto VI (GTA 6) PS5\n🤑  R$ 309\n🎟️  Cupom:  D3SC0NT070\n✅  LINK:  https://s.shopee.com.br/1B4zjT2Yb\n🚀  Conheça nossos canais nichados e de Cupons:\n👉   https://tecnan.com.br\n⚠️  Preço e estoque sujeitos a alteração.\n📢  Anuncio\n➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖\n🔥   PREÇO EM BAIXA!  Abaixo da média recente — vale aproveitar",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:tecnanofertas/148177#GTA6_CODE_IN_BOX",
-   "melhor_preco": 309.0,
-   "ultima_vez": "2026-10-11T19:55:36-03:00",
-   "ultimo_preco": 309.0,
-   "menor_preco": 309.0
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "[tecnoarthardware] 🔥  PlayStation ® 5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
-   "url": "https://t.me/tecnoarthardware/45904",
-   "id": "tecnoarthardware/45904#PS5_DIGITAL",
-   "preco": 4009.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T13:39:34-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnoarthardware",
-    "links": [
-     "https://aoferta.net/0047bgar-Amazon"
-    ],
-    "texto": "EAI, BORA JOGAR GTA 6?\n🔥  PlayStation ® 5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7\n💵  R$ 4.009,00 em 12x sem juros\n🔗  Link do produto:\nhttps://aoferta.net/0047bgar-Amazon\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:tecnoarthardware/45904#PS5_DIGITAL",
-   "melhor_preco": 4009.0,
-   "ultima_vez": "2026-10-11T16:57:26-03:00",
-   "ultimo_preco": 4009.0,
-   "menor_preco": 4009.0
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[IskandarSouza] ✨  PlayStation 5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7 PS5",
-   "url": "https://t.me/IskandarSouza/189085",
-   "id": "IskandarSouza/189085#PS5_DIGITAL",
-   "preco": 4009.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T13:39:22-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "IskandarSouza",
-    "links": [
-     "https://seuhardware.com/s/oTiZ78z",
-     "?q=%23anuncio"
-    ],
-    "texto": "✨  PlayStation 5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7 PS5\n💰  R$ 4.009 em até 12x  ‼️\n🔗  Link do produto:  https://seuhardware.com/s/oTiZ78z\n#anuncio",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:IskandarSouza/189085#PS5_DIGITAL",
-   "melhor_preco": 4009.0,
-   "ultima_vez": "2026-10-11T20:40:29-03:00",
-   "ultimo_preco": 4009.0,
-   "menor_preco": 4009.0
-  },
-  {
-   "primeira_vez": "2026-10-11T16:12:39-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
-   "url": "https://www.promobit.com.br/oferta/sony-playstation-5-edicao-digital-825gb-1-controle-3106649/",
-   "id": "3106649",
-   "preco": 3838.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T12:32:55-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": null,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3106649",
-   "melhor_preco": 3838.0,
-   "ultima_vez": "2026-10-11T16:12:39-03:00",
-   "ultimo_preco": 3838.0,
-   "menor_preco": 3838.0
-  },
-  {
-   "primeira_vez": "2026-10-11T11:36:51-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Jogo Grand Theft Auto VI - PlayStation 5",
-   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-vi-playstation-5-3106521/",
-   "id": "3106521",
-   "preco": 350.92,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "PRIMEGAME5",
-   "publicado": "2026-10-11T10:51:04-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": null,
-    "status": "APPROVED",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "promobit:3106521",
-   "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-12T06:56:27-03:00",
-   "ultimo_preco": 350.92,
-   "menor_preco": 350.92
-  },
-  {
-   "primeira_vez": "2026-10-11T11:36:51-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[cupons_desconto] Console PlayStation 5 Slim Digital 825GB",
-   "url": "https://t.me/cupons_desconto/83710",
-   "id": "cupons_desconto/83710#PS5_DIGITAL",
-   "preco": 3495.91,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T09:00:15-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "cupons_desconto",
-    "links": [
-     "https://promoby.me/jxhw2nfpb8w"
-    ],
-    "texto": "Console PlayStation 5 Slim Digital 825GB\nPor R$  3.495,91  na Shopee\nVer oferta:  https://promoby.me/jxhw2nfpb8w\n🔔  Ative as notificações para avisarmos quando tem oferta chegando",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:cupons_desconto/83710#PS5_DIGITAL",
-   "melhor_preco": 3495.91,
-   "ultima_vez": "2026-10-12T06:56:27-03:00",
-   "ultimo_preco": 3495.91,
-   "menor_preco": 3495.91
   },
   {
    "primeira_vez": "2026-10-10T19:49:03-03:00",
@@ -5255,7 +5292,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3104611",
    "melhor_preco": 2880.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2880.0,
    "menor_preco": 2880.0
   },
@@ -5432,7 +5469,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3102870",
    "melhor_preco": 3870.3,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3870.3,
    "menor_preco": 3870.3
   },
@@ -5584,7 +5621,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97026",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5615,7 +5652,7 @@
    "modelo": "55C6K",
    "chave": "telegram:ctofertaseletroetv/23776",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5984,7 +6021,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3094135",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-07T18:40:00-03:00",
@@ -6099,7 +6136,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3092748",
    "melhor_preco": 0.01,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-07T13:47:24-03:00",
@@ -6186,7 +6223,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3091466",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3859.05,
    "menor_preco": 3859.05
   },
@@ -6400,7 +6437,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3090157",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -6484,7 +6521,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3089490",
    "melhor_preco": 3784.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3784.05,
    "menor_preco": 3784.05
   },
@@ -6514,7 +6551,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -6541,7 +6578,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3089334",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -6625,7 +6662,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3086466",
    "melhor_preco": 3744.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3744.0,
    "menor_preco": 3744.0
   },
@@ -6652,7 +6689,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3085764",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-10-04T21:04:09-03:00",
@@ -6990,7 +7027,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3081680",
    "melhor_preco": 3869.1,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3869.1,
    "menor_preco": 3869.1
   },
@@ -7077,7 +7114,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3079526",
    "melhor_preco": 3146.68,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3146.68,
    "menor_preco": 3146.68
   },
@@ -7199,7 +7236,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -7259,7 +7296,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -7346,7 +7383,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3074165",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -7399,7 +7436,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -7637,7 +7674,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00"
+   "ultima_vez": "2026-10-13T05:02:55-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -7790,7 +7827,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -7952,7 +7989,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92403",
    "melhor_preco": 2785.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2785.0,
    "menor_preco": 2785.0
   },
@@ -7982,7 +8019,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92392",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0
   },
@@ -8063,7 +8100,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90687#65C6K",
    "melhor_preco": 3229.05,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3229.05,
    "menor_preco": 3229.05
   },
@@ -8094,7 +8131,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90672#65C6K",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3514.0,
    "menor_preco": 3514.0
   },
@@ -8125,7 +8162,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90249#65C6K",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3389.0,
    "menor_preco": 3389.0
   },
@@ -8156,7 +8193,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90130#65C6K",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3350.0,
    "menor_preco": 3350.0
   },
@@ -8187,7 +8224,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90118#65C6K",
    "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3440.0,
    "menor_preco": 3440.0
   },
@@ -8218,7 +8255,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89501#65C6K",
    "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3509.0,
    "menor_preco": 3509.0
   },
@@ -8249,7 +8286,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89493#65C6K",
    "melhor_preco": 3695.12,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3695.12,
    "menor_preco": 3695.12
   },
@@ -8280,7 +8317,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89395#65C6K",
    "melhor_preco": 3775.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3775.0,
    "menor_preco": 3775.0
   },
@@ -8311,7 +8348,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89364#65C6K",
    "melhor_preco": 3845.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3845.0,
    "menor_preco": 3845.0
   },
@@ -8342,7 +8379,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89215#65C6K",
    "melhor_preco": 3884.81,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3884.81,
    "menor_preco": 3884.81
   },
@@ -8373,7 +8410,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/89164",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2784.0,
    "menor_preco": 2784.0
   },
@@ -8404,7 +8441,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/88827",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2879.0,
    "menor_preco": 2879.0
   },
@@ -8435,7 +8472,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/88383#65C6K",
    "melhor_preco": 3780.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 3780.0,
    "menor_preco": 3780.0
   },
@@ -8466,7 +8503,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/87687",
    "melhor_preco": 2990.33,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2990.33,
    "menor_preco": 2990.33
   },
@@ -8497,7 +8534,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86871",
    "melhor_preco": 2775.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2775.0,
    "menor_preco": 2775.0
   },
@@ -8528,7 +8565,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86842",
    "melhor_preco": 2910.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2910.0,
    "menor_preco": 2910.0
   },
@@ -8559,7 +8596,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85905",
    "melhor_preco": 2869.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2869.0,
    "menor_preco": 2869.0
   },
@@ -8590,7 +8627,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85691",
    "melhor_preco": 2849.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2849.0,
    "menor_preco": 2849.0
   },
@@ -8621,7 +8658,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85060",
    "melhor_preco": 2659.76,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2659.76,
    "menor_preco": 2659.76
   },
@@ -8652,7 +8689,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85042",
    "melhor_preco": 2754.0,
-   "ultima_vez": "2026-10-12T23:06:33-03:00",
+   "ultima_vez": "2026-10-13T05:02:55-03:00",
    "ultimo_preco": 2754.0,
    "menor_preco": 2754.0
   }
@@ -9968,102 +10005,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:04:53-03:00",
+   "ultimo_ok": "2026-10-13T05:01:06-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:04:56-03:00",
+   "ultimo_ok": "2026-10-13T05:01:08-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:05:04-03:00",
+   "ultimo_ok": "2026-10-13T05:01:14-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:05:05-03:00",
+   "ultimo_ok": "2026-10-13T05:01:16-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:05:45-03:00",
+   "ultimo_ok": "2026-10-13T05:01:58-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:05:57-03:00",
+   "ultimo_ok": "2026-10-13T05:02:13-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:03-03:00",
+   "ultimo_ok": "2026-10-13T05:02:19-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:06-03:00",
+   "ultimo_ok": "2026-10-13T05:02:22-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:08-03:00",
+   "ultimo_ok": "2026-10-13T05:02:24-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:30-03:00",
+   "ultimo_ok": "2026-10-13T05:02:48-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:04:56-03:00",
+   "ultimo_ok": "2026-10-13T05:01:09-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:05:54-03:00",
+   "ultimo_ok": "2026-10-13T05:02:09-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:00-03:00",
+   "ultimo_ok": "2026-10-13T05:02:16-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:09-03:00",
+   "ultimo_ok": "2026-10-13T05:02:25-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:10-03:00",
+   "ultimo_ok": "2026-10-13T05:02:26-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:12-03:00",
+   "ultimo_ok": "2026-10-13T05:02:29-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:12-03:00",
+   "ultimo_ok": "2026-10-13T05:02:29-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 128,
+   "falhas": 129,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-12T23:06:18-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-13T05:02:35-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:20-03:00",
+   "ultimo_ok": "2026-10-13T05:02:38-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T23:06:21-03:00",
+   "ultimo_ok": "2026-10-13T05:02:39-03:00",
    "ultimo_erro": null
   }
  },
