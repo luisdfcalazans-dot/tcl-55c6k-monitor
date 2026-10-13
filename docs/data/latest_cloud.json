@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-12T16:47:40-03:00",
+ "atualizado": "2026-10-12T22:21:38-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -373,7 +373,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-16",
+    "entrega_prevista": "2026-12-15",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "simulação de frete",
@@ -392,10 +392,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-16",
+     "data": "2026-12-15",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 15/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -1687,7 +1687,7 @@
      "razao_social": "negociunoficial",
      "vendedor_desde": "2025-03-17",
      "vendas_vendedor": 90000,
-     "nota_vendedor": 4
+     "nota_vendedor": 3.7
     },
     "anuncio_exclusivo": false,
     "produto": {
@@ -2044,7 +2044,7 @@
      "razao_social": "KABUM S.A.",
      "vendedor_desde": "2021-06-30",
      "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.5
+     "nota_vendedor": 2.9
     },
     "anuncio_exclusivo": false,
     "produto": {
@@ -3397,7 +3397,7 @@
      "razao_social": "GAZIN ATACADO CENTRO-OESTE LTD",
      "vendedor_desde": "2018-05-17",
      "vendas_vendedor": 100000,
-     "nota_vendedor": 4.6
+     "nota_vendedor": 4.3
     },
     "anuncio_exclusivo": false,
     "produto": {
@@ -3490,6 +3490,77 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-10-12T22:21:38-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Hype",
+   "titulo": "[pelandobr] Cartão Presente PlayStation Store R$360",
+   "url": "https://t.me/pelandobr/97377",
+   "id": "pelandobr/97377#GIFT_CARD_PSN",
+   "preco": 325.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-12T18:54:04-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "pelandobr",
+    "links": [
+     "https://pelando.promo/5WDQS"
+    ],
+    "texto": "Cartão Presente PlayStation Store R$360\n💰  R$ 325,00\n📍  Hype Games\n➡️   https://pelando.promo/5WDQS\n⚠️  Essa promo pode acabar a qualquer momento",
+    "produto": {
+     "valor_face": 360.0
+    },
+    "alvo": {
+     "pix": 306.0,
+     "parcelado": 306.0,
+     "nota": "15% de desconto sobre R$ 360"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "telegram:pelandobr/97377#GIFT_CARD_PSN",
+   "melhor_preco": 325.0,
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
+   "ultimo_preco": 325.0,
+   "menor_preco": 325.0
+  },
+  {
+   "primeira_vez": "2026-10-12T22:21:38-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "Consola Sony Ps5 - Slim - Pacote Nba 2k25 - Edição digital",
+   "url": "https://www.promobit.com.br/oferta/consola-sony-ps5-slim-pacote-nba-2k25-edicao-digital-3107663/",
+   "id": "3107663",
+   "preco": 3865.7,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-12T15:50:18-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 5099.0,
+    "status": "FINISHED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3107663",
+   "melhor_preco": 3865.7,
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
+  },
+  {
    "primeira_vez": "2026-10-12T16:02:57-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -3523,7 +3594,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/83740#PS5_DIGITAL",
    "melhor_preco": 3865.7,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3865.7,
    "menor_preco": 3865.7
   },
@@ -3565,7 +3636,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "promobit:3108625",
    "melhor_preco": 4695.47,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 4695.47,
    "menor_preco": 4695.47
   },
@@ -3600,7 +3671,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3108624",
    "melhor_preco": 4359.63,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 4359.63,
    "menor_preco": 4359.63
   },
@@ -3635,7 +3706,40 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3108465",
    "melhor_preco": 4395.09,
-   "ultima_vez": "2026-10-12T16:47:39-03:00"
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-12T22:21:38-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Console PS5 Slim Digital 825GB Branco",
+   "url": "https://www.promobit.com.br/oferta/console-ps5-slim-digital-825gb-branco-3108442/",
+   "id": "3108442",
+   "preco": 3689.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "GAMER",
+   "publicado": "2026-10-12T11:06:11-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "FINISHED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3108442",
+   "melhor_preco": 3689.0,
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
   },
   {
    "primeira_vez": "2026-10-12T06:41:20-03:00",
@@ -4249,7 +4353,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3107715",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 350.0,
    "menor_preco": 350.0
   },
@@ -4427,7 +4531,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3107516",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -4660,7 +4764,7 @@
    "modelo": "55C6K",
    "chave": "telegram:cacadoresofertas/75515",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -4690,7 +4794,7 @@
    "modelo": "55C6K",
    "chave": "telegram:vrlofertas/71246",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -4777,7 +4881,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3106927",
    "melhor_preco": 309.7,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 309.7,
    "menor_preco": 309.7
   },
@@ -5067,115 +5171,6 @@
    "menor_preco": 3495.91
   },
   {
-   "primeira_vez": "2026-10-11T04:51:21-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "Console PlayStation 5 Slim Digital 825GB",
-   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-digital-825gb-3106092/",
-   "id": "3106092",
-   "preco": 3495.91,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T00:28:20-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5128.08,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3106092",
-   "melhor_preco": 3495.91,
-   "ultima_vez": "2026-10-12T06:56:27-03:00",
-   "ultimo_preco": 3495.91,
-   "menor_preco": 3495.91
-  },
-  {
-   "primeira_vez": "2026-10-11T04:51:21-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[vrlofertas] 🔥   Console PlayStation 5 Slim Digital  | De   Por  R$ 3.587,91 (no Pix)",
-   "url": "https://t.me/vrlofertas/71232",
-   "id": "vrlofertas/71232#PS5_DIGITAL",
-   "preco": 3587.91,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-11T00:25:33-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "vrlofertas",
-    "links": [
-     "https://cutt.ly/6yWixMqW",
-     "https://cutt.ly/9yWixXzN"
-    ],
-    "texto": "🔥   Console PlayStation 5 Slim Digital  | De   Por  R$ 3.587,91 (no Pix)\n🚛   Frete Grátis  (com cupom)\n↪️   Resgate o cupom R$100  por esse link antes de fazer a compra:  https://cutt.ly/6yWixMqW\n➡️   COMPRE PELO SITE:   https://cutt.ly/9yWixXzN",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:vrlofertas/71232#PS5_DIGITAL",
-   "melhor_preco": 3587.91,
-   "ultima_vez": "2026-10-12T06:56:27-03:00",
-   "ultimo_preco": 3587.91,
-   "menor_preco": 3587.91
-  },
-  {
-   "primeira_vez": "2026-10-11T04:51:21-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "Console PlayStation 5 Slim Digital 825GB",
-   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-digital-825gb-3106053/",
-   "id": "3106053",
-   "preco": 3487.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "C0M3C0U200",
-   "publicado": "2026-10-11T00:09:12-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5128.08,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3106053",
-   "melhor_preco": 3487.0,
-   "ultima_vez": "2026-10-12T06:56:27-03:00",
-   "ultimo_preco": 3487.0,
-   "menor_preco": 3487.0
-  },
-  {
    "primeira_vez": "2026-10-10T19:49:03-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -5260,7 +5255,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3104611",
    "melhor_preco": 2880.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2880.0,
    "menor_preco": 2880.0
   },
@@ -5437,7 +5432,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3102870",
    "melhor_preco": 3870.3,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3870.3,
    "menor_preco": 3870.3
   },
@@ -5589,7 +5584,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97026",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5620,7 +5615,7 @@
    "modelo": "55C6K",
    "chave": "telegram:ctofertaseletroetv/23776",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5989,7 +5984,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3094135",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00"
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
   },
   {
    "primeira_vez": "2026-10-07T18:40:00-03:00",
@@ -6104,7 +6099,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3092748",
    "melhor_preco": 0.01,
-   "ultima_vez": "2026-10-12T16:47:39-03:00"
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
   },
   {
    "primeira_vez": "2026-10-07T13:47:24-03:00",
@@ -6191,7 +6186,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3091466",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3859.05,
    "menor_preco": 3859.05
   },
@@ -6405,7 +6400,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3090157",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -6489,7 +6484,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3089490",
    "melhor_preco": 3784.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3784.05,
    "menor_preco": 3784.05
   },
@@ -6519,7 +6514,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -6546,7 +6541,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3089334",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -6630,7 +6625,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3086466",
    "melhor_preco": 3744.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3744.0,
    "menor_preco": 3744.0
   },
@@ -6657,7 +6652,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3085764",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-12T16:47:39-03:00"
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
   },
   {
    "primeira_vez": "2026-10-04T21:04:09-03:00",
@@ -6995,7 +6990,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3081680",
    "melhor_preco": 3869.1,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3869.1,
    "menor_preco": 3869.1
   },
@@ -7082,7 +7077,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3079526",
    "melhor_preco": 3146.68,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3146.68,
    "menor_preco": 3146.68
   },
@@ -7204,7 +7199,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -7264,7 +7259,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -7351,7 +7346,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3074165",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -7404,7 +7399,7 @@
    },
    "chave": "promobit:3055937",
    "melhor_preco": 3261.55,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3261.55,
    "menor_preco": 3261.55,
    "modelo": "55C6K"
@@ -7642,7 +7637,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00"
+   "ultima_vez": "2026-10-12T22:21:38-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -7795,7 +7790,7 @@
    },
    "chave": "promobit:3028057",
    "melhor_preco": 3035.08,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3035.08,
    "menor_preco": 3035.08,
    "modelo": "55C6K"
@@ -7957,7 +7952,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92403",
    "melhor_preco": 2785.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2785.0,
    "menor_preco": 2785.0
   },
@@ -7987,7 +7982,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92392",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0
   },
@@ -8068,7 +8063,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90687#65C6K",
    "melhor_preco": 3229.05,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3229.05,
    "menor_preco": 3229.05
   },
@@ -8099,7 +8094,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90672#65C6K",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3514.0,
    "menor_preco": 3514.0
   },
@@ -8130,7 +8125,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90249#65C6K",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3389.0,
    "menor_preco": 3389.0
   },
@@ -8161,7 +8156,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90130#65C6K",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3350.0,
    "menor_preco": 3350.0
   },
@@ -8192,7 +8187,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90118#65C6K",
    "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3440.0,
    "menor_preco": 3440.0
   },
@@ -8223,7 +8218,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89501#65C6K",
    "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3509.0,
    "menor_preco": 3509.0
   },
@@ -8254,7 +8249,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89493#65C6K",
    "melhor_preco": 3695.12,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3695.12,
    "menor_preco": 3695.12
   },
@@ -8285,7 +8280,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89395#65C6K",
    "melhor_preco": 3775.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3775.0,
    "menor_preco": 3775.0
   },
@@ -8316,7 +8311,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89364#65C6K",
    "melhor_preco": 3845.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3845.0,
    "menor_preco": 3845.0
   },
@@ -8347,7 +8342,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89215#65C6K",
    "melhor_preco": 3884.81,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3884.81,
    "menor_preco": 3884.81
   },
@@ -8378,7 +8373,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/89164",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2784.0,
    "menor_preco": 2784.0
   },
@@ -8409,7 +8404,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/88827",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2879.0,
    "menor_preco": 2879.0
   },
@@ -8440,7 +8435,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/88383#65C6K",
    "melhor_preco": 3780.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 3780.0,
    "menor_preco": 3780.0
   },
@@ -8471,7 +8466,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/87687",
    "melhor_preco": 2990.33,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2990.33,
    "menor_preco": 2990.33
   },
@@ -8502,7 +8497,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86871",
    "melhor_preco": 2775.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2775.0,
    "menor_preco": 2775.0
   },
@@ -8533,7 +8528,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/86842",
    "melhor_preco": 2910.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2910.0,
    "menor_preco": 2910.0
   },
@@ -8564,7 +8559,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85905",
    "melhor_preco": 2869.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2869.0,
    "menor_preco": 2869.0
   },
@@ -8595,7 +8590,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85691",
    "melhor_preco": 2849.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2849.0,
    "menor_preco": 2849.0
   },
@@ -8626,7 +8621,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85060",
    "melhor_preco": 2659.76,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2659.76,
    "menor_preco": 2659.76
   },
@@ -8657,7 +8652,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/85042",
    "melhor_preco": 2754.0,
-   "ultima_vez": "2026-10-12T16:47:39-03:00",
+   "ultima_vez": "2026-10-12T22:21:38-03:00",
    "ultimo_preco": 2754.0,
    "menor_preco": 2754.0
   }
@@ -8676,6 +8671,21 @@
    "entrega": "depois",
    "entrega_texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
+  },
+  {
+   "produto": "GTA6_UPGRADE",
+   "via": "GTA6_CODE_IN_BOX",
+   "edicao": "Ultimate",
+   "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
+   "loja": "Shopee",
+   "tipo": "calculo",
+   "url": "https://t.me/tecnoarthardware/45821",
+   "preco": 313.73,
+   "custo_final": 304.01,
+   "cupom": null,
+   "entrega": "depois",
+   "entrega_texto": "Code in Box R$ 213,73 em Shopee + upgrade R$ 90,28 (preço oficial) na PS Store · 📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
+   "meta": 450.0
   },
   {
    "produto": "GTA6_CODE_IN_BOX",
@@ -8760,21 +8770,6 @@
    "entrega": "depois",
    "entrega_texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
-  },
-  {
-   "produto": "GTA6_UPGRADE",
-   "via": "GTA6_CODE_IN_BOX",
-   "edicao": "Ultimate",
-   "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
-   "loja": "Shopee",
-   "tipo": "calculo",
-   "url": "https://t.me/tecnoarthardware/45821",
-   "preco": 313.73,
-   "custo_final": 313.73,
-   "cupom": null,
-   "entrega": "depois",
-   "entrega_texto": "Code in Box R$ 213,73 em Shopee + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
-   "meta": 450.0
   },
   {
    "produto": "GTA6_CODE_IN_BOX",
@@ -9022,7 +9017,7 @@
    "tipo": "loja",
    "url": "https://store.playstation.com/pt-br/product/EP1004-PPSA01547_00-GTAVIULTIMATE001",
    "preco": 549.9,
-   "custo_final": 549.9,
+   "custo_final": 496.44,
    "cupom": null,
    "entrega": "digital",
    "entrega_texto": "libera às 00:00 de 19/11 (digital)",
@@ -9037,10 +9032,10 @@
    "tipo": "calculo",
    "url": "https://store.playstation.com/pt-br/product/EP1004-PPSA01547_00-GTAVISTANDARD001",
    "preco": 549.9,
-   "custo_final": 549.9,
+   "custo_final": 496.44,
    "cupom": null,
    "entrega": "digital",
-   "entrega_texto": "digital R$ 449,90 em PlayStation Store + upgrade R$ 100,00 (preço oficial) na PS Store · libera às 00:00 de 19/11 (digital)",
+   "entrega_texto": "digital R$ 406,16 em PlayStation Store + upgrade R$ 90,28 (preço oficial) na PS Store · libera às 00:00 de 19/11 (digital)",
    "meta": 450.0
   }
  ],
@@ -9468,34 +9463,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "MELIELSEVE",
-   "titulo": "Encontre produtos Elseve com 25% de desconto",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "70280",
-   "regra": "produtos Mercado Livre ELSEVE COM 25% OFF EM COMPRAS A PARTIR DE R$69,90, COM DESCONTO MÁXIMO DE R$50",
-   "validade": "2026-10-12T20:59:59-03:00",
-   "publicado": "2026-10-06T15:30:37-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:70280"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "DISNEY20",
-   "titulo": "Itens Disney para brinquedos e bebês com 20% OFF",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "70277",
-   "regra": "produtos Mercado Livre BRINQUEDOS E BEBÊS DISNEY COM 20% DE DESCONTO EM COMPRAS A PARTIR DE R$79, COM DESCONTO MÁXIMO DE R$20",
-   "validade": "2026-10-12T20:59:59-03:00",
-   "publicado": "2026-10-06T15:30:29-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:70277"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "SITE200",
    "titulo": "Os melhores itens do site com R$200 OFF aplicando cupom Mercado Livre",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -9604,6 +9571,62 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:70025"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "MELIGARANTE",
+   "titulo": "Cupom de desconto Mercado Livre oferece 30% OFF em suas compras",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "70024",
+   "regra": "produtos Mercado Livre Economize até 30% ao usar o código promocional no carrinho de compras. Sem compra mínima.",
+   "validade": null,
+   "publicado": "2026-09-28T10:41:09-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70024"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "MELICOMPRA",
+   "titulo": "Os melhores itens do site com 30% OFF aplicando cupom Mercado Livre",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "70023",
+   "regra": "produtos Mercado Livre Economize até 30% ao usar o código promocional no carrinho de compras.",
+   "validade": null,
+   "publicado": "2026-09-28T10:40:02-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70023"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "MELISALVA",
+   "titulo": "Aplique cupom Mercado Livre e ganhe 30% OFF",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "70022",
+   "regra": "produtos Mercado Livre Aplique o código promocional Mercado Livre no carrinho de compras para participar.",
+   "validade": null,
+   "publicado": "2026-09-28T10:38:33-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70022"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "TECH200",
+   "titulo": "Cupom de desconto Mercado Livre oferece R$ 200 OFF em suas compras",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "69966",
+   "regra": "produtos Mercado Livre Economize até R$ 200 ao usar o código promocional em compras acima de R$ 1599.",
+   "validade": null,
+   "publicado": "2026-09-25T15:02:14-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:69966"
   },
   {
    "fonte": "promobit",
@@ -9945,102 +9968,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:02-03:00",
+   "ultimo_ok": "2026-10-12T22:19:54-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:04-03:00",
+   "ultimo_ok": "2026-10-12T22:19:55-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:10-03:00",
+   "ultimo_ok": "2026-10-12T22:20:02-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:11-03:00",
+   "ultimo_ok": "2026-10-12T22:20:05-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:52-03:00",
+   "ultimo_ok": "2026-10-12T22:20:44-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:03-03:00",
+   "ultimo_ok": "2026-10-12T22:20:57-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:10-03:00",
+   "ultimo_ok": "2026-10-12T22:21:03-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:12-03:00",
+   "ultimo_ok": "2026-10-12T22:21:06-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:15-03:00",
+   "ultimo_ok": "2026-10-12T22:21:09-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:37-03:00",
+   "ultimo_ok": "2026-10-12T22:21:33-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:46:05-03:00",
+   "ultimo_ok": "2026-10-12T22:19:56-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:01-03:00",
+   "ultimo_ok": "2026-10-12T22:20:54-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:07-03:00",
+   "ultimo_ok": "2026-10-12T22:21:00-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:17-03:00",
+   "ultimo_ok": "2026-10-12T22:21:10-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:17-03:00",
+   "ultimo_ok": "2026-10-12T22:21:12-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:19-03:00",
+   "ultimo_ok": "2026-10-12T22:21:14-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:20-03:00",
+   "ultimo_ok": "2026-10-12T22:21:14-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 124,
+   "falhas": 125,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-12T16:47:25-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-12T22:21:20-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:28-03:00",
+   "ultimo_ok": "2026-10-12T22:21:23-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-12T16:47:29-03:00",
+   "ultimo_ok": "2026-10-12T22:21:24-03:00",
    "ultimo_erro": null
   }
  },
