@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-15T07:46:52-03:00",
+ "atualizado": "2026-10-15T11:52:20-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -438,7 +438,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-11-16",
+    "entrega_prevista": "2026-11-17",
     "entrega_ate_lancamento": true,
     "cep_referencia": false,
     "entrega_origem": "cotação de frete",
@@ -452,10 +452,10 @@
     },
     "entrega": {
      "classe": "a_tempo",
-     "data": "2026-11-16",
+     "data": "2026-11-17",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+     "texto": "📦 Entrega: previsão 17/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -616,7 +616,7 @@
    "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 55C6K",
    "url": "https://www.zoom.com.br/tv/smart-tv-mini-led-55-tcl-4k-55c6k?highlightedItemId=1544269493",
    "id": "1544269493",
-   "preco": 2999.0,
+   "preco": 3149.0,
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
@@ -624,11 +624,12 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1544269493",
-   "melhor_preco": 2999.0
+   "melhor_preco": 3149.0
   },
   {
    "fonte": "vtex",
@@ -671,37 +672,12 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1489104908",
    "melhor_preco": 3279.0
-  },
-  {
-   "fonte": "maiscorreios",
-   "tipo": "loja",
-   "loja": "Mais Correios",
-   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
-   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv---55c6k-1108010/p",
-   "id": "Mais Correios-1108010-MCR211",
-   "preco": 3952.33,
-   "preco_pix": 3557.1,
-   "parcelado": "10x R$ 395,23 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo",
-   "extra": {
-    "preco_de": 5696.51,
-    "ref": "1639172_VtexMaisCorreios",
-    "ean": "7899968301747",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "maiscorreios:Mais Correios-1108010-MCR211",
-   "melhor_preco": 3557.1
   },
   {
    "fonte": "vtex",
@@ -744,7 +720,8 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1484766165",
@@ -856,7 +833,8 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1561988278",
@@ -902,6 +880,32 @@
    "melhor_preco": 3640.9
   },
   {
+   "fonte": "maiscorreios",
+   "tipo": "loja",
+   "loja": "Mais Correios",
+   "titulo": "Smart TV TCL 55 AI, 4K UHD, QLED Mini LED, Android TV - 55C6K",
+   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-55-ai-4k-uhd-qled-mini-led-android-tv---55c6k-1108010/p",
+   "id": "Mais Correios-1108010-MCR211",
+   "preco": 3952.33,
+   "preco_pix": 3754.71,
+   "parcelado": "10x R$ 395,23 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Lojas Colombo",
+   "extra": {
+    "preco_de": 5696.51,
+    "ref": "1639172_VtexMaisCorreios",
+    "ean": "7899968301747",
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "maiscorreios:Mais Correios-1108010-MCR211",
+   "melhor_preco": 3754.71
+  },
+  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -916,7 +920,8 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1572257841",
@@ -937,7 +942,8 @@
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "agregador": true
+    "agregador": true,
+    "media_40_dias": 3149.0
    },
    "modelo": "55C6K",
    "chave": "zoom:1572257801",
@@ -1072,6 +1078,45 @@
    "modelo": "65C6K",
    "chave": "vtex:Webcontinental-4806999-003731",
    "melhor_preco": 3963.6
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-65-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-65c6k/p/dc6h768g22/et/elit/",
+   "id": "dc6h768g22-fastshop2",
+   "preco": 4239.0,
+   "preco_pix": 3984.66,
+   "parcelado": "10x R$ 423,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 5529.0,
+    "1p": false,
+    "anuncio": "dc6h768g22",
+    "vendedor_id": "fastshop2",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "65C6K",
+     "tamanho": "65\"",
+     "avaliacoes": 3892,
+     "peso_kg": 22.9,
+     "razao_social": "FAST SHOP S A",
+     "vendedor_desde": "2020-08-19",
+     "vendas_vendedor": 300000,
+     "nota_vendedor": 4
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "65C6K",
+   "chave": "magalu:dc6h768g22-fastshop2",
+   "melhor_preco": 3984.66
   },
   {
    "fonte": "zoom",
@@ -1263,32 +1308,6 @@
    "melhor_preco": 4080.35
   },
   {
-   "fonte": "maiscorreios",
-   "tipo": "loja",
-   "loja": "Mais Correios",
-   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
-   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-1108013/p",
-   "id": "Mais Correios-1108013-MCR211",
-   "preco": 4533.72,
-   "preco_pix": 4080.35,
-   "parcelado": "10x R$ 453,37 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo",
-   "extra": {
-    "preco_de": 7208.14,
-    "ref": "1639174_VtexMaisCorreios",
-    "ean": "7899968301754",
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "maiscorreios:Mais Correios-1108013-MCR211",
-   "melhor_preco": 4080.35
-  },
-  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -1418,42 +1437,6 @@
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5 Edição Digital Slim, SSD 825GB, Controle DualSense, Astro's Playroom, Branco - CFI 2114B",
-   "url": "https://www.kabum.com.br/produto/1050570",
-   "id": "1050570",
-   "preco": 4399.0,
-   "preco_pix": 4091.07,
-   "parcelado": "10x de R$ 439,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 4699.0,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:1050570",
-   "melhor_preco": 4091.07
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
    "titulo": "Console Playstation 5 Slim Digital 825gb SSD 1 Controle Dualsense",
    "url": "https://www.kabum.com.br/produto/1004851",
    "id": "1004851",
@@ -1506,45 +1489,6 @@
    },
    "modelo": "65C6K",
    "chave": "zoom:1540372639",
-   "melhor_preco": 4134.97
-  },
-  {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 65” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 65C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-65-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-65c6k/p/dc6h768g22/et/elit/",
-   "id": "dc6h768g22-fastshop2",
-   "preco": 4398.9,
-   "preco_pix": 4134.97,
-   "parcelado": "10x R$ 439,89 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Fast Shop",
-   "extra": {
-    "preco_de": 5529.0,
-    "1p": false,
-    "anuncio": "dc6h768g22",
-    "vendedor_id": "fastshop2",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "65C6K",
-     "tamanho": "65\"",
-     "avaliacoes": 3892,
-     "peso_kg": 22.9,
-     "razao_social": "FAST SHOP S A",
-     "vendedor_desde": "2020-08-19",
-     "vendas_vendedor": 300000,
-     "nota_vendedor": 4
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "magalu:dc6h768g22-fastshop2",
    "melhor_preco": 4134.97
   },
   {
@@ -1802,40 +1746,30 @@
    "melhor_preco": 4305.6
   },
   {
-   "fonte": "americanas",
+   "fonte": "maiscorreios",
    "tipo": "loja",
-   "loja": "Americanas",
-   "titulo": "Console PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
-   "url": "https://www.americanas.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-8299917/p",
-   "id": "Americanas-8299917-magazineluiza",
-   "preco": 4549.0,
-   "preco_pix": 4321.55,
-   "parcelado": "8x R$ 568,62 sem juros",
+   "loja": "Mais Correios",
+   "titulo": "Smart TV TCL 65C6K 65 4K Mini LED Android TV Semp Tcl",
+   "url": "https://www.maiscorreios.com.br/smart-tv-tcl-65c6k-65-4k-mini-led-android-tv-semp-tcl-1108013/p",
+   "id": "Mais Correios-1108013-MCR211",
+   "preco": 4533.72,
+   "preco_pix": 4307.03,
+   "parcelado": "10x R$ 453,37 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Magazine Luiza",
+   "vendedor": "Lojas Colombo",
    "extra": {
-    "preco_de": 4999.0,
-    "ref": "0711719021490",
-    "ean": "0711719021490",
-    "sku": "8779196",
-    "seller_id": "magazineluiza",
-    "produto": {
-     "versao_incerta": false
-    },
+    "preco_de": 7208.14,
+    "ref": "1639174_VtexMaisCorreios",
+    "ean": "7899968301754",
     "confianca": {
      "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
     }
    },
-   "modelo": "PS5_DIGITAL",
-   "chave": "americanas:Americanas-8299917-magazineluiza",
-   "melhor_preco": 4321.55
+   "modelo": "65C6K",
+   "chave": "maiscorreios:Mais Correios-1108013-MCR211",
+   "melhor_preco": 4307.03
   },
   {
    "fonte": "mercadolivre.playstation",
@@ -1874,15 +1808,86 @@
    "melhor_preco": 4369.0
   },
   {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5 Edição Digital Slim, SSD 825GB, Controle DualSense, Astro's Playroom, Branco - CFI 2114B",
+   "url": "https://www.kabum.com.br/produto/1050570",
+   "id": "1050570",
+   "preco": 4699.0,
+   "preco_pix": 4370.07,
+   "parcelado": "10x de R$ 469,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 4699.0,
+    "openbox": false,
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:1050570",
+   "melhor_preco": 4370.07
+  },
+  {
+   "fonte": "americanas",
+   "tipo": "loja",
+   "loja": "Americanas",
+   "titulo": "Console PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
+   "url": "https://www.americanas.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-8299917/p",
+   "id": "Americanas-8299917-magazineluiza",
+   "preco": 4649.0,
+   "preco_pix": 4416.55,
+   "parcelado": "8x R$ 581,12 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magazine Luiza",
+   "extra": {
+    "preco_de": 4999.0,
+    "ref": "0711719021490",
+    "ean": "0711719021490",
+    "sku": "8779196",
+    "seller_id": "magazineluiza",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "americanas:Americanas-8299917-magazineluiza",
+   "melhor_preco": 4416.55
+  },
+  {
    "fonte": "americanas",
    "tipo": "loja",
    "loja": "Americanas",
    "titulo": "Console PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony com 2 Jogos",
    "url": "https://www.americanas.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos-8299907/p",
    "id": "Americanas-8299907-magazineluiza",
-   "preco": 4599.0,
-   "preco_pix": 4369.05,
-   "parcelado": "8x R$ 574,87 sem juros",
+   "preco": 4699.0,
+   "preco_pix": 4464.05,
+   "parcelado": "8x R$ 587,37 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -1907,165 +1912,7 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "americanas:Americanas-8299907-magazineluiza",
-   "melhor_preco": 4369.05
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony com 2 Jogos",
-   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos/p/240590700/ga/gap5/",
-   "id": "240590700-magazineluiza",
-   "preco": 4599.0,
-   "preco_pix": 4461.03,
-   "parcelado": "10x R$ 459,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4999.9,
-    "1p": true,
-    "anuncio": "240590700",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "avaliacoes": 3444,
-     "peso_kg": 4.9,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 200000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:240590700-magazineluiza",
-   "melhor_preco": 4461.03
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Playstation 5 Slim Digital SSD 825gb 4k Uhd 120hz Ray Tracing + Controle Dualsense E 2 Jogos, Bivolt, Branco",
-   "url": "https://www.kabum.com.br/produto/939943",
-   "id": "939943",
-   "preco": 4599.0,
-   "preco_pix": 4461.03,
-   "parcelado": "10x de R$ 459,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_tabela": 4599.0,
-    "openbox": false,
-    "kabum_seller_id": "1000",
-    "kabum_oferta_id": 30376291,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:939943",
-   "melhor_preco": 4461.03
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
-   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony/p/240604800/ga/gap5/",
-   "id": "240604800-magazineluiza",
-   "preco": 4549.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 454,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4999.0,
-    "1p": true,
-    "anuncio": "240604800",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "avaliacoes": 1090,
-     "peso_kg": 4.9,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 200000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:240604800-magazineluiza",
-   "melhor_preco": 4549.0
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Playstation 5 Slim Digital Edition, 825GB, USB, HDMI, Branco",
-   "url": "https://www.kabum.com.br/produto/939944",
-   "id": "939944",
-   "preco": 4549.0,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 454,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_tabela": 4549.0,
-    "openbox": false,
-    "kabum_seller_id": "1000",
-    "kabum_oferta_id": 30376292,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:939944",
-   "melhor_preco": 4549.0
+   "melhor_preco": 4464.05
   },
   {
    "fonte": "magalu",
@@ -2107,6 +1954,85 @@
    "melhor_preco": 4555.93
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony com 2 Jogos",
+   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos/p/240590700/ga/gap5/",
+   "id": "240590700-magazineluiza",
+   "preco": 4699.0,
+   "preco_pix": 4558.03,
+   "parcelado": "10x R$ 469,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4999.9,
+    "1p": true,
+    "anuncio": "240590700",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 3444,
+     "peso_kg": 4.9,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:240590700-magazineluiza",
+   "melhor_preco": 4558.03
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Playstation 5 Slim Digital SSD 825gb 4k Uhd 120hz Ray Tracing + Controle Dualsense E 2 Jogos, Bivolt, Branco",
+   "url": "https://www.kabum.com.br/produto/939943",
+   "id": "939943",
+   "preco": 4699.0,
+   "preco_pix": 4558.03,
+   "parcelado": "10x de R$ 469,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_tabela": 4699.0,
+    "openbox": false,
+    "kabum_seller_id": "1000",
+    "kabum_oferta_id": 30376291,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:939943",
+   "melhor_preco": 4558.03
+  },
+  {
    "fonte": "magalu",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -2129,7 +2055,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3864,
+     "avaliacoes": 3892,
      "peso_kg": 22.9,
      "razao_social": "Webcontinental Ltda",
      "vendedor_desde": "2023-04-18",
@@ -2226,6 +2152,85 @@
    "melhor_preco": 4599.99
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
+   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony/p/240604800/ga/gap5/",
+   "id": "240604800-magazineluiza",
+   "preco": 4649.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 464,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4999.0,
+    "1p": true,
+    "anuncio": "240604800",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 1090,
+     "peso_kg": 4.9,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:240604800-magazineluiza",
+   "melhor_preco": 4649.0
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Playstation 5 Slim Digital Edition, 825GB, USB, HDMI, Branco",
+   "url": "https://www.kabum.com.br/produto/939944",
+   "id": "939944",
+   "preco": 4649.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 464,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_tabela": 4649.0,
+    "openbox": false,
+    "kabum_seller_id": "1000",
+    "kabum_oferta_id": 30376292,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:939944",
+   "melhor_preco": 4649.0
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -2320,85 +2325,6 @@
    "melhor_preco": 4654.05
   },
   {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony/p/240609000/ga/gap5/",
-   "id": "240609000-magazineluiza",
-   "preco": 5099.0,
-   "preco_pix": 4691.08,
-   "parcelado": "10x R$ 509,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 5399.9,
-    "1p": true,
-    "anuncio": "240609000",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "avaliacoes": 524,
-     "peso_kg": 4.9,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 200000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "magalu.produtos:240609000-magazineluiza",
-   "melhor_preco": 4691.08
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Playstation 5 Slim Sony 1TB Mídia Física Cfi-2114a",
-   "url": "https://www.kabum.com.br/produto/953110",
-   "id": "953110",
-   "preco": 5099.0,
-   "preco_pix": 4691.08,
-   "parcelado": "10x de R$ 509,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_tabela": 5099.0,
-    "openbox": false,
-    "kabum_seller_id": "1000",
-    "kabum_oferta_id": 30376349,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "kabum.produtos:953110",
-   "melhor_preco": 4691.08
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -2475,42 +2401,6 @@
    "modelo": "PS5_DISCO",
    "chave": "kabum.produtos:1049973",
    "melhor_preco": 4742.07
-  },
-  {
-   "fonte": "americanas",
-   "tipo": "loja",
-   "loja": "Americanas",
-   "titulo": "Console PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony com 2 Jogos",
-   "url": "https://www.americanas.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos-8299908/p",
-   "id": "Americanas-8299908-magazineluiza",
-   "preco": 4999.0,
-   "preco_pix": 4749.05,
-   "parcelado": "8x R$ 624,87 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magazine Luiza",
-   "extra": {
-    "preco_de": 5399.9,
-    "ref": "0711719023630",
-    "ean": "0711719023630",
-    "sku": "8779187",
-    "seller_id": "magazineluiza",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "americanas:Americanas-8299908-magazineluiza",
-   "melhor_preco": 4749.05
   },
   {
    "fonte": "magalu.produtos",
@@ -2711,12 +2601,12 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony com 2 Jogos",
-   "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos/p/240590800/ga/gap5/",
-   "id": "240590800-magazineluiza",
-   "preco": 4999.0,
-   "preco_pix": 4849.03,
-   "parcelado": "10x R$ 499,90 sem juros",
+   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
+   "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony/p/240609000/ga/gap5/",
+   "id": "240609000-magazineluiza",
+   "preco": 5299.0,
+   "preco_pix": 4875.08,
+   "parcelado": "10x R$ 529,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -2724,10 +2614,10 @@
    "extra": {
     "preco_de": 5399.9,
     "1p": true,
-    "anuncio": "240590800",
+    "anuncio": "240609000",
     "vendedor_id": "magazineluiza",
     "ficha": {
-     "avaliacoes": 4872,
+     "avaliacoes": 524,
      "peso_kg": 4.9,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -2748,28 +2638,28 @@
     }
    },
    "modelo": "PS5_DISCO",
-   "chave": "magalu.produtos:240590800-magazineluiza",
-   "melhor_preco": 4849.03
+   "chave": "magalu.produtos:240609000-magazineluiza",
+   "melhor_preco": 4875.08
   },
   {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
-   "titulo": "Console Playstation 5 1TB – Astro Bot E Gran Turismo 7",
-   "url": "https://www.kabum.com.br/produto/953109",
-   "id": "953109",
-   "preco": 4999.0,
-   "preco_pix": 4849.03,
-   "parcelado": "10x de R$ 499,90 sem juros",
+   "titulo": "Console Playstation 5 Slim Sony 1TB Mídia Física Cfi-2114a",
+   "url": "https://www.kabum.com.br/produto/953110",
+   "id": "953110",
+   "preco": 5299.0,
+   "preco_pix": 4875.08,
+   "parcelado": "10x de R$ 529,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "Magalu",
    "extra": {
-    "preco_tabela": 4999.0,
+    "preco_tabela": 5299.0,
     "openbox": false,
     "kabum_seller_id": "1000",
-    "kabum_oferta_id": 30376348,
+    "kabum_oferta_id": 30376349,
     "produto": {
      "versao_incerta": false
     },
@@ -2783,8 +2673,8 @@
     }
    },
    "modelo": "PS5_DISCO",
-   "chave": "kabum.produtos:953109",
-   "melhor_preco": 4849.03
+   "chave": "kabum.produtos:953110",
+   "melhor_preco": 4875.08
   },
   {
    "fonte": "magalu.produtos",
@@ -2839,6 +2729,42 @@
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:aebh5a7a94-kabum",
    "melhor_preco": 4948.89
+  },
+  {
+   "fonte": "americanas",
+   "tipo": "loja",
+   "loja": "Americanas",
+   "titulo": "Console PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony com 2 Jogos",
+   "url": "https://www.americanas.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos-8299908/p",
+   "id": "Americanas-8299908-magazineluiza",
+   "preco": 5399.0,
+   "preco_pix": 5129.05,
+   "parcelado": "8x R$ 674,87 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magazine Luiza",
+   "extra": {
+    "preco_de": 5399.9,
+    "ref": "0711719023630",
+    "ean": "0711719023630",
+    "sku": "8779187",
+    "seller_id": "magazineluiza",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "americanas:Americanas-8299908-magazineluiza",
+   "melhor_preco": 5129.05
   },
   {
    "fonte": "magalu",
@@ -3026,6 +2952,50 @@
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:cheh2k3h3h-multiloja",
    "melhor_preco": 5219.91
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony com 2 Jogos",
+   "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony-com-2-jogos/p/240590800/ga/gap5/",
+   "id": "240590800-magazineluiza",
+   "preco": 5399.0,
+   "preco_pix": 5237.03,
+   "parcelado": "10x R$ 539,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 5399.9,
+    "1p": true,
+    "anuncio": "240590800",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 4872,
+     "peso_kg": 4.9,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "magalu.produtos:240590800-magazineluiza",
+   "melhor_preco": 5237.03
   },
   {
    "fonte": "magalu.produtos",
@@ -3357,7 +3327,7 @@
      "anatel": "00738-24-06714",
      "modelo": "65C6K",
      "tamanho": "65\"",
-     "avaliacoes": 3864,
+     "avaliacoes": 3892,
      "peso_kg": 22.9,
      "razao_social": "leonfer",
      "vendedor_desde": "2017-07-21",
@@ -3503,6 +3473,298 @@
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "[promotop] Jogo Grand Theft Auto GTA VI, PS5 - TT000272PS5",
+   "url": "https://t.me/promotop/260315",
+   "id": "promotop/260315#GTA6_CODE_IN_BOX",
+   "preco": 362.61,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "NOVOTRAILER",
+   "publicado": "2026-10-15T11:46:25-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "promotop",
+    "links": [
+     "https://i.promotop.net/7WCMj"
+    ],
+    "texto": "Jogo Grand Theft Auto GTA VI, PS5 - TT000272PS5\n🔥  Por:  R$ 362,61  via Pix\n🎯  Usem o cupom:  NOVOTRAILER\n🛒  Link:  https://i.promotop.net/7WCMj",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:promotop/260315#GTA6_CODE_IN_BOX",
+   "melhor_preco": 362.61,
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
+   "ultimo_preco": 362.61,
+   "menor_preco": 362.61
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "[cacadoresofertas] Grand Theft Auto VI - PlayStation 5",
+   "url": "https://t.me/cacadoresofertas/75684",
+   "id": "cacadoresofertas/75684#GTA6_CODE_IN_BOX",
+   "preco": 350.92,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "PRIMEGAME10",
+   "publicado": "2026-10-15T10:36:06-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "cacadoresofertas",
+    "links": [
+     "https://link.amazon/B0jjCBMMc"
+    ],
+    "texto": "Grand Theft Auto VI - PlayStation 5\n🎮 🎮 🎮 🎮 🎮\nPor: R$ 350,92  😍\n🚚  Frete grátis!\n🎟  Use o cupom:  PRIMEGAME10\n🛒  Link de compra:\nhttps://link.amazon/B0jjCBMMc",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:cacadoresofertas/75684#GTA6_CODE_IN_BOX",
+   "melhor_preco": 350.92,
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
+   "ultimo_preco": 350.92,
+   "menor_preco": 350.92
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "KaBuM!",
+   "titulo": "Jogo Grand Theft Auto GTA VI, PS5 TT000272PS5",
+   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-gta-vi-ps5-tt000272ps5-3115865/",
+   "id": "3115865",
+   "preco": 358.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "NOVOTRAILER",
+   "publicado": "2026-10-15T10:35:10-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 449.0,
+    "status": "FINISHED",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-17",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 17/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "promobit:3115865",
+   "melhor_preco": 358.0,
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI - PlayStation 5",
+   "url": "https://www.promobit.com.br/oferta/grand-theft-auto-vi-playstation-5-3115843/",
+   "id": "3115843",
+   "preco": 350.92,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "PRIMEGAME5",
+   "publicado": "2026-10-15T10:29:17-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "APPROVED",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "promobit:3115843",
+   "melhor_preco": 350.92,
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
+   "ultimo_preco": 350.92,
+   "menor_preco": 350.92
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "KaBuM!",
+   "titulo": "Jogo Grand Theft Auto GTA VI PS5 - TT000272PS5",
+   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-gta-vi-ps5-tt000272ps5-3115835/",
+   "id": "3115835",
+   "preco": 362.61,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "NOVOTRAILER",
+   "publicado": "2026-10-15T10:26:32-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 449.0,
+    "status": "APPROVED",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-17",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 17/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "promobit:3115835",
+   "melhor_preco": 362.61,
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
+   "ultimo_preco": 362.61,
+   "menor_preco": 362.61
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "KaBuM!",
+   "titulo": "[peperaiohardware] Jogo Grand Theft Auto Gta Vi 6 Ps5 Tt000272Ps5",
+   "url": "https://t.me/peperaiohardware/116875",
+   "id": "peperaiohardware/116875#GTA6_CODE_IN_BOX",
+   "preco": 362.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "NOVOTRAILER",
+   "publicado": "2026-10-15T10:24:34-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "peperaiohardware",
+    "links": [
+     "https://aoferta.net/004mwhHy-Kabum"
+    ],
+    "texto": "Jogo Grand Theft Auto Gta Vi 6 Ps5 Tt000272Ps5\n💵  R$ 362 com cupom:  NOVOTRAILER\n✅  Link do produto:\nhttps://aoferta.net/004mwhHy-Kabum\n🔔  BOT DE ALERTAS:  https://t.me/alertadaspromobot",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-17",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 17/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:peperaiohardware/116875#GTA6_CODE_IN_BOX",
+   "melhor_preco": 362.0,
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
+   "ultimo_preco": 362.0,
+   "menor_preco": 362.0
+  },
+  {
+   "primeira_vez": "2026-10-15T11:52:19-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "Console Playstation 5 Slim Edição Digital 825 Gb - Kabum",
+   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-edicao-digital-825-gb-kabum-3115377/",
+   "id": "3115377",
+   "preco": 3959.1,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-15T08:10:17-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 7999.0,
+    "status": "FINISHED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3115377",
+   "melhor_preco": 3959.1,
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
+  },
   {
    "primeira_vez": "2026-10-15T07:02:05-03:00",
    "preco_alertado": null,
@@ -3673,11 +3935,11 @@
    "parcelado": null,
    "cupom": null,
    "publicado": "2026-10-14T21:18:40-03:00",
-   "ativo": true,
+   "ativo": false,
    "vendedor": null,
    "extra": {
     "preco_antigo": 4399.0,
-    "status": "APPROVED",
+    "status": "FINISHED",
     "produto": {
      "versao_incerta": false
     },
@@ -3690,7 +3952,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3114831",
    "melhor_preco": 3959.1,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3959.1,
    "menor_preco": 3959.1
   },
@@ -3794,7 +4056,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3112530",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -3912,7 +4174,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/83782#PS5_DIGITAL",
    "melhor_preco": 3765.61,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3765.61,
    "menor_preco": 3765.61
   },
@@ -3942,7 +4204,7 @@
    "modelo": "55C6K",
    "chave": "telegram:cupons_desconto/83779",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -3972,7 +4234,7 @@
    "modelo": "55C6K",
    "chave": "telegram:achadosdotb/11767",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -4078,7 +4340,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3112851",
    "melhor_preco": 3765.61,
-   "ultima_vez": "2026-10-14T22:13:59-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3765.61,
    "menor_preco": 3765.61
   },
@@ -4236,7 +4498,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3112609",
    "melhor_preco": 6356.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 6356.0,
    "menor_preco": 6356.0
   },
@@ -4355,7 +4617,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3111930",
    "melhor_preco": 358.41,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 358.41,
    "menor_preco": 358.41
   },
@@ -4726,7 +4988,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3111118",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -4784,7 +5046,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3110810",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -4802,16 +5064,16 @@
    "parcelado": null,
    "cupom": "VEMCUPOM10",
    "publicado": "2026-10-13T16:01:21-03:00",
-   "ativo": true,
+   "ativo": false,
    "vendedor": null,
    "extra": {
     "preco_antigo": null,
-    "status": "APPROVED"
+    "status": "FINISHED"
    },
    "modelo": "55C6K",
    "chave": "promobit:3111062",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -4881,7 +5143,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97450",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -4953,7 +5215,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3109564",
    "melhor_preco": 347.7,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 347.7,
    "menor_preco": 347.7
   },
@@ -5189,286 +5451,6 @@
    "ultima_vez": "2026-10-13T05:47:31-03:00",
    "ultimo_preco": 347.0,
    "menor_preco": 347.0
-  },
-  {
-   "primeira_vez": "2026-10-13T05:02:55-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[ofertasdodia] 💥  Jogo Grand Theft Auto VI (GTA 6) PS5",
-   "url": "https://t.me/OfertasDoDia/420940",
-   "id": "OfertasDoDia/420940#GTA6_CODE_IN_BOX",
-   "preco": 347.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-13T00:17:03-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "ofertasdodia",
-    "links": [
-     "?q=%23Shopee",
-     "https://s.shopee.com.br/5AtDNvKKpJ?lp=aff",
-     "https://s.shopee.com.br/3B890FWU9v?lp=aff"
-    ],
-    "texto": "💥  Jogo Grand Theft Auto VI (GTA 6) PS5\n✅   Por: R$347,00  [no pix]\n🏪  Loja:  #Shopee\n🔗  PEGAR OFERTA:  👇🏼\nhttps://s.shopee.com.br/5AtDNvKKpJ?lp=aff\n🏷  Resgate todos os cupons aqui:\nhttps://s.shopee.com.br/3B890FWU9v?lp=aff\n⚠️  Ofertas por tempo limitado.\n☕   #publi  · você me paga um café sem custo extra!",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:OfertasDoDia/420940#GTA6_CODE_IN_BOX",
-   "melhor_preco": 347.0,
-   "ultima_vez": "2026-10-13T05:47:31-03:00",
-   "ultimo_preco": 347.0,
-   "menor_preco": 347.0
-  },
-  {
-   "primeira_vez": "2026-10-13T05:02:55-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[tecnanofertas] 💥   😱  Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)",
-   "url": "https://t.me/tecnanofertas/148422",
-   "id": "tecnanofertas/148422#GTA6_CODE_IN_BOX",
-   "preco": 347.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-13T00:12:59-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnanofertas",
-    "links": [
-     "https://s.shopee.com.br/AAHtL8MtYO",
-     "https://s.shopee.com.br/3qNpnUgXJw",
-     "https://tecnan.com.br/"
-    ],
-    "texto": "💥   😱  Jogo Grand Theft Auto VI Edição Standard - PS5 (PRÉ-VENDA)\n🤑  R$ 347\n🎟️  Resgate todos os cupons desta página:\nhttps://s.shopee.com.br/AAHtL8MtYO\n✅  LINK:  https://s.shopee.com.br/3qNpnUgXJw\n🚀  Conheça nossos canais nichados e de Cupons:\n👉   https://tecnan.com.br\n⚠️  Preço e estoque sujeitos a alteração.\n📢  Anuncio",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:tecnanofertas/148422#GTA6_CODE_IN_BOX",
-   "melhor_preco": 347.0,
-   "ultima_vez": "2026-10-13T05:47:31-03:00",
-   "ultimo_preco": 347.0,
-   "menor_preco": 347.0
-  },
-  {
-   "primeira_vez": "2026-10-12T22:21:38-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Hype",
-   "titulo": "[pelandobr] Cartão Presente PlayStation Store R$360",
-   "url": "https://t.me/pelandobr/97377",
-   "id": "pelandobr/97377#GIFT_CARD_PSN",
-   "preco": 325.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T18:54:04-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "pelandobr",
-    "links": [
-     "https://pelando.promo/5WDQS"
-    ],
-    "texto": "Cartão Presente PlayStation Store R$360\n💰  R$ 325,00\n📍  Hype Games\n➡️   https://pelando.promo/5WDQS\n⚠️  Essa promo pode acabar a qualquer momento",
-    "produto": {
-     "valor_face": 360.0
-    },
-    "alvo": {
-     "pix": 306.0,
-     "parcelado": 306.0,
-     "nota": "15% de desconto sobre R$ 360"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "telegram:pelandobr/97377#GIFT_CARD_PSN",
-   "melhor_preco": 325.0,
-   "ultima_vez": "2026-10-13T05:47:31-03:00",
-   "ultimo_preco": 325.0,
-   "menor_preco": 325.0
-  },
-  {
-   "primeira_vez": "2026-10-12T22:21:38-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Consola Sony Ps5 - Slim - Pacote Nba 2k25 - Edição digital",
-   "url": "https://www.promobit.com.br/oferta/consola-sony-ps5-slim-pacote-nba-2k25-edicao-digital-3107663/",
-   "id": "3107663",
-   "preco": 3865.7,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T15:50:18-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5099.0,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3107663",
-   "melhor_preco": 3865.7,
-   "ultima_vez": "2026-10-13T05:47:31-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-12T16:02:57-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "[cupons_desconto] Consola Sony Ps5 - Slim - Pacote Nba 2k25 - Edição digital",
-   "url": "https://t.me/cupons_desconto/83740",
-   "id": "cupons_desconto/83740#PS5_DIGITAL",
-   "preco": 3865.7,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T15:00:16-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "cupons_desconto",
-    "links": [
-     "https://promoby.me/jxm0u2px56f"
-    ],
-    "texto": "Consola Sony Ps5 - Slim - Pacote Nba 2k25 - Edição digital\nPor R$  3.865,70  na Mercado Livre\nVer oferta:  https://promoby.me/jxm0u2px56f\n🔔  Ative as notificações para avisarmos quando tem oferta chegando",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:cupons_desconto/83740#PS5_DIGITAL",
-   "melhor_preco": 3865.7,
-   "ultima_vez": "2026-10-13T13:43:13-03:00",
-   "ultimo_preco": 3865.7,
-   "menor_preco": 3865.7
-  },
-  {
-   "primeira_vez": "2026-10-12T16:02:57-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7",
-   "url": "https://www.promobit.com.br/oferta/bundle-gta-vi-playstation-5-slim-digital-825-gb-pacote-astro-bot-e-gran-turismo-7-3108625/",
-   "id": "3108625",
-   "preco": 4695.47,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T12:35:34-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": null,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 4000.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "PS5_DIGITAL_GTA6",
-   "chave": "promobit:3108625",
-   "melhor_preco": 4695.47,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
-   "ultimo_preco": 4695.47,
-   "menor_preco": 4695.47
-  },
-  {
-   "primeira_vez": "2026-10-12T16:02:57-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.promobit.com.br/oferta/playstation-5-slim-disk-1tb-1-controle-branco-sony-3108624/",
-   "id": "3108624",
-   "preco": 4359.63,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T12:35:10-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5868.09,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "promobit:3108624",
-   "melhor_preco": 4359.63,
-   "ultima_vez": "2026-10-13T13:43:13-03:00",
-   "ultimo_preco": 4359.63,
-   "menor_preco": 4359.63
   },
   {
    "primeira_vez": "2026-10-11T16:12:39-03:00",
@@ -5792,7 +5774,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3102870",
    "melhor_preco": 3870.3,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3870.3,
    "menor_preco": 3870.3
   },
@@ -5944,7 +5926,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97026",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -6344,7 +6326,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3094135",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-15T07:46:51-03:00"
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
   },
   {
    "primeira_vez": "2026-10-07T18:40:00-03:00",
@@ -6459,7 +6441,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3092748",
    "melhor_preco": 0.01,
-   "ultima_vez": "2026-10-15T07:46:51-03:00"
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
   },
   {
    "primeira_vez": "2026-10-07T13:47:24-03:00",
@@ -6546,7 +6528,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3091466",
    "melhor_preco": 3859.05,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3859.05,
    "menor_preco": 3859.05
   },
@@ -6760,7 +6742,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3090157",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -6874,7 +6856,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -6985,7 +6967,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3086466",
    "melhor_preco": 3744.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3744.0,
    "menor_preco": 3744.0
   },
@@ -7012,7 +6994,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3085764",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-15T07:46:51-03:00"
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
   },
   {
    "primeira_vez": "2026-10-04T21:04:09-03:00",
@@ -7350,7 +7332,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3081680",
    "melhor_preco": 3869.1,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3869.1,
    "menor_preco": 3869.1
   },
@@ -7559,7 +7541,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -7619,7 +7601,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -7997,7 +7979,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3040044",
    "melhor_preco": 3719.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00"
+   "ultima_vez": "2026-10-15T11:52:19-03:00"
   },
   {
    "primeira_vez": "2026-09-26T19:05:05-03:00",
@@ -8312,7 +8294,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92403",
    "melhor_preco": 2785.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2785.0,
    "menor_preco": 2785.0
   },
@@ -8342,7 +8324,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/92392",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0
   },
@@ -8423,7 +8405,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90687#65C6K",
    "melhor_preco": 3229.05,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3229.05,
    "menor_preco": 3229.05
   },
@@ -8454,7 +8436,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90672#65C6K",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3514.0,
    "menor_preco": 3514.0
   },
@@ -8485,7 +8467,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90249#65C6K",
    "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3389.0,
    "menor_preco": 3389.0
   },
@@ -8516,7 +8498,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90130#65C6K",
    "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3350.0,
    "menor_preco": 3350.0
   },
@@ -8547,7 +8529,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/90118#65C6K",
    "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3440.0,
    "menor_preco": 3440.0
   },
@@ -8578,7 +8560,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89501#65C6K",
    "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3509.0,
    "menor_preco": 3509.0
   },
@@ -8609,7 +8591,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89493#65C6K",
    "melhor_preco": 3695.12,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3695.12,
    "menor_preco": 3695.12
   },
@@ -8640,7 +8622,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/89395#65C6K",
    "melhor_preco": 3775.0,
-   "ultima_vez": "2026-10-15T07:46:51-03:00",
+   "ultima_vez": "2026-10-15T11:52:19-03:00",
    "ultimo_preco": 3775.0,
    "menor_preco": 3775.0
   }
@@ -9534,31 +9516,17 @@
   },
   {
    "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "MLVANTAGENS",
-   "titulo": "Aproveite para economizar 25% com cupom Mercado Livre",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "70026",
-   "regra": "produtos Mercado Livre Economize até 25% ao usar o código promocional no carrinho de compras.",
+   "loja": "KaBuM!",
+   "codigo": "ZAFAMD10",
+   "titulo": "Economize 10% em seus pedidos aplicando cupom Kabum",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "70683",
+   "regra": "produtos KaBuM! Economize até 10% ao usar o código promocional no carrinho de compras.",
    "validade": null,
-   "publicado": "2026-09-28T10:42:57-03:00",
+   "publicado": "2026-10-15T11:41:08-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "promobit:70026"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "ECONOMIATOTAL",
-   "titulo": "Use cupom Mercado Livre e tenha desconto de 20%",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "70025",
-   "regra": "produtos Mercado Livre Economize até 20% ao usar o código promocional no carrinho de compras (Compra mínima R$79).",
-   "validade": null,
-   "publicado": "2026-09-28T10:42:09-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:70025"
+   "chave": "promobit:70683"
   },
   {
    "fonte": "promobit",
@@ -9914,102 +9882,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:44:59-03:00",
+   "ultimo_ok": "2026-10-15T11:50:26-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:45:01-03:00",
+   "ultimo_ok": "2026-10-15T11:50:29-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:45:13-03:00",
+   "ultimo_ok": "2026-10-15T11:50:38-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:45:14-03:00",
+   "ultimo_ok": "2026-10-15T11:50:39-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:45:52-03:00",
+   "ultimo_ok": "2026-10-15T11:51:20-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:03-03:00",
+   "ultimo_ok": "2026-10-15T11:51:33-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:10-03:00",
+   "ultimo_ok": "2026-10-15T11:51:40-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:13-03:00",
+   "ultimo_ok": "2026-10-15T11:51:43-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:16-03:00",
+   "ultimo_ok": "2026-10-15T11:51:47-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:48-03:00",
+   "ultimo_ok": "2026-10-15T11:52:09-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:45:02-03:00",
+   "ultimo_ok": "2026-10-15T11:50:30-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:00-03:00",
+   "ultimo_ok": "2026-10-15T11:51:30-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:08-03:00",
+   "ultimo_ok": "2026-10-15T11:51:37-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:19-03:00",
+   "ultimo_ok": "2026-10-15T11:51:48-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:20-03:00",
+   "ultimo_ok": "2026-10-15T11:51:49-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:22-03:00",
+   "ultimo_ok": "2026-10-15T11:51:51-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:22-03:00",
+   "ultimo_ok": "2026-10-15T11:51:52-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 176,
+   "falhas": 177,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-15T07:46:28-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-15T11:51:58-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:30-03:00",
+   "ultimo_ok": "2026-10-15T11:51:59-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-15T07:46:32-03:00",
+   "ultimo_ok": "2026-10-15T11:52:00-03:00",
    "ultimo_erro": null
   }
  },
