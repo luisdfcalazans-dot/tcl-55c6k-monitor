@@ -49,11 +49,17 @@ VIGIA_MODELO = "65C6K"
 VIGIA_PRECO_PAGO = float(_env("VIGIA_PRECO_PAGO", "3527"))
 VIGIA_LIMITE = float(_env("VIGIA_LIMITE", str(VIGIA_PRECO_PAGO - 100)))
 VIGIA_ATE = _env("VIGIA_ATE", "2026-10-17")   # inclusive; ajustar para 7 dias depois da entrega
+# 17/10/2026, fim da vigia: o usuário pediu para DESLIGAR as TVs (já comprou a 65C6K): nenhum alerta de TV e nenhuma TV no
+# testador de cupons/carrinhos; PS5, GTA 6 e o resto do catálogo seguem normais. Usa o mesmo caminho do modo vigia, sem
+# TV candidata a alerta. TVS_DESLIGADAS=0 no ambiente religa as TVs (volta à regra da vigia por data).
+TVS_DESLIGADAS = _env("TVS_DESLIGADAS", "1") == "1"
 
 
 def modo_vigia(hoje_iso: str | None = None) -> bool:
     """Ainda dentro da janela de vigia da TV comprada? (vazio em VIGIA_ATE desliga o modo). A vigia vale SÓ para as
     TVs (vigia_afeta): PS5, GTA 6 e o resto do catálogo continuam com alertas, cupons e testador."""
+    if TVS_DESLIGADAS:
+        return True
     if not VIGIA_ATE:
         return False
     from datetime import date

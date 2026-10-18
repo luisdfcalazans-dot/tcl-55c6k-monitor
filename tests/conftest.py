@@ -30,6 +30,7 @@ def _sem_modo_vigia(monkeypatch):
     from monitor import config
 
     monkeypatch.setattr(config, "VIGIA_ATE", "")
+    monkeypatch.setattr(config, "TVS_DESLIGADAS", False)
 
 
 @pytest.fixture(autouse=True)

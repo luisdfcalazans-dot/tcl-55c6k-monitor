@@ -2668,8 +2668,9 @@ def main() -> int:
     if config.modo_vigia() and not a.codigos and not a.forcar:
         # TV comprada (03/10): as TVs ficam fora do testador; o PS5 e o GTA 6 seguem (pedido de 03/10)
         desligados = tuple(produtos.TVS)
-        print(f"[vigia] TV comprada (03/10): TVs fora do testador de cupons até {config.VIGIA_ATE}; "
-              "PS5 e GTA 6 seguem")
+        print("[tvs] TVs desligadas a pedido (17/10): fora do testador de cupons; PS5 e GTA 6 seguem"
+              if config.TVS_DESLIGADAS else
+              f"[vigia] TV comprada (03/10): TVs fora do testador de cupons até {config.VIGIA_ATE}; PS5 e GTA 6 seguem")
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None
     return executar(lojas, cods, a.forcar, a.visivel, not a.no_notify, desligados)
 

@@ -143,12 +143,17 @@ def main() -> int:
         # TV comprada (03/10): das TVs, só a 65C6K abaixo do limite gera alerta (sem cupons, sem 55C6K, sem resumo das
         # TVs). A vigia vale SÓ para as TVs: PS5, GTA 6 e o resto do catálogo seguem com alertas e cupons
         config.ALVO_PIX_65 = config.ALVO_PARCELADO_65 = config.VIGIA_LIMITE
-        candidatas = [o for o in ofertas if modelo_de(o) == config.VIGIA_MODELO  # type: ignore[arg-type]
-                      and o.melhor_preco and o.melhor_preco <= config.VIGIA_LIMITE]  # type: ignore[union-attr]
+        candidatas = [] if config.TVS_DESLIGADAS else [
+            o for o in ofertas if modelo_de(o) == config.VIGIA_MODELO  # type: ignore[arg-type]
+            and o.melhor_preco and o.melhor_preco <= config.VIGIA_LIMITE]  # type: ignore[union-attr]
         outras = [o for o in ofertas if not config.vigia_afeta(modelo_de(o))]  # type: ignore[arg-type]
-        print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; das TVs, alerta só da {config.VIGIA_MODELO} até "
-              f"R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s); "
-              f"{len(outras)} oferta(s)/postagem(ns) de PS5/GTA 6 seguem normais")
+        if config.TVS_DESLIGADAS:
+            print(f"[tvs] TVs desligadas a pedido (17/10): nenhum alerta de TV; {len(outras)} oferta(s)/postagem(ns) "
+                  "de PS5/GTA 6 seguem normais")
+        else:
+            print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; das TVs, alerta só da {config.VIGIA_MODELO} "
+                  f"até R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s); "
+                  f"{len(outras)} oferta(s)/postagem(ns) de PS5/GTA 6 seguem normais")
         msgs, alertados = gerar_alertas(estado, candidatas + outras, cupons, vigia=True)  # type: ignore[arg-type]
     else:
         msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
