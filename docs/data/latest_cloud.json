@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-19T17:19:52-03:00",
+ "atualizado": "2026-10-19T17:34:51-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -652,45 +652,6 @@
    "melhor_preco": 678.99
   },
   {
-   "fonte": "magalu",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 55C6K",
-   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-55-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-55c6k/p/kb7d86eh39/et/elit/",
-   "id": "kb7d86eh39-fastshop2",
-   "preco": 3353.9,
-   "preco_pix": 3152.67,
-   "parcelado": "10x R$ 335,39 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Fast Shop",
-   "extra": {
-    "preco_de": 4419.0,
-    "1p": false,
-    "anuncio": "kb7d86eh39",
-    "vendedor_id": "fastshop2",
-    "ficha": {
-     "anatel": "00738-24-06714",
-     "modelo": "55C6K",
-     "tamanho": "55\"",
-     "avaliacoes": 4010,
-     "peso_kg": 17.2,
-     "razao_social": "FAST SHOP S A",
-     "vendedor_desde": "2020-08-19",
-     "vendas_vendedor": 300000,
-     "nota_vendedor": 4
-    },
-    "anuncio_exclusivo": true,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "magalu:kb7d86eh39-fastshop2",
-   "melhor_preco": 3152.67
-  },
-  {
    "fonte": "zoom",
    "tipo": "loja",
    "loja": "Fast Shop",
@@ -813,6 +774,45 @@
    "modelo": "55C6K",
    "chave": "kabum:911482",
    "melhor_preco": 3314.15
+  },
+  {
+   "fonte": "magalu",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1, Dolby Vision IQ, Subwoofer, 144Hz VRR e Wi-Fi - 55C6K",
+   "url": "https://www.magazineluiza.com.br/smart-tv-4k-tcl-qd-mini-led-55-polegadas-com-hdmi-2-1-dolby-vision-iq-subwoofer-144hz-vrr-e-wi-fi-55c6k/p/kb7d86eh39/et/elit/",
+   "id": "kb7d86eh39-fastshop2",
+   "preco": 3669.0,
+   "preco_pix": 3448.86,
+   "parcelado": "10x R$ 366,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Fast Shop",
+   "extra": {
+    "preco_de": 4419.0,
+    "1p": false,
+    "anuncio": "kb7d86eh39",
+    "vendedor_id": "fastshop2",
+    "ficha": {
+     "anatel": "00738-24-06714",
+     "modelo": "55C6K",
+     "tamanho": "55\"",
+     "avaliacoes": 4010,
+     "peso_kg": 17.2,
+     "razao_social": "FAST SHOP S A",
+     "vendedor_desde": "2020-08-19",
+     "vendas_vendedor": 300000,
+     "nota_vendedor": 4
+    },
+    "anuncio_exclusivo": true,
+    "confianca": {
+     "veredito": "confiavel"
+    }
+   },
+   "modelo": "55C6K",
+   "chave": "magalu:kb7d86eh39-fastshop2",
+   "melhor_preco": 3448.86
   },
   {
    "fonte": "vtex",
@@ -2644,6 +2644,42 @@
    "melhor_preco": 4843.71
   },
   {
+   "fonte": "mercadolivre.playstation",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Console PlayStation5 Slim Disk - Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.mercadolivre.com.br/console-playstation5-slim-disk-pacote-astro-bot-e-gran-turismo-7/p/MLB57083347?pdp_filters=item_id%3AMLB5728106336",
+   "id": "MLB5728106336",
+   "preco": 5099.0,
+   "preco_pix": 4844.0,
+   "parcelado": "10x R$ 509,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Loja oficial PlayStation",
+   "extra": {
+    "item_id": "MLB5728106336",
+    "catalogo": "MLB57083347",
+    "anuncio": "MLB5728106336",
+    "vendedor_id": "1047493289",
+    "loja_oficial": "PlayStation",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "mercadolivre.playstation:MLB5728106336",
+   "melhor_preco": 4844.0
+  },
+  {
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -3259,66 +3295,6 @@
    "melhor_preco": 6591.9
   },
   {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console PlayStation 5 PRO Sony SSD 2TB com Controle Sem Fio DualSense Branco",
-   "url": "https://www.magazineluiza.com.br/console-playstation-5-pro-sony-ssd-2tb-com-controle-sem-fio-dualsense-branco/p/ec6hf21575/ga/otga/",
-   "id": "ec6hf21575-negociunoficial",
-   "preco": 7229.0,
-   "preco_pix": 6939.84,
-   "parcelado": "10x R$ 722,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Negociun Oficial",
-   "extra": {
-    "preco_de": 9999.0,
-    "1p": false,
-    "anuncio": "ec6hf21575",
-    "vendedor_id": "negociunoficial",
-    "ficha": {
-     "avaliacoes": 1,
-     "peso_kg": 3.1,
-     "razao_social": "negociunoficial",
-     "vendedor_desde": "2025-03-17",
-     "vendas_vendedor": 100000,
-     "nota_vendedor": 3.7
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas",
-      "catálogo da loja"
-     ],
-     "sinais": [],
-     "codigos": [],
-     "catalogo": {
-      "total": 647,
-      "tv": 50,
-      "games": 13
-     }
-    },
-    "alvo": {
-     "pix": 5950.0,
-     "parcelado": 6100.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_PRO",
-   "chave": "magalu.produtos:ec6hf21575-negociunoficial",
-   "melhor_preco": 6939.84
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -3356,6 +3332,99 @@
   }
  ],
  "posts": [
+  {
+   "primeira_vez": "2026-10-19T17:34:51-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "[IskandarSouza] 🇧🇷   #Amazon   - Controle sem fio DualSense ®  preto – Edição limitada do Grand Theft Auto VI",
+   "url": "https://t.me/IskandarSouza/190698",
+   "id": "IskandarSouza/190698#GTA6_CODE_IN_BOX",
+   "preco": 599.9,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-19T17:32:21-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "IskandarSouza",
+    "links": [
+     "?q=%23Amazon",
+     "https://seuhardware.com/s/H5faRMb"
+    ],
+    "texto": "🇧🇷   #Amazon   - Controle sem fio DualSense ®  preto – Edição limitada do Grand Theft Auto VI\n⚠️ ➡️   Pre venda\nPromoção Pré-venda com Preço Mais Baixo Garantido  ‼️   Ler os termos no anuncio.\n💰 🔥  Valor : R$ 599,90  11x sem juros\n✅  Link:   https://seuhardware.com/s/H5faRMb",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:IskandarSouza/190698#GTA6_CODE_IN_BOX",
+   "melhor_preco": 599.9,
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
+   "ultimo_preco": 599.9,
+   "menor_preco": 599.9
+  },
+  {
+   "primeira_vez": "2026-10-19T17:34:51-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "[IskandarSouza] ✨  (Pré-venda) Controle sem fio DualSense – Edição limitada do Grand Theft Auto VI GTA 6",
+   "url": "https://t.me/IskandarSouza/190697",
+   "id": "IskandarSouza/190697#GTA6_CODE_IN_BOX",
+   "preco": 599.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-19T17:29:49-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "IskandarSouza",
+    "links": [
+     "https://seuhardware.com/s/JTUrndr",
+     "https://seuhardware.com/s/1hF7Jvw",
+     "tg://search_hashtag?hashtag=anuncio"
+    ],
+    "texto": "✨  (Pré-venda) Controle sem fio DualSense – Edição limitada do Grand Theft Auto VI GTA 6\n💰  R$ 599 em até 11x  ‼️\n🔗  Link Branco:  https://seuhardware.com/s/JTUrndr\n🔗  Link Preto:  https://seuhardware.com/s/1hF7Jvw\n#anuncio",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "prazo desconhecido"
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "telegram:IskandarSouza/190697#GTA6_CODE_IN_BOX",
+   "melhor_preco": 599.0,
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
+   "ultimo_preco": 599.0,
+   "menor_preco": 599.0
+  },
   {
    "primeira_vez": "2026-10-19T17:05:05-03:00",
    "preco_alertado": null,
@@ -3398,7 +3467,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "telegram:tecnanofertas/150050#PS5_DIGITAL_GTA6",
    "melhor_preco": 4190.59,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 4190.59,
    "menor_preco": 4190.59
   },
@@ -3443,7 +3512,7 @@
    "modelo": "PS5_DISCO_GTA6",
    "chave": "telegram:cupons_desconto/83904#PS5_DISCO_GTA6",
    "melhor_preco": 4436.8,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 4436.8,
    "menor_preco": 4436.8
   },
@@ -3478,7 +3547,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3125339",
    "melhor_preco": 4742.9,
-   "ultima_vez": "2026-10-19T17:19:51-03:00"
+   "ultima_vez": "2026-10-19T17:34:51-03:00"
   },
   {
    "primeira_vez": "2026-10-19T17:05:05-03:00",
@@ -3511,7 +3580,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3125337",
    "melhor_preco": 4742.07,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 4742.07,
    "menor_preco": 4742.07
   },
@@ -3557,7 +3626,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:achadosdotb/11793#GTA6_CODE_IN_BOX",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3599,7 +3668,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "promobit:3124907",
    "melhor_preco": 4190.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 4190.0,
    "menor_preco": 4190.0
   },
@@ -3641,7 +3710,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3124872",
    "melhor_preco": 347.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00"
+   "ultima_vez": "2026-10-19T17:34:51-03:00"
   },
   {
    "primeira_vez": "2026-10-19T17:05:05-03:00",
@@ -3681,7 +3750,7 @@
    "modelo": "PS5_DISCO_GTA6",
    "chave": "promobit:3124853",
    "melhor_preco": 4436.8,
-   "ultima_vez": "2026-10-19T17:19:51-03:00"
+   "ultima_vez": "2026-10-19T17:34:51-03:00"
   },
   {
    "primeira_vez": "2026-10-19T11:19:07-03:00",
@@ -3714,7 +3783,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3124571",
    "melhor_preco": 3951.57,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3951.57,
    "menor_preco": 3951.57
   },
@@ -3837,7 +3906,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:cupons_desconto/83895#GTA6_CODE_IN_BOX",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3879,7 +3948,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3124082",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3995,7 +4064,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3123804",
    "melhor_preco": 3679.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3679.0,
    "menor_preco": 3679.0
   },
@@ -4022,7 +4091,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3123741",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3675.64,
    "menor_preco": 3675.64
   },
@@ -4254,7 +4323,7 @@
    "modelo": "65C6K",
    "chave": "telegram:vrlofertas/71384#65C6K",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3675.64,
    "menor_preco": 3675.64
   },
@@ -4373,7 +4442,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3122787",
    "melhor_preco": 358.41,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 358.41,
    "menor_preco": 358.41
   },
@@ -4801,7 +4870,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3121721",
    "melhor_preco": 584.1,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 584.1,
    "menor_preco": 584.1
   },
@@ -4948,7 +5017,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3121524",
    "melhor_preco": 3798.17,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3798.17,
    "menor_preco": 3798.17
   },
@@ -5444,93 +5513,6 @@
    "menor_preco": 2862.35
   },
   {
-   "primeira_vez": "2026-10-16T17:43:15-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Jogo Grand Theft Auto VI (GTA 6) PS5 - Code in Box Pré-venda - Lançamento 1911",
-   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-pre-venda-lancamento-1911-3119901/",
-   "id": "3119901",
-   "preco": 318.41,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "CUPOMANIVER100",
-   "publicado": "2026-10-16T17:38:08-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 549.0,
-    "status": "FINISHED",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "prazo desconhecido"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "promobit:3119901",
-   "melhor_preco": 318.41,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
-   "ultimo_preco": 318.41,
-   "menor_preco": 318.41
-  },
-  {
-   "primeira_vez": "2026-10-16T17:28:41-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[achadosdotb] 🎮   Grand Theft Auto VI para PS5 - Pré-venda",
-   "url": "https://t.me/achadosdotb/11787",
-   "id": "achadosdotb/11787#GTA6_CODE_IN_BOX",
-   "preco": 363.31,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "GTA60",
-   "publicado": "2026-10-16T16:43:39-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "achadosdotb",
-    "links": [
-     "https://tecno.click/1f5"
-    ],
-    "texto": "🎮   Grand Theft Auto VI para PS5 - Pré-venda\nDe\nPor  R$ 363,31  no Pix\n🏷  Use o cupom  GTA60  (resgate no carrinho ou na finalização da compra)\n👉  Compre agora no Magazine Luiza:  https://tecno.click/1f5\n⚠️  Pré-venda: entrega a partir do dia 19/11!",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "prazo desconhecido"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:achadosdotb/11787#GTA6_CODE_IN_BOX",
-   "melhor_preco": 363.31,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
-   "ultimo_preco": 363.31,
-   "menor_preco": 363.31
-  },
-  {
    "primeira_vez": "2026-10-16T17:28:41-03:00",
    "preco_alertado": null,
    "fonte": "promobit",
@@ -5553,7 +5535,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3119636",
    "melhor_preco": 2862.35,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2862.35,
    "menor_preco": 2862.35
   },
@@ -5614,7 +5596,7 @@
    "modelo": "55C6K",
    "chave": "telegram:ctofertaseletroetv/23823",
    "melhor_preco": 2862.35,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2862.35,
    "menor_preco": 2862.35
   },
@@ -5766,7 +5748,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/97763#65C6K",
    "melhor_preco": 3527.1,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3527.1,
    "menor_preco": 3527.1
   },
@@ -5793,7 +5775,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3118627",
    "melhor_preco": 3734.05,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3734.05,
    "menor_preco": 3734.05
   },
@@ -5913,7 +5895,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3112530",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6061,7 +6043,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3111118",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6119,7 +6101,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3110810",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6146,7 +6128,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3111062",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6176,7 +6158,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97450",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6532,7 +6514,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3102870",
    "melhor_preco": 3870.3,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3870.3,
    "menor_preco": 3870.3
   },
@@ -6684,7 +6666,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97026",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -7614,7 +7596,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -7725,7 +7707,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3086466",
    "melhor_preco": 3744.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3744.0,
    "menor_preco": 3744.0
   },
@@ -7752,7 +7734,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3085764",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-19T17:19:51-03:00"
+   "ultima_vez": "2026-10-19T17:34:51-03:00"
   },
   {
    "primeira_vez": "2026-10-04T21:04:09-03:00",
@@ -8090,7 +8072,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3081680",
    "melhor_preco": 3869.1,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3869.1,
    "menor_preco": 3869.1
   },
@@ -8299,7 +8281,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -8359,7 +8341,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-19T17:19:51-03:00",
+   "ultima_vez": "2026-10-19T17:34:51-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -9774,102 +9756,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:18:12-03:00",
+   "ultimo_ok": "2026-10-19T17:33:12-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:18:13-03:00",
+   "ultimo_ok": "2026-10-19T17:33:14-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:18:19-03:00",
+   "ultimo_ok": "2026-10-19T17:33:20-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:18:20-03:00",
+   "ultimo_ok": "2026-10-19T17:33:21-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:01-03:00",
+   "ultimo_ok": "2026-10-19T17:34:01-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:13-03:00",
+   "ultimo_ok": "2026-10-19T17:34:12-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:21-03:00",
+   "ultimo_ok": "2026-10-19T17:34:19-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:23-03:00",
+   "ultimo_ok": "2026-10-19T17:34:21-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:26-03:00",
+   "ultimo_ok": "2026-10-19T17:34:24-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:49-03:00",
+   "ultimo_ok": "2026-10-19T17:34:45-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:18:14-03:00",
+   "ultimo_ok": "2026-10-19T17:33:15-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:11-03:00",
+   "ultimo_ok": "2026-10-19T17:34:09-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:18-03:00",
+   "ultimo_ok": "2026-10-19T17:34:16-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:27-03:00",
+   "ultimo_ok": "2026-10-19T17:34:25-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:28-03:00",
+   "ultimo_ok": "2026-10-19T17:34:26-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:29-03:00",
+   "ultimo_ok": "2026-10-19T17:34:28-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:31-03:00",
+   "ultimo_ok": "2026-10-19T17:34:28-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 294,
+   "falhas": 295,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-19T17:19:36-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-19T17:34:34-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:38-03:00",
+   "ultimo_ok": "2026-10-19T17:34:36-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-19T17:19:39-03:00",
+   "ultimo_ok": "2026-10-19T17:34:37-03:00",
    "ultimo_erro": null
   }
  },
