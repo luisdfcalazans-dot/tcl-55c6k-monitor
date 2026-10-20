@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-20T18:12:49-03:00",
+ "atualizado": "2026-10-20T18:27:53-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -373,10 +373,6 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-16",
-    "entrega_ate_lancamento": false,
-    "cep_referencia": false,
-    "entrega_origem": "simulação de frete",
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
@@ -392,10 +388,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-16",
-     "origem": "loja",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -3644,6 +3640,41 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-10-20T18:27:52-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Sony Playstation 5 Edição Digital 825gb 1 Controle",
+   "url": "https://www.promobit.com.br/oferta/sony-playstation-5-edicao-digital-825gb-1-controle-3129159/",
+   "id": "3129159",
+   "preco": 3989.05,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-20T18:11:11-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "APPROVED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3129159",
+   "melhor_preco": 3989.05,
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
+   "ultimo_preco": 3989.05,
+   "menor_preco": 3989.05
+  },
+  {
    "primeira_vez": "2026-10-20T14:54:13-03:00",
    "preco_alertado": null,
    "fonte": "promobit",
@@ -3674,7 +3705,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3127873",
    "melhor_preco": 3827.91,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3827.91,
    "menor_preco": 3827.0
   },
@@ -3712,7 +3743,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/83925#PS5_DIGITAL",
    "melhor_preco": 3827.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3827.0,
    "menor_preco": 3827.0
   },
@@ -3990,7 +4021,7 @@
    "modelo": "PS5_KIT",
    "chave": "promobit:3128201",
    "melhor_preco": 4556.07,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4556.07,
    "menor_preco": 4556.07
   },
@@ -4025,7 +4056,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3128155",
    "melhor_preco": 3827.91,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3827.91,
    "menor_preco": 3827.91
   },
@@ -4175,7 +4206,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3127736",
    "melhor_preco": 4444.99,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4444.99,
    "menor_preco": 4444.99
   },
@@ -4210,7 +4241,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3127514",
    "melhor_preco": 3999.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3999.0,
    "menor_preco": 3999.0
   },
@@ -4276,7 +4307,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3126559",
    "melhor_preco": 3603.61,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3603.61,
    "menor_preco": 3603.61
   },
@@ -4311,7 +4342,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3126396",
    "melhor_preco": 4452.82,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4452.82,
    "menor_preco": 4452.82
   },
@@ -4346,7 +4377,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3126873",
    "melhor_preco": 4035.27,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4035.27,
    "menor_preco": 4035.27
   },
@@ -4998,7 +5029,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3126168",
    "melhor_preco": 400.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00"
+   "ultima_vez": "2026-10-20T18:27:52-03:00"
   },
   {
    "primeira_vez": "2026-10-19T20:40:28-03:00",
@@ -5086,7 +5117,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "telegram:cupons_desconto/83910#PS5_DIGITAL_GTA6",
    "melhor_preco": 4190.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4190.0,
    "menor_preco": 4190.0
   },
@@ -5128,7 +5159,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "promobit:3124907",
    "melhor_preco": 4190.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 4190.0,
    "menor_preco": 4190.0
   },
@@ -5344,52 +5375,6 @@
    "menor_preco": 599.0
   },
   {
-   "primeira_vez": "2026-10-19T17:05:05-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "[tecnanofertas] 💥   😱  PRIME Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7",
-   "url": "https://t.me/tecnanofertas/150050",
-   "id": "tecnanofertas/150050#PS5_DIGITAL_GTA6",
-   "preco": 4190.59,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-19T16:40:35-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnanofertas",
-    "links": [
-     "https://www.amazon.com.br/dp/B0H6LVH152?tag=lola0a68-20&linkCode=ogi&th=1&psc=1",
-     "https://tecnan.com.br/"
-    ],
-    "texto": "💥   😱  PRIME Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7\n🤑  R$ 4.190,59 no PIX ‼️ 🔥 🔥 🔥\n✅  LINK:  https://www.amazon.com.br/dp/B0H6LVH152?tag=lola0a68-20&linkCode=ogi&th=1&psc=1\n🚀  Conheça nossos canais nichados e de Cupons:\n👉   https://tecnan.com.br\n⚠️  Preço e estoque sujeitos a alteração.\n📢  Anuncio\n➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖\n🔥   MENOR PREÇO JÁ VISTO!  Historicamente um dos melhores momentos pra comprar",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 4000.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "PS5_DIGITAL_GTA6",
-   "chave": "telegram:tecnanofertas/150050#PS5_DIGITAL_GTA6",
-   "melhor_preco": 4190.59,
-   "ultima_vez": "2026-10-19T17:49:51-03:00",
-   "ultimo_preco": 4190.59,
-   "menor_preco": 4190.59
-  },
-  {
    "primeira_vez": "2026-10-18T22:45:01-03:00",
    "preco_alertado": null,
    "fonte": "promobit",
@@ -5412,7 +5397,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3123741",
    "melhor_preco": 3675.64,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3675.64,
    "menor_preco": 3675.64
   },
@@ -5847,7 +5832,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3121524",
    "melhor_preco": 3798.17,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3798.17,
    "menor_preco": 3798.17
   },
@@ -6027,7 +6012,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3119636",
    "melhor_preco": 2862.35,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2862.35,
    "menor_preco": 2862.35
   },
@@ -6240,7 +6225,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/97763#65C6K",
    "melhor_preco": 3527.1,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3527.1,
    "menor_preco": 3527.1
   },
@@ -6267,7 +6252,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3118627",
    "melhor_preco": 3734.05,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3734.05,
    "menor_preco": 3734.05
   },
@@ -6387,7 +6372,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3112530",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6535,7 +6520,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3111118",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6593,7 +6578,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3110810",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6620,7 +6605,7 @@
    "modelo": "55C6K",
    "chave": "promobit:3111062",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -6650,7 +6635,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97450",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2890.0,
    "menor_preco": 2890.0
   },
@@ -7006,7 +6991,7 @@
    "modelo": "65C6K",
    "chave": "promobit:3102870",
    "melhor_preco": 3870.3,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3870.3,
    "menor_preco": 3870.3
   },
@@ -7158,7 +7143,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/97026",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -8088,7 +8073,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/96541",
    "melhor_preco": 2930.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 2930.0,
    "menor_preco": 2930.0
   },
@@ -8773,7 +8758,7 @@
    "modelo": "65C6K",
    "chave": "telegram:pelandobr/96057#65C6K",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -8833,7 +8818,7 @@
    "modelo": "55C6K",
    "chave": "telegram:pelandobr/95978",
    "melhor_preco": 3024.05,
-   "ultima_vez": "2026-10-20T18:12:47-03:00",
+   "ultima_vez": "2026-10-20T18:27:52-03:00",
    "ultimo_preco": 3024.05,
    "menor_preco": 3024.05
   },
@@ -10236,102 +10221,102 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:10:41-03:00",
+   "ultimo_ok": "2026-10-20T18:25:43-03:00",
    "ultimo_erro": null
   },
   "promobit.tv": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:10:44-03:00",
+   "ultimo_ok": "2026-10-20T18:25:46-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:10:54-03:00",
+   "ultimo_ok": "2026-10-20T18:26:05-03:00",
    "ultimo_erro": null
   },
   "zoom": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:10:56-03:00",
+   "ultimo_ok": "2026-10-20T18:26:07-03:00",
    "ultimo_erro": null
   },
   "magalu": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:11:42-03:00",
+   "ultimo_ok": "2026-10-20T18:27:00-03:00",
    "ultimo_erro": null
   },
   "kabum": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:11:56-03:00",
+   "ultimo_ok": "2026-10-20T18:27:07-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:05-03:00",
+   "ultimo_ok": "2026-10-20T18:27:16-03:00",
    "ultimo_erro": null
   },
   "vtex.lojatcl": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:09-03:00",
+   "ultimo_ok": "2026-10-20T18:27:19-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:12-03:00",
+   "ultimo_ok": "2026-10-20T18:27:22-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:39-03:00",
+   "ultimo_ok": "2026-10-20T18:27:47-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:10:45-03:00",
+   "ultimo_ok": "2026-10-20T18:25:48-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:11:53-03:00",
+   "ultimo_ok": "2026-10-20T18:27:04-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:02-03:00",
+   "ultimo_ok": "2026-10-20T18:27:12-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:13-03:00",
+   "ultimo_ok": "2026-10-20T18:27:24-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:15-03:00",
+   "ultimo_ok": "2026-10-20T18:27:25-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:17-03:00",
+   "ultimo_ok": "2026-10-20T18:27:26-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:18-03:00",
+   "ultimo_ok": "2026-10-20T18:27:27-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 317,
+   "falhas": 318,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-20T18:12:24-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-20T18:27:33-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:26-03:00",
+   "ultimo_ok": "2026-10-20T18:27:35-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-20T18:12:28-03:00",
+   "ultimo_ok": "2026-10-20T18:27:37-03:00",
    "ultimo_erro": null
   }
  },
