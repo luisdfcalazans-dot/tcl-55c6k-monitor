@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-10-24T00:46:20-03:00",
+ "atualizado": "2026-10-24T01:16:13-03:00",
  "alvo_pix": 2900.0,
  "alvo_parcelado": 3000.0,
  "alvos": {
@@ -501,8 +501,8 @@
     "ficha": {
      "avaliacoes_vendedor": 197,
      "positivas_pct": 81,
-     "enviado_por": "Amazon",
-     "full": true
+     "enviado_por": "Loja de Games",
+     "full": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
@@ -511,8 +511,12 @@
       "Full",
       "avaliações do vendedor"
      ],
-     "sinais": [],
-     "codigos": []
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
     },
     "alvo": {
      "pix": 300.0,
@@ -1768,54 +1772,6 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "PlayStation®5 Slim Edição Digital",
-   "url": "https://www.amazon.com.br/dp/B0CQKJN2C6?smid=APJANL1RGWUHD",
-   "id": "B0CQKJN2C6-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 4369.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0CQKJN2C6",
-    "asin": "B0CQKJN2C6",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 724,
-     "positivas_pct": 56,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0CQKJN2C6-APJANL1RGWUHD",
-   "melhor_preco": 4369.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation®5 Slim Edição Digital",
    "url": "https://www.amazon.com.br/dp/B0CQKJN2C6?smid=A2LLU9EAT5LSXD",
    "id": "B0CQKJN2C6-A2LLU9EAT5LSXD",
    "preco": null,
@@ -1861,6 +1817,54 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0CQKJN2C6-A2LLU9EAT5LSXD",
+   "melhor_preco": 4369.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Edição Digital",
+   "url": "https://www.amazon.com.br/dp/B0CQKJN2C6?smid=APJANL1RGWUHD",
+   "id": "B0CQKJN2C6-APJANL1RGWUHD",
+   "preco": null,
+   "preco_pix": 4369.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Power.Shoppe",
+   "extra": {
+    "anuncio": "B0CQKJN2C6",
+    "asin": "B0CQKJN2C6",
+    "vendedor_id": "APJANL1RGWUHD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 724,
+     "positivas_pct": 56,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0CQKJN2C6-APJANL1RGWUHD",
    "melhor_preco": 4369.9
   },
   {
@@ -3204,54 +3208,6 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "PlayStation 5 Standard (Slim)",
-   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=APJANL1RGWUHD",
-   "id": "B0CM9VHGY7-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 5699.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0CM9VHGY7",
-    "asin": "B0CM9VHGY7",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 724,
-     "positivas_pct": 56,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0CM9VHGY7-APJANL1RGWUHD",
-   "melhor_preco": 5699.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Standard (Slim)",
    "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=A2LLU9EAT5LSXD",
    "id": "B0CM9VHGY7-A2LLU9EAT5LSXD",
    "preco": null,
@@ -3297,6 +3253,54 @@
    },
    "modelo": "PS5_DISCO",
    "chave": "amazon.produtos:B0CM9VHGY7-A2LLU9EAT5LSXD",
+   "melhor_preco": 5699.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=APJANL1RGWUHD",
+   "id": "B0CM9VHGY7-APJANL1RGWUHD",
+   "preco": null,
+   "preco_pix": 5699.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Power.Shoppe",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "APJANL1RGWUHD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 724,
+     "positivas_pct": 56,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-APJANL1RGWUHD",
    "melhor_preco": 5699.9
   },
   {
@@ -3801,7 +3805,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-23T01:42:41-03:00",
+   "publicado": "2026-10-23T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3825,7 +3829,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:7bbf1788-bc4e-40df-9808-1cbce1db0ff7",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3840,7 +3844,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T00:42:41-03:00",
+   "publicado": "2026-10-22T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3864,7 +3868,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:c5c74ddc-3a02-468b-bd54-982e9d2dc0ab",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3879,7 +3883,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T00:42:41-03:00",
+   "publicado": "2026-10-22T01:12:40-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3896,7 +3900,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6d783364-8547-4ca8-8f13-98e60ae618e3",
    "melhor_preco": 124.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 124.0,
    "menor_preco": 124.0
   },
@@ -3913,7 +3917,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T00:42:41-03:00",
+   "publicado": "2026-10-22T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3930,7 +3934,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:b6e379e1-e7a9-4515-8f25-8f024e5e64a9",
    "melhor_preco": 244.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 244.0,
    "menor_preco": 244.0
   },
@@ -3947,7 +3951,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T00:42:40-03:00",
+   "publicado": "2026-10-22T01:12:39-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3956,7 +3960,7 @@
    "modelo": "65C6K",
    "chave": "pelando:1bfadfb0-700f-42de-a93f-24e1927821b5",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 3527.0,
    "menor_preco": 3527.0
   },
@@ -3973,7 +3977,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T00:42:40-03:00",
+   "publicado": "2026-10-22T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3982,7 +3986,7 @@
    "modelo": "65C6K",
    "chave": "pelando:448a3aa1-cc2d-48dc-9484-7b7046ddbf0d",
    "melhor_preco": 3590.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -4039,7 +4043,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-19T00:42:44-03:00",
+   "publicado": "2026-10-19T01:12:43-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4063,7 +4067,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:e5f9ce1d-9564-430d-86f0-08f42628b051",
    "melhor_preco": 400.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -4078,7 +4082,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-19T00:42:41-03:00",
+   "publicado": "2026-10-19T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4102,7 +4106,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:fae3943c-c3fb-4f28-9d8d-260c9cfbf2af",
    "melhor_preco": 347.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-17T19:38:12-03:00",
@@ -4151,7 +4155,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-16T00:42:41-03:00",
+   "publicado": "2026-10-16T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4175,7 +4179,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:fb855a47-b994-45c7-b5ba-a3c9b0e68922",
    "melhor_preco": 318.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 318.0,
    "menor_preco": 318.0
   },
@@ -4192,7 +4196,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-16T00:42:40-03:00",
+   "publicado": "2026-10-16T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4201,7 +4205,7 @@
    "modelo": "55C6K",
    "chave": "pelando:18732eb0-cd9d-404a-84b1-7fcbb7e00380",
    "melhor_preco": 2862.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2862.0,
    "menor_preco": 2862.0
   },
@@ -4218,7 +4222,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-16T00:42:40-03:00",
+   "publicado": "2026-10-16T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4227,7 +4231,7 @@
    "modelo": "65C6K",
    "chave": "pelando:f4c75722-cc3d-4f9d-88a8-c403a4b4ea1b",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-16T21:19:07-03:00",
@@ -4242,7 +4246,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-15T00:42:41-03:00",
+   "publicado": "2026-10-15T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4266,7 +4270,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:b4f945cf-ce8c-4c33-8e6f-bd072cfa07c3",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-14T19:59:45-03:00",
@@ -4315,7 +4319,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-14T00:42:44-03:00",
+   "publicado": "2026-10-14T01:12:43-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4339,7 +4343,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:7fa8bf86-7f27-4ad3-a121-1cfb596e5323",
    "melhor_preco": 338.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 338.0,
    "menor_preco": 338.0
   },
@@ -4356,7 +4360,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-13T00:42:40-03:00",
+   "publicado": "2026-10-13T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4365,7 +4369,7 @@
    "modelo": "55C6K",
    "chave": "pelando:02be559f-c234-4f2b-9ed8-442c15ec32bf",
    "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:34:59-03:00",
@@ -4394,7 +4398,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:88e209c4-fa0e-4bbf-815f-19dd67db8674",
    "melhor_preco": 415.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:34:59-03:00",
@@ -4423,7 +4427,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:58696dd5-c381-4356-9b00-fd21ffd8b4d5",
    "melhor_preco": 465.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-12T11:48:09-03:00",
@@ -4472,7 +4476,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-12T00:42:41-03:00",
+   "publicado": "2026-10-12T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4489,7 +4493,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:9ca86c7a-26a3-4c3f-bc02-1e13e3483229",
    "melhor_preco": 325.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 325.0,
    "menor_preco": 325.0
   },
@@ -4540,7 +4544,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-11T00:42:41-03:00",
+   "publicado": "2026-10-11T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4564,7 +4568,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:4675efdb-4936-46c3-b39c-0522e2be6eae",
    "melhor_preco": 309.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 309.0,
    "menor_preco": 309.0
   },
@@ -4641,7 +4645,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T00:42:44-03:00",
+   "publicado": "2026-10-10T01:12:43-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4665,7 +4669,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:d7a1adc5-e8b4-4191-ba94-8f83b45ee957",
    "melhor_preco": 309.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 309.0,
    "menor_preco": 309.0
   },
@@ -4682,7 +4686,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T00:42:41-03:00",
+   "publicado": "2026-10-10T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4706,7 +4710,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:045742e2-f9b8-492d-a028-e11ed664849b",
    "melhor_preco": 328.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-10T00:18:09-03:00",
@@ -4963,7 +4967,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-09T00:42:41-03:00",
+   "publicado": "2026-10-09T01:12:40-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -4980,7 +4984,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6368be2d-83b2-49b5-9eb6-61cd642bdcdf",
    "melhor_preco": 499.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 499.0,
    "menor_preco": 499.0
   },
@@ -5118,7 +5122,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T00:42:41-03:00",
+   "publicado": "2026-10-07T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5135,7 +5139,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:01ef7d76-0e47-4ebc-9df4-e172e5fd136e",
    "melhor_preco": 90.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 90.0,
    "menor_preco": 90.0
   },
@@ -5152,7 +5156,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T00:42:41-03:00",
+   "publicado": "2026-10-07T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5166,7 +5170,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:970fff40-f5a3-4441-b43d-f47543943dfc",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -5181,7 +5185,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T00:42:41-03:00",
+   "publicado": "2026-10-07T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5195,7 +5199,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -5210,7 +5214,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T00:42:41-03:00",
+   "publicado": "2026-10-07T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5227,7 +5231,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:4248f3c9-0cc7-4ccd-b2de-4999fdc83d4a",
    "melhor_preco": 46.6,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -5242,7 +5246,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-07T00:42:41-03:00",
+   "publicado": "2026-10-07T01:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5259,7 +5263,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:a0a1963b-2f04-4728-889b-699006c4531e",
    "melhor_preco": 238.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -5420,7 +5424,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T00:42:40-03:00",
+   "publicado": "2026-10-06T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5429,7 +5433,7 @@
    "modelo": "55C6K",
    "chave": "pelando:d263bf7b-bb57-4327-bb4f-90c04e900933",
    "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2905.0,
    "menor_preco": 2905.0
   },
@@ -5446,7 +5450,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-01T00:42:40-03:00",
+   "publicado": "2026-10-01T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5455,7 +5459,7 @@
    "modelo": "65C6K",
    "chave": "pelando:7c1f38b6-7aee-4e95-bfc7-44c0d93c44e5",
    "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-10-03T11:49:22-03:00",
@@ -5470,7 +5474,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-30T00:42:40-03:00",
+   "publicado": "2026-09-30T01:12:39-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -5479,7 +5483,7 @@
    "modelo": "55C6K",
    "chave": "pelando:1a00be38-6cc1-41a5-b000-a5e73e08fea5",
    "melhor_preco": 3024.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5503,7 +5507,7 @@
    "modelo": "55C6K",
    "chave": "pelando:ba600c39-982c-43e9-b7e0-40c5b0c669b5",
    "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5527,7 +5531,7 @@
    "modelo": "55C6K",
    "chave": "pelando:b675e6ae-d3cc-4411-b3e9-f6d5e4145174",
    "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5551,7 +5555,7 @@
    "modelo": "55C6K",
    "chave": "pelando:f49fed6c-c920-4eeb-96aa-c5e691d4b3b7",
    "melhor_preco": 2990.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5575,7 +5579,7 @@
    "modelo": "55C6K",
    "chave": "pelando:95e0b0ce-a976-4e63-825a-c8b03291b27c",
    "melhor_preco": 3100.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5695,7 +5699,7 @@
    "modelo": "65C6K",
    "chave": "pelando:4ee745f4-b964-411e-986e-fb615254c408",
    "melhor_preco": 3289.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5719,7 +5723,7 @@
    "modelo": "65C6K",
    "chave": "pelando:5325809a-bc01-4f44-92e9-593b64559b83",
    "melhor_preco": 3149.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-29T20:45:58-03:00",
@@ -5935,7 +5939,7 @@
    "modelo": "65C6K",
    "chave": "pelando:823e2314-b26b-4640-9268-10d84740cd36",
    "melhor_preco": 3581.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5959,7 +5963,7 @@
    "modelo": "65C6K",
    "chave": "pelando:59057492-7ac4-4ecc-abd2-a0f61c82eb91",
    "melhor_preco": 3229.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -5983,7 +5987,7 @@
    "modelo": "65C6K",
    "chave": "pelando:6e63a033-93ff-4f60-8626-22da5e809f43",
    "melhor_preco": 3395.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -6007,7 +6011,7 @@
    "modelo": "65C6K",
    "chave": "pelando:33e44122-f76b-4f5b-b7af-d3f4856c65f1",
    "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -6031,7 +6035,7 @@
    "modelo": "65C6K",
    "chave": "pelando:633a9135-e86c-4790-8f2a-0c65b177be6e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -6055,7 +6059,7 @@
    "modelo": "65C6K",
    "chave": "pelando:77c4745b-4850-4f78-8800-e707847e216e",
    "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -6079,7 +6083,7 @@
    "modelo": "65C6K",
    "chave": "pelando:882d170a-08e5-4517-adf0-b019113db009",
    "melhor_preco": 3459.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-26T17:15:44-03:00",
@@ -6103,7 +6107,7 @@
    "modelo": "65C6K",
    "chave": "pelando:ff5596ef-8e6f-46c5-883e-d455e2c032c0",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00"
+   "ultima_vez": "2026-10-24T01:16:13-03:00"
   },
   {
    "primeira_vez": "2026-09-14T21:08:06-03:00",
@@ -6126,7 +6130,7 @@
    },
    "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
    "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2799.0,
    "menor_preco": 2799.0,
    "modelo": "55C6K"
@@ -6152,7 +6156,7 @@
    },
    "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
    "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2872.0,
    "menor_preco": 2872.0,
    "modelo": "55C6K"
@@ -6178,7 +6182,7 @@
    },
    "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
    "melhor_preco": 3010.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 3010.0,
    "menor_preco": 3010.0,
    "modelo": "55C6K"
@@ -6204,7 +6208,7 @@
    },
    "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
    "melhor_preco": 2957.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2957.0,
    "menor_preco": 2957.0,
    "modelo": "55C6K"
@@ -6230,7 +6234,7 @@
    },
    "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
    "melhor_preco": 2969.0,
-   "ultima_vez": "2026-10-24T00:46:20-03:00",
+   "ultima_vez": "2026-10-24T01:16:13-03:00",
    "ultimo_preco": 2969.0,
    "menor_preco": 2969.0,
    "modelo": "55C6K"
@@ -6304,7 +6308,7 @@
    "id": "96661fa2-e6d7-41ac-9a4b-dd9b8afdb7c9",
    "regra": "Balança Digital Bioimpedância Bluetooth com App Medição Corporal Completa - Star Produtos a partir de R$ 20,99 no Pix com o cupom",
    "validade": null,
-   "publicado": "2026-10-21T00:42:45-03:00",
+   "publicado": "2026-10-21T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:96661fa2-e6d7-41ac-9a4b-dd9b8afdb7c9"
@@ -6318,7 +6322,7 @@
    "id": "4448eaef-fa44-4634-a61a-446f1f6a3671",
    "regra": "R$100 off em pedidos acima de R$1.000 em itens vendidos por Magalu",
    "validade": null,
-   "publicado": "2026-10-21T00:42:45-03:00",
+   "publicado": "2026-10-21T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4448eaef-fa44-4634-a61a-446f1f6a3671"
@@ -6332,7 +6336,7 @@
    "id": "68814221-2745-4fa7-abef-be975fcab0be",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por Magalu.",
    "validade": null,
-   "publicado": "2026-10-16T00:42:45-03:00",
+   "publicado": "2026-10-16T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:68814221-2745-4fa7-abef-be975fcab0be"
@@ -6346,7 +6350,7 @@
    "id": "59dafd70-8e5d-43db-b082-1b723237fdd2",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por LOJAS PARCEIRAS.",
    "validade": null,
-   "publicado": "2026-10-16T00:42:45-03:00",
+   "publicado": "2026-10-16T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:59dafd70-8e5d-43db-b082-1b723237fdd2"
@@ -6360,7 +6364,7 @@
    "id": "72845469-dbb7-4e87-9b52-f6a313c8782b",
    "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por LOJAS PARCEIRAS.",
    "validade": null,
-   "publicado": "2026-10-16T00:42:45-03:00",
+   "publicado": "2026-10-16T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:72845469-dbb7-4e87-9b52-f6a313c8782b"
@@ -6374,7 +6378,7 @@
    "id": "f7d283d5-7a04-4dd8-9db3-6063e6d33295",
    "regra": "Cupom válido para Lojas Parceiras",
    "validade": null,
-   "publicado": "2026-10-14T00:42:45-03:00",
+   "publicado": "2026-10-14T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:f7d283d5-7a04-4dd8-9db3-6063e6d33295"
@@ -6388,7 +6392,7 @@
    "id": "db9c2b06-16dd-4c37-9257-eb4005e98d13",
    "regra": "Precisa ser vendido pela Magalu e entregue por ela",
    "validade": null,
-   "publicado": "2026-10-10T00:42:45-03:00",
+   "publicado": "2026-10-10T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:db9c2b06-16dd-4c37-9257-eb4005e98d13"
@@ -6402,7 +6406,7 @@
    "id": "6f4acffd-9e98-438b-a253-ecdaae195fdf",
    "regra": "Apens usando cartao porto bank",
    "validade": null,
-   "publicado": "2026-10-10T00:42:45-03:00",
+   "publicado": "2026-10-10T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:6f4acffd-9e98-438b-a253-ecdaae195fdf"
@@ -6416,7 +6420,7 @@
    "id": "4a838560-c673-41de-bc5a-ac05d3d30fae",
    "regra": "Válido Somente pra quem Resgatou as 19h",
    "validade": null,
-   "publicado": "2026-10-24T00:18:45-03:00",
+   "publicado": "2026-10-24T00:18:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4a838560-c673-41de-bc5a-ac05d3d30fae"
@@ -6430,7 +6434,7 @@
    "id": "b915e973-b51e-4575-b52f-c8144241439a",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-22T00:42:45-03:00",
+   "publicado": "2026-10-22T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b915e973-b51e-4575-b52f-c8144241439a"
@@ -6444,7 +6448,7 @@
    "id": "87d94b52-6968-447e-99e6-6f6457b9354c",
    "regra": "25% OFF em R$ 1, Limite de R$ 500 OFF",
    "validade": null,
-   "publicado": "2026-10-20T00:42:45-03:00",
+   "publicado": "2026-10-20T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:87d94b52-6968-447e-99e6-6f6457b9354c"
@@ -6458,7 +6462,7 @@
    "id": "ecea6534-d342-4fd5-9a73-7722f03c19f4",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-20T00:42:45-03:00",
+   "publicado": "2026-10-20T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:ecea6534-d342-4fd5-9a73-7722f03c19f4"
@@ -6472,7 +6476,7 @@
    "id": "41c625dc-a375-4e78-b7be-a9a727807a7c",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-20T00:42:45-03:00",
+   "publicado": "2026-10-20T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:41c625dc-a375-4e78-b7be-a9a727807a7c"
@@ -6486,7 +6490,7 @@
    "id": "142b2423-17cd-4678-9e55-40c32157086e",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T00:42:45-03:00",
+   "publicado": "2026-10-19T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:142b2423-17cd-4678-9e55-40c32157086e"
@@ -6500,7 +6504,7 @@
    "id": "e66cfad2-ab43-44ec-853e-d08fed2511c9",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T00:42:45-03:00",
+   "publicado": "2026-10-19T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:e66cfad2-ab43-44ec-853e-d08fed2511c9"
@@ -6514,7 +6518,7 @@
    "id": "675dc734-cba8-4979-8020-39f3cb4b34aa",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                 \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T00:42:45-03:00",
+   "publicado": "2026-10-19T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:675dc734-cba8-4979-8020-39f3cb4b34aa"
@@ -6528,7 +6532,7 @@
    "id": "77d90b6a-c868-4f67-af1f-15b961a03027",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T00:42:45-03:00",
+   "publicado": "2026-10-19T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:77d90b6a-c868-4f67-af1f-15b961a03027"
@@ -6542,7 +6546,7 @@
    "id": "4684c69e-4291-435f-aed9-f23dff1566ac",
    "regra": "Cupom válido acima de R$ 3914",
    "validade": null,
-   "publicado": "2026-10-16T00:42:45-03:00",
+   "publicado": "2026-10-16T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4684c69e-4291-435f-aed9-f23dff1566ac"
@@ -6556,7 +6560,7 @@
    "id": "f9aef576-7d81-4a27-b7b8-714db78a08c4",
    "regra": "Cupom válido para itens específicos",
    "validade": null,
-   "publicado": "2026-10-16T00:42:45-03:00",
+   "publicado": "2026-10-16T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:f9aef576-7d81-4a27-b7b8-714db78a08c4"
@@ -6570,112 +6574,56 @@
    "id": "503d0480-a151-471e-a742-806c02b86161",
    "regra": "Cupom Válido até 16 de Outubro",
    "validade": null,
-   "publicado": "2026-10-13T00:42:45-03:00",
+   "publicado": "2026-10-13T01:12:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:503d0480-a151-471e-a742-806c02b86161"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "BDBR06",
-   "titulo": "Cupom Aliexpress R$ 33 acima de R$ 330",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "2bd2f703-5c25-4b8c-b714-e32a70c0b86a",
-   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
-   "validade": null,
-   "publicado": "2026-10-09T00:42:45-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:2bd2f703-5c25-4b8c-b714-e32a70c0b86a"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "BDBR30",
-   "titulo": "Cupom Aliexpress R$ 170 acima de R$ 1500",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "584b1b5b-1341-4a10-b22f-e46eab217658",
-   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
-   "validade": null,
-   "publicado": "2026-10-09T00:42:45-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:584b1b5b-1341-4a10-b22f-e46eab217658"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "BDBR10",
-   "titulo": "Cupom Aliexpress R$ 56 acima de R$ 555",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "2c18f284-df91-439b-87aa-163eb2d696a4",
-   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
-   "validade": null,
-   "publicado": "2026-10-09T00:42:45-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:2c18f284-df91-439b-87aa-163eb2d696a4"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "BDBR15",
-   "titulo": "Cupom Aliexpress R$ 85 acima de R$ 780",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "b85f9c7a-46e1-4684-a890-25f27541ff57",
-   "regra": "Vendas Oficiais: 09.10.2026 às 00h01 até 11.10.2026 às 23h59",
-   "validade": null,
-   "publicado": "2026-10-09T00:42:45-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:b85f9c7a-46e1-4684-a890-25f27541ff57"
   }
  ],
  "saude": {
   "amazon": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:43:24-03:00",
+   "ultimo_ok": "2026-10-24T01:13:19-03:00",
    "ultimo_erro": null
   },
   "casasbahia": {
-   "falhas": 1,
+   "falhas": 2,
    "ultimo_ok": "2026-10-24T00:15:36-03:00",
-   "ultimo_erro": "2026-10-24T00:44:33-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
+   "ultimo_erro": "2026-10-24T01:14:28-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
   },
   "mercadolivre": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:45:36-03:00",
+   "ultimo_ok": "2026-10-24T01:15:30-03:00",
    "ultimo_erro": null
   },
   "aliexpress": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:46:17-03:00",
+   "ultimo_ok": "2026-10-24T01:16:11-03:00",
    "ultimo_erro": null
   },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:42:44-03:00",
+   "ultimo_ok": "2026-10-24T01:12:43-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:42:45-03:00",
+   "ultimo_ok": "2026-10-24T01:12:45-03:00",
    "ultimo_erro": null
   },
   "shopee": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:46:18-03:00",
+   "ultimo_ok": "2026-10-24T01:16:11-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:46:18-03:00",
+   "ultimo_ok": "2026-10-24T01:16:12-03:00",
    "ultimo_erro": null
   },
   "amazon.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:44:15-03:00",
+   "ultimo_ok": "2026-10-24T01:14:10-03:00",
    "ultimo_erro": null
   },
   "casasbahia.produtos": {
@@ -6685,12 +6633,12 @@
   },
   "netshoes": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:44:45-03:00",
+   "ultimo_ok": "2026-10-24T01:14:40-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-24T00:45:47-03:00",
+   "ultimo_ok": "2026-10-24T01:15:41-03:00",
    "ultimo_erro": null
   }
  },
