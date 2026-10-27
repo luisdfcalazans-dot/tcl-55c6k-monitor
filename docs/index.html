@@ -390,12 +390,13 @@ function preencheGift(gift) {
   }
 }
 function blocoGift(gift) {
-  const r = gift?.regra || {}, meta = r.meta ?? 0.15;
+  const r = gift?.regra || {}, meta = r.meta ?? 0.15, faceMin = r.face_minima ?? 100;
+  const naMeta = c => c.desconto >= meta - 1e-9 && c.valor_face >= faceMin;   // cartão abaixo de R$ 100 fica sem meta (igual ao monitor)
   const prazo = r.prazo ? r.prazo.slice(8, 10) + '/' + r.prazo.slice(5, 7) : '11/11';
   let html = `<h3 class="modelo-cab" id="gift">Gift card PlayStation · pagar o GTA 6 digital na PS Store</h3>`;
   const m = gift?.melhor;
   if (!m) return html + `<p class="nota">Nenhum gift card com desconto em loja oficial agora (PS Store, Hype, Nuuvem, loja oficial PlayStation no Mercado Livre, ou vendido pela própria KaBuM, Americanas, Amazon ou Magalu). Meta: ${pctTxt(meta)} de desconto ou mais; comprar e resgatar até ${prazo}.</p>`;
-  html += `<p class="sub" id="gift-melhor">Melhor agora: <b>${fmt(m.preco)}</b> pelo cartão de <b>R$ ${Math.round(m.valor_face)}</b> (${esc(pctTxt(m.desconto))} de desconto) · ${esc(m.loja)}${m.tipo === 'post' ? ' · postagem' : ''}${m.cupom ? ` · cupom <code>${esc(m.cupom)}</code>` : ''}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">abrir</a>` : ''}${m.desconto >= meta - 1e-9 ? ' <span class="chip ok">na meta</span>' : ''}</p>`;
+  html += `<p class="sub" id="gift-melhor">Melhor agora: <b>${fmt(m.preco)}</b> pelo cartão de <b>R$ ${Math.round(m.valor_face)}</b> (${esc(pctTxt(m.desconto))} de desconto) · ${esc(m.loja)}${m.tipo === 'post' ? ' · postagem' : ''}${m.cupom ? ` · cupom <code>${esc(m.cupom)}</code>` : ''}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">abrir</a>` : ''}${naMeta(m) ? ' <span class="chip ok">na meta</span>' : ''}</p>`;
   const linhas = Object.values(gift.gta || {}).sort((a, b) => (a.edicao || '').localeCompare(b.edicao || '')).reverse();
   if (linhas.length) html += `<div class="tbl"><table id="t-gift-gta"><thead><tr><th>GTA 6 digital</th><th>PS Store</th><th>Pagando com gift card</th><th>Meta (${pctTxt(r.minimo ?? 0.15)})</th><th>Cartões</th></tr></thead><tbody>${linhas.map(g => `<tr>
     <td><b>${esc(g.edicao || g.nome)}</b></td><td class="num">${fmt(g.preco_psstore)}</td>
@@ -405,7 +406,7 @@ function blocoGift(gift) {
   const outros = (gift.cartoes || []).slice(0, 6);
   if (outros.length > 1) html += `<div class="tbl"><table id="t-gift"><thead><tr><th>Loja</th><th>Valor de face</th><th>Preço</th><th>Desconto</th><th></th></tr></thead><tbody>${outros.map(c => `<tr>
     <td><b>${esc(c.loja)}</b>${c.tipo === 'post' ? '<span class="sub2">postagem</span>' : ''}</td><td class="num">R$ ${Math.round(c.valor_face)}</td>
-    <td class="num"><b>${fmt(c.preco)}</b></td><td class="num ${c.desconto >= meta - 1e-9 ? 'ok-t' : ''}">${pctTxt(c.desconto)}</td>
+    <td class="num"><b>${fmt(c.preco)}</b></td><td class="num ${naMeta(c) ? 'ok-t' : ''}">${pctTxt(c.desconto)}</td>
     <td>${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">abrir</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
   return html + `<p class="nota">Só cartão [Exclusivo Brasil] de loja oficial. O saldo da carteira é usado primeiro e o resto vai para o cartão de crédito; a Sony tem um limite de saldo que não divulga (a conta não passa de R$ 700). Meta: ${pctTxt(meta)} de desconto ou mais (🔥 a partir de ${pctTxt(r.excelente ?? 0.2)}). Para jogar no lançamento: comprar e resgatar o cartão e fazer a pré-venda até ${prazo} (pré-carregamento a partir de 12/11).</p>`;
 }
