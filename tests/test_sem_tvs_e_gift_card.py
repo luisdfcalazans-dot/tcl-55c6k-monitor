@@ -210,7 +210,7 @@ def test_workflow_e_docs_falam_de_ps5_e_gta():
 # B) gift card da PSN
 # =====================================================================================================================
 
-def test_valor_de_face_pega_o_maior_valor_e_ignora_parcela_e_minimo():
+def test_valor_de_face_ignora_o_preco_a_parcela_e_o_minimo():
     vf = produtos.valor_face
     assert vf("Por R$ 85 o gift card PlayStation de R$ 100") == 100.0   # o 1º valor era o preço
     assert vf("Gift card PSN R$ 300 por R$ 250 em 10x R$ 25 sem juros") == 300.0
@@ -218,6 +218,144 @@ def test_valor_de_face_pega_o_maior_valor_e_ignora_parcela_e_minimo():
     assert vf("6% OFF em gift card PlayStation (mínimo R$ 450)") is None
     assert vf("Gift card PSN: 2x R$ 100 por R$ 150") == 200.0           # ML, 07/09/2026
     assert vf("Gift Card PlayStation R$300 Vale-Presente") == 300.0
+    assert vf("Gift Card PSN R$ 100 sai a R$ 85") == 100.0
+
+
+# ---- revisão de 26/10: limite, cashback e lista de valores não são o valor de face -------------------------------
+
+def _post_gift(titulo, preco, loja="Hype", oid="r"):
+    o = Oferta("promobit", "post", loja, titulo, f"https://p/{oid}", oid, preco=preco, modelo="GIFT_CARD_PSN",
+               publicado=agora_iso())
+    o.extra["produto"] = dict(produtos._classifica_titulo(titulo, "").detalhes)
+    return o
+
+
+@pytest.mark.parametrize("titulo,face", [
+    ("Gift Card PlayStation Store R$ 150 por R$ 135 - limite de R$ 300 por CPF", 150.0),
+    ("Gift Card PlayStation Store R$ 250 por R$ 225 — ganhe R$ 450 em cashback", 250.0),
+    ("Gift Card PSN R$ 60, R$ 100 e R$ 300 com 10% OFF na Hype", None),       # de qual é o preço?
+    ("Gift Card PSN R$ 300 com desconto (até R$ 500 por CPF)", 300.0),
+    ("Gift Card PSN com desconto (até R$ 500 por CPF)", None),
+    ("Gift Card PSN R$ 100 - economize R$ 15", 100.0),
+])
+def test_valor_de_face_sem_limite_cashback_nem_lista(titulo, face):
+    assert produtos.valor_face(titulo) == face
+
+
+def test_limite_por_cpf_nao_infla_a_meta_nem_a_combinacao():
+    o = _post_gift("Gift Card PlayStation Store R$ 150 por R$ 135 - limite de R$ 300 por CPF", 135.0)
+    assert produtos.detalhes_de(o)["valor_face"] == 150.0
+    a = produtos.alvos_da_oferta(o, hoje="2026-10-26")
+    assert a.pix == 127.5 and not (135.0 <= a.pix)          # 10%: sem 🎯
+    (c,) = produtos.cartoes_gift([o])
+    assert (c["valor_face"], c["desconto"]) == (150.0, 0.1)
+    g = produtos.gta_com_gift([o])
+    assert g["GTA6_DIGITAL"]["custo"] == round(2 * 135 + 149.90, 2)   # não R$ 270 com "face" de R$ 300
+    cash = _post_gift("Gift Card PlayStation Store R$ 250 por R$ 225 — ganhe R$ 450 em cashback", 225.0, oid="c")
+    assert produtos.detalhes_de(cash)["valor_face"] == 250.0
+    lista = _post_gift("Gift Card PSN R$ 60, R$ 100 e R$ 300 com 10% OFF na Hype", 54.0, oid="l")
+    assert not produtos.detalhes_de(lista).get("valor_face") and produtos.alvos_da_oferta(lista).pix is None
+
+
+# ---- revisão de 26/10: "hype" solto não é a Hype ------------------------------------------------------------------
+
+@pytest.mark.parametrize("nome", ["HyperX", "HyperX Store", "Hyper Games", "Hypershop", "Mega Hyper Atacado",
+                                  "Cyberhype"])
+def test_loja_com_hype_no_nome_nao_vira_a_hype(nome):
+    from monitor.util import loja_canonica
+
+    assert loja_canonica(nome) != "Hype"
+
+
+def test_a_hype_continua_a_hype():
+    from monitor.util import loja_canonica
+
+    assert {loja_canonica(n) for n in ("Hype", "hype", "Hype Games", "hypegames", "hype.games")} == {"Hype"}
+    x = Oferta("promobit", "post", "HyperX Store", "Gift Card PlayStation Store R$ 300 por R$ 240", "u", "hx",
+               preco=240.0, modelo="GIFT_CARD_PSN", extra={"produto": {"valor_face": 300.0}})
+    assert not produtos._loja_oficial_gift(x) and produtos.alvos_da_oferta(x).pix is None
+
+
+# ---- revisão de 26/10: o custo do GTA 6 da PS Store sai da combinação (cartão pequeno não dá 🎯 falso) -----------
+
+def _ps_gta(preco=449.90):
+    return Oferta("psstore", "loja", "PlayStation Store", "Grand Theft Auto VI", "https://ps/s", "s", preco=preco,
+                  vendedor="PlayStation Store", modelo="GTA6_DIGITAL")
+
+
+def test_cartao_pequeno_nao_vira_desconto_do_jogo_inteiro():
+    # o caso real de 21/09: R$ 60 por R$ 35 na loja oficial PlayStation do Mercado Livre
+    g = _post_gift("Gift Card PlayStation Store R$ 60 por R$ 35 - Loja oficial PlayStation", 35.0,
+                   loja="Mercado Livre", oid="ml")
+    gta = _ps_gta()
+    assert produtos.desconto_gift_card([g, gta]) is None          # cartão abaixo de R$ 100 não é referência
+    cartoes = produtos.cartoes_gift([g, gta])
+    assert produtos.preco_comparavel(gta, None, cartoes) == 399.90   # 2 x R$ 60 + R$ 329,90 no cartão
+    assert produtos.preco_comparavel(gta, None, cartoes) > produtos.alvos_da_oferta(gta).pix
+    linhas = produtos.linhas_da_oferta(g, None, None, cartoes)
+    assert not any("sairia por" in l for l in linhas) and not any(l.startswith("🔥") for l in linhas)
+    assert any("🧮" in l and "Standard R$ 399,90" in l for l in linhas)
+    lg = produtos.linhas_da_oferta(gta, None, None, cartoes)
+    assert any("custo efetivo R$ 399,90" in l for l in lg) and any("acima da meta" in l for l in lg)
+
+
+def test_alerta_da_ps_store_sem_meta_falsa_com_cartao_pequeno(dados):
+    _state(dados)
+    est = Estado("cloud")
+    g = _post_gift("Gift Card PlayStation Store R$ 60 por R$ 35 - Loja oficial PlayStation", 35.0,
+                   loja="Mercado Livre", oid="ml")
+    msgs, _al = gerar_alertas(est, [_ps_gta(), g], [])
+    assert not any("PlayStation Store</b>" in m.split("\n")[0] and "🎯" in m.split("\n")[0] for m in msgs), msgs
+    (gm,) = [m for m in msgs if "Gift card" in m.split("\n")[0]]
+    assert "sairia por" not in gm and "🔥" not in gm and "Standard R$ 399,90" in gm
+
+
+def test_alerta_da_ps_store_com_cartao_que_paga_o_jogo(dados):
+    _state(dados)
+    est = Estado("cloud")
+    msgs, _al = gerar_alertas(est, [_ps_gta(), _gift("Hype", 450, 360.0, "h450")], [])
+    (ps,) = [m for m in msgs if "PlayStation Store</b>" in m.split("\n")[0]]
+    assert "🎯" in ps.split("\n")[0] and "custo efetivo R$ 360,00" in ps
+
+
+def test_resumo_sem_a_linha_proporcional(dados):
+    _state(dados)
+    est = Estado("cloud")
+    txt = resumo_diario(est, [_ps_gta(), _gift("Hype", 150, 120.0, "h150")], [], vigia=True)
+    assert "sairia por" not in txt
+    assert "🧮 Standard digital com gift card: R$ 389,90" in txt     # 2 x R$ 150 a R$ 120 + R$ 149,90
+
+
+# ---- revisão de 26/10: gift card de outra região não resgata na conta BR ------------------------------------------
+
+@pytest.mark.parametrize("titulo", [
+    "Gift Card PSN US$ 50 Estados Unidos",
+    "PlayStation Store Gift Card 100 TRY Turkey",
+    "Gift Card PSN Turquia 500 TL",
+    "Gift Card PSN UK £20",
+    "PSN Card 1000 INR India",
+    "Cartão Presente PlayStation Store 20 EUR Portugal",
+    "Cartão Presente PlayStation Store 20€",
+    "Gift Card PSN R$ 100 Conta Americana",
+    "Gift card playstation R$ 100 HK",
+    "Gift Card PSN EUA R$ 300",
+    "Gift Card PlayStation USD 25",
+])
+def test_gift_card_de_outra_regiao_fica_de_fora(titulo):
+    c = produtos._classifica_titulo(titulo, "")
+    assert c.produto is None and c.motivo.startswith("gift card de outra região"), c
+
+
+@pytest.mark.parametrize("titulo,face", [
+    ("R$450 Gift Card PlayStation Store - Cartão Presente [Exclusivo Brasil]", 450.0),
+    ("Gift Card PlayStation Store R$ 100 para você usar na sua conta", 100.0),
+    ("Sony PlayStation Store Gift Card R$ 100", 100.0),
+    ("Cartão PSN R$ 150", 150.0),
+    ("Gift Card PlayStation Network 360 BRL", 360.0),
+])
+def test_gift_card_brasileiro_continua(titulo, face):
+    c = produtos._classifica_titulo(titulo, "")
+    assert c.produto == "GIFT_CARD_PSN" and c.detalhes.get("valor_face") == face
 
 
 def test_hype_le_os_cartoes_da_pagina(monkeypatch):

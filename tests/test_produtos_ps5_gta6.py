@@ -351,12 +351,13 @@ def test_custo_efetivo_do_digital_com_gift_card():
 def test_custo_final_do_gta_compara_todas_as_formas():
     linhas = produtos.custo_final_gta([
         _gta("Netshoes", preco=341.0, tipo="post", oid="n"), _gta("Amazon", preco=418.40, oid="a"),
-        Oferta("x", "post", "Nuuvem", "Gift Card PlayStation R$ 300", "u", "g", preco=242.74, modelo="GIFT_CARD_PSN",
+        Oferta("x", "post", "Nuuvem", "Gift Card PlayStation R$ 450", "u", "g", preco=360.0, modelo="GIFT_CARD_PSN",
                publicado=agora_iso()),
     ])
     assert linhas[0]["loja"] == "Netshoes" and linhas[0]["entrega"] == "depois"
     digital = [l for l in linhas if l["produto"] == "GTA6_DIGITAL"]
-    assert digital and digital[0]["custo_final"] < 365 and digital[0]["entrega"] == "digital"
+    # um cartão de R$ 450 a R$ 360 paga os R$ 449,90 (combinação de valores de face, revisão de 26/10)
+    assert digital and digital[0]["custo_final"] == 360.0 and digital[0]["entrega"] == "digital"
     assert [l["custo_final"] for l in linhas] == sorted(l["custo_final"] for l in linhas)
 
 
@@ -439,7 +440,9 @@ def test_gift_card_de_loja_oficial_ganha_alvo_e_mostra_o_custo_do_gta_digital(da
         _post("GIFT_CARD_PSN", "Gift Card PlayStation R$ 300", 230.0, "Eneba", "g2")])
     nuuvem, eneba = msgs
     assert nuuvem.startswith("📣 Promoção postada 🎯 · Gift card PlayStation")
-    assert "GTA 6 digital sairia por R$ 364,03" in nuuvem
+    # o custo do GTA 6 digital sai da combinação de valores de face (R$ 300 + R$ 149,90 no cartão), não do desconto
+    # proporcional (revisão de 26/10: era R$ 364,03, um custo que não dá para pagar com cartões de R$ 300)
+    assert "🧮 GTA 6 digital pago com este cartão: Standard R$ 392,64" in nuuvem and "sairia por" not in nuuvem
     assert not eneba.startswith("📣 Promoção postada 🎯") and "loja não oficial" in eneba
 
 
@@ -447,10 +450,11 @@ def test_digital_da_ps_store_alerta_pelo_custo_efetivo(dados):
     _state(dados, modelos_iniciados=["55C6K", "65C6K", "GTA6_DIGITAL"])
     ps = Oferta("psstore", "loja", "PlayStation Store", "Grand Theft Auto VI", "https://ps/s", "s", preco=449.90,
                 vendedor="PlayStation Store", modelo="GTA6_DIGITAL")
-    gift = _post("GIFT_CARD_PSN", "Gift Card PlayStation R$ 300", 242.74, "Nuuvem", "g1")
+    # cartão de R$ 450 a R$ 360 (20%): paga o jogo inteiro com um cartão só (custo da combinação, revisão de 26/10)
+    gift = _post("GIFT_CARD_PSN", "Gift Card PlayStation R$ 450", 360.0, "Nuuvem", "g1")
     est, msgs = _rodada([ps, gift])
     loja = [m for m in msgs if "PlayStation Store</b>" in m.split("\n")[0]]
-    assert loja and "🎯 Abaixo do alvo" in loja[0] and "custo efetivo R$ 364,03" in loja[0]
+    assert loja and "🎯 Abaixo do alvo" in loja[0] and "custo efetivo R$ 360,00" in loja[0]
 
 
 def test_modo_vigia_vale_so_para_as_tvs(dados, monkeypatch, capsys):

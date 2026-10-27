@@ -227,11 +227,11 @@ def test_entrega_lida_no_carrinho_antes_de_12_11_e_reprojetada(amb):
 # 3. (média) gift card da PlayStation só paga a PS Store
 # ------------------------------------------------------------------------------------------------
 
-def _gift(pub):
+def _gift(pub, face=100, preco=81.0):
     return Oferta(fonte="promobit", tipo="post", loja="Mercado Livre",
-                  titulo="Gift Card PlayStation R$ 100 - Loja oficial PlayStation", url="https://www.promobit.com.br/g/",
-                  id="g1", preco=81.0, modelo="GIFT_CARD_PSN", cupom="LOJASOFICIAIS",
-                  extra={"produto": {"valor_face": 100.0}}, publicado=pub)
+                  titulo=f"Gift Card PlayStation R$ {face} - Loja oficial PlayStation", url="https://www.promobit.com.br/g/",
+                  id="g1", preco=preco, modelo="GIFT_CARD_PSN", cupom="LOJASOFICIAIS",
+                  extra={"produto": {"valor_face": float(face)}}, publicado=pub)
 
 
 def _ps_store():
@@ -262,20 +262,24 @@ def test_gift_card_nao_desconta_chave_de_outra_loja():
 def test_alerta_da_chave_da_eneba_sem_meta_falsa(tmp_path, monkeypatch):
     e = _estado(tmp_path, monkeypatch)
     pub = agora_iso()
-    ofertas = [_ps_store(), _gift(pub), _chave_eneba(pub)]
+    # cartão de R$ 450 a R$ 364,50 (19%): um só paga o jogo (o custo é o da combinação de valores de face, revisão de
+    # 26/10; com 2 cartões de R$ 100 a R$ 81 sobram R$ 249,90 no cartão de crédito e o custo passa da meta)
+    ofertas = [_ps_store(), _gift(pub, 450, 364.50), _chave_eneba(pub)]
     confianca.avaliar(e, ofertas, rede=False)
     msgs, _ = gerar_alertas(e, ofertas, [])
     (eneba,) = [x for x in msgs if "Eneba" in x]
     assert "🎯" not in eneba.split("\n")[0] and "custo efetivo" not in eneba
     (ps,) = [x for x in msgs if "PlayStation Store" in x.split("\n")[0]]
-    assert "🎯" in ps.split("\n")[0] and "custo efetivo R$ 364,42" in ps
+    assert "🎯" in ps.split("\n")[0] and "custo efetivo R$ 364,50" in ps
 
 
 def test_custo_final_do_gta_nao_desconta_a_chave():
     pub = agora_iso()
     linhas = produtos.custo_final_gta([_ps_store(), _gift(pub), _chave_eneba(pub)])
     por_loja = {l["loja"]: l for l in linhas if l["produto"] == "GTA6_DIGITAL"}
-    assert por_loja["Eneba"]["custo_final"] == 420.0 and por_loja["PlayStation Store"]["custo_final"] == 364.42
+    # PS Store: 2 cartões de R$ 100 a R$ 81 (até 2 do mesmo anúncio) + R$ 249,90 no cartão de crédito (combinação de
+    # valores de face, revisão de 26/10)
+    assert por_loja["Eneba"]["custo_final"] == 420.0 and por_loja["PlayStation Store"]["custo_final"] == 411.90
     assert "PS Store" not in por_loja["Eneba"]["forma"] and "Eneba" in por_loja["Eneba"]["forma"]
     assert linhas[0]["loja"] == "PlayStation Store"
 

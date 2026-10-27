@@ -397,7 +397,9 @@ def _ascii(s: Any) -> str:
 
 def normaliza(texto: Any) -> str:
     """Minúsculo, sem acento, sem ®/™, espaços simples; 'PS 5' vira 'ps5', 'PlayStation5' vira 'playstation 5'."""
-    t = _ascii(str(texto or "").replace("®", " ").replace("™", " ").replace("©", " "))
+    t = str(texto or "").replace("®", " ").replace("™", " ").replace("©", " ")
+    # o símbolo da moeda some no ASCII: vira o código ("Gift Card PSN UK £20" -> "gbp 20"; gift card de outra região)
+    t = _ascii(t.replace("£", " gbp ").replace("€", " eur ").replace("¥", " jpy "))
     t = re.sub(r"\bps\s+5\b", "ps5", t)
     t = re.sub(r"\bplay\s?station\s?5\b", "playstation 5", t)
     t = re.sub(r"\bplay\s+station\b", "playstation", t)
@@ -570,6 +572,17 @@ _RE_GIFT = re.compile(
     r"\bgift\s?cards?\b|\bcart(?:ao|oes) (?:presente|psn|playstation|ps store|pre-?pago)\b|\bvale[\s-]presentes?\b|"
     r"\bpsn cards?\b|\b(?:credito|creditos|saldo) (?:na |da |de )?(?:psn|playstation|ps store)\b|"
     r"\bplaystation store card\b|\bcartao da playstation\b")
+# gift card de outra região (revisão de 26/10/2026): os termos da PSN (9.1) e a página de resgate dizem que o cartão só
+# resgata em conta do país dele, e a conta do usuário é brasileira ("Gift Card PSN US$ 50 Estados Unidos", "PlayStation
+# Store Gift Card 100 TRY Turkey", "Gift Card PSN R$ 100 Conta Americana"). Sem o "eu" (de "você", "seu")
+_RE_GIFT_ESTRANGEIRO = re.compile(
+    r"\busd\b|\bus\s?\$|\bus\b|\bdolar(?:es)?\b|\beua\b|\bestados unidos\b|\busa\b|\bunited states\b|"
+    r"\bamerican[oa]s?\b|\bturquia\b|\bturkey\b|\bturkish\b|\btry\b|\btl\b|\buk\b|\bgbp\b|\breino unido\b|"
+    r"\binglaterra\b|\beur\b|\beuros?\b|\beuropa\b|\beuropeu\b|\bportugal\b|\bindia\b|\binr\b|\bhk\b|\bhong kong\b|"
+    r"\bargentin[ao]s?\b|\bars\b|\bjapan\b|\bjapao\b|\bjapones[a]?\b|\bjpy\b|\bmexico\b|\bcanada\b|\bchile\b|"
+    r"\bcolombia\b|\bespanha\b|\bspain\b|\balemanha\b|\bgermany\b|\bsaudi\b|\bksa\b|\buae\b|\bemirados\b|"
+    r"\bindonesia\b|\binternacional\b|\binternational\b|\bglobal\b|\bgring[oa]\b|"
+    r"\bconta (?:americana|estrangeira|gringa|de outr[oa] (?:pais|regiao))\b")
 _RE_GIFT_OUTRA_LOJA = re.compile(r"\bxbox\b|\bnintendo\b|\bsteam\b|\bgoogle play\b|\bapple\b|\bitunes\b|\bifood\b|"
                                  r"\buber\b|\bnetflix\b|\bspotify\b|\broblox\b|\bfree ?fire\b|\briot\b|\bvalorant\b|"
                                  r"\bblizzard\b|\brazer\b|\bamazon\b|\bep?ic games\b")
@@ -651,25 +664,60 @@ _RE_ANTES_NAO_FACE = re.compile(r"(?:\d{1,2}\s?x\s?(?:de\s?)?|minim[oa]\s?(?:de\
 # quantidade de cartões ("2x R$ 100 por R$ 150", Mercado Livre em 07/09/2026): o valor de face do pacote é a soma. Parcela
 # ("4x R$ 112 sem juros") não é quantidade
 _RE_QTD_CARTOES = re.compile(r"\b([2-5])\s?x\s?r\$\s?(\d{2,4})(?:[.,]00)?\b(?!.{0,14}juros)")
+# o que vem antes do valor e diz que ele é o PREÇO, um limite ou um bônus, não o valor de face (revisão de 26/10: "R$ 150
+# por R$ 135 - limite de R$ 300 por CPF", "ganhe R$ 450 em cashback", "até R$ 500 por CPF", "leve 3 e pague R$ 400")
+_RE_ANTES_PRECO_OU_LIMITE = re.compile(
+    r"(?:\bpor|\bsai|\bsai por|\bsai a|\bapenas|\bso|\bsomente|\bpague|\bpaga|\bcusta|\bpreco(?: de)?|\bate|"
+    r"\blimite(?: de)?|\bmaxim[oa](?: de)?|\bteto(?: de)?|\bganhe|\bcashback(?: de)?|\beconomize|\bdesconto(?: de)?|"
+    r"\bbonus(?: de)?)\s*:?\s*$")
+# o que vem depois e diz o mesmo ("R$ 300 por CPF", "R$ 450 em cashback", "R$ 20 de volta")
+_RE_DEPOIS_LIMITE = re.compile(
+    r"^\s*(?:por\s+(?:cpf|pedido|cliente|conta|pessoa|usuario|compra)\b|(?:em|de)\s+(?:cashback|volta|bonus|desconto)\b|"
+    r"de\s+limite\b|cashback\b)")
+# lista de valores numa postagem só ("Gift Card PSN R$ 60, R$ 100 e R$ 300 com 10% OFF"): o preço é de qual?
+_RE_ENTRE_LISTA = re.compile(r"\s*(?:,|/|\||;|\be\b|\bou\b)\s*")
+# o valor que vem junto do nome do cartão ("gift card PlayStation de R$ 100", "R$ 100 gift card")
+_RE_NOME_ANTES = re.compile(r"(?:gift\s?cards?|cart(?:ao|oes)(?: presente)?|psn cards?|vale[\s-]presentes?)"
+                            r"[a-z\s:\-\[\]]{0,32}$")
+_RE_NOME_DEPOIS = re.compile(r"^\s*(?:-\s*)?(?:gift\s?cards?|cart(?:ao|oes)|psn cards?|vale[\s-]presentes?)\b")
+# os valores de face que as lojas oficiais vendem (Hype e KaBuM em 26/10/2026)
+FACES_GIFT_CONHECIDAS = (35.0, 60.0, 100.0, 150.0, 250.0, 300.0, 360.0, 400.0, 450.0, 530.0, 550.0, 570.0, 700.0)
 
 
 def valor_face(texto: Any) -> Optional[float]:
-    """Valor de face de um gift card no título ("Gift Card PlayStation R$ 300", "Cartão PSN 100 reais"). Com mais de um
-    valor ("por R$ 85 o gift card de R$ 100", "R$ 300 por R$ 250") vale o MAIOR: o preço do cartão nunca passa do valor
-    de face. Parcela ("10x R$ 48") e compra mínima ("mínimo R$ 450") não contam; "2x R$ 100" vale R$ 200."""
+    """Valor de face de um gift card no título ("Gift Card PlayStation R$ 300", "Cartão PSN 100 reais"). Não contam:
+    - o preço ("R$ 300 por R$ 250", "por R$ 85 o gift card de R$ 100"), a parcela ("10x R$ 48") e a compra mínima
+      ("mínimo R$ 450");
+    - limite, bônus e cashback ("limite de R$ 300 por CPF", "até R$ 500 por CPF", "ganhe R$ 450 em cashback").
+    "2x R$ 100" vale R$ 200. Com mais de um valor que sobra: o que vem junto do nome do cartão; senão, o único que é um
+    valor de face vendido (FACES_GIFT_CONHECIDAS). Lista de valores ("R$ 60, R$ 100 e R$ 300 com 10% OFF") ou caso
+    ambíguo: None (a postagem sai sem meta)."""
     t = normaliza(texto)
-    vals = []
+    cands: list[tuple[int, int, float]] = []   # (início, fim, valor)
     for m in _RE_VALOR_FACE.finditer(t):
-        if _RE_ANTES_NAO_FACE.search(t[max(0, m.start() - 16):m.start()]):
+        antes = t[max(0, m.start() - 24):m.start()]
+        if _RE_ANTES_NAO_FACE.search(antes[-16:]) or _RE_ANTES_PRECO_OU_LIMITE.search(antes) or \
+                _RE_DEPOIS_LIMITE.match(t[m.end():m.end() + 24]):
             continue
         v = float(m.group(1) or m.group(2))
         if 10 <= v <= 2000:
-            vals.append(v)
+            cands.append((m.start(), m.end(), v))
     for m in _RE_QTD_CARTOES.finditer(t):
         v = int(m.group(1)) * float(m.group(2))
         if 10 <= v <= 2000:
-            vals.append(v)
-    return max(vals) if vals else None
+            cands.append((m.start(), m.end(), v))
+    cands.sort()
+    if not cands:
+        return None
+    if len({v for _i, _f, v in cands}) == 1:
+        return cands[0][2]
+    if any(_RE_ENTRE_LISTA.fullmatch(t[a[1]:b[0]]) for a, b in zip(cands, cands[1:])):
+        return None   # lista de valores: não dá para saber de qual é o preço
+    junto = [v for i, f, v in cands if _RE_NOME_ANTES.search(t[max(0, i - 48):i]) or _RE_NOME_DEPOIS.match(t[f:])]
+    if junto:
+        return junto[0]
+    conhecidas = {v for _i, _f, v in cands if v in FACES_GIFT_CONHECIDAS}
+    return conhecidas.pop() if len(conhecidas) == 1 else None
 
 
 def _extras_do_console(t: str, base: str, generico: bool = True) -> list[dict]:
@@ -822,6 +870,10 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
             return _r("gift card de outra loja")
         if not re.search(r"\bplaystation\b|\bpsn\b|\bps store\b|\bsony\b|\bps5\b", t):
             return _r("sem produto")
+        m_reg = _RE_GIFT_ESTRANGEIRO.search(t)
+        if m_reg:
+            # não resgata na conta brasileira (termos da PSN, 9.1): fora do produto, nem a postagem sai
+            return _r("gift card de outra região: " + m_reg.group(0).strip())
         return _ok("GIFT_CARD_PSN", valor_face=valor_face(t))
     # "PS5 Digital + GTA VI" (sem a palavra console) é o pacote, não o jogo digital: a identidade do console conta aqui
     console_forte = bool(_RE_CONSOLE_FORTE.search(t)) or bool(gta and _RE_IDENTIDADE_CONSOLE.search(t))
@@ -1466,7 +1518,9 @@ def gift_para_painel(ofertas: Iterable[Any]) -> dict:
 
 def desconto_gift_card(ofertas: Iterable[Any], dias: float = 7.0) -> Optional[tuple[float, Any]]:
     """(maior desconto, oferta) de gift card da PlayStation em loja oficial entre as ofertas/postagens ativas e
-    recentes da rodada. None sem nenhum."""
+    recentes da rodada, em cartão de R$ 100 ou mais (FACE_GIFT_MINIMA_META) e com preço público (sem assinatura). None
+    sem nenhum. O custo de verdade do jogo sai da combinação de valores de face (combinacao_gift, com `cartoes`): este
+    desconto é só a referência do texto e do cálculo antigo (proporcional)."""
     from .util import dias_desde
 
     melhor: Optional[tuple[float, Any]] = None
@@ -1482,8 +1536,10 @@ def desconto_gift_card(ofertas: Iterable[Any], dias: float = 7.0) -> Optional[tu
             continue
         face = detalhes_de(o).get("valor_face")
         preco = _melhor_preco(o)
-        if not face or not preco or preco >= face or not _loja_oficial_gift(o):
+        if not face or not preco or preco >= face or not _loja_oficial_gift(o) or exige_assinatura(o):
             continue
+        if face < FACE_GIFT_MINIMA_META:
+            continue   # cartão pequeno (R$ 35/60): o desconto dele não vale para o jogo inteiro (revisão de 26/10)
         desc = 1 - preco / face
         if desc > 0.6:
             continue   # desconto absurdo: não é referência
@@ -1556,14 +1612,30 @@ def paga_com_gift_card(o: Any) -> bool:
     return loja == "PlayStation Store"
 
 
-def preco_comparavel(o: Any, desconto_gift: Optional[float] = None) -> Optional[float]:
+def custo_com_gift(preco: float, desconto_gift: Optional[float] = None,
+                   cartoes: Optional[list[dict]] = None) -> float:
+    """Quanto sai pagar `preco` na PS Store com gift card. Com `cartoes` (os de loja oficial da rodada, cartoes_gift): a
+    melhor combinação de valores de face (combinacao_gift: saldo primeiro, resto no cartão de crédito, até 2 cartões do
+    mesmo anúncio, limite da carteira); sem combinação que saia mais barata, o próprio preço. Sem a lista: o cálculo
+    antigo, proporcional ao `desconto_gift`."""
+    if cartoes is not None:
+        comb = combinacao_gift(preco, cartoes) if cartoes else None
+        return comb["custo"] if comb else round(preco, 2)
+    return round(preco * (1 - desconto_gift), 2) if desconto_gift else round(preco, 2)
+
+
+def preco_comparavel(o: Any, desconto_gift: Optional[float] = None,
+                     cartoes: Optional[list[dict]] = None) -> Optional[float]:
     """O preço que se compara com a meta: o melhor preço (Pix/à vista), ou o preço com o cupom da página do anúncio
     (preco_com_cupom_do_anuncio, só nos produtos que não são TV); no produto digital vendido na PS Store, o custo
-    efetivo pagando com gift card comprado com o maior desconto visto (quando ele existe). Em outra loja o gift card
-    não paga: vale o preço dela."""
+    efetivo pagando com gift card: com `cartoes` (cartoes_gift da rodada), a melhor combinação de valores de face
+    (revisão de 26/10: o proporcional dava 🎯 falso com cartão pequeno ou com poucos cartões); sem eles, o preço com o
+    maior desconto visto (`desconto_gift`, cálculo antigo). Em outra loja o gift card não paga: vale o preço dela."""
     p = _melhor_preco(o)
-    if p and desconto_gift and produto(_pid(o)) and produto(_pid(o)).digital and paga_com_gift_card(o):
-        return round(p * (1 - desconto_gift), 2)
+    if p and (desconto_gift or cartoes) and produto(_pid(o)) and produto(_pid(o)).digital and paga_com_gift_card(o):
+        c = custo_com_gift(p, desconto_gift, cartoes)
+        if c < p - 0.005:
+            return c
     cc = preco_com_cupom_do_anuncio(o)
     if cc:
         return cc[0]
@@ -1599,7 +1671,8 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
     tempo?), o custo efetivo do digital com gift card, no gift card quanto o GTA digital sairia e, no GTA 6 avulso, a
     Ultimate digital × Standard + upgrade pelo custo final (`ultimate`: comparacao_ultimate das ofertas da rodada; sem
     ela, só esta oferta e os preços oficiais da PS Store). `cartoes`: os gift cards de loja oficial da rodada
-    (cartoes_gift): no gift card, o custo do GTA 6 digital com a melhor combinação deles."""
+    (cartoes_gift): o custo efetivo do digital da PS Store e, no gift card, o custo do GTA 6 digital saem da melhor
+    combinação deles (sem `cartoes`, o cálculo antigo, proporcional a `desconto_gift`)."""
     pid = _pid(o)
     p = produto(pid)
     if p is None or p.familia == FAMILIA_TV:
@@ -1607,13 +1680,23 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
     out: list[str] = []
     alvo = alvos_da_oferta(o)
     desc = desconto_gift[0] if desconto_gift else None
-    valor = preco_comparavel(o, desc)
-    if p.digital and desc and valor != _melhor_preco(o):
-        out.append(f"💳 Com gift card a {desc * 100:.0f}% de desconto: custo efetivo {_fmt(valor)}")
-    elif p.digital and desc and not paga_com_gift_card(o) and p.preco_oficial:
+    valor = preco_comparavel(o, desc, cartoes)
+    p_loja = _melhor_preco(o)
+    if p.digital and (desc or cartoes) and valor != p_loja:
+        if cartoes is not None:
+            # o custo de verdade: a melhor combinação de valores de face da rodada (a mesma conta da linha 🧮)
+            comb = combinacao_gift(p_loja, cartoes)
+            out.append(f"💳 Pagando com gift card: custo efetivo {_fmt(valor)}"
+                       + (f" ({texto_cartoes(comb)})" if comb else ""))
+        else:
+            out.append(f"💳 Com gift card a {desc * 100:.0f}% de desconto: custo efetivo {_fmt(valor)}")
+    elif p.digital and (desc or cartoes) and not paga_com_gift_card(o) and p.preco_oficial:
         # chave/código de outra loja: o gift card não paga aqui; para comparar, a PS Store com o gift card
-        out.append(f"💳 O gift card PSN só paga na PS Store: lá, com gift card a {desc * 100:.0f}% de desconto, "
-                   f"sai por {_fmt(round(p.preco_oficial * (1 - desc), 2))}")
+        na_ps = custo_com_gift(p.preco_oficial, desc, cartoes)
+        if na_ps < p.preco_oficial - 0.005:
+            como = "com a melhor combinação de gift cards vista" if cartoes is not None else \
+                f"com gift card a {desc * 100:.0f}% de desconto"
+            out.append(f"💳 O gift card PSN só paga na PS Store: lá, {como}, sai por {_fmt(na_ps)}")
     cc = preco_com_cupom_do_anuncio(o)
     if cc and valor == cc[0]:
         out.append(f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
@@ -1637,24 +1720,23 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
     if e:
         out.append(e.texto)
     if pid in EDICAO_GTA6:
-        comp = ultimate if ultimate is not None else comparacao_ultimate([o], desconto_gift)
-        lu = linha_ultimate(o, comp, desc)
+        comp = ultimate if ultimate is not None else comparacao_ultimate([o], desconto_gift, cartoes)
+        lu = linha_ultimate(o, comp, desc, cartoes)
         if lu:
             out.append(lu)
     if pid == "GIFT_CARD_PSN":
         face, preco = det.get("valor_face"), _melhor_preco(o)
         if face and preco and preco < face:
             d = 1 - preco / face
-            custos = custo_digital_com_gift(d)
-            out.append(f"💳 Desconto de {d * 100:.0f}% sobre {_fmt(face)}: GTA 6 digital sairia por "
-                       f"{_fmt(custos.get('GTA6_DIGITAL'))} (meta {_fmt(_alvo_base('GTA6_DIGITAL')[0])}), Ultimate "
-                       f"{_fmt(custos.get('GTA6_ULTIMATE'))}, upgrade {_fmt(custos.get('GTA6_UPGRADE'))}")
+            # sem a conta proporcional (preço × (1 - desconto)): ela não respeita os valores de face nem o limite de
+            # cartões e contradizia a linha 🧮 abaixo (revisão de 26/10)
+            out.append(f"💳 Desconto de {d * 100:.0f}% sobre {_fmt(face)}")
             if not _loja_oficial_gift(o):
                 out.append("⚠️ loja não oficial para gift card (a decisão é comprar só na PS Store, Hype, Nuuvem, na "
                            "loja oficial PlayStation do Mercado Livre ou vendido pela própria KaBuM, Americanas, Amazon "
                            "ou Magalu)")
             else:
-                if d >= DESCONTO_GIFT_EXCELENTE - 1e-9:
+                if d >= DESCONTO_GIFT_EXCELENTE - 1e-9 and face >= FACE_GIFT_MINIMA_META:
                     out.append(f"🔥 Desconto excelente ({DESCONTO_GIFT_EXCELENTE * 100:.0f}% ou mais; raro nas lojas "
                                "oficiais)")
                 # o custo de verdade do GTA 6 digital: cartões de valor fixo, saldo primeiro e o resto no cartão de
@@ -1713,7 +1795,7 @@ def _attr(o: Any, k: str, padrao: Any = None) -> Any:
     return o.get(k, padrao) if isinstance(o, dict) else getattr(o, k, padrao)
 
 
-def _custo_do_gta(o: Any, desconto_gift: Optional[float]) -> Optional[float]:
+def _custo_do_gta(o: Any, desconto_gift: Optional[float], cartoes: Optional[list[dict]] = None) -> Optional[float]:
     """O custo final de uma oferta/postagem do GTA 6 (o preço comparável), ou None quando ela não conta: inativa, sem
     preço, só para assinante (o usuário só tem Nubank/NuPay) ou postagem com mais de 7 dias."""
     from .util import dias_desde
@@ -1725,32 +1807,36 @@ def _custo_do_gta(o: Any, desconto_gift: Optional[float]) -> Optional[float]:
         d = dias_desde(_attr(o, "publicado") or _attr(o, "primeira_vez"))
         if d is not None and d > 7:
             return None
-    return preco_comparavel(o, desconto_gift)
+    return preco_comparavel(o, desconto_gift, cartoes)
 
 
-def _oficial(pid: str, desconto_gift: Optional[float]) -> float:
+def _oficial(pid: str, desconto_gift: Optional[float], cartoes: Optional[list[dict]] = None) -> float:
     p = produto(pid).preco_oficial
-    return round(p * (1 - desconto_gift), 2) if desconto_gift else p
+    return custo_com_gift(p, desconto_gift, cartoes) if (desconto_gift or cartoes is not None) else p
 
 
-def comparacao_ultimate(ofertas: Iterable[Any], gift: Optional[tuple[float, Any]] = None) -> dict:
+def comparacao_ultimate(ofertas: Iterable[Any], gift: Optional[tuple[float, Any]] = None,
+                        cartoes: Optional[list[dict]] = None) -> dict:
     """A Ultimate pelo custo final: a Ultimate digital × a Standard (Code in Box ou digital) + o upgrade.
 
     Vale o mais barato visto de cada um (o preço comparável: com o cupom do anuncio, ou com o gift card na PS Store);
     sem oferta vista, o preço oficial da PS Store (Ultimate R$ 549,90, upgrade R$ 100, Standard digital R$ 449,90),
     com o gift card quando há um. Devolve {'ultimate', 'upgrade', 'standard' (o mais barato), 'standards' (o melhor de
     cada forma), 'standard_mais_upgrade', 'mais_barato' ('standard+upgrade' | 'ultimate' | 'empate'), 'diferenca',
-    'meta_ultimate'}; cada item tem custo, loja, url, produto, forma, oficial (preço oficial, sem oferta) e entrega."""
+    'meta_ultimate'}; cada item tem custo, loja, url, produto, forma, oficial (preço oficial, sem oferta) e entrega.
+    `cartoes` (cartoes_gift): o custo na PS Store sai da melhor combinação de valores de face; sem `gift` nem
+    `cartoes`, os dois saem das próprias ofertas."""
     ofertas = list(ofertas)
-    if gift is None:
+    if gift is None and cartoes is None:
         gift = desconto_gift_card(ofertas)
+        cartoes = cartoes_gift(ofertas)
     d = gift[0] if gift else None
     melhor: dict[str, tuple[float, Any]] = {}
     for o in ofertas:
         pid = _pid(o)
         if pid not in EDICAO_GTA6:
             continue
-        c = _custo_do_gta(o, d)
+        c = _custo_do_gta(o, d, cartoes)
         if c is None:
             continue
         atual = melhor.get(pid)
@@ -1765,7 +1851,7 @@ def comparacao_ultimate(ofertas: Iterable[Any], gift: Optional[tuple[float, Any]
                     "forma": FORMA_STANDARD.get(pid, nome(pid)), "oficial": False, "entrega": _classe_entrega(o)}
         if pid == "GTA6_CODE_IN_BOX":
             return None   # o Code in Box não tem preço oficial na PS Store
-        return {"produto": pid, "custo": _oficial(pid, d), "loja": "PlayStation Store", "url": None,
+        return {"produto": pid, "custo": _oficial(pid, d, cartoes), "loja": "PlayStation Store", "url": None,
                 "forma": FORMA_STANDARD.get(pid, nome(pid)), "oficial": True, "entrega": "digital"}
 
     standards = [s for s in (item("GTA6_CODE_IN_BOX"), item("GTA6_DIGITAL")) if s]
@@ -1795,13 +1881,14 @@ def _conclusao_ultimate(soma: float, ultimate: float) -> str:
     return f"a Ultimate digital sai {_fmt(dif)} mais barata"
 
 
-def linha_ultimate(o: Any, comp: dict, desconto_gift: Optional[float] = None) -> Optional[str]:
+def linha_ultimate(o: Any, comp: dict, desconto_gift: Optional[float] = None,
+                   cartoes: Optional[list[dict]] = None) -> Optional[str]:
     """A linha "🆚" do alerta de uma oferta do GTA 6 avulso: a Ultimate digital × Standard + upgrade pelo custo final,
     com esta oferta no seu papel (a Standard, a Ultimate ou o upgrade). None para os outros produtos."""
     pid = _pid(o)
     if pid not in EDICAO_GTA6 or exige_assinatura(o):
         return None
-    esta = preco_comparavel(o, desconto_gift)
+    esta = preco_comparavel(o, desconto_gift, cartoes)
     if not esta:
         return None
     ult, up, std = comp["ultimate"], comp["upgrade"], comp["standard"]
@@ -1831,10 +1918,12 @@ def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
       visto, na PS Store);
     - Ultimate (só digital no Brasil): a Ultimate digital (oferta vista ou o preço oficial) e a Standard + o upgrade de
       R$ 100 (linha 'calculo' com 'via' = a forma da Standard: o melhor Code in Box e o melhor digital + o upgrade).
-    Só ofertas/postagens ativas. A Ultimate nunca é cortada pelo limite de linhas."""
+    Só ofertas/postagens ativas. A Ultimate nunca é cortada pelo limite de linhas. O custo na PS Store com gift card
+    sai da melhor combinação de valores de face dos cartões de loja oficial vistos (cartoes_gift/combinacao_gift)."""
     ofertas = list(ofertas)
     gift = desconto_gift_card(ofertas)
     d = gift[0] if gift else None
+    cartoes = cartoes_gift(ofertas)
     linhas: list[dict] = []
     for o in ofertas:
         pid = _pid(o)
@@ -1843,7 +1932,7 @@ def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
         p = _melhor_preco(o)
         if _attr(o, "ativo", True) is False or not p or exige_assinatura(o):
             continue   # preço só de assinante (Prime, Meli+...) não é o custo final do usuário (só Nubank/NuPay)
-        custo = preco_comparavel(o, d)
+        custo = preco_comparavel(o, d, cartoes)
         cc = preco_com_cupom_do_anuncio(o)
         e = entrega(o)
         loja = _attr(o, "loja")
@@ -1861,19 +1950,20 @@ def custo_final_gta(ofertas: Iterable[Any]) -> list[dict]:
     for pid in ("GTA6_DIGITAL", "GTA6_ULTIMATE"):
         # o digital pelo preço oficial (com o gift card, quando há): a Ultimate sempre (é a referência da comparação); a
         # Standard digital só com o gift card (sem ele, a PS Store já está na tabela quando a fonte dela respondeu)
-        custo = _oficial(pid, d)
-        if (pid == "GTA6_DIGITAL" and not gift) or any(l["produto"] == pid and l["custo_final"] <= custo
+        comb = combinacao_gift(produto(pid).preco_oficial, cartoes) if cartoes else None
+        custo = comb["custo"] if comb else produto(pid).preco_oficial
+        if (pid == "GTA6_DIGITAL" and not comb) or any(l["produto"] == pid and l["custo_final"] <= custo
                                                        for l in linhas):
             continue
-        texto = f"gift card a {d * 100:.0f}% de desconto" if gift else "libera às 00:00 de 19/11 (digital)"
+        texto = f"gift card: {texto_cartoes(comb)}" if comb else "libera às 00:00 de 19/11 (digital)"
         linhas.append({"produto": pid, "edicao": edicao_gta(pid),
-                       "forma": nome(pid) + (" (preço oficial + gift card)" if gift else " (preço oficial)"),
+                       "forma": nome(pid) + (" (preço oficial + gift card)" if comb else " (preço oficial)"),
                        "loja": "PlayStation Store", "tipo": "calculo",
-                       "url": _attr(gift[1], "url") if gift else None, "preco": produto(pid).preco_oficial,
+                       "url": comb["cartoes"][0].get("url") if comb else None, "preco": produto(pid).preco_oficial,
                        "custo_final": custo, "entrega": "digital", "entrega_texto": texto,
                        "meta": _alvo_base(pid)[0]})
     # a Ultimate pela Standard + upgrade: o melhor de cada forma da Standard (já com o gift card) + o upgrade
-    up = comparacao_ultimate(ofertas, gift)["upgrade"]
+    up = comparacao_ultimate(ofertas, gift, cartoes)["upgrade"]
     for via, forma in FORMA_STANDARD.items():
         base = sorted((l for l in linhas if l["produto"] == via and l["custo_final"]),
                       key=lambda l: (l["custo_final"], _ORDEM_ENTREGA.get(l["entrega"] or "", 1)))

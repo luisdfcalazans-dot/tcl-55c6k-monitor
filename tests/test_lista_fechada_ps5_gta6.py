@@ -458,12 +458,13 @@ def test_custo_final_mostra_as_duas_edicoes_e_o_standard_mais_upgrade():
 
 
 def test_custo_final_com_gift_card_desconta_a_ultimate_e_o_upgrade():
-    d = 1 - 242.74 / 300
     linhas = produtos.custo_final_gta([_cib(), _ps("GTA6_ULTIMATE", 549.90, URL_ULT, "u"), _gift_nuuvem()])
     (ult,) = [l for l in linhas if l["produto"] == "GTA6_ULTIMATE" and l["tipo"] == "loja"]
-    assert ult["custo_final"] == round(549.90 * (1 - d), 2)
+    # combinação de valores de face (revisão de 26/10): 2 cartões de R$ 300 a R$ 242,74 pagam os R$ 549,90
+    assert ult["custo_final"] == round(2 * 242.74, 2)
     (combo,) = [l for l in linhas if l.get("via") == "GTA6_CODE_IN_BOX"]
-    assert combo["custo_final"] == round(418.41 + round(100.0 * (1 - d), 2), 2)   # o upgrade é pago na PS Store
+    # o upgrade de R$ 100 com um cartão de R$ 300 sai mais caro que pagar direto: fica o preço oficial
+    assert combo["custo_final"] == round(418.41 + 100.0, 2)
 
 
 def test_custo_final_sem_ultimate_vista_usa_o_preco_oficial():

@@ -448,7 +448,7 @@ def loja_canonica(nome: str) -> str:
     if n in config.LOJAS_CANONICAS:
         return config.LOJAS_CANONICAS[n]
     for k, v in config.LOJAS_CANONICAS.items():
-        if k in n:
+        if k in n and k not in config.LOJAS_SO_NOME_INTEIRO:
             return v
     return (nome or "").strip() or "?"
 

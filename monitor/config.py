@@ -345,8 +345,11 @@ LOJAS_CANONICAS = {
     # PS5 e GTA 6 (pesquisa de 03/10/2026): lojas confiáveis e as que só aparecem pelas postagens
     "netshoes": "Netshoes", "playstation store": "PlayStation Store", "ps store": "PlayStation Store",
     "store.playstation.com": "PlayStation Store", "nuuvem": "Nuuvem", "hype games": "Hype", "hypegames": "Hype",
-    "hype.games": "Hype", "hype": "Hype",
+    "hype.games": "Hype", "hype": "Hype",   # "hype" sozinho só casa com o nome inteiro (LOJAS_SO_NOME_INTEIRO)
     "sams club": "Sam's Club", "sam's club": "Sam's Club", "samsclub": "Sam's Club", "terabyte": "Terabyte",
     "terabyteshop": "Terabyte", "inpower": "Inpower", "havan": "Havan", "loja vivo": "Loja Vivo",
     "pichau": "Pichau", "ibyte": "iBYTE", "eneba": "Eneba", "ubiqplay": "UbiqPlay", "tiktok shop": "TikTok Shop",
 }
+# chaves curtas que só valem com o nome inteiro (sem casar por pedaço do nome): "hype" não é a Hype em "HyperX",
+# "Hyper Games" nem "Cyberhype" (revisão de 26/10/2026: a Hype é loja oficial de gift card e está na lista de confiáveis)
+LOJAS_SO_NOME_INTEIRO = {"hype"}
