@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-27T09:19:52-03:00",
+ "atualizado": "2026-10-27T13:52:23-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -251,39 +251,6 @@
  },
  "ofertas_loja": [
   {
-   "fonte": "hype",
-   "tipo": "loja",
-   "loja": "Hype",
-   "titulo": "R$35 Gift Card PlayStation Store - Cartão Presente [Exclusivo Brasil]",
-   "url": "https://hype.games/br/product/r-35-gift-card-playstation-store-cartao-presente-exclusivo-brasil",
-   "id": "29625",
-   "preco": 35.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Hype",
-   "extra": {
-    "preco_tabela": 35.0,
-    "vendedor_marca": "Sony",
-    "produto": {
-     "valor_face": 35.0
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "cartão abaixo de R$ 100 (pouco abate no GTA 6)"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "hype:29625",
-   "melhor_preco": 35.0
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -494,15 +461,15 @@
    "titulo": "Videogame PlayStation 5 The Callisto Protocol Day One Edition",
    "url": "https://www.magazineluiza.com.br/videogame-playstation-5-the-callisto-protocol-day-one-edition-krafton/p/jkehe6d5fc/ga/jgpn/",
    "id": "jkehe6d5fc-nocnocestadosunidos",
-   "preco": 255.3,
-   "preco_pix": 242.54,
-   "parcelado": "7x R$ 36,47 sem juros",
+   "preco": 250.7,
+   "preco_pix": 238.17,
+   "parcelado": "7x R$ 35,81 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": false,
    "vendedor": "nocnocestadosunidos",
    "extra": {
-    "preco_de": 269.84,
+    "preco_de": 264.98,
     "1p": false,
     "anuncio": "jkehe6d5fc",
     "vendedor_id": "nocnocestadosunidos",
@@ -527,7 +494,7 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:jkehe6d5fc-nocnocestadosunidos",
-   "melhor_preco": 242.54
+   "melhor_preco": 238.17
   },
   {
    "fonte": "kabum.produtos",
@@ -1267,6 +1234,50 @@
    "melhor_preco": 4199.0
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
+   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony/p/240604800/ga/gap5/",
+   "id": "240604800-magazineluiza",
+   "preco": 4649.0,
+   "preco_pix": 4277.08,
+   "parcelado": "10x R$ 464,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 4999.0,
+    "1p": true,
+    "anuncio": "240604800",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 1129,
+     "peso_kg": 4.9,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:240604800-magazineluiza",
+   "melhor_preco": 4277.08
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -1702,50 +1713,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "americanas:Americanas-8269631-1",
    "melhor_preco": 4599.99
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
-   "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony/p/240604800/ga/gap5/",
-   "id": "240604800-magazineluiza",
-   "preco": 4649.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 464,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu",
-   "extra": {
-    "preco_de": 4999.0,
-    "1p": true,
-    "anuncio": "240604800",
-    "vendedor_id": "magazineluiza",
-    "ficha": {
-     "avaliacoes": 1129,
-     "peso_kg": 4.9,
-     "razao_social": "Magazine Luiza SA",
-     "vendedor_desde": "2016-06-01",
-     "vendas_vendedor": 200000000,
-     "nota_vendedor": 5
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:240604800-magazineluiza",
-   "melhor_preco": 4649.0
   },
   {
    "fonte": "kabum.produtos",
@@ -2657,41 +2624,6 @@
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
-   "titulo": "Console Playstation 5 Slim Digital 825gb SSD 1 Controle Dualsense",
-   "url": "https://www.kabum.com.br/produto/1004851",
-   "id": "1004851",
-   "preco": 6509.9,
-   "preco_pix": 6184.41,
-   "parcelado": "10x de R$ 650,99 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Loja Gazin",
-   "extra": {
-    "preco_tabela": 6509.9,
-    "openbox": false,
-    "kabum_seller_id": "8145",
-    "kabum_oferta_id": 2980774,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:1004851",
-   "melhor_preco": 6184.41
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
    "titulo": "Console Sony Playstation 5 Cfi-2114a, Leitor De Disco, SSD 1TB, 16gb Gddr6",
    "url": "https://www.kabum.com.br/produto/953110",
    "id": "953110",
@@ -2857,11 +2789,11 @@
    "parcelado": null,
    "cupom": null,
    "publicado": "2026-10-27T00:54:31-03:00",
-   "ativo": true,
+   "ativo": false,
    "vendedor": null,
    "extra": {
     "preco_antigo": 5505.36,
-    "status": "APPROVED",
+    "status": "FINISHED",
     "produto": {
      "versao_incerta": false
     },
@@ -2874,7 +2806,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3145343",
    "melhor_preco": 3757.35,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 3757.35,
    "menor_preco": 3757.35
   },
@@ -2909,7 +2841,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3145284",
    "melhor_preco": 3419.0,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 3419.0,
    "menor_preco": 3419.0
   },
@@ -3070,6 +3002,46 @@
    "menor_preco": 3757.0
   },
   {
+   "primeira_vez": "2026-10-27T13:52:22-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI",
+   "url": "https://www.promobit.com.br/oferta/grand-theft-auto-vi-3145199/",
+   "id": "3145199",
+   "preco": 350.92,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "PRIMEGAME10",
+   "publicado": "2026-10-26T23:16:10-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "FINISHED",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "promobit:3145199",
+   "melhor_preco": 350.92,
+   "ultima_vez": "2026-10-27T13:52:22-03:00"
+  },
+  {
    "primeira_vez": "2026-10-26T18:47:08-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -3152,7 +3124,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3144345",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-27T09:19:50-03:00"
+   "ultima_vez": "2026-10-27T13:52:22-03:00"
   },
   {
    "primeira_vez": "2026-10-26T15:08:28-03:00",
@@ -3185,7 +3157,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3143925",
    "melhor_preco": 4999.0,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 4999.0,
    "menor_preco": 4999.0
   },
@@ -3220,7 +3192,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3143915",
    "melhor_preco": 4999.9,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 4999.9,
    "menor_preco": 4999.9
   },
@@ -3655,7 +3627,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3140552",
    "melhor_preco": 363.96,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 363.96,
    "menor_preco": 363.96
   },
@@ -3964,7 +3936,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3136461",
    "melhor_preco": 4047.08,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 4047.08,
    "menor_preco": 4047.08
   },
@@ -4037,7 +4009,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3136279",
    "melhor_preco": 3956.0,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 3956.0,
    "menor_preco": 3956.0
   },
@@ -4079,7 +4051,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3136151",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-10-27T09:19:50-03:00"
+   "ultima_vez": "2026-10-27T13:52:22-03:00"
   },
   {
    "primeira_vez": "2026-10-22T22:14:07-03:00",
@@ -4147,7 +4119,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3135930",
    "melhor_preco": 4499.0,
-   "ultima_vez": "2026-10-27T09:19:50-03:00",
+   "ultima_vez": "2026-10-27T13:52:22-03:00",
    "ultimo_preco": 4499.0,
    "menor_preco": 4499.0
   },
@@ -4271,46 +4243,6 @@
    "ultima_vez": "2026-10-22T16:53:22-03:00",
    "ultimo_preco": 3879.0,
    "menor_preco": 3879.0
-  },
-  {
-   "primeira_vez": "2026-10-22T16:23:33-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Grand Theft Auto VI - PlayStation 5",
-   "url": "https://www.promobit.com.br/oferta/grand-theft-auto-vi-playstation-5-3134719/",
-   "id": "3134719",
-   "preco": 350.9,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "PRIMEGAME5 + PIX NO CARRINHO",
-   "publicado": "2026-10-22T15:11:25-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": null,
-    "status": "FINISHED",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "promobit:3134719",
-   "melhor_preco": 350.9,
-   "ultima_vez": "2026-10-27T09:19:50-03:00"
   }
  ],
  "gta6_custo_final": [
@@ -5007,72 +4939,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:18:50-03:00",
+   "ultimo_ok": "2026-10-27T13:51:23-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:02-03:00",
+   "ultimo_ok": "2026-10-27T13:51:33-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:46-03:00",
+   "ultimo_ok": "2026-10-27T13:52:17-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:18:52-03:00",
+   "ultimo_ok": "2026-10-27T13:51:25-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:10-03:00",
+   "ultimo_ok": "2026-10-27T13:51:43-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:15-03:00",
+   "ultimo_ok": "2026-10-27T13:51:49-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:16-03:00",
+   "ultimo_ok": "2026-10-27T13:51:50-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:17-03:00",
+   "ultimo_ok": "2026-10-27T13:51:51-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:20-03:00",
+   "ultimo_ok": "2026-10-27T13:51:53-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:21-03:00",
+   "ultimo_ok": "2026-10-27T13:51:54-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 480,
+   "falhas": 481,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-27T09:19:27-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-27T13:52:00-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:29-03:00",
+   "ultimo_ok": "2026-10-27T13:52:02-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:31-03:00",
+   "ultimo_ok": "2026-10-27T13:52:04-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-27T09:19:34-03:00",
+   "ultimo_ok": "2026-10-27T13:52:08-03:00",
    "ultimo_erro": null
   }
  },
