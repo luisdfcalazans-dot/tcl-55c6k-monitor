@@ -133,13 +133,13 @@ O painel fica em **`https://SEU_USUARIO.github.io/tcl-55c6k-monitor/`** e demora
 ## 7. Primeira coleta na nuvem
 
 ```powershell
-gh workflow run "monitor 55C6K"
+gh workflow run monitor.yml
 ```
 Acompanhe (espere uns 20 segundos e rode):
 ```powershell
 gh run list --limit 3
 ```
-Esperado: uma linha `completed  success  monitor 55C6K`. Se aparecer `failure`, rode `gh run view --log-failed` e me mande o texto.
+Esperado: uma linha `completed  success  monitor PS5 e GTA 6`. Se aparecer `failure`, rode `gh run view --log-failed` e me mande o texto.
 
 A partir daqui o GitHub roda sozinho **a cada 15 minutos**, sem o PC ligado. Cada execução faz um commit "coleta cloud …" no repositório e atualiza o painel. O primeiro disparo automático pode atrasar alguns minutos.
 
@@ -203,8 +203,8 @@ Atenção: a linha `TELEGRAM_SESSION` dá acesso total à sua conta. Ela fica s�
 | Fazer o coletor abrir um anúncio do Magalu que a busca não mostra | `gh variable set MAGALU_ANUNCIOS_EXTRA --body "https://www.magazineluiza.com.br/.../p/<id>/et/elit/"` (vários: separados por vírgula) |
 | Pausar a nuvem | `gh workflow disable "monitor 55C6K"` (retomar: `enable`) |
 | Pausar o PC | `Disable-ScheduledTask -TaskName "Monitor TCL 55C6K"` (retomar: `Enable-ScheduledTask …`) |
-| Forçar uma coleta agora | `gh workflow run "monitor 55C6K"` ou `python run.py --mode all` |
-| Receber o resumo de preços agora | `gh workflow run "monitor 55C6K" -f resumo=true` |
+| Forçar uma coleta agora | `gh workflow run monitor.yml` ou `python run.py --mode all` |
+| Receber o resumo de preços agora | `gh workflow run monitor.yml -f resumo=true` |
 | Ver o histórico em planilha | abra `docs\data\historico_cloud.csv` e `historico_pc.csv` no Excel |
 
 ---

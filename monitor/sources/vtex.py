@@ -254,7 +254,9 @@ class VtexEan(Fonte):
         self.familias = config._NAO_TV if so_nao_tv else None
 
     def coletar(self) -> Resultado:
-        eans = eans_do_catalogo(self.familias)
+        # TVs desligadas (26/10/2026): Mais Correios e Americanas sem os EANs das TVs
+        familias = self.familias if self.familias is not None else produtos.familias_monitoradas()
+        eans = eans_do_catalogo(familias)
         erros = []
         for base in [b for b in (self.base, self.reserva) if b]:
             try:
@@ -263,8 +265,8 @@ class VtexEan(Fonte):
                 erros.append(f"{base}: {type(e).__name__}: {str(e)[:100]}")
                 continue
             ofertas = parse_catalogo(data, self.loja, self.base, fonte=self.nome)
-            if self.familias is not None:
-                ofertas = [o for o in ofertas if produtos.familia(o.modelo) in self.familias]
+            if familias is not None:
+                ofertas = [o for o in ofertas if produtos.familia(o.modelo) in familias]
             completa_entrega(ofertas, base, self.nome)
             por_produto = ", ".join(f"{sum(o.modelo == m for o in ofertas)} {m}" for m in sorted({o.modelo for o in ofertas}))
             print(f"[{self.nome}] {len(ofertas)} ofertas pelo EAN" + (f" ({por_produto})" if por_produto else ""))

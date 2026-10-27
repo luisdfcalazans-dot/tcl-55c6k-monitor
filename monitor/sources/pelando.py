@@ -63,7 +63,8 @@ class PelandoBusca(Fonte):
         vistos: dict[str, Oferta] = {}
         # os termos do catálogo (monitor/produtos.py): as duas primeiras buscas de cada TV ("55c6k", "tcl 55c6k",
         # "65c6k", "tcl 65c6k") e as do PS5, do GTA 6 ("gta 6" não acha "Grand Theft Auto VI": vão os dois) e do gift card
-        for q in produtos.termos("pelando"):
+        # (TVs desligadas, 26/10/2026: sem os termos das TVs)
+        for q in produtos.termos("pelando", produtos.familias_monitoradas()):
             html = get_html(f"https://www.pelando.com.br/busca/{quote(q)}")
             for o in parse_busca(html):
                 vistos.setdefault(o.chave, o)

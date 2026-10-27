@@ -2,6 +2,7 @@
 # Uso: powershell -ExecutionPolicy Bypass -File scripts\setup_task.ps1
 $raiz = Split-Path -Parent $PSScriptRoot
 $script = Join-Path $raiz "scripts\run_pc.ps1"
+# o nome antigo fica: trocar criaria uma segunda tarefa (a antiga continuaria rodando)
 $nome = "Monitor TCL 55C6K"
 
 $acao = New-ScheduledTaskAction -Execute "powershell.exe" `
@@ -16,6 +17,6 @@ $config = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (
     -MultipleInstances IgnoreNew -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 
 Unregister-ScheduledTask -TaskName $nome -Confirm:$false -ErrorAction SilentlyContinue
-Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilho -Settings $config -Description "Coleta preços da TCL 55C6K nas lojas que exigem navegador (Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee) e publica no GitHub." | Out-Null
+Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilho -Settings $config -Description "Coleta preços do PS5 e do GTA 6 nas lojas que exigem navegador (Amazon, Casas Bahia, Mercado Livre, Netshoes, Pelando) e publica no GitHub." | Out-Null
 "Tarefa '$nome' registrada: a cada 30 min, rodando $script"
 Get-ScheduledTask -TaskName $nome | Select-Object TaskName, State

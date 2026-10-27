@@ -2665,10 +2665,12 @@ def main() -> int:
     if a.check:
         return 0 if all(checar_sessao(l, a.visivel) for l in lojas) else 1
     desligados: tuple[str, ...] = ()
-    if config.modo_vigia() and not a.codigos and not a.forcar:
+    # TVs desligadas (17/10 e 26/10/2026: o usuário ficou com a TV): fora do testador SEMPRE, também com --codigos e
+    # --forcar (só TVS_DESLIGADAS=0 as religa). Na vigia por data, --codigos/--forcar ainda testam as TVs (como antes)
+    if config.TVS_DESLIGADAS or (config.modo_vigia() and not a.codigos and not a.forcar):
         # TV comprada (03/10): as TVs ficam fora do testador; o PS5 e o GTA 6 seguem (pedido de 03/10)
         desligados = tuple(produtos.TVS)
-        print("[tvs] TVs desligadas a pedido (17/10): fora do testador de cupons; PS5 e GTA 6 seguem"
+        print("[tvs] TVs desligadas a pedido (17/10 e 26/10): fora do testador de cupons; PS5 e GTA 6 seguem"
               if config.TVS_DESLIGADAS else
               f"[vigia] TV comprada (03/10): TVs fora do testador de cupons até {config.VIGIA_ATE}; PS5 e GTA 6 seguem")
     cods = [c.strip() for c in a.codigos.split(",") if c.strip()] or None

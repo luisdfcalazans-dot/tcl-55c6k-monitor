@@ -52,6 +52,11 @@ VIGIA_ATE = _env("VIGIA_ATE", "2026-10-17")   # inclusive; ajustar para 7 dias d
 # 17/10/2026, fim da vigia: o usuário pediu para DESLIGAR as TVs (já comprou a 65C6K): nenhum alerta de TV e nenhuma TV no
 # testador de cupons/carrinhos; PS5, GTA 6 e o resto do catálogo seguem normais. Usa o mesmo caminho do modo vigia, sem
 # TV candidata a alerta. TVS_DESLIGADAS=0 no ambiente religa as TVs (volta à regra da vigia por data).
+# 26/10/2026: o usuário vai ficar com a TV e pediu para TIRAR as TVs do monitor e do painel (só PS5 e GTA 6). Com a chave
+# ligada (padrão) as fontes só de TV não rodam, as buscas não gastam pedidos com termos de TV, toda oferta/postagem/cupom
+# de TV sai logo depois da coleta (run.py) e o latest não publica nada de TV ("tvs_desligadas": true; o painel esconde a
+# parte das TVs). O código das TVs fica: TVS_DESLIGADAS=0 religa tudo como antes. Sempre ler config.TVS_DESLIGADAS na
+# hora (nunca copiar numa constante no import: os testes trocam o valor).
 TVS_DESLIGADAS = _env("TVS_DESLIGADAS", "1") == "1"
 
 
@@ -230,6 +235,10 @@ LOJAS_VTEX_EAN = {
 # KaBuM: a lista de consoles PlayStation (um pedido traz todos os PS5 da loja, com vendedor e oferta) e a cotação de
 # frete (sem login) para o prazo do GTA 6 com o CEP
 URL_KABUM_LISTA_CONSOLES = "https://www.kabum.com.br/gamer/playstation/consoles-playstation"
+# gift card da PlayStation Store vendido e entregue pela KaBuM (1P): a categoria traz todos os valores de face (R$ 60 a
+# R$ 700) com preço e vendedor, no mesmo formato da lista de consoles (conferido em 26/10/2026; a busca
+# /busca/gift-card-playstation redireciona para cá). Um pedido por rodada
+URL_KABUM_LISTA_GIFT = "https://www.kabum.com.br/servicos-digitais/giftcard/games/playstation-store"
 URL_KABUM_FRETE = "https://servicespub.prod.api.aws.grupokabum.com.br/shipping/v4/quotation"
 # Magalu (magazinevoce): as buscas do PS5/GTA 6 já trazem preço, vendedor e o cupom do anúncio (seller.tags)
 MAGALU_TERMOS_PRODUTOS = _produtos.termos("magalu", _NAO_TV)
@@ -244,6 +253,12 @@ URL_PSSTORE_PRODUTO = "https://store.playstation.com/pt-br/product/{id}"
 # Mercado Livre: vitrine da loja oficial PlayStation (official_store_id 1473), um pedido por rodada; a lista com filtro
 # de loja e a API dão antirrobô/403
 URL_ML_LOJA_PLAYSTATION = "https://www.mercadolivre.com.br/loja/playstation"
+# Hype (loja oficial de cartão presente PlayStation, pesquisa de 26/10/2026): a página da categoria traz os cartões
+# "[Exclusivo Brasil]" de R$ 35 a R$ 700 com o preço de agora (gtmProduct no HTML). Um pedido por rodada
+URL_HYPE_GIFT_PSN = "https://hype.games/br/cartao-presente-playstation-store"
+# Carteira da PSN: a Sony tem um limite de saldo que não divulga (termos, seção 7.2); a Hype vende cartão de R$ 700, então
+# é pelo menos isso. A combinação de gift cards para pagar o GTA 6 (produtos.combinacao_gift) não passa deste total
+LIMITE_CARTEIRA_PSN = float(_env("LIMITE_CARTEIRA_PSN", "700"))
 # Telegram: busca por termo (t.me/s/<canal>?q=<termo>) nos canais de muito volume: pega a postagem que saiu da 1ª
 # página entre uma rodada e outra (o @pelandobr posta 7 a 10 por hora; a nuvem roda com intervalos de horas)
 TELEGRAM_CANAIS_BUSCA = [c.strip().lstrip("@") for c in _env("TELEGRAM_CANAIS_BUSCA", "pelandobr").split(",") if c.strip()]
@@ -330,6 +345,7 @@ LOJAS_CANONICAS = {
     # PS5 e GTA 6 (pesquisa de 03/10/2026): lojas confiáveis e as que só aparecem pelas postagens
     "netshoes": "Netshoes", "playstation store": "PlayStation Store", "ps store": "PlayStation Store",
     "store.playstation.com": "PlayStation Store", "nuuvem": "Nuuvem", "hype games": "Hype", "hypegames": "Hype",
+    "hype.games": "Hype", "hype": "Hype",
     "sams club": "Sam's Club", "sam's club": "Sam's Club", "samsclub": "Sam's Club", "terabyte": "Terabyte",
     "terabyteshop": "Terabyte", "inpower": "Inpower", "havan": "Havan", "loja vivo": "Loja Vivo",
     "pichau": "Pichau", "ibyte": "iBYTE", "eneba": "Eneba", "ubiqplay": "UbiqPlay", "tiktok shop": "TikTok Shop",

@@ -798,26 +798,33 @@ class Estado:
         # que trazem também o gift card com desconto)
         recentes = [r for r in posts_conhecidos if r.get("ativo", True)
                     and (dias_desde(r.get("publicado") or r.get("primeira_vez")) or 0) <= 7]
-        gta = produtos.custo_final_gta([d for d in lojas if not fora_de_preco(d)] + recentes)
+        validas = [d for d in lojas if not fora_de_preco(d)] + recentes
+        gta = produtos.custo_final_gta(validas)
+        # TVs desligadas (26/10/2026): nada de TV no latest (as postagens antigas de TV continuam no state, para religar)
+        sem_tvs = config.TVS_DESLIGADAS
         # as TVs com a lista de sempre (até POSTS_NO_LATEST); os outros produtos com a cota deles, sem tirar as das TVs
-        posts_tv = [r for r in posts_conhecidos if produtos.eh_tv(modelo_de(r))][:POSTS_NO_LATEST]
+        posts_tv = [] if sem_tvs else [r for r in posts_conhecidos if produtos.eh_tv(modelo_de(r))][:POSTS_NO_LATEST]
         posts_outros = [r for r in posts_conhecidos if not produtos.eh_tv(modelo_de(r))][:POSTS_NAO_TV_NO_LATEST]
         ids_no_latest = {id(r) for r in posts_tv + posts_outros}
         posts_latest = [r for r in posts_conhecidos if id(r) in ids_no_latest]
         latest = {
             "modo": self.modo,
             "atualizado": agora_iso(),
+            # o painel esconde a parte das TVs com este sinal (26/10/2026)
+            "tvs_desligadas": sem_tvs,
             # alvo_pix/alvo_parcelado/minimo: os da 55C6K (nomes de sempre); os de cada produto em alvos/minimo_<id>
-            "alvo_pix": config.ALVO_PIX,
-            "alvo_parcelado": config.ALVO_PARCELADO,
-            "alvos": config.alvos(),
+            **({} if sem_tvs else {"alvo_pix": config.ALVO_PIX, "alvo_parcelado": config.ALVO_PARCELADO,
+                                   "alvos": config.alvos()}),
             # o catálogo resumido (nome, família, seção, metas) para o painel montar uma seção por família
-            "produtos": produtos.para_painel(),
+            "produtos": produtos.para_painel(sem_tvs),
             **{chave_minimo(m): self.dados.get(chave_minimo(m)) for m in PRODUTOS
-               if m in MODELOS or self.dados.get(chave_minimo(m))},
+               if not (sem_tvs and produtos.eh_tv(m)) and (m in MODELOS or self.dados.get(chave_minimo(m)))},
             "ofertas_loja": lojas,
             "posts": posts_latest,
             "gta6_custo_final": gta,
+            # gift card da PlayStation para pagar o GTA 6 digital (26/10/2026): o melhor de loja oficial e o custo do GTA
+            # digital com a melhor combinação de valores de face
+            "gift_card_psn": produtos.gift_para_painel(validas),
             "cupons": cupons_ativos,
             "saude": self.dados["saude"],
             # o painel esconde linhas antigas (latest/histórico) de vendedor/anúncio reprovado com esta lista

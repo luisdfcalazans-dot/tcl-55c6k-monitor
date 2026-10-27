@@ -22,10 +22,16 @@ class Fonte:
         raise NotImplementedError
 
 
+# Fontes que só existem para as TVs (26/10/2026: com config.TVS_DESLIGADAS elas não rodam; a TV que aparecer numa fonte
+# mista sai no run.py logo depois da coleta)
+FONTES_SO_TV = ("promobit.tv", "zoom", "magalu", "kabum", "vtex.fastshop", "vtex.lojatcl", "vtex.webcontinental",
+                "amazon", "casasbahia", "mercadolivre", "aliexpress", "shopee")
+
+
 def todas() -> list[Fonte]:
     from .. import config
-    from . import (amazon, carrefour, kabum, magalu, mercadolivre_loja, netshoes, pelando, playwright_sources, promobit,
-                   psstore, telegram_public, telegram_user, vtex, zoom)
+    from . import (amazon, carrefour, hype, kabum, magalu, mercadolivre_loja, netshoes, pelando, playwright_sources,
+                   promobit, psstore, telegram_public, telegram_user, vtex, zoom)
 
     fontes: list[Fonte] = [
         promobit.PromobitBusca(), promobit.PromobitCategoriaTV(), promobit.PromobitCategoriaPS5(),
@@ -40,6 +46,8 @@ def todas() -> list[Fonte]:
         carrefour.Carrefour(),
         psstore.PlayStationStore(),
         mercadolivre_loja.MercadoLivreLojaPlayStation(),
+        # gift card da PlayStation Store para pagar o GTA 6 digital (26/10/2026)
+        hype.HypeGiftCard(),
         telegram_public.TelegramPublico(),
         # ---- só no PC ----
         amazon.Amazon(), amazon.AmazonProdutos(),
@@ -50,6 +58,8 @@ def todas() -> list[Fonte]:
         playwright_sources.Shopee(),
         telegram_user.TelegramUsuario(),
     ]
+    if config.TVS_DESLIGADAS:  # lido na hora: os testes trocam a chave
+        fontes = [f for f in fontes if f.nome not in FONTES_SO_TV]
     return fontes
 
 

@@ -1,4 +1,4 @@
-name: monitor 55C6K
+name: monitor PS5 e GTA 6
 
 # O GitHub atrasa muito os agendamentos (ontem o cron de 15 min virou 1 execução a cada 4 h).
 # Por isso cada execução fica em laço por ~50 min, coletando a cada 15 min, e uma execução nova
@@ -33,6 +33,9 @@ jobs:
       TELEGRAM_CANAIS_EXTRA: ${{ vars.TELEGRAM_CANAIS_EXTRA }}
       # CEP de entrega (prazo do GTA 6 nas lojas): só do secret, nunca impresso. Sem ele vale o CEP de referência
       CEP_ENTREGA: ${{ secrets.CEP_ENTREGA }}
+      # TVs desligadas (26/10/2026: só PS5 e GTA 6). Vazio = "1" (padrão do código); "0" religa as TVs
+      TVS_DESLIGADAS: ${{ vars.TVS_DESLIGADAS }}
+      LIMITE_CARTEIRA_PSN: ${{ vars.LIMITE_CARTEIRA_PSN }}
       ALVO_PIX: ${{ vars.ALVO_PIX }}
       ALVO_PARCELADO: ${{ vars.ALVO_PARCELADO }}
       ALVO_PIX_65: ${{ vars.ALVO_PIX_65 }}

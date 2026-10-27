@@ -1126,7 +1126,8 @@ def _linha_preco(o: Oferta, com_cupom: bool = True) -> str:
 
 
 def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = None, nota: Optional[str] = None,
-                gift: Optional[tuple] = None, ultimate: Optional[dict] = None) -> str:
+                gift: Optional[tuple] = None, ultimate: Optional[dict] = None,
+                cartoes: Optional[list[dict]] = None) -> str:
     # o produto vai no cabeçalho (26/09: as duas TVs chegam no mesmo chat; o título da loja às vezes nem diz o tamanho;
     # 03/10: o PS5 e o GTA 6 também)
     cab = " ".join(etiquetas) + f" · {rotulo_modelo(modelo_de(o))}"
@@ -1136,7 +1137,7 @@ def _msg_oferta(etiquetas: list[str], o: Oferta, anterior: Optional[float] = Non
         linhas.append(f"antes: {fmt_preco(anterior)}")
     # produto que não é TV: a meta e a distância até ela, a entrega do GTA 6 (chega a tempo?), o custo com gift card e,
     # no GTA 6 avulso, a Ultimate digital × Standard + upgrade pelo custo final
-    linhas += [_esc(x) for x in produtos.linhas_da_oferta(o, gift, ultimate)]
+    linhas += [_esc(x) for x in produtos.linhas_da_oferta(o, gift, ultimate, cartoes)]
     if o.tipo == "post":
         linhas.append(f"via {_esc(o.fonte)}" + (f" · {_esc(o.publicado[:16].replace('T', ' '))}" if o.publicado else ""))
     if nota:
@@ -1297,6 +1298,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
     # maior desconto de gift card da PlayStation em loja oficial visto nesta rodada: custo efetivo do GTA digital
     gift = produtos.desconto_gift_card(ofertas)
     desc_gift = gift[0] if gift else None
+    # os gift cards de loja oficial da rodada (26/10/2026): o alerta do gift card mostra o custo do GTA 6 digital com a
+    # melhor combinação de valores de face
+    cartoes = produtos.cartoes_gift(ofertas)
     # as duas edições do GTA 6 (pedido de 03/10): a Ultimate digital × Standard + upgrade, com o que a rodada viu e conta
     # como preço
     ultimate = produtos.comparacao_ultimate(_ofertas_da_comparacao(estado, ofertas, lojas, diretas), gift)
@@ -1315,6 +1319,9 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
             continue
         # inativa, sem preço, ou agregador (Zoom) de loja com fonte direta conhecida: não gera alerta de preço
         if not p or not conta_como_preco(o, diretas):
+            continue
+        # gift card com menos de 10% de desconto (o típico das lojas oficiais, pesquisa de 26/10): sem alerta
+        if modelo == "GIFT_CARD_PSN" and produtos.gift_sem_alerta(o):
             continue
         prev = estado.oferta_anterior(o.chave)
         etiquetas: list[str] = []
@@ -1345,7 +1352,7 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
             if not boot[modelo] or estado.bootstrap:
                 # vendedor fora da lista de confiáveis que passou nas checagens: o alerta sai, com o que foi checado
                 msgs.append(_msg_oferta(etiquetas, o, anterior, nota=confianca.linha_vendedor_novo(o), gift=gift,
-                                        ultimate=ultimate))
+                                        ultimate=ultimate, cartoes=cartoes))
             alertados[o.chave] = p_meta if "🎯 Abaixo do alvo" in etiquetas else p
         if novo_minimo:
             preco_minimo_antes[modelo] = p
@@ -1371,6 +1378,8 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
             continue
         if boot[modelo]:
             continue
+        if modelo == "GIFT_CARD_PSN" and produtos.gift_sem_alerta(o):
+            continue   # gift card com menos de 10% de desconto: sem alerta (fica no painel)
         et = ["📣 Promoção postada"]
         chave_ref = confianca.chave_referencia(o)
         if chave_ref not in ref_confiavel:
@@ -1393,7 +1402,7 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
             if rep in repetidos:
                 repetidos[rep][1].append(_origem_do_post(o))
                 continue
-        msgs.append(_msg_oferta(et, o, nota=nota, gift=gift, ultimate=ultimate))
+        msgs.append(_msg_oferta(et, o, nota=nota, gift=gift, ultimate=ultimate, cartoes=cartoes))
         if rep is not None:
             repetidos[rep] = (len(msgs) - 1, [])
     for idx, outros in repetidos.values():
@@ -1750,11 +1759,18 @@ def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -
             if not cands and not m:
                 continue
             txt = f"• <b>{_esc(produtos.curto(pid))}</b>: "
-            if cands:
+            if cands and pid == "GIFT_CARD_PSN":
+                # gift card: o de maior desconto (o mais barato é só o de menor valor de face)
+                o = max(cands, key=lambda x: produtos.desconto_da_oferta_gift(x) or -1.0)
+            elif cands:
                 o = min(cands, key=lambda x: produtos.preco_comparavel(x, gift[0] if gift else None) or 9e9)
+            if cands:
                 p = produtos.preco_comparavel(o, gift[0] if gift else None)
                 quem = o.loja + (f"/{o.vendedor}" if o.vendedor and o.vendedor != o.loja else "")
                 txt += f"{fmt_preco(p)} ({_esc(quem)})"
+                dg = produtos.desconto_da_oferta_gift(o)
+                if dg is not None:
+                    txt += f" pelo de R$ {produtos.detalhes_de(o)['valor_face']:.0f} ({dg * 100:.0f}% de desconto)"
                 cc = produtos.preco_com_cupom_do_anuncio(o)
                 if p and cc and abs(p - cc[0]) < 0.005:
                     txt += f" com o cupom {_esc(cc[1])} (sem ele {fmt_preco(o.melhor_preco)})"
@@ -1783,6 +1799,11 @@ def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -
         custos = produtos.custo_digital_com_gift(d)
         linhas.append(f"💳 Gift card PlayStation a {d * 100:.0f}% ({_esc(og.loja)}): GTA 6 digital sairia por "
                       f"{fmt_preco(custos.get('GTA6_DIGITAL'))}")
+    # o custo de verdade do GTA 6 digital com os gift cards de loja oficial vistos (26/10/2026: valores de face fixos,
+    # saldo primeiro e o resto no cartão de crédito)
+    for c in produtos.gta_com_gift(ofertas).values():
+        linhas.append(f"🧮 {_esc(c['edicao'])} digital com gift card: {fmt_preco(c['custo'])} "
+                      f"(-{c['desconto'] * 100:.0f}%; meta {fmt_preco(c['meta'])}) — {_esc(produtos.texto_cartoes(c))}")
     return linhas
 
 
@@ -1791,8 +1812,9 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom], vi
     do PS5 e do GTA 6 (quando há preço ou mínimo deles). No modo vigia, sem as TVs."""
     diretas = estado.lojas_diretas_conhecidas(ofertas)
     if vigia:
-        linhas = ["☀️ <b>Resumo diário — PS5 e GTA 6</b> (TVs em modo vigia)"] + \
-            _resumo_produtos(estado, ofertas, diretas)
+        # TVs desligadas (26/10/2026: o usuário ficou com a TV): o resumo é só do PS5 e do GTA 6, sem falar de TV
+        cab = "☀️ <b>Resumo diário — PS5 e GTA 6</b>" + ("" if config.TVS_DESLIGADAS else " (TVs em modo vigia)")
+        linhas = [cab] + _resumo_produtos(estado, ofertas, diretas)
         if cupons:
             cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
             linhas.append(f"Cupons ativos: {_esc(cods)}")

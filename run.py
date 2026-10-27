@@ -109,6 +109,18 @@ def main() -> int:
         unicos.setdefault(c.chave, c)
     cupons = list(unicos.values())  # type: ignore[assignment]
 
+    # TVs desligadas (26/10/2026: o usuário ficou com a TV; o monitor é só do PS5 e do GTA 6): a oferta, a postagem e o
+    # cupom de TV que alguma fonte mista trouxe (Promobit/Pelando/Telegram, Mais Correios e Americanas pelo EAN) saem
+    # aqui, antes da confiança (sem pedido de checagem de vendedor), do state, do histórico, do latest e dos alertas. A
+    # classificação da TV continua nas fontes: é ela que separa os blocos de uma mensagem do Telegram
+    if config.TVS_DESLIGADAS:
+        n_antes = len(ofertas) + len(cupons)
+        ofertas = [o for o in ofertas if not produtos.eh_tv(modelo_de(o))]  # type: ignore[arg-type]
+        cupons = [c for c in cupons if not (getattr(c, "modelo", None) and produtos.eh_tv(c.modelo))]  # type: ignore[union-attr]
+        if n_antes - len(ofertas) - len(cupons):
+            print(f"[tvs] {n_antes - len(ofertas) - len(cupons)} oferta(s)/postagem(ns)/cupom(ns) de TV fora "
+                  "(TVs desligadas)")
+
     # confiança (monitor/confianca.py): vendedor/anúncio reprovado (lista curada ou reprovado automático) sai de cara,
     # sem alerta, mínimo, histórico, painel nem carrinho
     from monitor import confianca
@@ -142,14 +154,15 @@ def main() -> int:
     if vigia:
         # TV comprada (03/10): das TVs, só a 65C6K abaixo do limite gera alerta (sem cupons, sem 55C6K, sem resumo das
         # TVs). A vigia vale SÓ para as TVs: PS5, GTA 6 e o resto do catálogo seguem com alertas e cupons
-        config.ALVO_PIX_65 = config.ALVO_PARCELADO_65 = config.VIGIA_LIMITE
+        if not config.TVS_DESLIGADAS:
+            config.ALVO_PIX_65 = config.ALVO_PARCELADO_65 = config.VIGIA_LIMITE
         candidatas = [] if config.TVS_DESLIGADAS else [
             o for o in ofertas if modelo_de(o) == config.VIGIA_MODELO  # type: ignore[arg-type]
             and o.melhor_preco and o.melhor_preco <= config.VIGIA_LIMITE]  # type: ignore[union-attr]
         outras = [o for o in ofertas if not config.vigia_afeta(modelo_de(o))]  # type: ignore[arg-type]
         if config.TVS_DESLIGADAS:
-            print(f"[tvs] TVs desligadas a pedido (17/10): nenhum alerta de TV; {len(outras)} oferta(s)/postagem(ns) "
-                  "de PS5/GTA 6 seguem normais")
+            print(f"[tvs] TVs desligadas a pedido (17/10 e 26/10): sem coleta nem alerta de TV; {len(outras)} "
+                  "oferta(s)/postagem(ns) de PS5/GTA 6")
         else:
             print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; das TVs, alerta só da {config.VIGIA_MODELO} "
                   f"até R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s); "
@@ -157,8 +170,9 @@ def main() -> int:
         msgs, alertados = gerar_alertas(estado, candidatas + outras, cupons, vigia=True)  # type: ignore[arg-type]
     else:
         msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
-    # cupons para o painel e o resumo: os das TVs continuam no painel durante a vigia (como antes)
-    aplicaveis = cupons_aplicaveis(ofertas, cupons, estado)  # type: ignore[arg-type]
+    # cupons para o painel e o resumo: os das TVs continuam no painel durante a vigia (como antes); com as TVs
+    # desligadas, nenhum cupom "da TV" (a 55C6K deixa de estar sempre em jogo)
+    aplicaveis = cupons_aplicaveis(ofertas, cupons, estado, vigia=config.TVS_DESLIGADAS)  # type: ignore[arg-type]
     # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço
     diretas = estado.lojas_diretas_conhecidas(ofertas)  # type: ignore[arg-type]
 
@@ -229,7 +243,8 @@ def main() -> int:
         precos = [o.melhor_preco for o in ofertas  # type: ignore[union-attr]
                   if o.tipo == "loja" and modelo_de(o) == modelo and o.ativo and o.melhor_preco
                   and not confianca.fora_de_preco(o)]
-        if precos or modelo in MODELOS:   # as TVs sempre (como antes); os outros quando há preço de loja
+        # as TVs sempre (como antes; com as TVs desligadas, só se houver preço); os outros quando há preço de loja
+        if precos or (modelo in MODELOS and not config.TVS_DESLIGADAS):
             melhores.append(f"{modelo} {min(precos or [0]):.2f}")
     print(f"\n{args.mode}: {n_loja} preços de loja, {n_post} postagens, {len(cupons)} cupons, "
           f"{enviados} alertas, melhor preço {' / '.join(melhores)}, {time.time()-t0:.0f}s")

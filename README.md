@@ -1,6 +1,10 @@
-# Monitor TCL 55C6K e 65C6K, PS5 e GTA 6
+# Monitor PS5 e GTA 6 (antes: TCL 55C6K e 65C6K)
 
-Vigia o preço e os cupons da **Smart TV TCL C6K (QD-Mini LED) de 55" (55C6K) e de 65" (65C6K)**, do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+Vigia o preço e os cupons do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+
+> **TVs desligadas (26/10/2026).** O usuário ficou com a TV: com `TVS_DESLIGADAS=1` (o padrão) as fontes só das TVs não rodam, as buscas não usam os termos nem os códigos de barras das TVs, toda oferta/postagem/cupom de TV sai logo depois da coleta (sem alerta, state, histórico nem painel), o latest publica `"tvs_desligadas": true` e o painel esconde a parte das TVs. O código das TVs continua: `TVS_DESLIGADAS=0` (variável do GitHub ou `.env`) religa tudo como antes.
+
+> **Gift card da PSN para o GTA 6 digital (26/10/2026).** A PS Store BR aceita o saldo da carteira (cartão presente brasileiro) na pré-venda, que é cobrada na hora; o saldo é usado primeiro e o resto vai para o cartão de crédito. O monitor lê os cartões da **Hype** e da **KaBuM!** (vendido por ela), além das postagens, e só aceita loja oficial (PS Store, Hype, Nuuvem, loja oficial PlayStation no Mercado Livre, ou vendido pela própria KaBuM, Americanas, Amazon ou Magalu). Meta: 🎯 com 15% de desconto ou mais em cartão de R$ 100 ou mais (10% de 01/11 a 11/11, perto do prazo), 🔥 com 20%; abaixo de 10% não há alerta. O alerta, o resumo e o painel mostram o custo do GTA 6 Standard e Ultimate digital com a melhor combinação de valores de face (até `LIMITE_CARTEIRA_PSN`, R$ 700). Para jogar no lançamento: comprar e resgatar o cartão e fazer a pré-venda até 11/11 (pré-carregamento a partir de 12/11).
 
 O catálogo dos produtos fica em `monitor/produtos.py` (a fonte única de ids, nomes, metas, termos de busca, códigos de barras, ids por loja e regras do classificador). Cada oferta guarda o id do produto no campo `modelo` (`55C6K`, `65C6K`, `PS5_DIGITAL`, `GTA6_CODE_IN_BOX`...).
 
@@ -76,7 +80,7 @@ No Magalu, vendedor novo que ficou sem checagem nesta rodada (403, limite de 2 v
 2. **Settings → Secrets and variables → Actions → Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` e (opcional) `CEP_ENTREGA`, o CEP de entrega para o prazo do GTA 6.
 3. (Opcional) **Variables**: `ALVO_PIX`, `ALVO_PARCELADO`, `ALVO_PIX_65`, `ALVO_PARCELADO_65`, `TELEGRAM_CANAIS_EXTRA` (canais públicos separados por vírgula), `MAGALU_ANUNCIOS_EXTRA` (links de anúncios do Magalu que a busca não mostra, separados por vírgula).
 4. **Settings → Pages → Source: Deploy from a branch → main / docs**. O painel fica em `https://<usuário>.github.io/<repo>/`.
-5. **Actions → monitor 55C6K → Run workflow** para a primeira coleta. A primeira rodada só registra o que existe (uma mensagem de "monitor iniciado"); a partir da segunda chegam as novidades.
+5. **Actions → monitor PS5 e GTA 6 → Run workflow** para a primeira coleta. A primeira rodada só registra o que existe (uma mensagem de "monitor iniciado"); a partir da segunda chegam as novidades.
 
 ### 3. Executor no PC (Amazon, Casas Bahia, Mercado Livre, AliExpress, Shopee)
 Requer Python 3.12 e Google Chrome instalados.
@@ -99,7 +103,7 @@ Para grupos fechados ou canais privados de que você participa:
 
 ## Rodar na mão
 ```
-gh workflow run "monitor 55C6K" -f resumo=true   # nuvem: coleta agora e manda o resumo no Telegram
+gh workflow run monitor.yml -f resumo=true   # nuvem: coleta agora e manda o resumo no Telegram
 python run.py --mode cloud --no-notify      # só imprime, não envia
 python run.py --mode all --so zoom,kabum    # só algumas fontes
 python -m pytest -q                         # testes com páginas salvas

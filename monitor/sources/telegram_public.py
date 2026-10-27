@@ -111,7 +111,8 @@ def urls_de_busca(canais: list[str] | None = None, termos: list[str] | None = No
     uma rodada da nuvem e outra (o @pelandobr posta 7 a 10 por hora) ainda é vista. O GTA precisa de dois termos ("GTA"
     não acha "Grand Theft Auto VI")."""
     canais = config.TELEGRAM_CANAIS_BUSCA if canais is None else canais
-    termos = produtos.termos("telegram") if termos is None else termos
+    # (TVs desligadas, 26/10/2026: sem os termos das TVs)
+    termos = produtos.termos("telegram", produtos.familias_monitoradas()) if termos is None else termos
     return [(c, f"https://t.me/s/{c}?q={quote(t)}") for c in canais for t in termos]
 
 

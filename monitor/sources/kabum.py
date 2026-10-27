@@ -207,19 +207,21 @@ class KaBuM(Fonte):
 
 
 class KaBuMProdutos(Fonte):
-    """PS5, GTA 6 e leitor na KaBuM: a lista de consoles (1 pedido), a API dos anúncios do catálogo que a lista não
-    trouxe (GTA 6, leitor, kit) e a cotação de frete do GTA 6."""
+    """PS5, GTA 6 e leitor na KaBuM: a lista de consoles (1 pedido), a lista dos gift cards da PlayStation Store (1
+    pedido, 26/10/2026: o gift card paga o GTA 6 digital na PS Store), a API dos anúncios do catálogo que as listas não
+    trouxeram (GTA 6, leitor, kit) e a cotação de frete do GTA 6."""
 
     nome = "kabum.produtos"
 
     def coletar(self) -> Resultado:
         por_id: dict[str, Oferta] = {}
         erros: list[str] = []
-        try:
-            for o in parse_lista(get_html(config.URL_KABUM_LISTA_CONSOLES), self.nome):
-                por_id.setdefault(o.id, o)
-        except Exception as e:  # noqa: BLE001
-            erros.append(f"lista: {type(e).__name__}: {str(e)[:120]}")
+        for rotulo, url in (("lista", config.URL_KABUM_LISTA_CONSOLES), ("gift card", config.URL_KABUM_LISTA_GIFT)):
+            try:
+                for o in parse_lista(get_html(url), self.nome):
+                    por_id.setdefault(o.id, o)
+            except Exception as e:  # noqa: BLE001 - uma lista que falha não derruba a outra
+                erros.append(f"{rotulo}: {type(e).__name__}: {str(e)[:120]}")
         for pid, esperado in produtos.ids_da_loja("KaBuM!", config._NAO_TV).items():
             if not pid.isdigit() or pid in por_id:
                 continue

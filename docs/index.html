@@ -76,6 +76,8 @@
   .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); padding:8px 4px 4px; }
   .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
   .empty { color:var(--ink-3); font-size:14px; padding:14px; }
+  .facts.facts-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  [hidden] { display:none !important; }
   .cols { display:grid; grid-template-columns:1fr 1fr; gap:22px; } @media (max-width:800px) { .cols { grid-template-columns:1fr; } }
   ul.lista { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
   ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:14px; overflow-wrap:anywhere; }
@@ -88,17 +90,28 @@
 <body>
 <div class="page">
   <div class="eyebrow">Monitor de preço · atualizado <span id="quando">—</span></div>
-  <h1>TCL C6K · PS5 · GTA 6</h1>
-  <nav class="secoes"><a href="#tvs">TVs</a><a href="#secao-PS5">PS5</a><a href="#secao-GTA6">GTA 6</a><a href="#cupons">Cupons e postagens</a></nav>
-  <p class="sub" id="tvs">TVs QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+  <h1 id="titulo">PS5 · GTA 6</h1>
+  <nav class="secoes"><a href="#tvs" id="nav-tvs" hidden>TVs</a><a href="#secao-PS5">PS5</a><a href="#secao-GTA6">GTA 6</a><a href="#gift">Gift card PSN</a><a href="#cupons">Cupons e postagens</a></nav>
+  <p class="sub">PS5 em todas as versões, GTA 6 em todas as formas e o gift card PlayStation para pagar o GTA 6 digital na PS Store. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+
+  <!-- cartões gerais (fora da parte das TVs: com as TVs desligadas ela some e estes ficam) -->
+  <div class="facts" id="facts-geral">
+    <div class="fact"><div class="k">Cupons ativos</div><div class="v" id="f-cupons">—</div><div class="s" id="f-cupons-s">—</div></div>
+    <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
+    <div class="fact"><div class="k">Melhor gift card PSN</div><div class="v" id="f-gift">—</div><div class="s" id="f-gift-s">—</div></div>
+    <div class="fact"><div class="k">GTA 6 Standard c/ gift</div><div class="v" id="f-gift-std">—</div><div class="s" id="f-gift-std-s">—</div></div>
+    <div class="fact"><div class="k">GTA 6 Ultimate c/ gift</div><div class="v" id="f-gift-ult">—</div><div class="s" id="f-gift-ult-s">—</div></div>
+  </div>
+
+  <!-- TVs (26/10/2026: o usuário ficou com a TV; com "tvs_desligadas" no latest esta parte fica escondida) -->
+  <div id="bloco-tvs" class="so-tv" hidden>
+  <p class="sub" id="tvs">TVs QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>.</p>
 
   <h3 class="modelo-cab"><span class="chip m55">55"</span> TCL 55C6K</h3>
-  <div class="facts">
+  <div class="facts facts-3">
     <div class="fact"><div class="k">Melhor à vista agora</div><div class="v" id="f-melhor">—</div><div class="s" id="f-melhor-s">—</div></div>
     <div class="fact"><div class="k">Melhor parcelado agora</div><div class="v" id="f-parc">—</div><div class="s" id="f-parc-s">—</div></div>
     <div class="fact"><div class="k">Menor já visto</div><div class="v" id="f-min">—</div><div class="s" id="f-min-s">—</div></div>
-    <div class="fact"><div class="k">Cupons ativos</div><div class="v" id="f-cupons">—</div><div class="s" id="f-cupons-s">—</div></div>
-    <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
   </div>
 
   <h3 class="modelo-cab"><span class="chip m65">65"</span> TCL 65C6K</h3>
@@ -125,6 +138,7 @@
 
   <h2>Histórico da 65C6K</h2>
   <div class="chart-wrap"><canvas id="chart-65" width="1060" height="300"></canvas><div class="legend" id="legend-65"></div></div>
+  </div>
 
   <!-- PS5 e GTA 6 (03/10/2026): uma seção por família, montada pelo catálogo do latest ('produtos') -->
   <section id="secao-PS5"></section>
@@ -343,6 +357,59 @@ function infoProduto(o) {
   return partes.map(p => `<span class="sub2">${esc(p)}</span>`).join('');
 }
 
+// ---- gift card PlayStation para pagar o GTA 6 digital (26/10/2026; latest.gift_card_psn, calculado no monitor): o
+// melhor cartão de loja oficial (maior desconto) e o custo do GTA 6 digital com a melhor combinação de valores de face
+// (o saldo da carteira é usado primeiro e o resto vai para o cartão de crédito). Os dois modos juntos.
+const pctTxt = d => `${(d * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0})}%`;
+function giftDosModos(fontes) {
+  const blocos = fontes.map(f => f.gift_card_psn).filter(b => b && typeof b === 'object');
+  if (!blocos.length) return null;
+  const vistos = new Map();
+  for (const b of blocos) for (const c of (b.cartoes || [])) {
+    const k = [normLoja(c.loja), c.valor_face, c.preco].join('|');
+    if (!vistos.has(k)) vistos.set(k, c);
+  }
+  const cartoes = [...vistos.values()].sort((a, b) => (b.desconto - a.desconto) || (a.preco - b.preco));
+  const gta = {};
+  for (const b of blocos) for (const [pid, g] of Object.entries(b.gta || {}))
+    if (!gta[pid] || g.custo < gta[pid].custo) gta[pid] = g;
+  const regra = blocos.find(b => b.regra)?.regra || {};
+  return {melhor: cartoes[0] || null, cartoes, gta, regra};
+}
+const textoCartoes = g => (g.cartoes || []).map(c => `R$ ${Math.round(c.valor_face)} (${c.loja}, ${fmt(c.preco)})`).join(' + ')
+  + (g.no_cartao ? ` + ${fmt(g.no_cartao)} no cartão` : '') + (g.sobra ? `; sobram ${fmt(g.sobra)} de saldo` : '');
+function preencheGift(gift) {
+  const set = (id, v) => { document.getElementById(id).textContent = v; };
+  const m = gift?.melhor;
+  set('f-gift', m ? fmt(m.preco) : '—');
+  set('f-gift-s', m ? `vale R$ ${Math.round(m.valor_face)} · ${pctTxt(m.desconto)} · ${m.loja}` : 'nenhum com desconto em loja oficial');
+  for (const [pid, id] of [['GTA6_DIGITAL', 'f-gift-std'], ['GTA6_ULTIMATE', 'f-gift-ult']]) {
+    const g = gift?.gta?.[pid];
+    set(id, g ? fmt(g.custo) : '—');
+    set(id + '-s', g ? `−${pctTxt(g.desconto)} · ${textoCartoes(g)}` : 'sem gift card que baixe o preço');
+  }
+}
+function blocoGift(gift) {
+  const r = gift?.regra || {}, meta = r.meta ?? 0.15;
+  const prazo = r.prazo ? r.prazo.slice(8, 10) + '/' + r.prazo.slice(5, 7) : '11/11';
+  let html = `<h3 class="modelo-cab" id="gift">Gift card PlayStation · pagar o GTA 6 digital na PS Store</h3>`;
+  const m = gift?.melhor;
+  if (!m) return html + `<p class="nota">Nenhum gift card com desconto em loja oficial agora (PS Store, Hype, Nuuvem, loja oficial PlayStation no Mercado Livre, ou vendido pela própria KaBuM, Americanas, Amazon ou Magalu). Meta: ${pctTxt(meta)} de desconto ou mais; comprar e resgatar até ${prazo}.</p>`;
+  html += `<p class="sub" id="gift-melhor">Melhor agora: <b>${fmt(m.preco)}</b> pelo cartão de <b>R$ ${Math.round(m.valor_face)}</b> (${esc(pctTxt(m.desconto))} de desconto) · ${esc(m.loja)}${m.tipo === 'post' ? ' · postagem' : ''}${m.cupom ? ` · cupom <code>${esc(m.cupom)}</code>` : ''}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">abrir</a>` : ''}${m.desconto >= meta - 1e-9 ? ' <span class="chip ok">na meta</span>' : ''}</p>`;
+  const linhas = Object.values(gift.gta || {}).sort((a, b) => (a.edicao || '').localeCompare(b.edicao || '')).reverse();
+  if (linhas.length) html += `<div class="tbl"><table id="t-gift-gta"><thead><tr><th>GTA 6 digital</th><th>PS Store</th><th>Pagando com gift card</th><th>Meta (${pctTxt(r.minimo ?? 0.15)})</th><th>Cartões</th></tr></thead><tbody>${linhas.map(g => `<tr>
+    <td><b>${esc(g.edicao || g.nome)}</b></td><td class="num">${fmt(g.preco_psstore)}</td>
+    <td class="num ${g.custo <= g.meta ? 'ok-t' : ''}"><b>${fmt(g.custo)}</b><span class="sub2">−${pctTxt(g.desconto)} · economia ${fmt(g.economia)}</span></td>
+    <td class="num">${fmt(g.meta)}<span class="sub2">aceitável ${fmt(g.aceitavel)} · ótimo ${fmt(g.otimo)}</span></td>
+    <td>${esc(textoCartoes(g))}</td></tr>`).join('')}</tbody></table></div>`;
+  const outros = (gift.cartoes || []).slice(0, 6);
+  if (outros.length > 1) html += `<div class="tbl"><table id="t-gift"><thead><tr><th>Loja</th><th>Valor de face</th><th>Preço</th><th>Desconto</th><th></th></tr></thead><tbody>${outros.map(c => `<tr>
+    <td><b>${esc(c.loja)}</b>${c.tipo === 'post' ? '<span class="sub2">postagem</span>' : ''}</td><td class="num">R$ ${Math.round(c.valor_face)}</td>
+    <td class="num"><b>${fmt(c.preco)}</b></td><td class="num ${c.desconto >= meta - 1e-9 ? 'ok-t' : ''}">${pctTxt(c.desconto)}</td>
+    <td>${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">abrir</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  return html + `<p class="nota">Só cartão [Exclusivo Brasil] de loja oficial. O saldo da carteira é usado primeiro e o resto vai para o cartão de crédito; a Sony tem um limite de saldo que não divulga (a conta não passa de R$ 700). Meta: ${pctTxt(meta)} de desconto ou mais (🔥 a partir de ${pctTxt(r.excelente ?? 0.2)}). Para jogar no lançamento: comprar e resgatar o cartão e fazer a pré-venda até ${prazo} (pré-carregamento a partir de 12/11).</p>`;
+}
+
 // distância do preço até a meta: "R$ 49,00 acima" / "R$ 51,00 abaixo"
 const distMeta = (v, meta) => v == null || !meta ? '—' : (v - meta > 0.5 ? `${fmt(v - meta)} acima` : v - meta < -0.5 ? `${fmt(meta - v)} abaixo` : 'na meta');
 const ENTREGA_CLASSE = {a_tempo: 'ok', digital: 'ok', no_dia: 'warn', depois: 'bad', desconhecida: 'mute'};
@@ -360,6 +427,15 @@ function secaoFamilia(sec, titulo, ctx, posts, gtaFinal) {
     const p = CATALOGO[id], r = painelDoModelo(id, ctx);
     const meta = {pix: p.alvo_pix, parcelado: p.alvo_parcelado};
     const metaOferta = r.melhor?.extra?.alvo?.pix ?? meta.pix;
+    const g = id === 'GIFT_CARD_PSN' ? ctx.gift?.melhor : null;
+    if (g) {
+      // gift card: o melhor é o de maior desconto (não o cartão mais barato, que é só o de menor valor de face)
+      const mg = ctx.gift.regra?.meta ?? 0.15;
+      resumo.push(`<tr><td><b>${esc(p.nome)}</b></td><td class="num">${pctTxt(mg)} de desconto<span class="sub2">por oferta</span></td>
+      <td class="num"><b>${fmt(g.preco)}</b><span class="sub2">vale R$ ${Math.round(g.valor_face)} · ${esc(g.loja)}</span></td>
+      <td class="num">—</td><td class="num">—</td>
+      <td class="num ${g.desconto >= mg - 1e-9 ? 'ok-t' : ''}">${pctTxt(g.desconto)} de desconto</td></tr>`);
+    } else
     resumo.push(`<tr><td><b>${esc(p.nome)}</b>${p.edicao ? `<span class="sub2">edição ${esc(p.edicao)}</span>` : ''}</td>
       <td class="num">${meta.pix != null ? fmt(meta.pix) : '<span class="sub2">por oferta</span>'}${meta.parcelado != null && meta.parcelado !== meta.pix ? `<span class="sub2">parc. ${fmt(meta.parcelado)}</span>` : ''}${p.alvo_pix_tardio ? `<span class="sub2">chega depois: ${fmt(p.alvo_pix_tardio)}</span>` : ''}</td>
       <td class="num"><b>${r.melhor ? fmt(r.melhor.melhor_preco) : '—'}</b>${r.melhor ? `<span class="sub2">${esc(quem(r.melhor))}</span>` : ''}</td>
@@ -370,12 +446,13 @@ function secaoFamilia(sec, titulo, ctx, posts, gtaFinal) {
     const idc = 'chart-' + id, idl = 'legend-' + id;
     detalhes.push(`<details class="prod" id="prod-${esc(id)}"><summary>${esc(p.nome)}<span class="sub2">${r.melhor ? 'melhor ' + fmt(r.melhor.melhor_preco) + ' · ' + esc(quem(r.melhor)) : 'sem coleta recente'}</span></summary><div class="corpo">
       <div class="tbl"><table><thead><tr><th>Loja</th><th>À vista</th><th>Pix</th><th>Parcelado (total)</th><th>Cupom</th><th>Fonte</th><th>Visto</th><th></th></tr></thead><tbody>${r.tabela}</tbody></table></div>
-      <div class="chart-wrap"><canvas id="${idc}" width="1060" height="260"></canvas><div class="legend" id="${idl}"></div></div></div></details>`);
-    graficos.push([idc, idl, r.serie, meta.pix]);
+      ${p.compara_preco === false ? '' : `<div class="chart-wrap"><canvas id="${idc}" width="1060" height="260"></canvas><div class="legend" id="${idl}"></div></div>`}</div></details>`);
+    if (p.compara_preco !== false) graficos.push([idc, idl, r.serie, meta.pix]);
   }
   let html = `<h2>${esc(titulo)}</h2>
     <div class="tbl"><table><thead><tr><th>Produto</th><th>Meta à vista</th><th>Melhor à vista agora</th><th>Melhor parcelado agora</th><th>Menor já visto</th><th>Distância da meta</th></tr></thead><tbody>${resumo.join('')}</tbody></table></div>
-    <p class="nota">Metas aprovadas em 03/10 (Pix / total parcelado sem juros). Kit e edição especial: meta do console-base mais o valor do extra; gift card: 15% de desconto ou mais em loja oficial.</p>`;
+    <p class="nota">Metas aprovadas em 03/10 (Pix / total parcelado sem juros). Kit e edição especial: meta do console-base mais o valor do extra; gift card: 15% de desconto ou mais em loja oficial, em cartão de R$ 100 ou mais (10% de 01/11 a 11/11, perto do prazo da pré-venda).</p>`;
+  if (sec === 'GTA6') html += blocoGift(ctx.gift);
   if (gtaFinal) html += gtaFinal;
   html += detalhes.join('');
   const recentes = posts.filter(p => CATALOGO[modeloDe(p)]?.secao === sec).slice(0, 10);
@@ -437,6 +514,15 @@ function tabelaCustoFinal(fontes) {
   CATALOGO = Object.assign({}, ...fontes.map(f => (f.produtos && typeof f.produtos === 'object') ? f.produtos : {}));
   const ultimo = fontes.map(f => f.atualizado).sort().pop();
   document.getElementById('quando').textContent = dt(ultimo);
+  // TVs desligadas (26/10/2026: o usuário ficou com a TV): basta um modo publicar o sinal para a parte das TVs sumir
+  // (tabelas, cartões, gráficos, comparação, o link do menu) e as postagens e cupons de TV saírem das listas. Latest
+  // antigo, sem o sinal: o painel com as TVs, como antes
+  const semTVs = fontes.some(f => f.tvs_desligadas === true);
+  document.getElementById('bloco-tvs').hidden = semTVs;
+  document.getElementById('nav-tvs').hidden = semTVs;
+  document.getElementById('titulo').textContent = semTVs ? 'PS5 · GTA 6' : 'TCL C6K · PS5 · GTA 6';
+  const gift = giftDosModos(fontes);
+  preencheGift(gift);
   const alvos = Object.fromEntries(MODELOS.map(m => [m, alvosDe(cloud, m) || alvosDe(pc, m) || {}]));
   document.getElementById('alvo-pix').textContent = fmt(alvos['55C6K'].pix);
   document.getElementById('alvo-parc').textContent = fmt(alvos['55C6K'].parcelado);
@@ -457,7 +543,7 @@ function tabelaCustoFinal(fontes) {
   const hist = {cloud: parseCsv(csv1).filter(ehLinhaLoja), pc: parseCsv(csv2).filter(ehLinhaLoja)};
   const diretasHist = new Set([...diretas, ...lojasDiretas([...hist.cloud, ...hist.pc])]);
   const vale = o => !(ehAgregador(o) && diretasHist.has(normLoja(o.loja))) && !reprovado(o);
-  const ctx = {fontes, todas, reprovado, diretas, hist, vale};
+  const ctx = {fontes, todas, reprovado, diretas, hist, vale, gift};
   const res = Object.fromEntries(MODELOS.map(m => [m, painelDoModelo(m, ctx)]));
 
   const r55 = res['55C6K'], r65 = res['65C6K'];
@@ -478,7 +564,7 @@ function tabelaCustoFinal(fontes) {
   document.querySelector('#t-comparar tbody').innerHTML = comparacao(res);
 
   // ---- cupons
-  const cupons = fontes.flatMap(f => f.cupons || []);
+  const cupons = fontes.flatMap(f => f.cupons || []).filter(c => !(semTVs && c.modelo && ehTV(modeloDe(c))));
   const porCodigo = new Map();
   cupons.forEach(c => { const k = c.loja + '|' + c.codigo; if (!porCodigo.has(k)) porCodigo.set(k, c); });
   const lc = [...porCodigo.values()].sort((a, b) => (a.loja + a.codigo).localeCompare(b.loja + b.codigo));
@@ -487,7 +573,7 @@ function tabelaCustoFinal(fontes) {
   document.getElementById('l-cupons').innerHTML = lc.length ? lc.slice(0, 40).map(c => `<li><b>${esc(c.loja)}</b> <code>${esc(c.codigo)}</code>${c.especifico ? ' <span class="chip ok">produto</span>' : ''}${c.especifico && c.modelo ? ' ' + chipModelo(modeloDe(c)) : ''}<br>${esc(c.titulo)}${c.regra && c.regra !== c.titulo ? `<span class="meta"><br>${esc(c.regra.slice(0, 140))}</span>` : ''}<span class="meta"><br>${esc(c.fonte)}${c.validade ? ' · até ' + dt(c.validade) : ''} · <a href="${esc(c.url)}" target="_blank" rel="noopener">ver</a></span></li>`).join('') : '<li class="empty">Nenhum cupom aplicável no momento.</li>';
 
   // ---- postagens (as duas TVs; o selo diz de qual é)
-  let posts = fontes.flatMap(f => f.posts || []);
+  let posts = fontes.flatMap(f => f.posts || []).filter(p => !(semTVs && ehTV(modeloDe(p))));
   const pv = new Set();
   posts = posts.filter(p => { if (pv.has(p.chave)) return false; pv.add(p.chave); return true; });
   posts.sort((a, b) => (b.publicado || b.primeira_vez || '').localeCompare(a.publicado || a.primeira_vez || ''));

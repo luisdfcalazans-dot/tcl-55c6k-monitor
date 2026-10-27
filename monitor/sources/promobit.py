@@ -48,7 +48,8 @@ class PromobitBusca(Fonte):
         # os termos do catálogo (monitor/produtos.py): os das duas TVs ("tcl c6k 65" pega "65 Polegadas ... C6K" sem o
         # código colado), do PS5, do GTA 6 ("gta vi", "gta 6" e "grand theft auto vi" trazem conjuntos diferentes), do
         # gift card e do leitor; cada postagem fica com o produto do título dela, qualquer que seja a busca que a trouxe
-        for q in produtos.termos("promobit"):
+        # (TVs desligadas, 26/10/2026: sem os termos das TVs)
+        for q in produtos.termos("promobit", produtos.familias_monitoradas()):
             data = get_json(f"https://api.promobit.com.br/search?q={quote(q)}", headers=_HEADERS)
             for item in data.get("active_offers") or []:
                 o = _oferta_de_item(item, True)
