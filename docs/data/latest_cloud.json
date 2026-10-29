@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-29T00:03:16-03:00",
+ "atualizado": "2026-10-29T05:45:09-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -655,10 +655,6 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-16",
-    "entrega_ate_lancamento": false,
-    "cep_referencia": false,
-    "entrega_origem": "simulação de frete",
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
@@ -674,10 +670,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-16",
-     "origem": "loja",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "data": null,
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -1201,7 +1197,7 @@
     "anuncio": "hg9286bd4c",
     "vendedor_id": "negociunoficial",
     "ficha": {
-     "avaliacoes": 1132,
+     "avaliacoes": 1135,
      "peso_kg": 4.1,
      "razao_social": "negociunoficial",
      "vendedor_desde": "2025-03-17",
@@ -1369,7 +1365,7 @@
     "anuncio": "240604800",
     "vendedor_id": "magazineluiza",
     "ficha": {
-     "avaliacoes": 1132,
+     "avaliacoes": 1135,
      "peso_kg": 4.9,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -1641,7 +1637,7 @@
     "anuncio": "240590700",
     "vendedor_id": "magazineluiza",
     "ficha": {
-     "avaliacoes": 3576,
+     "avaliacoes": 3579,
      "peso_kg": 4.9,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -1778,7 +1774,7 @@
       "vendas"
      ],
      "sinais": [
-      "anúncio sem avaliações (o da loja confiável tem 3.576)"
+      "anúncio sem avaliações (o da loja confiável tem 3.579)"
      ],
      "codigos": [
       "sem_avaliacoes"
@@ -1814,7 +1810,7 @@
     "anuncio": "aebh5a7a94",
     "vendedor_id": "kabum",
     "ficha": {
-     "avaliacoes": 3576,
+     "avaliacoes": 3579,
      "peso_kg": 3.808,
      "razao_social": "KABUM S.A.",
      "vendedor_desde": "2021-06-30",
@@ -2148,7 +2144,7 @@
     "anuncio": "240590800",
     "vendedor_id": "magazineluiza",
     "ficha": {
-     "avaliacoes": 4929,
+     "avaliacoes": 4935,
      "peso_kg": 4.9,
      "razao_social": "Magazine Luiza SA",
      "vendedor_desde": "2016-06-01",
@@ -2285,7 +2281,7 @@
       "vendas"
      ],
      "sinais": [
-      "anúncio sem avaliações (o da loja confiável tem 3.576)"
+      "anúncio sem avaliações (o da loja confiável tem 3.579)"
      ],
      "codigos": [
       "sem_avaliacoes"
@@ -2321,7 +2317,7 @@
     "anuncio": "bja6dfc54b",
     "vendedor_id": "kabum",
     "ficha": {
-     "avaliacoes": 4929,
+     "avaliacoes": 4935,
      "peso_kg": 4.8,
      "razao_social": "KABUM S.A.",
      "vendedor_desde": "2021-06-30",
@@ -2398,7 +2394,7 @@
      ],
      "sinais": [
       "peso na ficha 0,006 kg (o PS5 tem ~2,6 kg ou mais)",
-      "anúncio sem avaliações (o da loja confiável tem 4.929)"
+      "anúncio sem avaliações (o da loja confiável tem 4.935)"
      ],
      "codigos": [
       "peso_irreal",
@@ -2457,7 +2453,7 @@
       "vendas"
      ],
      "sinais": [
-      "anúncio sem avaliações (o da loja confiável tem 4.929)"
+      "anúncio sem avaliações (o da loja confiável tem 4.935)"
      ],
      "codigos": [
       "sem_avaliacoes"
@@ -2768,7 +2764,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3151472",
    "melhor_preco": 379.91,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 379.91,
    "menor_preco": 379.91
   },
@@ -2920,7 +2916,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3151235",
    "melhor_preco": 3999.0,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 3999.0,
    "menor_preco": 3999.0
   },
@@ -2962,7 +2958,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150934",
    "melhor_preco": 360.91,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 360.91,
    "menor_preco": 360.91
   },
@@ -3049,7 +3045,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150183",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3129,7 +3125,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150108",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-29T00:03:15-03:00"
+   "ultima_vez": "2026-10-29T05:45:07-03:00"
   },
   {
    "primeira_vez": "2026-10-28T15:59:23-03:00",
@@ -3169,7 +3165,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150102",
    "melhor_preco": 357.73,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 357.73,
    "menor_preco": 357.73
   },
@@ -3211,7 +3207,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150032",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-29T00:03:15-03:00"
+   "ultima_vez": "2026-10-29T05:45:07-03:00"
   },
   {
    "primeira_vez": "2026-10-28T15:59:23-03:00",
@@ -3251,7 +3247,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150019",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-29T00:03:15-03:00"
+   "ultima_vez": "2026-10-29T05:45:07-03:00"
   },
   {
    "primeira_vez": "2026-10-28T15:59:23-03:00",
@@ -3369,7 +3365,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3149727",
    "melhor_preco": 541.85,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 541.85,
    "menor_preco": 541.85
   },
@@ -3407,7 +3403,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/84107#PS5_DIGITAL",
    "melhor_preco": 3783.12,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 3783.12,
    "menor_preco": 3783.12
   },
@@ -3642,7 +3638,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3149036",
    "melhor_preco": 6881.0,
-   "ultima_vez": "2026-10-29T00:03:15-03:00",
+   "ultima_vez": "2026-10-29T05:45:07-03:00",
    "ultimo_preco": 6881.0,
    "menor_preco": 6881.0
   },
@@ -4398,7 +4394,7 @@
    "custo_final": 400.41,
    "cupom": null,
    "entrega": "depois",
-   "entrega_texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)",
+   "entrega_texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
   },
   {
@@ -5099,72 +5095,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:24-03:00",
+   "ultimo_ok": "2026-10-29T05:44:15-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:33-03:00",
+   "ultimo_ok": "2026-10-29T05:44:24-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:03:13-03:00",
+   "ultimo_ok": "2026-10-29T05:45:04-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:26-03:00",
+   "ultimo_ok": "2026-10-29T05:44:17-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:41-03:00",
+   "ultimo_ok": "2026-10-29T05:44:33-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:47-03:00",
+   "ultimo_ok": "2026-10-29T05:44:38-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:48-03:00",
+   "ultimo_ok": "2026-10-29T05:44:39-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:49-03:00",
+   "ultimo_ok": "2026-10-29T05:44:41-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:52-03:00",
+   "ultimo_ok": "2026-10-29T05:44:43-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:02:53-03:00",
+   "ultimo_ok": "2026-10-29T05:44:44-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 512,
+   "falhas": 513,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-29T00:02:59-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-29T05:44:50-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:03:01-03:00",
+   "ultimo_ok": "2026-10-29T05:44:52-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:03:03-03:00",
+   "ultimo_ok": "2026-10-29T05:44:53-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T00:03:04-03:00",
+   "ultimo_ok": "2026-10-29T05:44:56-03:00",
    "ultimo_erro": null
   }
  },
