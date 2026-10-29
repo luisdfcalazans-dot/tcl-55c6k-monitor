@@ -1,47 +1,8 @@
 {
  "modo": "pc",
- "atualizado": "2026-10-26T21:39:47-03:00",
- "alvo_pix": 2900.0,
- "alvo_parcelado": 3000.0,
- "alvos": {
-  "55C6K": {
-   "pix": 2900.0,
-   "parcelado": 3000.0
-  },
-  "65C6K": {
-   "pix": 3427.0,
-   "parcelado": 3427.0
-  }
- },
+ "atualizado": "2026-10-28T22:18:40-03:00",
+ "tvs_desligadas": true,
  "produtos": {
-  "55C6K": {
-   "nome": "TCL 55C6K",
-   "curto": "55\"",
-   "familia": "TV",
-   "secao": "TV",
-   "alvo_pix": 2900.0,
-   "alvo_parcelado": 3000.0,
-   "alvo_pix_tardio": null,
-   "alvo_parcelado_tardio": null,
-   "compara_preco": true,
-   "digital": false,
-   "gta_fisico": false,
-   "edicao": null
-  },
-  "65C6K": {
-   "nome": "TCL 65C6K",
-   "curto": "65\"",
-   "familia": "TV",
-   "secao": "TV",
-   "alvo_pix": 3427.0,
-   "alvo_parcelado": 3427.0,
-   "alvo_pix_tardio": null,
-   "alvo_parcelado_tardio": null,
-   "compara_preco": true,
-   "digital": false,
-   "gta_fisico": false,
-   "edicao": null
-  },
   "PS5_DIGITAL": {
    "nome": "PS5 Slim Digital",
    "curto": "PS5 Digital",
@@ -211,28 +172,6 @@
    "edicao": null
   }
  },
- "minimo": {
-  "preco": 3060.0,
-  "loja": "Amazon",
-  "quando": "2026-10-07T22:52:00-03:00",
-  "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET",
-  "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-  "vendedor": "Magalu.",
-  "vendedor_id": "ACUNARZFR75ET",
-  "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
-  "modelo": "55C6K"
- },
- "minimo_65C6K": {
-  "preco": 3352.72,
-  "loja": "Mercado Livre",
-  "quando": "2026-10-08T23:20:33-03:00",
-  "url": "https://www.mercadolivre.com.br/p/MLB50368907?pdp_filters=item_id%3AMLB5446673958",
-  "titulo": "Smart Tv Tcl 65 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 65c6k",
-  "vendedor": "Mercado Livre",
-  "vendedor_id": "480263032",
-  "chave": "mercadolivre:MLB5446673958",
-  "modelo": "65C6K"
- },
  "minimo_PS5_DIGITAL": {
   "preco": 3838.0,
   "loja": "Amazon",
@@ -300,9 +239,9 @@
   "modelo": "GTA6_CODE_IN_BOX"
  },
  "minimo_LEITOR_PS5": {
-  "preco": 602.06,
+  "preco": 588.71,
   "loja": "Amazon",
-  "quando": "2026-10-23T15:49:26-03:00",
+  "quando": "2026-10-28T21:06:41-03:00",
   "url": "https://www.amazon.com.br/dp/B0CL5HJNLM?smid=A1ZZFT5FULY4LN",
   "titulo": "Drive de Disco para Console PlayStation®5 Slim e Pro",
   "vendedor": "Amazon.com.br Política de devolução",
@@ -318,8 +257,8 @@
    "titulo": "Estojo de transporte para consoles de jogos PS5 Bolsa de armazenamento Caso de viagem protetor",
    "url": "https://www.amazon.com.br/dp/B0CP3THYYY?smid=A27GZR1DUGZLXM",
    "id": "B0CP3THYYY-A27GZR1DUGZLXM",
-   "preco": 286.59,
-   "preco_pix": null,
+   "preco": 298.44,
+   "preco_pix": 286.59,
    "parcelado": "6x R$ 49,74 sem juros",
    "cupom": null,
    "publicado": null,
@@ -404,8 +343,8 @@
    "titulo": "Drive de Disco para Console PlayStation®5 Slim e Pro",
    "url": "https://www.amazon.com.br/dp/B0CL5HJNLM?smid=A1ZZFT5FULY4LN",
    "id": "B0CL5HJNLM-A1ZZFT5FULY4LN",
-   "preco": 602.06,
-   "preco_pix": null,
+   "preco": 602.6,
+   "preco_pix": 588.71,
    "parcelado": "10x R$ 60,26 sem juros",
    "cupom": null,
    "publicado": null,
@@ -431,45 +370,7 @@
    },
    "modelo": "LEITOR_PS5",
    "chave": "amazon.produtos:B0CL5HJNLM-A1ZZFT5FULY4LN",
-   "melhor_preco": 602.06
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "Leitor de Disco Para Playstation 5 Slim, PS5 Pro Sony, Edição digital, Branco - CFI-2000 - slim",
-   "url": "https://www.netshoes.com.br/p/leitor-de-disco-para-playstation-5-slim-ps5-pro-sony-edicao-digital-branco-cfi2000-slim-D32-288O-014",
-   "id": "D32-288O-014-30835",
-   "preco": 602.06,
-   "preco_pix": null,
-   "parcelado": "8x R$ 75,26 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "anuncio": "D32-288O-014",
-    "sku": "D32-288O-014-01",
-    "vendedor_id": "30835",
-    "preco_de": 649.0,
-    "pre_venda": false,
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": ""
-    }
-   },
-   "modelo": "LEITOR_PS5",
-   "chave": "netshoes:D32-288O-014-30835",
-   "melhor_preco": 602.06
+   "melhor_preco": 588.71
   },
   {
    "fonte": "amazon.produtos",
@@ -536,8 +437,8 @@
     "vendedor_id": "A5AWFXGJJU4NV",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 2789,
-     "positivas_pct": 35,
+     "avaliacoes_vendedor": 2791,
+     "positivas_pct": 34,
      "enviado_por": "DOMUS SHOP",
      "full": false
     },
@@ -550,7 +451,7 @@
      ],
      "sinais": [
       "não é enviado pela loja (sem Full)",
-      "vendedor com só 35% de avaliações positivas (2.789 avaliações)"
+      "vendedor com só 34% de avaliações positivas (2.791 avaliações)"
      ],
      "codigos": [
       "sem_full",
@@ -649,379 +550,15 @@
    "melhor_preco": 1157.1
   },
   {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A3R1Z59ZORN2J9",
-   "id": "B0F7JZMVKF-A3R1Z59ZORN2J9",
-   "preco": null,
-   "preco_pix": 3219.55,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCLSEMP.",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A3R1Z59ZORN2J9",
-    "disponibilidade": "em estoque",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 88,
-     "positivas_pct": 66,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A3R1Z59ZORN2J9",
-   "melhor_preco": 3219.55
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A36NFQ0JF1778U",
-   "id": "B0F7JZMVKF-A36NFQ0JF1778U",
-   "preco": null,
-   "preco_pix": 3220.5,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Fast Shop BR",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A36NFQ0JF1778U",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 1,
-     "positivas_pct": 100,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "vendedor com 1 avaliações"
-     ],
-     "codigos": [
-      "vendedor_sem_historico"
-     ]
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A36NFQ0JF1778U",
-   "melhor_preco": 3220.5
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A3POF6EIWE8R8",
-   "id": "B0F7JZMVKF-A3POF6EIWE8R8",
-   "preco": null,
-   "preco_pix": 3229.05,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Imagem Hitech FULL",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A3POF6EIWE8R8",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 3408,
-     "positivas_pct": 100,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A3POF6EIWE8R8",
-   "melhor_preco": 3229.05
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=ACUNARZFR75ET",
-   "id": "B0F7JZMVKF-ACUNARZFR75ET",
-   "preco": null,
-   "preco_pix": 3230.0,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu.",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "ACUNARZFR75ET",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 4533,
-     "positivas_pct": 60,
-     "enviado_por": "Magalu.",
-     "full": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-ACUNARZFR75ET",
-   "melhor_preco": 3230.0
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A1ZZFT5FULY4LN",
-   "id": "B0F7JZMVKF-A1ZZFT5FULY4LN",
-   "preco": null,
-   "preco_pix": 3314.15,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Amazon.com.br Política de devolução",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A1ZZFT5FULY4LN",
-    "destaque": false,
-    "ficha": {
-     "enviado_por": "Amazon.com.br",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A1ZZFT5FULY4LN",
-   "melhor_preco": 3314.15
-  },
-  {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv Tcl 55 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 55c6k",
-   "url": "https://www.mercadolivre.com.br/p/MLB48808732?pdp_filters=item_id%3AMLB6713012362",
-   "id": "MLB6713012362",
-   "preco": 3569.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 356,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCL",
-   "extra": {
-    "anuncio": "MLB6713012362",
-    "item_id": "MLB6713012362",
-    "catalogo": "MLB48808732",
-    "opcoes_no_catalogo": 7,
-    "vendedor_id": "3328858476",
-    "vendas_vendedor": 1000,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "mercadolivre:MLB6713012362",
-   "melhor_preco": 3569.0
-  },
-  {
-   "fonte": "aliexpress",
-   "tipo": "loja",
-   "loja": "AliExpress",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB R$ 3.989 R$ 3.989 R$ 4.199 R$ 4.199 -5% 4.8 5.000+",
-   "url": "https://pt.aliexpress.com/item/1005009459962683.html",
-   "id": "1005009459962683",
-   "preco": 3989.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "aliexpress:1005009459962683",
-   "melhor_preco": 3989.0
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A3POF6EIWE8R8",
-   "id": "B0F7K7B2PD-A3POF6EIWE8R8",
-   "preco": null,
-   "preco_pix": 4074.45,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Imagem Hitech FULL",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A3POF6EIWE8R8",
-    "disponibilidade": "em estoque",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 3408,
-     "positivas_pct": 100,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A3POF6EIWE8R8",
-   "melhor_preco": 4074.45
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A2N41YKGM6QF7G",
-   "id": "B0F7K7B2PD-A2N41YKGM6QF7G",
-   "preco": null,
-   "preco_pix": 4075.4,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Mega Byte Magazine",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A2N41YKGM6QF7G",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 7863,
-     "positivas_pct": 90,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A2N41YKGM6QF7G",
-   "melhor_preco": 4075.4
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
-   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
-   "id": "B0GWNKJDCZ-destaque",
-   "preco": 4299.0,
-   "preco_pix": 4084.05,
-   "parcelado": "12x R$ 358,25 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0GWNKJDCZ",
-    "asin": "B0GWNKJDCZ",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [
-      "a busca da Amazon não diz quem vende e o preço R$ 4.084,05 está abaixo da loja confiável mais barata (R$ 4.199,00, Mercado Livre/Loja oficial PlayStation); nova tentativa na próxima rodada"
-     ],
-     "codigos": [
-      "sem_vendedor"
-     ]
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
-   "melhor_preco": 4084.05
-  },
-  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "PlayStation®5 Slim Edição Digital",
    "url": "https://www.amazon.com.br/dp/B0CQKJN2C6",
    "id": "B0CQKJN2C6-destaque",
-   "preco": 4299.0,
-   "preco_pix": 4084.05,
-   "parcelado": "12x R$ 358,25 sem juros",
+   "preco": 4198.92,
+   "preco_pix": 3989.05,
+   "parcelado": "12x R$ 349,91 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -1040,7 +577,7 @@
       "preço"
      ],
      "sinais": [
-      "a busca da Amazon não diz quem vende e o preço R$ 4.084,05 está abaixo da loja confiável mais barata (R$ 4.199,00, Mercado Livre/Loja oficial PlayStation); nova tentativa na próxima rodada"
+      "a busca da Amazon não diz quem vende e o preço R$ 3.989,05 está abaixo da loja confiável mais barata (R$ 4.060,38, Amazon/Magalu.); nova tentativa na próxima rodada"
      ],
      "codigos": [
       "sem_vendedor"
@@ -1054,32 +591,131 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0CQKJN2C6-destaque",
-   "melhor_preco": 4084.05
+   "melhor_preco": 3989.05
   },
   {
-   "fonte": "amazon",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A36NFQ0JF1778U",
-   "id": "B0F7K7B2PD-A36NFQ0JF1778U",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A27TBZFHKSTLIW",
+   "id": "B0GWNKJDCZ-A27TBZFHKSTLIW",
+   "preco": 3989.05,
+   "preco_pix": null,
+   "parcelado": "12x R$ 349,91 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "NegociuN",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A27TBZFHKSTLIW",
+    "destaque": true,
+    "ficha": {
+     "avaliacoes_vendedor": 4853,
+     "positivas_pct": 87,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A27TBZFHKSTLIW",
+   "melhor_preco": 3989.05
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=AENDSMM69BUX2",
+   "id": "B0GWNKJDCZ-AENDSMM69BUX2",
    "preco": null,
-   "preco_pix": 4098.78,
+   "preco_pix": 3989.05,
    "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Fast Shop BR",
+   "vendedor": "KaBuM!",
    "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A36NFQ0JF1778U",
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "AENDSMM69BUX2",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 1,
-     "positivas_pct": 100,
+     "avaliacoes_vendedor": 1484,
+     "positivas_pct": 80,
      "enviado_por": "Amazon",
      "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-AENDSMM69BUX2",
+   "melhor_preco": 3989.05
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A3391ZCWNCQKXA",
+   "id": "B0GWNKJDCZ-A3391ZCWNCQKXA",
+   "preco": null,
+   "preco_pix": 3989.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "META SHOPPE",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A3391ZCWNCQKXA",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 141,
+     "positivas_pct": 54,
+     "enviado_por": "META SHOPPE",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
@@ -1089,16 +725,210 @@
       "avaliações do vendedor"
      ],
      "sinais": [
-      "vendedor com 1 avaliações"
+      "não é enviado pela loja (sem Full)"
      ],
      "codigos": [
-      "vendedor_sem_historico"
+      "sem_full"
      ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
     }
    },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A36NFQ0JF1778U",
-   "melhor_preco": 4098.78
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A3391ZCWNCQKXA",
+   "melhor_preco": 3989.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=ACUNARZFR75ET",
+   "id": "B0GWNKJDCZ-ACUNARZFR75ET",
+   "preco": null,
+   "preco_pix": 4060.38,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu.",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "ACUNARZFR75ET",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 4630,
+     "positivas_pct": 60,
+     "enviado_por": "Magalu.",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-ACUNARZFR75ET",
+   "melhor_preco": 4060.38
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A5AWFXGJJU4NV",
+   "id": "B0GWNKJDCZ-A5AWFXGJJU4NV",
+   "preco": null,
+   "preco_pix": 4084.05,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "DOMUS SHOP",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A5AWFXGJJU4NV",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2791,
+     "positivas_pct": 34,
+     "enviado_por": "DOMUS SHOP",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)",
+      "vendedor com só 34% de avaliações positivas (2.791 avaliações)"
+     ],
+     "codigos": [
+      "sem_full",
+      "vendedor_mal_avaliado"
+     ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A5AWFXGJJU4NV",
+   "melhor_preco": 4084.05
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A7PTFS3I4Y64X",
+   "id": "B0GWNKJDCZ-A7PTFS3I4Y64X",
+   "preco": null,
+   "preco_pix": 4084.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "IDEOLAB",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A7PTFS3I4Y64X",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2163,
+     "positivas_pct": 47,
+     "enviado_por": "IDEOLAB",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)",
+      "vendedor com só 47% de avaliações positivas (2.163 avaliações)"
+     ],
+     "codigos": [
+      "sem_full",
+      "vendedor_mal_avaliado"
+     ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A7PTFS3I4Y64X",
+   "melhor_preco": 4084.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
+   "id": "B0FPGF9J2J-destaque",
+   "preco": 4499.0,
+   "preco_pix": 4184.07,
+   "parcelado": "10x R$ 449,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0FPGF9J2J",
+    "asin": "B0FPGF9J2J",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0FPGF9J2J-destaque",
+   "melhor_preco": 4184.07
   },
   {
    "fonte": "amazon.produtos",
@@ -1141,95 +971,39 @@
    "melhor_preco": 4226.55
   },
   {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A1ZZFT5FULY4LN",
-   "id": "B0F7K7B2PD-A1ZZFT5FULY4LN",
-   "preco": null,
-   "preco_pix": 4274.05,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Amazon.com.br Política de devolução",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A1ZZFT5FULY4LN",
-    "destaque": false,
-    "ficha": {
-     "enviado_por": "Amazon.com.br",
-     "full": true
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A1ZZFT5FULY4LN",
-   "melhor_preco": 4274.05
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A30OZFNW1RCCSM",
-   "id": "B0F7K7B2PD-A30OZFNW1RCCSM",
-   "preco": null,
-   "preco_pix": 4307.03,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Lojas Colombo S/A",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A30OZFNW1RCCSM",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 706,
-     "positivas_pct": 70,
-     "enviado_por": "Lojas Colombo S/A",
-     "full": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A30OZFNW1RCCSM",
-   "melhor_preco": 4307.03
-  },
-  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "PlayStation®5 Slim Digital 825GB – Pacote ASTRO BOT e Gran Turismo 7",
-   "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
-   "id": "B0FPGF9J2J-destaque",
-   "preco": 4499.0,
-   "preco_pix": 4364.03,
-   "parcelado": "10x R$ 449,90 sem juros",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=APJANL1RGWUHD",
+   "id": "B0GWNKJDCZ-APJANL1RGWUHD",
+   "preco": null,
+   "preco_pix": 4369.9,
+   "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": null,
+   "vendedor": "Power.Shoppe",
    "extra": {
-    "anuncio": "B0FPGF9J2J",
-    "asin": "B0FPGF9J2J",
-    "vendedor_id": null,
-    "origem": "busca",
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "APJANL1RGWUHD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 725,
+     "positivas_pct": 55,
+     "enviado_por": "Amazon",
+     "full": true
+    },
     "produto": {
      "versao_incerta": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
-      "preço"
+      "preço",
+      "Full",
+      "avaliações do vendedor"
      ],
      "sinais": [],
      "codigos": []
@@ -1241,106 +1015,8 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0FPGF9J2J-destaque",
-   "melhor_preco": 4364.03
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A3R1Z59ZORN2J9",
-   "id": "B0F7K7B2PD-A3R1Z59ZORN2J9",
-   "preco": null,
-   "preco_pix": 4369.05,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCLSEMP.",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A3R1Z59ZORN2J9",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 88,
-     "positivas_pct": 66,
-     "enviado_por": "TCLSEMP.",
-     "full": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A3R1Z59ZORN2J9",
-   "melhor_preco": 4369.05
-  },
-  {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv Tcl 65 Polegadas Qd-Mini Led 4k C6k Wifi Bluetooth Google Tv 4 Hdmi 144hz Hdr10+ 65c6k",
-   "url": "https://www.mercadolivre.com.br/p/MLB50368907?pdp_filters=item_id%3AMLB6713050924",
-   "id": "MLB6713050924",
-   "preco": 4399.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 439,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCL",
-   "extra": {
-    "anuncio": "MLB6713050924",
-    "item_id": "MLB6713050924",
-    "catalogo": "MLB50368907",
-    "opcoes_no_catalogo": 12,
-    "vendedor_id": "3328858476",
-    "vendas_vendedor": 1000,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "mercadolivre:MLB6713050924",
-   "melhor_preco": 4399.0
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony",
-   "url": "https://www.netshoes.com.br/p/playstation-5-edicao-digital-825gb-1-controle-branco-sony-D32-286W-014",
-   "id": "D32-286W-014-29198",
-   "preco": 4649.0,
-   "preco_pix": 4416.55,
-   "parcelado": "10x R$ 464,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu Oficial",
-   "extra": {
-    "anuncio": "D32-286W-014",
-    "sku": "D32-286W-014-01",
-    "vendedor_id": "29198",
-    "preco_de": 4999.0,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "netshoes:D32-286W-014-29198",
-   "melhor_preco": 4416.55
+   "chave": "amazon.produtos:B0GWNKJDCZ-APJANL1RGWUHD",
+   "melhor_preco": 4369.9
   },
   {
    "fonte": "mercadolivre.produtos",
@@ -1361,7 +1037,7 @@
     "anuncio": "MLB5358997355",
     "item_id": "MLB5358997355",
     "catalogo": "MLB57081243",
-    "opcoes_no_catalogo": 47,
+    "opcoes_no_catalogo": 43,
     "vendedor_id": null,
     "confianca": {
      "veredito": "sem_risco_aparente",
@@ -1385,106 +1061,32 @@
    "melhor_preco": 4450.0
   },
   {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony com 2 Jogos",
-   "url": "https://www.netshoes.com.br/p/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos-D32-286N-014",
-   "id": "D32-286N-014-29198",
-   "preco": 4699.0,
-   "preco_pix": 4464.05,
-   "parcelado": "10x R$ 469,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu Oficial",
-   "extra": {
-    "anuncio": "D32-286N-014",
-    "sku": "D32-286N-014-01",
-    "vendedor_id": "29198",
-    "preco_de": 4999.9,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "netshoes:D32-286N-014-29198",
-   "melhor_preco": 4464.05
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.netshoes.com.br/p/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital-HTW-025Z-014",
-   "id": "HTW-025Z-014-30835",
-   "preco": 4499.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 449,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "anuncio": "HTW-025Z-014",
-    "sku": "HTW-025Z-014-01",
-    "vendedor_id": "30835",
-    "preco_de": 5052.69,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "netshoes:HTW-025Z-014-30835",
-   "melhor_preco": 4499.0
-  },
-  {
-   "fonte": "amazon",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A3CSZ2DZGY36JR",
-   "id": "B0F7K7B2PD-A3CSZ2DZGY36JR",
-   "preco": null,
-   "preco_pix": 4550.38,
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A2LLU9EAT5LSXD",
+   "id": "B0GWNKJDCZ-A2LLU9EAT5LSXD",
+   "preco": 4599.9,
+   "preco_pix": null,
    "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Casas Bahia.",
+   "vendedor": "REDELINE",
    "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A3CSZ2DZGY36JR",
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A2LLU9EAT5LSXD",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 1510,
-     "positivas_pct": 42,
-     "enviado_por": "Casas Bahia.",
-     "full": false
+     "avaliacoes_vendedor": 2397,
+     "positivas_pct": 50,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
@@ -1493,78 +1095,18 @@
       "Full",
       "avaliações do vendedor"
      ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 42% de avaliações positivas (1.510 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A3CSZ2DZGY36JR",
-   "melhor_preco": 4550.38
-  },
-  {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv 55 Pol Tcl 55c6k 4k Qd-mini Led 144hz Google Tv",
-   "url": "https://www.mercadolivre.com.br/smart-tv-55-pol-tcl-55c6k-4k-qdmini-led-144hz-google-tv/up/MLBU5358336840",
-   "id": "ni-led-144hz-google-tv/up/MLBU5358336840",
-   "preco": 4599.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 489,99 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "item_id": null,
-    "anuncio": "ni-led-144hz-google-tv/up/MLBU5358336840",
-    "vendedor_id": null,
-    "vendedor_conferido": false,
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
      "sinais": [],
      "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
     }
    },
-   "modelo": "55C6K",
-   "chave": "mercadolivre:ni-led-144hz-google-tv/up/MLBU5358336840",
-   "melhor_preco": 4599.0
-  },
-  {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv Tcl 65  Qled Mini Led 4k C6k Wifi Bluetooth 65c6k",
-   "url": "https://www.mercadolivre.com.br/smart-tv-tcl-65--qled-mini-led-4k-c6k-wifi-bluetooth-65c6k/up/MLBU3380917216",
-   "id": "k-wifi-bluetooth-65c6k/up/MLBU3380917216",
-   "preco": 4599.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 459,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "TCL",
-   "extra": {
-    "item_id": null,
-    "anuncio": "k-wifi-bluetooth-65c6k/up/MLBU3380917216",
-    "vendedor_id": null,
-    "vendedor_conferido": false,
-    "confianca": {
-     "veredito": "confiavel"
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "mercadolivre:k-wifi-bluetooth-65c6k/up/MLBU3380917216",
-   "melhor_preco": 4599.0
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A2LLU9EAT5LSXD",
+   "melhor_preco": 4599.9
   },
   {
    "fonte": "mercadolivre.produtos",
@@ -1585,7 +1127,7 @@
     "anuncio": "MLB4214670787",
     "item_id": "MLB4214670787",
     "catalogo": "MLB57081243",
-    "opcoes_no_catalogo": 47,
+    "opcoes_no_catalogo": 43,
     "vendedor_id": "480263032",
     "vendas_vendedor": 1000000,
     "confianca": {
@@ -1608,7 +1150,7 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Bundle GTA VI + PlayStation 5 Slim Digital 825 GB Pacote Astro Bot e Gran Turismo 7",
+   "titulo": "Bundle GTA VI + PlayStation 5 Slim Digital 825 GB - Pacote Astro Bot e Gran Turismo 7",
    "url": "https://www.amazon.com.br/dp/B0H6LVH152?smid=A1ZZFT5FULY4LN",
    "id": "B0H6LVH152-A1ZZFT5FULY4LN",
    "preco": 4948.9,
@@ -1655,31 +1197,43 @@
    "melhor_preco": 4602.47
   },
   {
-   "fonte": "mercadolivre",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv 65 65c6k 4k Qd-mini Led 144hz Com Google Tv Tcl",
-   "url": "https://www.mercadolivre.com.br/smart-tv-65-65c6k-4k-qdmini-led-144hz-com-google-tv-tcl/up/MLBU3519154684",
-   "id": "44hz-com-google-tv-tcl/up/MLBU3519154684",
-   "preco": 4646.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 478,99 sem juros",
+   "loja": "Amazon",
+   "titulo": "PlayStation®5 Slim Disk - Pacote ASTRO BOT e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0F8R9NDXC?smid=A1ZZFT5FULY4LN",
+   "id": "B0F8R9NDXC-A1ZZFT5FULY4LN",
+   "preco": 4999.0,
+   "preco_pix": 4649.07,
+   "parcelado": "10x R$ 499,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Casas Bahia",
+   "vendedor": "Amazon.com.br Política de devolução",
    "extra": {
-    "item_id": null,
-    "anuncio": "44hz-com-google-tv-tcl/up/MLBU3519154684",
-    "vendedor_id": null,
-    "vendedor_conferido": false,
+    "anuncio": "B0F8R9NDXC",
+    "asin": "B0F8R9NDXC",
+    "vendedor_id": "A1ZZFT5FULY4LN",
+    "destaque": true,
+    "ficha": {
+     "enviado_por": "Amazon.com.br",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
     "confianca": {
      "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
     }
    },
-   "modelo": "65C6K",
-   "chave": "mercadolivre:44hz-com-google-tv-tcl/up/MLBU3519154684",
-   "melhor_preco": 4646.0
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0F8R9NDXC-A1ZZFT5FULY4LN",
+   "melhor_preco": 4649.07
   },
   {
    "fonte": "amazon.produtos",
@@ -1727,6 +1281,99 @@
    "modelo": "PS5_KIT",
    "chave": "amazon.produtos:B0HF8STKLY-A1ZZFT5FULY4LN",
    "melhor_preco": 4742.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
+   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L",
+   "id": "B0GWNFMG5L-destaque",
+   "preco": 4999.8,
+   "preco_pix": 4749.9,
+   "parcelado": "12x R$ 416,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0GWNFMG5L",
+    "asin": "B0GWNFMG5L",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0GWNFMG5L-destaque",
+   "melhor_preco": 4749.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
+   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K",
+   "id": "B0GBYZ4R2K-destaque",
+   "preco": 4999.8,
+   "preco_pix": 4749.9,
+   "parcelado": "12x R$ 416,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0GBYZ4R2K",
+    "asin": "B0GBYZ4R2K",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "base": "PS5_DISCO",
+     "extras": [
+      {
+       "tipo": "jogo",
+       "valor": 200.0,
+       "nome": "lacrado"
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "suspeito",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [
+      "a busca da Amazon não diz quem vende e o preço R$ 4.749,90 está abaixo da loja confiável mais barata (R$ 4.999,00, KaBuM!); nova tentativa na próxima rodada"
+     ],
+     "codigos": [
+      "sem_vendedor"
+     ]
+    },
+    "alvo": {
+     "pix": 4150.0,
+     "parcelado": 4350.0,
+     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0GBYZ4R2K-destaque",
+   "melhor_preco": 4749.9
   },
   {
    "fonte": "amazon.produtos",
@@ -1812,524 +1459,7 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=A5AWFXGJJU4NV",
-   "id": "B0GWNFMG5L-A5AWFXGJJU4NV",
-   "preco": 4999.8,
-   "preco_pix": 4749.9,
-   "parcelado": "12x R$ 416,65 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "DOMUS SHOP",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "A5AWFXGJJU4NV",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 2789,
-     "positivas_pct": 35,
-     "enviado_por": "DOMUS SHOP",
-     "full": false
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 35% de avaliações positivas (2.789 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-A5AWFXGJJU4NV",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=A7PTFS3I4Y64X",
-   "id": "B0GWNFMG5L-A7PTFS3I4Y64X",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "IDEOLAB",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "A7PTFS3I4Y64X",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2161,
-     "positivas_pct": 47,
-     "enviado_por": "IDEOLAB",
-     "full": false
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 47% de avaliações positivas (2.161 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-A7PTFS3I4Y64X",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A2LLU9EAT5LSXD",
-   "id": "B0GBYZ4R2K-A2LLU9EAT5LSXD",
-   "preco": 4999.8,
-   "preco_pix": 4749.9,
-   "parcelado": "12x R$ 416,65 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "REDELINE",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A2LLU9EAT5LSXD",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 2394,
-     "positivas_pct": 49,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "vendedor com só 49% de avaliações positivas (2.394 avaliações)"
-     ],
-     "codigos": [
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A2LLU9EAT5LSXD",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A3391ZCWNCQKXA",
-   "id": "B0GBYZ4R2K-A3391ZCWNCQKXA",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "META SHOPPE",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A3391ZCWNCQKXA",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 137,
-     "positivas_pct": 55,
-     "enviado_por": "META SHOPPE",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A3391ZCWNCQKXA",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A7PTFS3I4Y64X",
-   "id": "B0GBYZ4R2K-A7PTFS3I4Y64X",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "IDEOLAB",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A7PTFS3I4Y64X",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2161,
-     "positivas_pct": 47,
-     "enviado_por": "IDEOLAB",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 47% de avaliações positivas (2.161 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A7PTFS3I4Y64X",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A5AWFXGJJU4NV",
-   "id": "B0GBYZ4R2K-A5AWFXGJJU4NV",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "DOMUS SHOP",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A5AWFXGJJU4NV",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2789,
-     "positivas_pct": 35,
-     "enviado_por": "DOMUS SHOP",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 35% de avaliações positivas (2.789 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A5AWFXGJJU4NV",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation®5 Slim Disk - Pacote ASTRO BOT e Gran Turismo 7",
-   "url": "https://www.amazon.com.br/dp/B0F8R9NDXC",
-   "id": "B0F8R9NDXC-destaque",
-   "preco": 4999.0,
-   "preco_pix": 4849.03,
-   "parcelado": "10x R$ 499,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0F8R9NDXC",
-    "asin": "B0F8R9NDXC",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0F8R9NDXC-destaque",
-   "melhor_preco": 4849.03
-  },
-  {
-   "fonte": "aliexpress",
-   "tipo": "loja",
-   "loja": "AliExpress",
-   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB R$ 4.869 R$ 4.869 R$ 4.999 R$ 4.999 4.8 2.000+ ven",
-   "url": "https://pt.aliexpress.com/item/1005009036343124.html",
-   "id": "1005009036343124",
-   "preco": 4869.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "aliexpress:1005009036343124",
-   "melhor_preco": 4869.0
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "PlayStation 5 Slim Disk 1TB + 1 Controle Sony",
-   "url": "https://www.netshoes.com.br/p/playstation-5-slim-disk-1tb-1-controle-sony-D32-286X-014",
-   "id": "D32-286X-014-29198",
-   "preco": 5199.0,
-   "preco_pix": 4939.05,
-   "parcelado": "10x R$ 519,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Magalu Oficial",
-   "extra": {
-    "anuncio": "D32-286X-014",
-    "sku": "D32-286X-014-01",
-    "vendedor_id": "29198",
-    "preco_de": 5399.9,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "netshoes:D32-286X-014-29198",
-   "melhor_preco": 4939.05
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=APJANL1RGWUHD",
-   "id": "B0GBYZ4R2K-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 4939.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 725,
-     "positivas_pct": 55,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-APJANL1RGWUHD",
-   "melhor_preco": 4939.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Bundle Marvel's Wolverine + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
+   "titulo": "Bundle Marvel's Wolverine + PlayStation 5 Slim Disk - Pacote Astro Bot e Gran Turismo 7",
    "url": "https://www.amazon.com.br/dp/B0HN8L7Q46",
    "id": "B0HN8L7Q46-destaque",
    "preco": 5338.0,
@@ -2376,95 +1506,6 @@
    "modelo": "PS5_KIT",
    "chave": "amazon.produtos:B0HN8L7Q46-destaque",
    "melhor_preco": 4964.34
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=APJANL1RGWUHD",
-   "id": "B0GWNFMG5L-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 4987.5,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 725,
-     "positivas_pct": 55,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-APJANL1RGWUHD",
-   "melhor_preco": 4987.5
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.netshoes.com.br/p/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos-D32-2879-014",
-   "id": "D32-2879-014-30835",
-   "preco": 4999.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 499,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "anuncio": "D32-2879-014",
-    "sku": "D32-2879-014-01",
-    "vendedor_id": "30835",
-    "preco_de": 5697.85,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "netshoes:D32-2879-014-30835",
-   "melhor_preco": 4999.0
   },
   {
    "fonte": "amazon.produtos",
@@ -2695,82 +1736,6 @@
    "melhor_preco": 5224.9
   },
   {
-   "fonte": "mercadolivre",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv 65 Pol Tcl 55c6k 4k Qd-mini Led 144hz Google Tv",
-   "url": "https://www.mercadolivre.com.br/smart-tv-65-pol-tcl-55c6k-4k-qdmini-led-144hz-google-tv/up/MLBU5358792318",
-   "id": "ni-led-144hz-google-tv/up/MLBU5358792318",
-   "preco": 5399.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 569,99 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "item_id": null,
-    "anuncio": "ni-led-144hz-google-tv/up/MLBU5358792318",
-    "vendedor_id": null,
-    "vendedor_conferido": false,
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "mercadolivre:ni-led-144hz-google-tv/up/MLBU5358792318",
-   "melhor_preco": 5399.0
-  },
-  {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7JZMVKF?smid=A28W2XGABGHXAH",
-   "id": "B0F7JZMVKF-A28W2XGABGHXAH",
-   "preco": null,
-   "preco_pix": 5557.4,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Leonfer Shop",
-   "extra": {
-    "anuncio": "B0F7JZMVKF",
-    "asin": "B0F7JZMVKF",
-    "vendedor_id": "A28W2XGABGHXAH",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 495,
-     "positivas_pct": 78,
-     "enviado_por": "Leonfer Shop",
-     "full": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
-    }
-   },
-   "modelo": "55C6K",
-   "chave": "amazon:B0F7JZMVKF-A28W2XGABGHXAH",
-   "melhor_preco": 5557.4
-  },
-  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
@@ -2859,50 +1824,6 @@
    "melhor_preco": 6500.0
   },
   {
-   "fonte": "amazon",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.amazon.com.br/dp/B0F7K7B2PD?smid=A28W2XGABGHXAH",
-   "id": "B0F7K7B2PD-A28W2XGABGHXAH",
-   "preco": null,
-   "preco_pix": 6854.15,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Leonfer Shop",
-   "extra": {
-    "anuncio": "B0F7K7B2PD",
-    "asin": "B0F7K7B2PD",
-    "vendedor_id": "A28W2XGABGHXAH",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 495,
-     "positivas_pct": 78,
-     "enviado_por": "Leonfer Shop",
-     "full": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
-    }
-   },
-   "modelo": "65C6K",
-   "chave": "amazon:B0F7K7B2PD-A28W2XGABGHXAH",
-   "melhor_preco": 6854.15
-  },
-  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
@@ -2910,7 +1831,7 @@
    "url": "https://www.amazon.com.br/dp/B0DH8J5YGH?smid=A1ZZFT5FULY4LN",
    "id": "B0DH8J5YGH-A1ZZFT5FULY4LN",
    "preco": 7599.0,
-   "preco_pix": 7067.07,
+   "preco_pix": 6991.09,
    "parcelado": "10x R$ 759,90 sem juros",
    "cupom": null,
    "publicado": null,
@@ -2939,53 +1860,7 @@
    },
    "modelo": "PS5_PRO",
    "chave": "amazon.produtos:B0DH8J5YGH-A1ZZFT5FULY4LN",
-   "melhor_preco": 7067.07
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Bundle Marvel's Wolverine + PlayStation 5 Pro",
-   "url": "https://www.amazon.com.br/dp/B0HN87XSTT",
-   "id": "B0HN87XSTT-destaque",
-   "preco": 7938.0,
-   "preco_pix": 7382.34,
-   "parcelado": "10x R$ 793,80 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0HN87XSTT",
-    "asin": "B0HN87XSTT",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "base": "PS5_PRO",
-     "extras": [
-      {
-       "tipo": "edicao",
-       "valor": 200.0
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 6150.0,
-     "parcelado": 6300.0,
-     "nota": "meta do PS5 Pro + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0HN87XSTT-destaque",
-   "melhor_preco": 7382.34
+   "melhor_preco": 6991.09
   },
   {
    "fonte": "amazon.produtos",
@@ -3047,8 +1922,8 @@
     "vendedor_id": "A3391ZCWNCQKXA",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 137,
-     "positivas_pct": 55,
+     "avaliacoes_vendedor": 141,
+     "positivas_pct": 54,
      "enviado_por": "META SHOPPE",
      "full": false
     },
@@ -3099,7 +1974,7 @@
     "vendedor_id": "A7PTFS3I4Y64X",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 2161,
+     "avaliacoes_vendedor": 2163,
      "positivas_pct": 47,
      "enviado_por": "IDEOLAB",
      "full": false
@@ -3116,7 +1991,7 @@
      ],
      "sinais": [
       "não é enviado pela loja (sem Full)",
-      "vendedor com só 47% de avaliações positivas (2.161 avaliações)"
+      "vendedor com só 47% de avaliações positivas (2.163 avaliações)"
      ],
      "codigos": [
       "sem_full",
@@ -3153,8 +2028,8 @@
     "vendedor_id": "A2LLU9EAT5LSXD",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 2394,
-     "positivas_pct": 49,
+     "avaliacoes_vendedor": 2397,
+     "positivas_pct": 50,
      "enviado_por": "Amazon",
      "full": true
     },
@@ -3168,12 +2043,8 @@
       "Full",
       "avaliações do vendedor"
      ],
-     "sinais": [
-      "vendedor com só 49% de avaliações positivas (2.394 avaliações)"
-     ],
-     "codigos": [
-      "vendedor_mal_avaliado"
-     ]
+     "sinais": [],
+     "codigos": []
     },
     "alvo": {
      "pix": 5950.0,
@@ -3205,7 +2076,7 @@
     "vendedor_id": "AJILT5RJ3RSVK",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 763,
+     "avaliacoes_vendedor": 766,
      "positivas_pct": 93,
      "enviado_por": "Fênix PP",
      "full": false
@@ -3336,6 +2207,113 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-10-28T21:06:41-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI - PlayStation 5",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-6824",
+   "id": "148de91c-4cea-4ea8-9f3c-50c1388811fd",
+   "preco": 350.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-28T12:16:32-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "2577°",
+    "produto": {
+     "plataforma_incerta": false
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:148de91c-4cea-4ea8-9f3c-50c1388811fd",
+   "melhor_preco": 350.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
+   "ultimo_preco": 350.0,
+   "menor_preco": 350.0
+  },
+  {
+   "primeira_vez": "2026-10-28T21:06:41-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "Console Playstation 5 Pro 2TB Sony Bivolt",
+   "url": "https://www.pelando.com.br/d/console-playstation-5-pro-2tb-sony-bivolt-3ac8",
+   "id": "f095545a-1f90-49d2-9c26-ed838a69a721",
+   "preco": 6881.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-28T09:16:36-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "-236°",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 5950.0,
+     "parcelado": 6100.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_PRO",
+   "chave": "pelando:f095545a-1f90-49d2-9c26-ed838a69a721",
+   "melhor_preco": 6881.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
+   "ultimo_preco": 6881.0,
+   "menor_preco": 6881.0
+  },
+  {
+   "primeira_vez": "2026-10-28T21:06:41-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Console Playstation 5 Slim 1TB com Leitor de Disco DualSense Branco",
+   "url": "https://www.pelando.com.br/d/ps5-slim-1tb-com-leitor-de-disco-dualsense-branco-2924",
+   "id": "42f209f6-c6a7-4a32-943c-1bf1b8b3706b",
+   "preco": 3419.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-26T22:16:36-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "967°",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "pelando:42f209f6-c6a7-4a32-943c-1bf1b8b3706b",
+   "melhor_preco": 3419.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
+  },
+  {
    "primeira_vez": "2026-10-26T21:39:47-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
@@ -3348,11 +2326,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-26T16:35:26-03:00",
+   "publicado": "2026-10-25T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "277°",
+    "temperatura": "297°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -3372,7 +2350,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:8f8c334f-a3da-4b6a-ba59-984828a4b87c",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-24T20:16:18-03:00",
@@ -3387,11 +2365,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-23T21:35:25-03:00",
+   "publicado": "2026-10-23T22:16:31-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "2352°",
+    "temperatura": "2402°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -3411,7 +2389,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:f7b2caf5-320c-4d0d-978c-e8f008896741",
    "melhor_preco": 363.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 363.0,
    "menor_preco": 363.0
   },
@@ -3428,7 +2406,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T21:35:26-03:00",
+   "publicado": "2026-10-22T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3452,7 +2430,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:7bbf1788-bc4e-40df-9808-1cbce1db0ff7",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3467,7 +2445,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T21:35:26-03:00",
+   "publicado": "2026-10-21T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3491,7 +2469,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:c5c74ddc-3a02-468b-bd54-982e9d2dc0ab",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3506,7 +2484,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T21:35:26-03:00",
+   "publicado": "2026-10-21T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3523,7 +2501,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6d783364-8547-4ca8-8f13-98e60ae618e3",
    "melhor_preco": 124.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 124.0,
    "menor_preco": 124.0
   },
@@ -3540,7 +2518,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T21:35:26-03:00",
+   "publicado": "2026-10-21T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3557,59 +2535,9 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:b6e379e1-e7a9-4515-8f25-8f024e5e64a9",
    "melhor_preco": 244.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 244.0,
    "menor_preco": 244.0
-  },
-  {
-   "primeira_vez": "2026-10-23T15:49:26-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 65” TCL 4K QD-Mini LED Google TV Dolby Vision TCL 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-qd-mini-led-google-tv-dolby-vision-0edf",
-   "id": "1bfadfb0-700f-42de-a93f-24e1927821b5",
-   "preco": 3527.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-21T21:35:25-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1322°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:1bfadfb0-700f-42de-a93f-24e1927821b5",
-   "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 3527.0,
-   "menor_preco": 3527.0
-  },
-  {
-   "primeira_vez": "2026-10-23T15:49:26-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QD-Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-polegadas-qd-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-65c6k-b5c6",
-   "id": "448a3aa1-cc2d-48dc-9484-7b7046ddbf0d",
-   "preco": 3590.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-21T21:35:25-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "788°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:448a3aa1-cc2d-48dc-9484-7b7046ddbf0d",
-   "melhor_preco": 3590.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3654,43 +2582,36 @@
    "menor_preco": 4556.0
   },
   {
-   "primeira_vez": "2026-10-23T15:49:26-03:00",
+   "primeira_vez": "2026-10-28T21:06:41-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "[Disco e Vinil] Grand Theft Auto VI: The Album (Amazon Exclusive)",
-   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-amazon-exclusive-e804",
-   "id": "e5f9ce1d-9564-430d-86f0-08f42628b051",
-   "preco": 400.0,
+   "loja": "?",
+   "titulo": "PlayStation 5: R$250 OFF na KaBuM!",
+   "url": "https://www.pelando.com.br/d/playstation-5-rdollar250-off-na-kabum-19-out-2026-c845",
+   "id": "af94671f-f79c-437f-ac26-457299374e9e",
+   "preco": null,
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-18T21:35:28-03:00",
-   "ativo": false,
+   "publicado": "2026-10-18T22:16:36-03:00",
+   "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "278°",
+    "temperatura": "37°",
     "produto": {
-     "plataforma_incerta": true
+     "versao_incerta": true
     },
     "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
     }
    },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:e5f9ce1d-9564-430d-86f0-08f42628b051",
-   "melhor_preco": 400.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "modelo": "PS5_DIGITAL",
+   "chave": "pelando:af94671f-f79c-437f-ac26-457299374e9e",
+   "melhor_preco": null,
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3705,7 +2626,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-18T21:35:26-03:00",
+   "publicado": "2026-10-18T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3729,7 +2650,46 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:fae3943c-c3fb-4f28-9d8d-260c9cfbf2af",
    "melhor_preco": 347.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
+  },
+  {
+   "primeira_vez": "2026-10-23T15:49:26-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "[Disco e Vinil] Grand Theft Auto VI: The Album (Amazon Exclusive)",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-amazon-exclusive-e804",
+   "id": "e5f9ce1d-9564-430d-86f0-08f42628b051",
+   "preco": 400.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-10-18T22:16:32-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "278°",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:e5f9ce1d-9564-430d-86f0-08f42628b051",
+   "melhor_preco": 400.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-17T19:38:12-03:00",
@@ -3778,7 +2738,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-15T21:35:26-03:00",
+   "publicado": "2026-10-15T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3802,59 +2762,9 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:fb855a47-b994-45c7-b5ba-a3c9b0e68922",
    "melhor_preco": 318.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 318.0,
    "menor_preco": 318.0
-  },
-  {
-   "primeira_vez": "2026-10-16T21:19:07-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 65” TCL C6K 4K QD-Mini LED Google TV TCL 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-c6k-4k-qd-mini-led-google-tv-tcl-65c6k-2753",
-   "id": "f4c75722-cc3d-4f9d-88a8-c403a4b4ea1b",
-   "preco": 3527.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-15T21:35:25-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "233°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:f4c75722-cc3d-4f9d-88a8-c403a4b4ea1b",
-   "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-16T21:19:07-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 4K TCL 55” QD-Mini LED HDMI 2.1 Dolby Vision 55C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-4k-tcl-55-qd-mini-led-hdmi-21-dolby-vision-55c6k-e13f",
-   "id": "18732eb0-cd9d-404a-84b1-7fcbb7e00380",
-   "preco": 2862.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-15T21:35:24-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1987°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:18732eb0-cd9d-404a-84b1-7fcbb7e00380",
-   "melhor_preco": 2862.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2862.0,
-   "menor_preco": 2862.0
   },
   {
    "primeira_vez": "2026-10-16T21:19:07-03:00",
@@ -3869,7 +2779,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-14T21:35:28-03:00",
+   "publicado": "2026-10-14T22:16:36-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3893,7 +2803,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:b4f945cf-ce8c-4c33-8e6f-bd072cfa07c3",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-14T19:59:45-03:00",
@@ -3942,7 +2852,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-13T21:35:28-03:00",
+   "publicado": "2026-10-13T22:16:36-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3966,33 +2876,9 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:7fa8bf86-7f27-4ad3-a121-1cfb596e5323",
    "melhor_preco": 338.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 338.0,
    "menor_preco": 338.0
-  },
-  {
-   "primeira_vez": "2026-10-13T21:02:24-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 QD-Mini LED 4K WiFi Bluetooth 55C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-qd-mini-led-4k-wifi-bluetooth-55c6k-6084",
-   "id": "02be559f-c234-4f2b-9ed8-442c15ec32bf",
-   "preco": 2890.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-12T21:35:24-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "235°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:02be559f-c234-4f2b-9ed8-442c15ec32bf",
-   "melhor_preco": 2890.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:34:59-03:00",
@@ -4021,7 +2907,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:88e209c4-fa0e-4bbf-815f-19dd67db8674",
    "melhor_preco": 415.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:34:59-03:00",
@@ -4050,7 +2936,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:58696dd5-c381-4356-9b00-fd21ffd8b4d5",
    "melhor_preco": 465.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-12T11:48:09-03:00",
@@ -4099,7 +2985,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-11T21:35:26-03:00",
+   "publicado": "2026-10-11T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4116,7 +3002,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:9ca86c7a-26a3-4c3f-bc02-1e13e3483229",
    "melhor_preco": 325.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 325.0,
    "menor_preco": 325.0
   },
@@ -4201,7 +3087,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-10T21:35:26-03:00",
+   "publicado": "2026-10-10T22:42:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4225,7 +3111,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:4675efdb-4936-46c3-b39c-0522e2be6eae",
    "melhor_preco": 309.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-26T22:46:11-03:00",
    "ultimo_preco": 309.0,
    "menor_preco": 309.0
   },
@@ -4267,32 +3153,6 @@
    "chave": "pelando:045742e2-f9b8-492d-a028-e11ed664849b",
    "melhor_preco": 328.0,
    "ultima_vez": "2026-10-24T13:27:45-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-10T10:16:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-4d3f",
-   "id": "166d5c22-e457-4116-b96c-d1fff1d15d4c",
-   "preco": 3870.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-10T09:50:40-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "-29°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:166d5c22-e457-4116-b96c-d1fff1d15d4c",
-   "melhor_preco": 3870.0,
-   "ultima_vez": "2026-10-10T10:16:58-03:00",
-   "ultimo_preco": 3870.0,
-   "menor_preco": 3870.0
   },
   {
    "primeira_vez": "2026-10-10T13:16:24-03:00",
@@ -4488,32 +3348,6 @@
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb-6c97",
-   "id": "05b2dfb5-1647-484d-9631-3a007c4d1212",
-   "preco": 2905.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-09T18:12:40-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "169°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:05b2dfb5-1647-484d-9631-3a007c4d1212",
-   "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-10T00:18:09-03:00",
-   "ultimo_preco": 2905.0,
-   "menor_preco": 2905.0
-  },
-  {
-   "primeira_vez": "2026-10-09T20:48:36-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
    "loja": "Mercado Livre",
    "titulo": "[Meli +] PlayStation 5 Digital 825GB Slim Novo Lacrado",
    "url": "https://www.pelando.com.br/d/playstation-5-digital-825gb-slim-novo-lacrado-3ce1",
@@ -4590,7 +3424,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-08T21:35:26-03:00",
+   "publicado": "2026-10-08T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4607,242 +3441,9 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6368be2d-83b2-49b5-9eb6-61cd642bdcdf",
    "melhor_preco": 499.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 499.0,
    "menor_preco": 499.0
-  },
-  {
-   "primeira_vez": "2026-10-08T23:20:33-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "[Novos Usuários] Grand Theft Auto VI - PlayStation 5",
-   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-923e",
-   "id": "16c18aa7-39c9-4685-9ca6-d2805247246f",
-   "preco": 330.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-07T21:42:43-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "2054°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:16c18aa7-39c9-4685-9ca6-d2805247246f",
-   "melhor_preco": 330.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00",
-   "ultimo_preco": 330.0,
-   "menor_preco": 330.0
-  },
-  {
-   "primeira_vez": "2026-10-07T22:52:00-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "GTA 6 PS5 Code in Box Pré-venda Lançamento",
-   "url": "https://www.pelando.com.br/d/gta-6-ps5-code-in-box-pre-venda-lancamento-fe4d",
-   "id": "903a8939-3ccc-4cff-93d8-fd2622cc0e11",
-   "preco": 333.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-07T21:42:41-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "-3°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "prazo desconhecido"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:903a8939-3ccc-4cff-93d8-fd2622cc0e11",
-   "melhor_preco": 333.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-08T23:20:33-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "(SParcelado) Jogo Grand Theft Auto VI GTA 6 - PS5",
-   "url": "https://www.pelando.com.br/d/sparcelado-jogo-grand-theft-auto-vi-gta-6-ps5-3cfb",
-   "id": "9e611623-0866-45ac-a280-627873b3071a",
-   "preco": 332.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-07T21:42:41-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "2725°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "depois",
-     "data": null,
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: (estimativa da pesquisa de 03/10) — ⚠️ chega DEPOIS do lançamento (19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:9e611623-0866-45ac-a280-627873b3071a",
-   "melhor_preco": 332.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00",
-   "ultimo_preco": 332.0,
-   "menor_preco": 332.0
-  },
-  {
-   "primeira_vez": "2026-10-07T22:52:00-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "PS5 Console Sony PlayStation 5 Slim Digital 825GB Branco",
-   "url": "https://www.pelando.com.br/d/ps5-console-sony-playstation-5-slim-digital-825gb-branco-d6d3",
-   "id": "3858a757-366a-4b0f-976b-32ad9147a021",
-   "preco": 3689.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-06T23:43:14-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "2343°",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "pelando:3858a757-366a-4b0f-976b-32ad9147a021",
-   "melhor_preco": 3689.0,
-   "ultima_vez": "2026-10-08T23:48:11-03:00",
-   "ultimo_preco": 3689.0,
-   "menor_preco": 3689.0
-  },
-  {
-   "primeira_vez": "2026-10-07T22:52:00-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "GTA 6 PS5 Code in Box Pré-venda Lançamento",
-   "url": "https://www.pelando.com.br/d/gta-6-ps5-code-in-box-pre-venda-lancamento-8fd4",
-   "id": "19ebf784-e14b-425c-a533-219c5735ba64",
-   "preco": 313.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-06T21:42:41-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "199°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "prazo desconhecido"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:19ebf784-e14b-425c-a533-219c5735ba64",
-   "melhor_preco": 313.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-07T22:52:00-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "GTA 6 PS5 Code in Box Pré-venda Lançamento",
-   "url": "https://www.pelando.com.br/d/gta-6-ps5-code-in-box-pre-venda-lancamento-cb4a",
-   "id": "d1319954-d376-43f1-b6fe-806eb69c2e22",
-   "preco": 313.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-06T21:42:41-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "177°",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "prazo desconhecido"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:d1319954-d376-43f1-b6fe-806eb69c2e22",
-   "melhor_preco": 313.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -4857,7 +3458,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T21:35:26-03:00",
+   "publicado": "2026-10-06T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4874,7 +3475,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:01ef7d76-0e47-4ebc-9df4-e172e5fd136e",
    "melhor_preco": 90.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
+   "ultima_vez": "2026-10-28T22:18:40-03:00",
    "ultimo_preco": 90.0,
    "menor_preco": 90.0
   },
@@ -4891,7 +3492,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T21:35:26-03:00",
+   "publicado": "2026-10-06T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4905,7 +3506,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:970fff40-f5a3-4441-b43d-f47543943dfc",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -4920,7 +3521,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T21:35:26-03:00",
+   "publicado": "2026-10-06T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4934,7 +3535,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:0d8c24d9-e7c0-444a-bc6d-e060a7efe811",
    "melhor_preco": null,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
@@ -4949,7 +3550,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T21:35:26-03:00",
+   "publicado": "2026-10-06T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -4966,838 +3567,88 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:4248f3c9-0cc7-4ccd-b2de-4999fdc83d4a",
    "melhor_preco": 46.6,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
    "primeira_vez": "2026-10-07T22:52:00-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-google-assistente-4-hdmi-2-usb-9336",
-   "id": "d263bf7b-bb57-4327-bb4f-90c04e900933",
-   "preco": 2905.0,
+   "loja": "?",
+   "titulo": "Gift Card PlayStation R$300 - Vale-presente para Jogos e Assinaturas",
+   "url": "https://www.pelando.com.br/d/gift-card-playstation-rdollar300-vale-presente-para-jogos-e-assinaturas-8d00",
+   "id": "a0a1963b-2f04-4728-889b-699006c4531e",
+   "preco": 238.0,
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-05T21:35:24-03:00",
+   "publicado": "2026-10-06T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "2455°"
+    "temperatura": "1821°",
+    "produto": {
+     "valor_face": 300.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
    },
-   "modelo": "55C6K",
-   "chave": "pelando:d263bf7b-bb57-4327-bb4f-90c04e900933",
-   "melhor_preco": 2905.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2905.0,
-   "menor_preco": 2905.0
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:a0a1963b-2f04-4728-889b-699006c4531e",
+   "melhor_preco": 238.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   },
   {
-   "primeira_vez": "2026-10-03T11:49:22-03:00",
+   "primeira_vez": "2026-10-12T12:47:40-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
    "loja": "?",
-   "titulo": "Smart TV 65” TCL 4K QD-Mini LED Google TV Dolby Vision 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-qd-mini-led-google-tv-dolby-vision-0fe1",
-   "id": "7c1f38b6-7aee-4e95-bfc7-44c0d93c44e5",
-   "preco": 3527.0,
+   "titulo": "Cartão Presente PlayStation Store R$550",
+   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar550-143a",
+   "id": "97f7de57-465a-4787-a013-60c79e4f0cc6",
+   "preco": 499.0,
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-09-30T21:35:25-03:00",
+   "publicado": "2026-10-03T22:16:32-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "2043°"
+    "temperatura": "1133°",
+    "produto": {
+     "valor_face": 550.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
    },
-   "modelo": "65C6K",
-   "chave": "pelando:7c1f38b6-7aee-4e95-bfc7-44c0d93c44e5",
-   "melhor_preco": 3527.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-03T11:49:22-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ Google Assistente 4 HDMI 2 USB",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-120hz-google-tv-d2d7",
-   "id": "1a00be38-6cc1-41a5-b000-a5e73e08fea5",
-   "preco": 3024.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-09-29T21:35:24-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1615°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:1a00be38-6cc1-41a5-b000-a5e73e08fea5",
-   "melhor_preco": 3024.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "[APP/Cli. Ouro] Smart TV TCL 55 4K MiniLED 120Hz Google TV 55c6k",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-4k-miniled-120hz-google-tv-55c6k-c977",
-   "id": "ba600c39-982c-43e9-b7e0-40c5b0c669b5",
-   "preco": 2784.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "792°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:ba600c39-982c-43e9-b7e0-40c5b0c669b5",
-   "melhor_preco": 2784.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "TCL Smart TV 55C6K 4K QLED Google TV",
-   "url": "https://www.pelando.com.br/d/tcl-smart-tv-55c6k-4k-qled-google-tv-af7a",
-   "id": "b675e6ae-d3cc-4411-b3e9-f6d5e4145174",
-   "preco": 2879.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1263°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:b675e6ae-d3cc-4411-b3e9-f6d5e4145174",
-   "melhor_preco": 2879.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 55C6K QLED Mini LED 4K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55c6k-qled-mini-led-4k-6af1",
-   "id": "f49fed6c-c920-4eeb-96aa-c5e691d4b3b7",
-   "preco": 2990.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1767°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:f49fed6c-c920-4eeb-96aa-c5e691d4b3b7",
-   "melhor_preco": 2990.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 polegadas QLED 4K Google TV 55C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-polegadas-qled-4k-google-tv-55c6k-222d",
-   "id": "95e0b0ce-a976-4e63-825a-c8b03291b27c",
-   "preco": 3100.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "-189°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:95e0b0ce-a976-4e63-825a-c8b03291b27c",
-   "melhor_preco": 3100.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "[Magalu/ Moedas R$ 2775] Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/magalu-smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-c66c",
-   "id": "92eac6e1-7d1c-4d8d-861c-4d186147205e",
-   "preco": 2799.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1311°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:92eac6e1-7d1c-4d8d-861c-4d186147205e",
-   "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-14T21:17:36-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "[Magalu/Moedas R$ 2910] Smart TV TCL 55C6K 4K MiniLED Google TV",
-   "url": "https://www.pelando.com.br/d/magalu-smart-tv-tcl-55c6k-4k-miniled-google-tv-b209",
-   "id": "a54bebc4-a352-4ec0-b1e9-dec61db0a109",
-   "preco": 2949.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "998°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:a54bebc4-a352-4ec0-b1e9-dec61db0a109",
-   "melhor_preco": 2949.0,
-   "ultima_vez": "2026-10-12T19:17:32-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "[Magalu] Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/magalu-smart-tv-tcl-55-4k-miniled-120hz-google-tv-0319",
-   "id": "cf68017e-6a6e-48ad-b899-71b4df636906",
-   "preco": 2910.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1164°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:cf68017e-6a6e-48ad-b899-71b4df636906",
-   "melhor_preco": 2910.0,
-   "ultima_vez": "2026-10-05T00:46:14-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-qled-mini-led-4k-144hz-hdr10-d2b8",
-   "id": "5d90b78c-cb33-4645-bdbb-e3b00f0d4954",
-   "preco": 2849.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1049°"
-   },
-   "modelo": "55C6K",
-   "chave": "pelando:5d90b78c-cb33-4645-bdbb-e3b00f0d4954",
-   "melhor_preco": 2849.0,
-   "ultima_vez": "2026-09-29T22:14:59-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "TCL Smart TV 65C6K 4K Mini-LED 144Hz Google TV",
-   "url": "https://www.pelando.com.br/d/tcl-smart-tv-65c6k-4k-mini-led-144hz-google-tv-c67d",
-   "id": "4ee745f4-b964-411e-986e-fb615254c408",
-   "preco": 3289.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "785°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:4ee745f4-b964-411e-986e-fb615254c408",
-   "melhor_preco": 3289.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 65 polegadas QLED Mini LED 4K 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-polegadas-qled-mini-led-4k-65c6k-6027",
-   "id": "5325809a-bc01-4f44-92e9-593b64559b83",
-   "preco": 3149.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1462°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:5325809a-bc01-4f44-92e9-593b64559b83",
-   "melhor_preco": 3149.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-65c6k-f5da",
-   "id": "efd762ee-bb79-47ad-8b0b-0492d2da0602",
-   "preco": 3389.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "854°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:efd762ee-bb79-47ad-8b0b-0492d2da0602",
-   "melhor_preco": 3389.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart Tv 65 65c6k 4k Qd-mini Led 144hz Com Google Tv Tcl",
-   "url": "https://www.pelando.com.br/d/tcl-smart-tv-65c6k-4k-google-tv-qd-mini-led-144hz-be2f",
-   "id": "c8ada64f-f164-421b-8ab3-5e01d3b66db8",
-   "preco": 3350.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "3993°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:c8ada64f-f164-421b-8ab3-5e01d3b66db8",
-   "melhor_preco": 3350.0,
-   "ultima_vez": "2026-10-18T21:47:42-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "[APP]Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/tv-tcl-65c6k-e475",
-   "id": "1ae306ce-157f-4dbf-a04f-97c4147f977a",
-   "preco": 3440.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1478°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:1ae306ce-157f-4dbf-a04f-97c4147f977a",
-   "melhor_preco": 3440.0,
-   "ultima_vez": "2026-10-14T21:17:36-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/tcl-smart-tv-65-polegadas-4k-google-tv-24cc",
-   "id": "1c9bf238-18a8-45cc-97a4-9425a26f1826",
-   "preco": 3782.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "-61°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:1c9bf238-18a8-45cc-97a4-9425a26f1826",
-   "melhor_preco": 3782.0,
-   "ultima_vez": "2026-10-07T22:52:00-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "[Magalu] Smart TV TCL 65\" 4K MiniLED 65C6K Google TV",
-   "url": "https://www.pelando.com.br/d/magalu-smart-tv-tcl-65-4k-miniled-65c6k-google-tv-c2af",
-   "id": "eecf5486-ccba-4a41-aa6b-564843861ac6",
-   "preco": 3439.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "139°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:eecf5486-ccba-4a41-aa6b-564843861ac6",
-   "melhor_preco": 3439.0,
-   "ultima_vez": "2026-10-07T22:52:00-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Smart TV TCL 65 QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-65c6k-79c8",
-   "id": "8c66b6d0-d8ed-4598-8bd1-394e751619cc",
-   "preco": 3509.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "1780°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:8c66b6d0-d8ed-4598-8bd1-394e751619cc",
-   "melhor_preco": 3509.0,
-   "ultima_vez": "2026-10-05T00:46:14-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "TCL 65C6K Smart TV 4K QD-Mini LED 144Hz",
-   "url": "https://www.pelando.com.br/d/tcl-65c6k-smart-tv-4k-qd-mini-led-144hz-c137",
-   "id": "d12a35c4-ad74-417b-842a-495f47a4e7c7",
-   "preco": 3695.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "556°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:d12a35c4-ad74-417b-842a-495f47a4e7c7",
-   "melhor_preco": 3695.0,
-   "ultima_vez": "2026-10-05T00:46:14-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-29T20:45:58-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "TCL 65C6K Smart TV 4K MiniLED 120Hz Google TV",
-   "url": "https://www.pelando.com.br/d/tcl-65c6k-smart-tv-4k-miniled-120hz-google-tv-976c",
-   "id": "39288823-8fbc-476f-a8f2-6ed54d070494",
-   "preco": 3704.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "264°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:39288823-8fbc-476f-a8f2-6ed54d070494",
-   "melhor_preco": 3704.0,
-   "ultima_vez": "2026-09-29T22:14:59-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz Google TV",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-google-tv-b633",
-   "id": "823e2314-b26b-4640-9268-10d84740cd36",
-   "preco": 3581.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "118°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:823e2314-b26b-4640-9268-10d84740cd36",
-   "melhor_preco": 3581.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 65\" TCL 4K UHD MiniLED 65C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-4k-uhd-miniled-65c6k-120hz-5498",
-   "id": "59057492-7ac4-4ecc-abd2-a0f61c82eb91",
-   "preco": 3229.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "611°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:59057492-7ac4-4ecc-abd2-a0f61c82eb91",
-   "melhor_preco": 3229.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 65 TCL 65C6K 4K 144Hz Google TV",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-144hz-google-tv-bc45",
-   "id": "6e63a033-93ff-4f60-8626-22da5e809f43",
-   "preco": 3395.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "411°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:6e63a033-93ff-4f60-8626-22da5e809f43",
-   "melhor_preco": 3395.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 65” TCL 65C6K 4K QD-Mini Led 144Hz com Sistema Operacional Google TV",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-qd-mini-led-144hz-com-sistema-operacional-google-tv-829d",
-   "id": "33e44122-f76b-4f5b-b7af-d3f4856c65f1",
-   "preco": 3514.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "983°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:33e44122-f76b-4f5b-b7af-d3f4856c65f1",
-   "melhor_preco": 3514.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-65c6k-4e65",
-   "id": "633a9135-e86c-4790-8f2a-0c65b177be6e",
-   "preco": 3409.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "97°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:633a9135-e86c-4790-8f2a-0c65b177be6e",
-   "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-qled-mini-led-4k-wifi-bluetooth-0c50",
-   "id": "77c4745b-4850-4f78-8800-e707847e216e",
-   "preco": 3409.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "428°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:77c4745b-4850-4f78-8800-e707847e216e",
-   "melhor_preco": 3409.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 65 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 65C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-65-qled-mini-led-4k-wifi-bluetooth-58be",
-   "id": "882d170a-08e5-4517-adf0-b019113db009",
-   "preco": 3459.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "676°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:882d170a-08e5-4517-adf0-b019113db009",
-   "melhor_preco": 3459.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-26T17:15:44-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 65 TCL 65C6K 4K 144Hz Google TV",
-   "url": "https://www.pelando.com.br/d/smart-tv-65-tcl-65c6k-4k-144hz-google-tv-46bf",
-   "id": "ff5596ef-8e6f-46c5-883e-d455e2c032c0",
-   "preco": 3599.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "402°"
-   },
-   "modelo": "65C6K",
-   "chave": "pelando:ff5596ef-8e6f-46c5-883e-d455e2c032c0",
-   "melhor_preco": 3599.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00"
-  },
-  {
-   "primeira_vez": "2026-09-14T21:08:06-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-4b27",
-   "id": "bff976f2-8881-4140-95e7-1e418c04c69a",
-   "preco": 2799.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "866°"
-   },
-   "chave": "pelando:bff976f2-8881-4140-95e7-1e418c04c69a",
-   "melhor_preco": 2799.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2799.0,
-   "menor_preco": 2799.0,
-   "modelo": "55C6K"
-  },
-  {
-   "primeira_vez": "2026-09-14T21:08:06-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Magazine Luiza",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz Google TV AiPQ",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-55c6k-120hz-google-tv-aipq-0dae",
-   "id": "b39aa06e-9765-4736-899f-1dacc48f64aa",
-   "preco": 2872.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "720°"
-   },
-   "chave": "pelando:b39aa06e-9765-4736-899f-1dacc48f64aa",
-   "melhor_preco": 2872.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2872.0,
-   "menor_preco": 2872.0,
-   "modelo": "55C6K"
-  },
-  {
-   "primeira_vez": "2026-09-14T21:08:06-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "AliExpress",
-   "titulo": "Smart TV 55\" TCL 4K UHD MiniLED 55C6K 120Hz",
-   "url": "https://www.pelando.com.br/d/smart-tv-55-tcl-4k-uhd-miniled-120hz-google-tv-b47e",
-   "id": "bbed2b2f-57cb-4921-b477-a8d8d00f8784",
-   "preco": 3010.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "487°"
-   },
-   "chave": "pelando:bbed2b2f-57cb-4921-b477-a8d8d00f8784",
-   "melhor_preco": 3010.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 3010.0,
-   "menor_preco": 3010.0,
-   "modelo": "55C6K"
-  },
-  {
-   "primeira_vez": "2026-09-14T21:08:06-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "Smart TV TCL 55 Polegadas QLED Mini LED 4K C6K WiFi Bluetooth Google TV 4 HDMI 144Hz HDR10+ 55C6K",
-   "url": "https://www.pelando.com.br/d/smart-tv-tcl-55-polegadas-qled-mini-led-4k-c6k-wifi-bluetooth-google-tv-4-hdmi-144hz-hdr10-55c6k-8e88",
-   "id": "4d67e77c-138d-49df-ae96-39fa621477e1",
-   "preco": 2957.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "148°"
-   },
-   "chave": "pelando:4d67e77c-138d-49df-ae96-39fa621477e1",
-   "melhor_preco": 2957.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2957.0,
-   "menor_preco": 2957.0,
-   "modelo": "55C6K"
-  },
-  {
-   "primeira_vez": "2026-09-14T21:08:06-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Smart TV 4K TCL QD-Mini LED 55” Polegadas com HDMI 2.1,  55C6K",
-   "url": "https://www.pelando.com.br/d/tcl-smart-tv-4k-qd-mini-led-55c6k-242f",
-   "id": "ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
-   "preco": 2969.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "548°"
-   },
-   "chave": "pelando:ae4ba592-1c0d-45ba-8923-d11ed924ed9d",
-   "melhor_preco": 2969.0,
-   "ultima_vez": "2026-10-26T21:39:47-03:00",
-   "ultimo_preco": 2969.0,
-   "menor_preco": 2969.0,
-   "modelo": "55C6K"
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:97f7de57-465a-4787-a013-60c79e4f0cc6",
+   "melhor_preco": 499.0,
+   "ultima_vez": "2026-10-28T22:18:40-03:00"
   }
  ],
  "gta6_custo_final": [
+  {
+   "produto": "GTA6_CODE_IN_BOX",
+   "edicao": "Standard",
+   "forma": "GTA 6 PS5 Code in Box",
+   "loja": "Amazon",
+   "tipo": "post",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-6824",
+   "preco": 350.0,
+   "custo_final": 350.0,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 345.0
+  },
   {
    "produto": "GTA6_CODE_IN_BOX",
    "edicao": "Standard",
@@ -5831,14 +3682,14 @@
    "via": "GTA6_CODE_IN_BOX",
    "edicao": "Ultimate",
    "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
-   "loja": "Magazine Luiza",
+   "loja": "Amazon",
    "tipo": "calculo",
-   "url": "https://www.pelando.com.br/d/whatsapp-magalu-gta-6-ps5-code-in-box-pre-venda-lancamento-d176",
-   "preco": 463.0,
-   "custo_final": 463.0,
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-6824",
+   "preco": 450.0,
+   "custo_final": 450.0,
    "cupom": null,
-   "entrega": "desconhecida",
-   "entrega_texto": "Code in Box R$ 363,00 em Magazine Luiza + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)",
+   "entrega": "a_tempo",
+   "entrega_texto": "Code in Box R$ 350,00 em Amazon + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)",
    "meta": 450.0
   },
   {
@@ -5855,119 +3706,34 @@
    "meta": 450.0
   }
  ],
+ "gift_card_psn": {
+  "melhor": null,
+  "cartoes": [],
+  "gta": {},
+  "regra": {
+   "meta": 0.15,
+   "minimo": 0.15,
+   "aceitavel": 0.1,
+   "excelente": 0.2,
+   "janela_aceitavel": [
+    "2026-11-01",
+    "2026-11-11"
+   ],
+   "prazo": "2026-11-11",
+   "face_minima": 100.0
+  },
+  "lojas_oficiais": [
+   "PlayStation Store",
+   "Hype",
+   "Nuuvem",
+   "Mercado Livre",
+   "KaBuM!",
+   "Americanas",
+   "Amazon",
+   "Magazine Luiza"
+  ]
+ },
  "cupons": [
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "CUPOPMBALANCA",
-   "titulo": "Magalu: Balança Digital de Bioimpedância Bluetooth por R$20,99 com cupom",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "96661fa2-e6d7-41ac-9a4b-dd9b8afdb7c9",
-   "regra": "Balança Digital Bioimpedância Bluetooth com App Medição Corporal Completa - Star Produtos a partir de R$ 20,99 no Pix com o cupom",
-   "validade": null,
-   "publicado": "2026-10-20T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:96661fa2-e6d7-41ac-9a4b-dd9b8afdb7c9"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "PRESENTE100",
-   "titulo": "Magalu: R$100 OFF em pedidos acima de R$1.000",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "4448eaef-fa44-4634-a61a-446f1f6a3671",
-   "regra": "R$100 off em pedidos acima de R$1.000 em itens vendidos por Magalu",
-   "validade": null,
-   "publicado": "2026-10-20T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:4448eaef-fa44-4634-a61a-446f1f6a3671"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "INFLUDUPLA350",
-   "titulo": "Cupom Magazine Luiza R$ 350 OFF acima de R$ 3200",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "68814221-2745-4fa7-abef-be975fcab0be",
-   "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por Magalu.",
-   "validade": null,
-   "publicado": "2026-10-15T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:68814221-2745-4fa7-abef-be975fcab0be"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "INFLU220",
-   "titulo": "Cupom Magazine Luiza R$ 220 OFF acima de R$ 2000",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "59dafd70-8e5d-43db-b082-1b723237fdd2",
-   "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por LOJAS PARCEIRAS.",
-   "validade": null,
-   "publicado": "2026-10-15T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:59dafd70-8e5d-43db-b082-1b723237fdd2"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "INFLU120",
-   "titulo": "Cupom Magazine Luiza R$ 120 OFF acima de R$ 1000",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "72845469-dbb7-4e87-9b52-f6a313c8782b",
-   "regra": "*Cupom válido por tempo limitado. Válido em produtos vendidos e entregues por LOJAS PARCEIRAS.",
-   "validade": null,
-   "publicado": "2026-10-15T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:72845469-dbb7-4e87-9b52-f6a313c8782b"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Magazine Luiza",
-   "codigo": "TOMA30",
-   "titulo": "Cupom Magazine Luiza R$ 30 OFF acima de R$ 350",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/magalu",
-   "id": "f7d283d5-7a04-4dd8-9db3-6063e6d33295",
-   "regra": "Cupom válido para Lojas Parceiras",
-   "validade": null,
-   "publicado": "2026-10-13T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:f7d283d5-7a04-4dd8-9db3-6063e6d33295"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "CPAMD27",
-   "titulo": "[Saldo MP] Cupom Mercado Livre - 20% OFF acima de R$85 limitado à R$30",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "2f0c97cd-3b31-4332-beef-776166b92e89",
-   "regra": "Válido com Saldo Mercado Pago .",
-   "validade": null,
-   "publicado": "2026-10-26T11:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:2f0c97cd-3b31-4332-beef-776166b92e89"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "PROMODARROW15",
-   "titulo": "Cupom Mercado Livre - 15% OFF acima de R$5 limitado à R$145 em itens Darrow",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "35a37f31-907b-44db-bd3c-daa07ce69188",
-   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
-   "validade": null,
-   "publicado": "2026-10-26T09:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:35a37f31-907b-44db-bd3c-daa07ce69188"
-  },
   {
    "fonte": "pelando",
    "loja": "Mercado Livre",
@@ -5977,108 +3743,10 @@
    "id": "f20e5047-9aee-43af-8aa5-c438dd3a4b5e",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-10-26T09:35:30-03:00",
+   "publicado": "2026-10-25T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:f20e5047-9aee-43af-8aa5-c438dd3a4b5e"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "CPAMD2610",
-   "titulo": "[Saldo MP] Cupom Mercado Livre - 20% OFF acima de R$85 limitado à R$30",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "d20aa257-981b-4a24-9eec-bf44a28c52f7",
-   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.                              📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
-   "validade": null,
-   "publicado": "2026-10-26T08:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:d20aa257-981b-4a24-9eec-bf44a28c52f7"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "BNPLD2611",
-   "titulo": "[MP Parcelado] Cupom Mercado Livre - 15% OFF acima de R$50 limitado à R$15",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "ba152af0-38cb-4c08-afb6-199f46fc03a5",
-   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.                              📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
-   "validade": null,
-   "publicado": "2026-10-26T08:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:ba152af0-38cb-4c08-afb6-199f46fc03a5"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "ALLSITERESGATE2610",
-   "titulo": "[Resgatado] Cupom Mercado Livre - R$60 OFF acima de R$499 em TODO SITE",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "836b808c-3bd0-48e8-aff0-ff635d36b0f1",
-   "regra": "Válido Somente pra quem Resgatou as 19h",
-   "validade": null,
-   "publicado": "2026-10-25T23:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:836b808c-3bd0-48e8-aff0-ff635d36b0f1"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "TODOSITE2410",
-   "titulo": "Cupom Mercado Livre - R$50 OFF acima de R$499 Todo Site",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "191bdcc4-ec26-47d9-b17d-98b1de930457",
-   "regra": "Cupom diz TODO Site, confiram",
-   "validade": null,
-   "publicado": "2026-10-23T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:191bdcc4-ec26-47d9-b17d-98b1de930457"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "SOM2410",
-   "titulo": "Cupom Mercado Livre - 10% OFF acima de R$500 limitado a R$70 Som Vídeo e Eletro",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "c75c848d-b234-43c2-a758-d942b6c7e094",
-   "regra": "Em itens Selecionados, Som, Vídeo e Eletro testem",
-   "validade": null,
-   "publicado": "2026-10-23T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:c75c848d-b234-43c2-a758-d942b6c7e094"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "PROMOCONSTRU",
-   "titulo": "Cupom Mercado Livre - 10% OFF acima de R$79 limitado à R$50",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "b915e973-b51e-4575-b52f-c8144241439a",
-   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
-   "validade": null,
-   "publicado": "2026-10-21T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:b915e973-b51e-4575-b52f-c8144241439a"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "Mercado Livre",
-   "codigo": "ACHADOINCRIVEL",
-   "titulo": "CUPOM 25% OFF, Limite de R$ 500 OFF",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "87d94b52-6968-447e-99e6-6f6457b9354c",
-   "regra": "25% OFF em R$ 1, Limite de R$ 500 OFF",
-   "validade": null,
-   "publicado": "2026-10-19T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:87d94b52-6968-447e-99e6-6f6457b9354c"
   },
   {
    "fonte": "pelando",
@@ -6089,7 +3757,7 @@
    "id": "ecea6534-d342-4fd5-9a73-7722f03c19f4",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T21:35:30-03:00",
+   "publicado": "2026-10-19T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:ecea6534-d342-4fd5-9a73-7722f03c19f4"
@@ -6103,7 +3771,7 @@
    "id": "41c625dc-a375-4e78-b7be-a9a727807a7c",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T21:35:30-03:00",
+   "publicado": "2026-10-19T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:41c625dc-a375-4e78-b7be-a9a727807a7c"
@@ -6117,7 +3785,7 @@
    "id": "142b2423-17cd-4678-9e55-40c32157086e",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-18T21:35:30-03:00",
+   "publicado": "2026-10-18T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:142b2423-17cd-4678-9e55-40c32157086e"
@@ -6131,7 +3799,7 @@
    "id": "e66cfad2-ab43-44ec-853e-d08fed2511c9",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-18T21:35:30-03:00",
+   "publicado": "2026-10-18T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:e66cfad2-ab43-44ec-853e-d08fed2511c9"
@@ -6145,7 +3813,7 @@
    "id": "675dc734-cba8-4979-8020-39f3cb4b34aa",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                 \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-18T21:35:30-03:00",
+   "publicado": "2026-10-18T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:675dc734-cba8-4979-8020-39f3cb4b34aa"
@@ -6159,113 +3827,46 @@
    "id": "77d90b6a-c868-4f67-af1f-15b961a03027",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-18T21:35:30-03:00",
+   "publicado": "2026-10-18T22:16:38-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:77d90b6a-c868-4f67-af1f-15b961a03027"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "IFPUSOHQ",
-   "titulo": "Cupom Aliexpress R$ 379 acima de R$ 3914",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "4684c69e-4291-435f-aed9-f23dff1566ac",
-   "regra": "Cupom válido acima de R$ 3914",
-   "validade": null,
-   "publicado": "2026-10-15T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:4684c69e-4291-435f-aed9-f23dff1566ac"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "NSBR58",
-   "titulo": "Cupom Aliexpress R$ 300 OFF acima de R$ 2400",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "f9aef576-7d81-4a27-b7b8-714db78a08c4",
-   "regra": "Cupom válido para itens específicos",
-   "validade": null,
-   "publicado": "2026-10-15T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:f9aef576-7d81-4a27-b7b8-714db78a08c4"
-  },
-  {
-   "fonte": "pelando",
-   "loja": "AliExpress",
-   "codigo": "WOBR43",
-   "titulo": "Cupom Aliexpress - R$220 OFF em Compras Acima de R$1695",
-   "url": "https://www.pelando.com.br/cupons-de-descontos/aliexpress",
-   "id": "503d0480-a151-471e-a742-806c02b86161",
-   "regra": "Cupom Válido até 16 de Outubro",
-   "validade": null,
-   "publicado": "2026-10-12T21:35:30-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "pelando:503d0480-a151-471e-a742-806c02b86161"
   }
  ],
  "saude": {
-  "amazon": {
-   "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:36:07-03:00",
-   "ultimo_erro": null
-  },
-  "casasbahia": {
-   "falhas": 12,
-   "ultimo_ok": "2026-10-25T13:45:26-03:00",
-   "ultimo_erro": "2026-10-26T21:37:21-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
-  },
-  "mercadolivre": {
-   "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:38:16-03:00",
-   "ultimo_erro": null
-  },
-  "aliexpress": {
-   "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:38:59-03:00",
-   "ultimo_erro": null
-  },
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:35:29-03:00",
+   "ultimo_ok": "2026-10-28T22:16:37-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:35:31-03:00",
-   "ultimo_erro": null
-  },
-  "shopee": {
-   "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:38:59-03:00",
+   "ultimo_ok": "2026-10-28T22:16:38-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:39:00-03:00",
+   "ultimo_ok": "2026-10-28T22:18:16-03:00",
    "ultimo_erro": null
   },
   "amazon.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:37:02-03:00",
+   "ultimo_ok": "2026-10-28T22:17:46-03:00",
    "ultimo_erro": null
   },
   "casasbahia.produtos": {
-   "falhas": 0,
+   "falhas": 3,
    "ultimo_ok": "2026-10-25T13:45:55-03:00",
-   "ultimo_erro": null
+   "ultimo_erro": "2026-10-28T22:18:04-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
   },
   "netshoes": {
-   "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:37:32-03:00",
-   "ultimo_erro": null
+   "falhas": 1,
+   "ultimo_ok": "2026-10-26T22:44:47-03:00",
+   "ultimo_erro": "2026-10-28T21:03:47-03:00 RuntimeError: Netshoes bloqueou (Akamai): busca; nova tentativa em 2 h"
   },
   "mercadolivre.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-26T21:38:27-03:00",
+   "ultimo_ok": "2026-10-28T22:18:16-03:00",
    "ultimo_erro": null
   }
  },
