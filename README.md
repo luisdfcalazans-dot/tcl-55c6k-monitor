@@ -121,6 +121,9 @@ monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
 monitor/carrinho.py      adaptadores do carrinho (Magalu, Mercado Livre, Amazon só leitura) do testador de cupons
 testar_cupons.py         testador de cupons no carrinho (TVs, PS5, GTA 6)
-docs/index.html          painel (GitHub Pages)
+docs/index.html          painel (GitHub Pages): grade de produtos, placar (barras, rosca, gráfico uPlot com filtro de período) e tabelas
+docs/fonts/              D-DIN (Datto, licença OFL), servida pelo próprio Pages
+docs/logos/              logos das lojas (.webp do Wikimedia Commons, domínio público; .png/.jpg = ícone do site)
+docs/produtos/           fotos dos produtos com fundo transparente (PS5 Slim Digital e GTA 6, da página da KaBuM)
 tests/                   testes com HTML/JSON reais salvos
 ```
