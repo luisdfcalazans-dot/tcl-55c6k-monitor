@@ -202,6 +202,33 @@
   code { font-family:ui-monospace,"Cascadia Mono",monospace; background:var(--code-bg); padding:1px 5px; border-radius:2px; font-size:.88em; }
   footer { margin-top:44px; color:var(--ink-3); font-size:14px; border-top:2px solid var(--line); padding-top:12px; }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+
+  /* barra inferior: abas + filtro por família (o filtro esconde o que é de outra família na grade e nas tabelas) */
+  :root { --barra-h:68px; }
+  @media (max-width:700px) { :root { --barra-h:112px; } }
+  .page { padding-bottom:calc(var(--barra-h) + 40px); }
+  .barra-inf { position:fixed; left:0; right:0; bottom:0; z-index:20; background:var(--band); color:var(--band-ink);
+    border-top:3px solid var(--tag); padding-bottom:env(safe-area-inset-bottom); }
+  .barra-in { max-width:1180px; margin:0 auto; padding:8px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 24px; }
+  .familias { display:flex; gap:6px; flex-wrap:wrap; }
+  .familias button { font:inherit; font-weight:700; font-size:14px; cursor:pointer; color:var(--band-ink); background:transparent;
+    border:2px solid var(--band-ink-2); border-radius:999px; padding:3px 14px; }
+  .familias button[aria-pressed="true"] { background:var(--band-ink); color:var(--band); border-color:var(--band-ink); }
+  .abas { display:flex; gap:4px; }
+  .abas button { font:inherit; font-size:14px; font-weight:700; cursor:pointer; color:var(--band-ink-2); background:transparent; border:0;
+    border-radius:3px; padding:6px 14px; display:flex; align-items:center; gap:8px; }
+  .abas button:hover { color:var(--band-ink); }
+  .abas button[aria-current="page"] { color:var(--tag-ink); background:var(--tag); }
+  .abas svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  @media (max-width:700px) {
+    .barra-in { flex-direction:column; align-items:stretch; padding:8px 12px 6px; gap:8px; }
+    .familias { justify-content:center; }
+    .abas { justify-content:space-between; }
+    .abas button { flex:1; flex-direction:column; gap:2px; padding:4px 2px; font-size:12.5px; }
+  }
+  body[data-familia="PS5"] .page [data-familia]:not([data-familia="PS5"]),
+  body[data-familia="GTA6"] .page [data-familia]:not([data-familia="GTA6"]),
+  body[data-familia="TV"] .page [data-familia]:not([data-familia="TV"]) { display:none !important; }
 </style>
 <script>
 // tema (30/10/2026): a escolha do botão fica salva neste navegador; sem escolha, segue o sistema. Ao trocar, avisa a
@@ -218,6 +245,30 @@
       try { localStorage.setItem('tema', novo); } catch {}
       marca(); dispatchEvent(new Event('tema')); });
   });
+  // barra inferior: uma aba por vez e o filtro por família (no <body>, o CSS esconde o resto; a vitrine troca o produto
+  // escolhido se ele saiu do filtro). A aba e a família ficam salvas nesta sessão do navegador.
+  addEventListener('DOMContentLoaded', () => {
+    const salvo = k => { try { return sessionStorage.getItem(k); } catch { return null; } };
+    const salva = (k, v) => { try { sessionStorage.setItem(k, v); } catch {} };
+    const abas = [...document.querySelectorAll('.aba')], bAbas = [...document.querySelectorAll('.barra-inf [data-aba]')];
+    const bFams = [...document.querySelectorAll('.barra-inf [data-familia]')];
+    const mostraAba = (nome, rola) => {
+      if (!abas.some(a => a.dataset.aba === nome)) nome = 'produtos';
+      abas.forEach(a => { a.hidden = a.dataset.aba !== nome; });
+      bAbas.forEach(b => b.dataset.aba === nome ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+      salva('aba', nome); if (rola) scrollTo(0, 0);
+      dispatchEvent(new Event('resize'));   // o gráfico da aba que voltou a aparecer recalcula a largura
+    };
+    const filtra = fam => {
+      if (fam) document.body.dataset.familia = fam; else delete document.body.dataset.familia;
+      bFams.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.familia === fam)));
+      salva('familia', fam); dispatchEvent(new Event('familia'));
+    };
+    bAbas.forEach(b => b.addEventListener('click', () => mostraAba(b.dataset.aba, true)));
+    bFams.forEach(b => b.addEventListener('click', () => filtra(b.dataset.familia)));
+    mostraAba(salvo('aba') || 'produtos', false);
+    const f = salvo('familia'); if (f && bFams.some(b => b.dataset.familia === f && !b.hidden)) filtra(f);
+  });
 })();
 </script>
 </head>
@@ -231,11 +282,11 @@
       <svg class="lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
       <span>Tema escuro</span></button>
   </div>
-  <nav class="secoes" aria-label="Seções"><a href="#vitrine">Produtos</a><a href="#tvs" id="nav-tvs" hidden>TVs</a><a href="#secao-PS5">Tabelas do PS5</a><a href="#secao-GTA6">Tabelas do GTA 6</a><a href="#gift">Gift card PSN</a><a href="#cupons">Cupons e postagens</a></nav>
 </div></header>
 <div class="page">
 
   <!-- vitrine (30/10/2026): um quadro por produto; o escolhido abre o placar logo abaixo -->
+  <div class="aba" data-aba="produtos">
   <section id="vitrine" aria-label="Produtos monitorados">
     <div class="grade" id="grade"><p class="vazio-msg">Carregando os preços…</p></div>
   </section>
@@ -273,8 +324,11 @@
     <div class="fact"><div class="k">GTA 6 Ultimate com gift card</div><div class="v" id="f-gift-ult">—</div><div class="s" id="f-gift-ult-s">—</div></div>
   </div>
 
+  </div>
+
+  <div class="aba" data-aba="tabelas" hidden>
   <!-- TVs (26/10/2026: o usuário ficou com a TV; com "tvs_desligadas" no latest esta parte fica escondida) -->
-  <div id="bloco-tvs" class="so-tv" hidden>
+  <div id="bloco-tvs" class="so-tv" data-familia="TV" hidden>
   <p class="sub" id="tvs">TVs QD-Mini LED. Alvos da 55C6K: Pix <span id="alvo-pix">—</span> · parcelado <span id="alvo-parc">—</span>. Alvos da 65C6K: Pix <span id="alvo-pix-65">—</span> · parcelado <span id="alvo-parc-65">—</span>.</p>
 
   <h3 class="modelo-cab"><span class="chip m55">55"</span> TCL 55C6K</h3>
@@ -311,9 +365,12 @@
   </div>
 
   <!-- PS5 e GTA 6 (03/10/2026): uma seção por família, montada pelo catálogo do latest ('produtos') -->
-  <section id="secao-PS5"></section>
-  <section id="secao-GTA6"></section>
+  <section id="secao-PS5" data-familia="PS5"></section>
+  <section id="secao-GTA6" data-familia="GTA6"></section>
 
+  </div>
+
+  <div class="aba" data-aba="cupons" hidden>
   <div class="cols" id="cupons">
     <div>
       <h2>Cupons ativos</h2>
@@ -325,11 +382,31 @@
     </div>
   </div>
 
+  </div>
+
+  <div class="aba" data-aba="fontes" hidden>
   <h2>Fontes</h2>
   <div class="tbl"><table id="t-fontes"><thead><tr><th>Fonte</th><th>Estado</th><th>Último OK</th><th>Último erro</th></tr></thead><tbody></tbody></table></div>
+  </div>
 
   <footer>Preços sem garantia; confira na loja antes de comprar. Dados em <code>data/</code> neste repositório.</footer>
 </div>
+
+<!-- barra inferior (30/10/2026): abas (uma parte do painel por vez) e filtro por família, que vale para a grade e as tabelas -->
+<nav class="barra-inf" aria-label="Navegação do painel"><div class="barra-in">
+  <div class="familias" role="group" aria-label="Filtrar por família">
+    <button type="button" data-familia="" aria-pressed="true">Todos</button>
+    <button type="button" data-familia="PS5" aria-pressed="false">PS5</button>
+    <button type="button" data-familia="GTA6" aria-pressed="false">GTA 6</button>
+    <button type="button" data-familia="TV" id="nav-tvs" aria-pressed="false" hidden>TVs</button>
+  </div>
+  <div class="abas">
+    <button type="button" data-aba="produtos" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg>Produtos</button>
+    <button type="button" data-aba="tabelas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9.5h18M3 14.5h18M9 9.5V20"/></svg>Tabelas</button>
+    <button type="button" data-aba="cupons"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2.5a2.5 2.5 0 0 0 0 5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2.5a2.5 2.5 0 0 0 0-5z"/><path d="M14.5 9l-5 6M9.5 9.5h.01M14.5 14.5h.01"/></svg>Cupons</button>
+    <button type="button" data-aba="fontes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></svg>Fontes</button>
+  </div>
+</div></nav>
 
 <script>
 const fmt = v => v == null || isNaN(v) ? '—' : 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -724,7 +801,7 @@ function vitrine(ctx, semTVs, redesenhaAntigos) {
   if (!itens.length) { grade.innerHTML = '<p class="vazio-msg">Nenhum preço coletado ainda. Os produtos aparecem aqui depois da primeira coleta.</p>'; return; }
   grade.innerHTML = itens.map(({id, p, r, meta, porDia}) => {
     const m = r.melhor, d = m ? metaTxt(m.melhor_preco, meta) : null;
-    return `<button type="button" class="tile${m ? '' : ' vazio'}" data-id="${esc(id)}" aria-pressed="false">
+    return `<button type="button" class="tile${m ? '' : ' vazio'}" data-id="${esc(id)}" data-familia="${ehTV(id) ? 'TV' : esc(p.secao)}" aria-pressed="false">
       ${m ? `<span class="t-logo">${logo(m.loja)}</span>` : ''}
       <span class="t-nome">${nomeOuFoto(id, p.curto || p.nome)}</span>
       <span class="t-preco">${m ? reais(m.melhor_preco) : 'sem preço'}</span>
@@ -824,9 +901,15 @@ function vitrine(ctx, semTVs, redesenhaAntigos) {
   const trocaTema = () => { desenhaPlacar(); redesenhaAntigos(); };
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', trocaTema);
   addEventListener('tema', trocaTema);
+  // filtro por família (barra inferior): se o produto escolhido sumiu da grade, escolhe o primeiro que ficou
+  addEventListener('familia', () => {
+    const visiveis = [...document.querySelectorAll('.tile')].filter(b => b.offsetParent !== null);
+    if (visiveis.length && !visiveis.some(b => b.dataset.id === estado.id)) escolhe(visiveis[0].dataset.id);
+  });
 
   const pedido = decodeURIComponent((location.hash.match(/^#p=(.+)$/) || [])[1] || '');
   escolhe(itens.some(it => it.id === pedido) ? pedido : (itens.find(it => it.r.melhor) || itens[0]).id);
+  dispatchEvent(new Event('familia'));   // filtro salvo na sessão, aplicado antes da grade existir
 }
 
 (async () => {
