@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-30T16:08:54-03:00",
+ "atualizado": "2026-10-30T19:34:13-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -1275,7 +1275,7 @@
    "extra": {
     "preco_tabela": 4692.51,
     "openbox": false,
-    "oferta": "OFERTAS KABUM",
+    "oferta": "ESQUENTA 11DO11",
     "kabum_seller_id": "0",
     "kabum_oferta_id": 0,
     "produto": {
@@ -1410,32 +1410,45 @@
    "melhor_preco": 4370.07
   },
   {
-   "fonte": "vtex.fastshop.ps5",
+   "fonte": "magalu.produtos",
    "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Console PS5 Digital 825GB com Controle DualSense Branco - Sony",
-   "url": "https://site.fastshop.com.br/console-ps5-digital-825gb-com-controle-dualsense-branco---sony-141991/p",
-   "id": "Fast Shop-141991-CNL132",
+   "loja": "Magazine Luiza",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
+   "id": "aebh5a7a94-kabum",
    "preco": 4499.0,
    "preco_pix": null,
    "parcelado": "10x R$ 449,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Webfones",
+   "vendedor": "KaBuM!",
    "extra": {
-    "preco_de": 4599.0,
-    "ref": "133414_Fastshopbr",
-    "ean": "711719021490",
-    "sku": "151159",
-    "seller_id": "CNL132",
+    "preco_de": 4692.51,
+    "1p": false,
+    "anuncio": "aebh5a7a94",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 3585,
+     "peso_kg": 3.808,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.2
+    },
+    "anuncio_exclusivo": false,
     "produto": {
      "versao_incerta": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
-      "preço"
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
      ],
      "sinais": [],
      "codigos": []
@@ -1447,7 +1460,7 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "vtex.fastshop.ps5:Fast Shop-141991-CNL132",
+   "chave": "magalu.produtos:aebh5a7a94-kabum",
    "melhor_preco": 4499.0
   },
   {
@@ -1521,6 +1534,47 @@
    "modelo": "PS5_DIGITAL",
    "chave": "americanas:Americanas-8299917-magazineluiza",
    "melhor_preco": 4511.55
+  },
+  {
+   "fonte": "vtex.fastshop.ps5",
+   "tipo": "loja",
+   "loja": "Fast Shop",
+   "titulo": "Console PS5 Digital 825GB com Controle DualSense Branco - Sony",
+   "url": "https://site.fastshop.com.br/console-ps5-digital-825gb-com-controle-dualsense-branco---sony-141991/p",
+   "id": "Fast Shop-141991-CNL132",
+   "preco": 4599.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 459,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Webfones",
+   "extra": {
+    "preco_de": 4599.0,
+    "ref": "133414_Fastshopbr",
+    "ean": "711719021490",
+    "sku": "151159",
+    "seller_id": "CNL132",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "vtex.fastshop.ps5:Fast Shop-141991-CNL132",
+   "melhor_preco": 4599.0
   },
   {
    "fonte": "magalu.produtos",
@@ -1776,48 +1830,30 @@
    "melhor_preco": 4654.05
   },
   {
-   "fonte": "magalu.produtos",
+   "fonte": "vtex.fastshop.ps5",
    "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
-   "id": "aebh5a7a94-kabum",
-   "preco": 4723.95,
-   "preco_pix": null,
-   "parcelado": "10x R$ 472,40 sem juros",
+   "loja": "Fast Shop",
+   "titulo": "Console Playstation 5 Slim Edição Digital 825GB com 2 Jogos Branco",
+   "url": "https://site.fastshop.com.br/console-playstation-5-slim-edicao-digital-825gb-com-2-jogos-branco-181030/p",
+   "id": "Fast Shop-181030-cnl253",
+   "preco": 5199.0,
+   "preco_pix": 4679.1,
+   "parcelado": "10x R$ 519,90 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "KaBuM!",
+   "vendedor": "Webcontinental Marketplace",
    "extra": {
-    "preco_de": 5086.55,
-    "1p": false,
-    "anuncio": "aebh5a7a94",
-    "vendedor_id": "kabum",
-    "ficha": {
-     "avaliacoes": 3585,
-     "peso_kg": 3.808,
-     "razao_social": "KABUM S.A.",
-     "vendedor_desde": "2021-06-30",
-     "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.2
-    },
-    "anuncio_exclusivo": false,
+    "preco_de": 7221.9,
+    "ref": "243290_Fastshopbr",
+    "ean": "711719023876",
+    "sku": "191243",
+    "seller_id": "cnl253",
     "produto": {
      "versao_incerta": false
     },
     "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
+     "veredito": "confiavel"
     },
     "alvo": {
      "pix": 3550.0,
@@ -1826,8 +1862,8 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:aebh5a7a94-kabum",
-   "melhor_preco": 4723.95
+   "chave": "vtex.fastshop.ps5:Fast Shop-181030-cnl253",
+   "melhor_preco": 4679.1
   },
   {
    "fonte": "kabum.produtos",
@@ -1975,6 +2011,60 @@
    "modelo": "PS5_DISCO",
    "chave": "vtex.fastshop.ps5:Fast Shop-173286-CNL132",
    "melhor_preco": 4899.0
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos/p/bja6dfc54b/ga/gap5/",
+   "id": "bja6dfc54b-kabum",
+   "preco": 4999.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 499,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 5697.85,
+    "1p": false,
+    "anuncio": "bja6dfc54b",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 4938,
+     "peso_kg": 4.8,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.2
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "magalu.produtos:bja6dfc54b-kabum",
+   "melhor_preco": 4999.0
   },
   {
    "fonte": "kabum.produtos",
@@ -2189,42 +2279,6 @@
    "melhor_preco": 5140.03
   },
   {
-   "fonte": "vtex.fastshop.ps5",
-   "tipo": "loja",
-   "loja": "Fast Shop",
-   "titulo": "Console Playstation 5 Slim Edição Digital 825GB com 2 Jogos Branco",
-   "url": "https://site.fastshop.com.br/console-playstation-5-slim-edicao-digital-825gb-com-2-jogos-branco-181030/p",
-   "id": "Fast Shop-181030-cnl253",
-   "preco": 5199.0,
-   "preco_pix": null,
-   "parcelado": "10x R$ 519,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Webcontinental Marketplace",
-   "extra": {
-    "preco_de": 7221.9,
-    "ref": "243290_Fastshopbr",
-    "ean": "711719023876",
-    "sku": "191243",
-    "seller_id": "cnl253",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "vtex.fastshop.ps5:Fast Shop-181030-cnl253",
-   "melhor_preco": 5199.0
-  },
-  {
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -2281,60 +2335,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:cheh2k3h3h-multiloja",
    "melhor_preco": 5219.91
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos/p/bja6dfc54b/ga/gap5/",
-   "id": "bja6dfc54b-kabum",
-   "preco": 5248.95,
-   "preco_pix": null,
-   "parcelado": "10x R$ 524,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_de": 5982.74,
-    "1p": false,
-    "anuncio": "bja6dfc54b",
-    "vendedor_id": "kabum",
-    "ficha": {
-     "avaliacoes": 4938,
-     "peso_kg": 4.8,
-     "razao_social": "KABUM S.A.",
-     "vendedor_desde": "2021-06-30",
-     "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.2
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "magalu.produtos:bja6dfc54b-kabum",
-   "melhor_preco": 5248.95
   },
   {
    "fonte": "vtex.webcontinental.ps5",
@@ -2683,7 +2683,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/84164#PS5_DIGITAL",
    "melhor_preco": 3704.05,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 3704.05,
    "menor_preco": 3704.05
   },
@@ -2725,7 +2725,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3157489",
    "melhor_preco": 355.0,
-   "ultima_vez": "2026-10-30T16:08:52-03:00"
+   "ultima_vez": "2026-10-30T19:34:12-03:00"
   },
   {
    "primeira_vez": "2026-10-30T15:24:04-03:00",
@@ -2765,7 +2765,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3157477",
    "melhor_preco": 355.0,
-   "ultima_vez": "2026-10-30T16:08:52-03:00"
+   "ultima_vez": "2026-10-30T19:34:12-03:00"
   },
   {
    "primeira_vez": "2026-10-30T15:24:04-03:00",
@@ -2805,7 +2805,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3157471",
    "melhor_preco": 376.56,
-   "ultima_vez": "2026-10-30T16:08:52-03:00"
+   "ultima_vez": "2026-10-30T19:34:12-03:00"
   },
   {
    "primeira_vez": "2026-10-30T15:24:04-03:00",
@@ -2845,7 +2845,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3157461",
    "melhor_preco": 355.0,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 355.0,
    "menor_preco": 355.0
   },
@@ -2999,11 +2999,11 @@
    "parcelado": null,
    "cupom": "AQUITEMTECH",
    "publicado": "2026-10-30T14:59:17-03:00",
-   "ativo": true,
+   "ativo": false,
    "vendedor": null,
    "extra": {
     "preco_antigo": 4599.0,
-    "status": "APPROVED",
+    "status": "FINISHED",
     "produto": {
      "versao_incerta": false
     },
@@ -3016,7 +3016,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3156691",
    "melhor_preco": 3704.05,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 3704.05,
    "menor_preco": 3704.05
   },
@@ -3101,7 +3101,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:promotop/261063#GTA6_CODE_IN_BOX",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 280.0,
    "menor_preco": 280.0
   },
@@ -3207,7 +3207,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3156520",
    "melhor_preco": 3846.17,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 3846.17,
    "menor_preco": 3846.17
   },
@@ -3242,7 +3242,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3155337",
    "melhor_preco": 3894.05,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 3894.05,
    "menor_preco": 3894.05
   },
@@ -3376,7 +3376,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3152444",
    "melhor_preco": 3880.0,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 3880.0,
    "menor_preco": 3880.0
   },
@@ -4017,7 +4017,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150183",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -4137,7 +4137,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150102",
    "melhor_preco": 357.73,
-   "ultima_vez": "2026-10-30T16:08:52-03:00",
+   "ultima_vez": "2026-10-30T19:34:12-03:00",
    "ultimo_preco": 357.73,
    "menor_preco": 357.73
   },
@@ -4767,16 +4767,16 @@
   {
    "fonte": "promobit",
    "loja": "KaBuM!",
-   "codigo": "SETUPFULL10",
-   "titulo": "Cupom de desconto KaBuM! oferece 10% OFF em suas compras",
+   "codigo": "THUNDEROFF",
+   "titulo": "A chance de economizar 10% em compras na KaBuM!",
    "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "71026",
+   "id": "71120",
    "regra": "produtos KaBuM!",
    "validade": "2026-10-31T23:59:59-03:00",
-   "publicado": "2026-10-22T16:20:05-03:00",
+   "publicado": "2026-10-26T17:00:19-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "promobit:71026"
+   "chave": "promobit:71120"
   },
   {
    "fonte": "promobit",
@@ -4791,6 +4791,20 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:71003"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "KaBuM!",
+   "codigo": "SEMQUEDA7",
+   "titulo": "Cupom de desconto KaBuM! oferece 7% OFF em suas compras",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "70978",
+   "regra": "produtos KaBuM!",
+   "validade": "2026-10-30T23:59:59-03:00",
+   "publicado": "2026-10-21T15:30:20-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70978"
   },
   {
    "fonte": "promobit",
@@ -4833,6 +4847,20 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:69879"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Fast Shop",
+   "codigo": "moveis8",
+   "titulo": "A chance de economizar 8% em compras na Fast Shop",
+   "url": "https://www.promobit.com.br/cupons/loja/fastshop/",
+   "id": "70838",
+   "regra": "produtos Fast Shop",
+   "validade": "2026-10-31T23:59:59-03:00",
+   "publicado": "2026-10-19T15:25:07-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:70838"
   },
   {
    "fonte": "promobit",
@@ -5076,72 +5104,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:07:57-03:00",
+   "ultimo_ok": "2026-10-30T19:33:11-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:05-03:00",
+   "ultimo_ok": "2026-10-30T19:33:18-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:50-03:00",
+   "ultimo_ok": "2026-10-30T19:34:04-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:07:59-03:00",
+   "ultimo_ok": "2026-10-30T19:33:13-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:14-03:00",
+   "ultimo_ok": "2026-10-30T19:33:28-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:21-03:00",
+   "ultimo_ok": "2026-10-30T19:33:35-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:22-03:00",
+   "ultimo_ok": "2026-10-30T19:33:37-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:23-03:00",
+   "ultimo_ok": "2026-10-30T19:33:38-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:26-03:00",
+   "ultimo_ok": "2026-10-30T19:33:40-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:27-03:00",
+   "ultimo_ok": "2026-10-30T19:33:42-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 540,
+   "falhas": 541,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-30T16:08:33-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-30T19:33:49-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:35-03:00",
+   "ultimo_ok": "2026-10-30T19:33:51-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:37-03:00",
+   "ultimo_ok": "2026-10-30T19:33:53-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-30T16:08:40-03:00",
+   "ultimo_ok": "2026-10-30T19:33:55-03:00",
    "ultimo_erro": null
   }
  },
