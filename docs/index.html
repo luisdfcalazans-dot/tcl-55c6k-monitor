@@ -683,10 +683,10 @@ function tabelaCustoFinal(fontes) {
 const LOGOS = {'amazon': 'amazon.webp', 'magazine luiza': 'magalu.webp', 'kabum!': 'kabum.webp', 'mercado livre': 'mercadolivre.webp',
   'americanas': 'americanas.webp', 'casas bahia': 'casasbahia.webp', 'netshoes': 'netshoes.webp', 'aliexpress': 'aliexpress.webp',
   'shopee': 'shopee.webp', 'playstation store': 'psstore.webp', 'loja tcl': 'tcl.webp', 'mais correios': 'correios.webp',
-  'fast shop': 'fastshop.png', 'carrefour': 'carrefour.png', 'webcontinental': 'webcontinental.png', 'nuuvem': 'nuuvem.png',
+  'fast shop': 'fastshop.webp', 'carrefour': 'carrefour.png', 'webcontinental': 'webcontinental.png', 'nuuvem': 'nuuvem.png',
   'hype': 'hype.jpg', 'telegram': 'telegram.webp'};
 // ícone quadrado (aplicativo/site) ocupa o selo inteiro, sem a margem branca dos logos horizontais
-const QUADRADOS = new Set(['kabum.webp', 'fastshop.png', 'carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
+const QUADRADOS = new Set(['kabum.webp', 'carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
 const logo = loja => { const f = LOGOS[normLoja(loja)];
   return f ? `<img class="logo${QUADRADOS.has(f) ? ' q' : ''}" src="logos/${f}" alt="${esc(loja)}" title="${esc(loja)}">` : `<span class="logo-txt">${esc(loja)}</span>`; };
 const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produtos/gta6.webp'};
