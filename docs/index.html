@@ -3,66 +3,146 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Monitor de preços · painel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<title>Monitor de preços</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.min.css" integrity="sha384-IfV0B7MIOYuO95kO9G5ySKPz/85zqFNOAs8iy4tkK5zd9izhJAB8b7lHrwYqqmYE" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.iife.min.js" integrity="sha384-XMP23k7YSCFr13Xrkxh4IO0v1W+8fB6AP+3Vycxphp2Z0V2vocAZHyuGaFCysrtM" crossorigin="anonymous"></script>
 <style>
+  /* D-DIN (Datto, licença OFL: fonts/LICENCA-D-DIN.txt) */
+  @font-face { font-family:"D-DIN"; src:url(fonts/D-DIN.woff) format("woff"); font-weight:400; font-display:swap; }
+  @font-face { font-family:"D-DIN"; src:url(fonts/D-DIN-Bold.woff) format("woff"); font-weight:700; font-display:swap; }
+  @font-face { font-family:"D-DIN Condensed"; src:url(fonts/D-DINCondensed-Bold.woff) format("woff"); font-weight:700; font-display:swap; }
+
+  /* Encarte de loja (30/10/2026): papel, azul-marinho, etiqueta amarela no melhor preço */
   :root {
-    --bg:#F4F6F2; --surface:#FBFCFA; --ink:#17211B; --ink-2:#4E5D54; --ink-3:#7A877F; --line:#D8DED9; --line-2:#E8ECE8;
-    --accent:#0E6E52; --accent-ink:#0B5A43; --accent-soft:#DDEFE6; --ok:#0E6E52; --ok-bg:#DDEFE6; --warn:#8A5A0E; --warn-bg:#F6E8CC;
-    --bad:#9A3A2A; --bad-bg:#F5DDD6; --mute-bg:#E9ECE9; --code-bg:#EEF1EE;
-    --m55:#2F5FA8; --m55-bg:#E1E9F6; --m65:#8A4F9E; --m65-bg:#F0E4F4;
-    --s1:#0E6E52; --s2:#B7791F; --s3:#2F5FA8; --s4:#9A3A2A; --s5:#6B4C9A; --s6:#2A7F8C; --s7:#7A5230; --s8:#556B2F;
+    --bg:#FFFDF5; --surface:#FFFFFF; --ink:#1B1B3A; --ink-2:#47476A; --ink-3:#6E6E8F; --line:#1B1B3A; --line-2:#E6E2D2;
+    --tag:#FFD23F; --tag-ink:#1B1B3A; --accent:#1B1B3A; --accent-ink:#1B1B3A; --accent-soft:#FFF4C7;
+    --ok:#0A8754; --ok-bg:#DCF2E6; --warn:#8F5D00; --warn-bg:#FFEFC2; --bad:#D7263D; --bad-bg:#FBE1E4;
+    --mute-bg:#F2EFE3; --code-bg:#F2EFE3;
+    --m55:#3A6EA5; --m55-bg:#E2ECF7; --m65:#8E3B8E; --m65-bg:#F4E4F4;
+    --s1:#1B1B3A; --s2:#D7263D; --s3:#5B3FA0; --s4:#E36414; --s5:#3A6EA5; --s6:#8E3B8E; --s7:#7A6A3A; --s8:#2A9D8F;
+    --cond:"D-DIN Condensed","Arial Narrow",sans-serif;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-    --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
-    --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
-    --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
-    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D2A2E2; --m65-bg:#33223A;
-    --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
+    --bg:#14142B; --surface:#1C1C3A; --ink:#F4F1E4; --ink-2:#C6C4DA; --ink-3:#9896B5; --line:#7C7AA8; --line-2:#2C2C50;
+    --tag:#FFD23F; --tag-ink:#1B1B3A; --accent:#FFD23F; --accent-ink:#FFD23F; --accent-soft:#33301A;
+    --ok:#45CF91; --ok-bg:#123A2C; --warn:#F2C14E; --warn-bg:#3A2E0E; --bad:#FF6B7D; --bad-bg:#45182A;
+    --mute-bg:#26264A; --code-bg:#26264A;
+    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D7A2E2; --m65-bg:#33223A;
+    --s1:#F4F1E4; --s2:#FF6B7D; --s3:#A98BFF; --s4:#FF9F43; --s5:#7FA8E0; --s6:#D08BD0; --s7:#C9B27A; --s8:#5FD0C2;
     color-scheme: dark; } }
   :root[data-theme="dark"] {
-    --bg:#0F1512; --surface:#161E19; --ink:#E4EAE5; --ink-2:#A9B5AD; --ink-3:#7C877F; --line:#2A352E; --line-2:#202A24;
-    --accent:#43BD8E; --accent-ink:#6FD3AB; --accent-soft:#163227; --ok:#43BD8E; --ok-bg:#163227; --warn:#E0B15A; --warn-bg:#3A2C10;
-    --bad:#E88A78; --bad-bg:#3D1D16; --mute-bg:#1F2823; --code-bg:#1B2420;
-    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D2A2E2; --m65-bg:#33223A;
-    --s1:#43BD8E; --s2:#E0B15A; --s3:#7FA7E8; --s4:#E88A78; --s5:#B79AE0; --s6:#6BC1CF; --s7:#C99A70; --s8:#A6BF63;
+    --bg:#14142B; --surface:#1C1C3A; --ink:#F4F1E4; --ink-2:#C6C4DA; --ink-3:#9896B5; --line:#7C7AA8; --line-2:#2C2C50;
+    --tag:#FFD23F; --tag-ink:#1B1B3A; --accent:#FFD23F; --accent-ink:#FFD23F; --accent-soft:#33301A;
+    --ok:#45CF91; --ok-bg:#123A2C; --warn:#F2C14E; --warn-bg:#3A2E0E; --bad:#FF6B7D; --bad-bg:#45182A;
+    --mute-bg:#26264A; --code-bg:#26264A;
+    --m55:#8FB3EE; --m55-bg:#1C2A40; --m65:#D7A2E2; --m65-bg:#33223A;
+    --s1:#F4F1E4; --s2:#FF6B7D; --s3:#A98BFF; --s4:#FF9F43; --s5:#7FA8E0; --s6:#D08BD0; --s7:#C9B27A; --s8:#5FD0C2;
     color-scheme: dark; }
+
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; font-size:15px; line-height:1.5; }
-  a { color:var(--accent-ink); }
-  .page { max-width:1100px; margin:0 auto; padding:28px 22px 60px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"D-DIN","Segoe UI",system-ui,sans-serif; font-size:16px; line-height:1.5; }
+  a { color:var(--accent-ink); text-underline-offset:2px; }
+  :focus-visible { outline:3px solid var(--tag); outline-offset:2px; }
+  .page { max-width:1180px; margin:0 auto; padding:28px 24px 64px; }
   @media (max-width:600px) { .page { padding:20px 16px 48px; } }
-  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
-  h1 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:30px; margin:4px 0 4px; letter-spacing:-.01em; }
-  h2 { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:21px; margin:32px 0 10px; }
-  h3.modelo-cab { font-size:13px; font-weight:600; margin:18px 0 6px; color:var(--ink-2); text-transform:uppercase; letter-spacing:.06em; }
-  .sub { color:var(--ink-2); margin:0 0 18px; font-size:14px; }
-  .nota { color:var(--ink-3); font-size:12.5px; margin:6px 2px 0; }
-  .facts { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-  .fact { background:var(--surface); padding:12px 14px; min-width:0; }
-  .fact .k { font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-family:"IBM Plex Mono",ui-monospace,monospace; }
-  .fact .v { font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:26px; line-height:1.15; margin-top:2px; font-variant-numeric:tabular-nums; }
-  .fact .s { font-size:12.5px; color:var(--ink-2); margin-top:2px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; }
-  @media (max-width:760px) { .facts { grid-template-columns:repeat(2,minmax(0,1fr)); } .fact:first-child { grid-column:span 2; } .fact .v { font-size:22px; white-space:nowrap; } }
-  .tbl { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-  table { border-collapse:collapse; width:100%; font-size:14px; }
+
+  /* topo */
+  .topo { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:8px 24px; border-bottom:2px solid var(--line); padding-bottom:12px; }
+  h1 { font-family:var(--cond); font-weight:700; font-size:clamp(40px, 7vw, 64px); line-height:.95; margin:0; letter-spacing:-.01em; }
+  .atualizado { margin:0; color:var(--ink-2); font-size:15px; }
+  .atualizado b { color:var(--ink); }
+  nav.secoes { display:flex; flex-wrap:wrap; gap:4px 18px; margin:10px 0 0; font-size:15px; width:100%; }
+  h2 { font-family:var(--cond); font-weight:700; font-size:32px; line-height:1.1; margin:40px 0 12px; }
+  h3 { font-weight:700; font-size:17px; margin:0 0 10px; }
+  h3.modelo-cab { font-size:18px; margin:24px 0 8px; color:var(--ink); }
+  .sub { color:var(--ink-2); margin:0 0 16px; font-size:15px; max-width:72ch; }
+  .nota { color:var(--ink-3); font-size:14px; margin:8px 2px 0; max-width:80ch; }
+
+  /* grade de produtos */
+  .grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(176px, 1fr)); gap:10px; margin-top:20px; }
+  .tile { all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:2px; min-width:0;
+    background:var(--surface); border:2px solid var(--line); border-radius:3px; padding:10px 12px 8px; color:var(--ink); }
+  .tile:hover { background:var(--accent-soft); }
+  .tile:focus-visible { outline:3px solid var(--tag); outline-offset:2px; }
+  .tile[aria-pressed="true"] { background:var(--tag); color:var(--tag-ink); border-color:var(--tag-ink); box-shadow:4px 4px 0 var(--line); }
+  .tile[aria-pressed="true"] .t-onde, .tile[aria-pressed="true"] .t-dist { color:var(--tag-ink); }
+  .t-nome { font-weight:700; font-size:15px; line-height:1.2; }
+  .t-preco { font-family:var(--cond); font-size:32px; line-height:1; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .t-dist { font-size:13.5px; font-weight:700; }
+  .t-dist.acima { color:var(--bad); } .t-dist.abaixo { color:var(--ok); }
+  .t-onde { font-size:13px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tile svg { width:100%; height:28px; display:block; margin:4px 0 2px; }
+  .tile.vazio .t-preco { color:var(--ink-3); }
+
+  /* placar do produto escolhido */
+  .placar { margin-top:22px; border:2px solid var(--line); border-radius:3px; background:var(--surface); padding:20px 22px 18px; }
+  @media (max-width:600px) { .placar { padding:16px 14px; } }
+  .placar-topo { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px 28px; }
+  .placar h2 { margin:0 0 10px; font-size:28px; }
+  .etiqueta { display:inline-flex; align-items:baseline; gap:10px; background:var(--tag); color:var(--tag-ink);
+    padding:6px 20px 8px 30px; clip-path:polygon(18px 0, 100% 0, 100% 100%, 18px 100%, 0 50%); }
+  .etiqueta .etq-preco { font-family:var(--cond); font-size:clamp(44px, 8vw, 64px); line-height:1; font-variant-numeric:tabular-nums; }
+  .etiqueta .etq-forma { font-weight:700; font-size:17px; }
+  .placar p { margin:8px 0 0; max-width:64ch; }
+  .placar .linha-meta { color:var(--ink-2); font-size:15px; }
+  .linha-meta .acima { color:var(--bad); font-weight:700; } .linha-meta .abaixo { color:var(--ok); font-weight:700; }
+  .periodo { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .periodo button { font:inherit; font-weight:700; font-size:14px; cursor:pointer; background:var(--surface); color:var(--ink);
+    border:2px solid var(--line); border-radius:3px; padding:4px 12px; }
+  .periodo button[aria-pressed="true"] { background:var(--ink); color:var(--bg); }
+  .periodo label { font-size:14px; color:var(--ink-2); display:flex; align-items:center; gap:6px; }
+  .periodo input { font:inherit; font-size:14px; color:var(--ink); background:var(--surface); border:2px solid var(--line); border-radius:3px; padding:2px 6px; }
+  .placar-corpo { display:grid; grid-template-columns:minmax(0, 3fr) minmax(0, 2fr); gap:28px; margin-top:22px; }
+  @media (max-width:820px) { .placar-corpo { grid-template-columns:1fr; } }
+  .bloco { margin-top:22px; } .placar-corpo .bloco { margin-top:0; }
+  .barras { display:grid; grid-template-columns:minmax(90px, max-content) 1fr auto; gap:6px 10px; align-items:center; font-size:15px; }
+  .barras .nome { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; }
+  .barras .trilho { height:18px; }
+  .barras .barra { height:100%; border-radius:2px; }
+  .barras .valor { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+  .barras .valor small { color:var(--ink-3); font-size:13px; margin-left:4px; }
+  .barras .valor.primeira, .barras .nome.primeira { font-weight:700; }
+  /* celular: nome e preço na mesma linha, a barra embaixo com a largura toda (dense devolve o preço à 1ª linha) */
+  @media (max-width:520px) { .barras { grid-template-columns:1fr auto; grid-auto-flow:dense; gap:2px 8px; }
+    .barras .trilho { grid-column:1 / -1; height:12px; margin-bottom:8px; } .barras .nome { max-width:none; } }
+  .mais-barata { background:var(--tag); color:var(--tag-ink); font-size:12.5px; font-weight:700; padding:1px 6px; border-radius:2px; margin-left:4px; }
+  .rosca { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .rosca svg { width:140px; height:140px; flex:none; }
+  .rosca ul { list-style:none; margin:0; padding:0; font-size:15px; }
+  .rosca li { display:flex; gap:8px; align-items:center; padding:2px 0; }
+  .rosca li i { width:12px; height:12px; border-radius:2px; flex:none; }
+  .rosca li b { font-variant-numeric:tabular-nums; min-width:3.2em; }
+  #pl-grafico { min-height:300px; }
+  #pl-grafico .u-legend { font-family:inherit; font-size:14px; color:var(--ink-2); text-align:left; }
+  #pl-grafico .u-legend th, #pl-grafico .u-legend td { border:0; padding:2px 4px; white-space:nowrap; }
+  #pl-grafico .u-legend th { font-weight:400; color:var(--ink-2); font-size:14px; } #pl-grafico .u-legend .u-value { font-variant-numeric:tabular-nums; color:var(--ink); }
+  .vazio-msg { color:var(--ink-3); font-size:15px; padding:12px 0; }
+
+  /* cartões gerais, tabelas e listas (seções que já existiam) */
+  .facts { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; border:2px solid var(--line); border-radius:3px; overflow:hidden; background:var(--surface); }
+  .fact { padding:12px 14px; min-width:0; border-left:1px solid var(--line-2); }
+  .fact:first-child { border-left:0; }
+  .fact .k { font-size:14px; color:var(--ink-2); }
+  .fact .v { font-family:var(--cond); font-size:30px; line-height:1.1; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .fact .s { font-size:13.5px; color:var(--ink-3); margin-top:2px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; }
+  @media (max-width:760px) { .facts { grid-template-columns:repeat(2,minmax(0,1fr)); } .fact { border-left:0; border-top:1px solid var(--line-2); } .fact:first-child { grid-column:span 2; border-top:0; } .fact .v { font-size:26px; white-space:nowrap; } }
+  .tbl { overflow-x:auto; border:2px solid var(--line); border-radius:3px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; font-size:15px; }
   th, td { text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line-2); }
-  th { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:600; white-space:nowrap; }
+  th { font-size:14px; color:var(--ink-2); font-weight:700; white-space:nowrap; border-bottom:2px solid var(--line); }
   tr:last-child td { border-bottom:0; }
-  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; }
-  td.num b { font-weight:500; color:var(--ink); }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  td.num b { font-weight:700; color:var(--ink); }
   td.dif { background:var(--mute-bg); }
   th.dif { color:var(--ink-2); }
-  .sub2 { display:block; color:var(--ink-3); font-size:12px; }
-  .chip { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
+  .sub2 { display:block; color:var(--ink-3); font-size:13.5px; }
+  .chip { display:inline-block; font-size:13px; font-weight:700; padding:0 8px; border-radius:2px; white-space:nowrap; }
   .ok { background:var(--ok-bg); color:var(--ok); } .warn { background:var(--warn-bg); color:var(--warn); } .bad { background:var(--bad-bg); color:var(--bad); } .mute { background:var(--mute-bg); color:var(--ink-2); }
   .m55 { background:var(--m55-bg); color:var(--m55); } .m65 { background:var(--m65-bg); color:var(--m65); }
   .mp { background:var(--mute-bg); color:var(--ink-2); }
-  nav.secoes { display:flex; flex-wrap:wrap; gap:6px 14px; margin:2px 0 10px; font-size:13.5px; }
-  details.prod { border:1px solid var(--line); border-radius:8px; background:var(--surface); margin:10px 0; }
-  details.prod > summary { cursor:pointer; padding:10px 12px; font-weight:600; list-style-position:inside; }
+  details.prod { border:2px solid var(--line); border-radius:3px; background:var(--surface); margin:10px 0; }
+  details.prod > summary { cursor:pointer; padding:10px 14px; font-weight:700; list-style-position:inside; }
   details.prod > summary .sub2 { display:inline; margin-left:8px; font-weight:400; }
   details.prod .corpo { padding:0 10px 10px; }
   details.prod .tbl, details.prod .chart-wrap { border:0; }
@@ -71,36 +151,67 @@
   .velho td, .velho td.num b { color:var(--ink-3); }
   .sus td, .sus td.num b { color:var(--ink-3); } .sus td.num b { text-decoration:line-through; }
   .chip.selo { margin-left:6px; vertical-align:1px; }
-  .chart-wrap { border:1px solid var(--line); border-radius:8px; background:var(--surface); padding:12px 12px 6px; }
+  .chart-wrap { border:2px solid var(--line); border-radius:3px; background:var(--surface); padding:12px 12px 6px; }
   canvas { width:100%; height:300px; display:block; }
-  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); padding:8px 4px 4px; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:14px; color:var(--ink-2); padding:8px 4px 4px; }
   .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
-  .empty { color:var(--ink-3); font-size:14px; padding:14px; }
+  .empty { color:var(--ink-3); font-size:15px; padding:14px; }
   .facts.facts-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
   [hidden] { display:none !important; }
-  .cols { display:grid; grid-template-columns:1fr 1fr; gap:22px; } @media (max-width:800px) { .cols { grid-template-columns:1fr; } }
-  ul.lista { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-  ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:14px; overflow-wrap:anywhere; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:24px; } @media (max-width:800px) { .cols { grid-template-columns:1fr; } }
+  ul.lista { list-style:none; margin:0; padding:0; border:2px solid var(--line); border-radius:3px; background:var(--surface); }
+  ul.lista li { padding:10px 12px; border-bottom:1px solid var(--line-2); font-size:15px; overflow-wrap:anywhere; }
   ul.lista li:last-child { border-bottom:0; }
-  ul.lista .meta { color:var(--ink-3); font-size:12px; }
-  code { font-family:"IBM Plex Mono",ui-monospace,monospace; background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:.92em; }
-  footer { margin-top:40px; color:var(--ink-3); font-size:12.5px; border-top:1px solid var(--line); padding-top:12px; }
+  ul.lista .meta { color:var(--ink-3); font-size:13.5px; }
+  code { font-family:ui-monospace,"Cascadia Mono",monospace; background:var(--code-bg); padding:1px 5px; border-radius:2px; font-size:.88em; }
+  footer { margin-top:44px; color:var(--ink-3); font-size:14px; border-top:2px solid var(--line); padding-top:12px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="eyebrow">Monitor de preço · atualizado <span id="quando">—</span></div>
-  <h1 id="titulo">PS5 · GTA 6</h1>
-  <nav class="secoes"><a href="#tvs" id="nav-tvs" hidden>TVs</a><a href="#secao-PS5">PS5</a><a href="#secao-GTA6">GTA 6</a><a href="#gift">Gift card PSN</a><a href="#cupons">Cupons e postagens</a></nav>
-  <p class="sub">PS5 em todas as versões, GTA 6 em todas as formas e o gift card PlayStation para pagar o GTA 6 digital na PS Store. Preços coletados a cada 15 min na nuvem e a cada 30 min no PC.</p>
+  <header class="topo">
+    <h1 id="titulo">PS5 · GTA 6</h1>
+    <p class="atualizado">Última coleta: <b id="quando">—</b></p>
+    <nav class="secoes" aria-label="Seções"><a href="#vitrine">Produtos</a><a href="#tvs" id="nav-tvs" hidden>TVs</a><a href="#secao-PS5">Tabelas do PS5</a><a href="#secao-GTA6">Tabelas do GTA 6</a><a href="#gift">Gift card PSN</a><a href="#cupons">Cupons e postagens</a></nav>
+  </header>
 
+  <!-- vitrine (30/10/2026): um quadro por produto; o escolhido abre o placar logo abaixo -->
+  <section id="vitrine" aria-label="Produtos monitorados">
+    <div class="grade" id="grade"><p class="vazio-msg">Carregando os preços…</p></div>
+  </section>
+
+  <section id="placar" class="placar" hidden aria-live="polite">
+    <div class="placar-topo">
+      <div>
+        <h2 id="pl-nome"></h2>
+        <div class="etiqueta"><span class="etq-preco" id="pl-preco"></span><span class="etq-forma" id="pl-forma"></span></div>
+        <p id="pl-onde"></p>
+        <p class="linha-meta" id="pl-meta"></p>
+      </div>
+      <div class="periodo" role="group" aria-label="Período dos gráficos">
+        <button type="button" data-dias="7">7 dias</button>
+        <button type="button" data-dias="30">30 dias</button>
+        <button type="button" data-dias="0">Tudo</button>
+        <label>De <input type="date" id="pl-de"></label>
+        <label>até <input type="date" id="pl-ate"></label>
+      </div>
+    </div>
+    <div class="placar-corpo">
+      <div class="bloco"><h3>Menor preço de cada loja no período</h3><div class="barras" id="pl-barras"></div></div>
+      <div class="bloco"><h3>Loja mais barata, contando os dias</h3><div class="rosca" id="pl-rosca"></div></div>
+    </div>
+    <div class="bloco"><h3>Preço por dia</h3><div id="pl-grafico"></div></div>
+  </section>
+
+  <h2>Resumo</h2>
   <!-- cartões gerais (fora da parte das TVs: com as TVs desligadas ela some e estes ficam) -->
   <div class="facts" id="facts-geral">
     <div class="fact"><div class="k">Cupons ativos</div><div class="v" id="f-cupons">—</div><div class="s" id="f-cupons-s">—</div></div>
     <div class="fact"><div class="k">Postagens (7 dias)</div><div class="v" id="f-posts">—</div><div class="s" id="f-posts-s">—</div></div>
     <div class="fact"><div class="k">Melhor gift card PSN</div><div class="v" id="f-gift">—</div><div class="s" id="f-gift-s">—</div></div>
-    <div class="fact"><div class="k">GTA 6 Standard c/ gift</div><div class="v" id="f-gift-std">—</div><div class="s" id="f-gift-std-s">—</div></div>
-    <div class="fact"><div class="k">GTA 6 Ultimate c/ gift</div><div class="v" id="f-gift-ult">—</div><div class="s" id="f-gift-ult-s">—</div></div>
+    <div class="fact"><div class="k">GTA 6 Standard com gift card</div><div class="v" id="f-gift-std">—</div><div class="s" id="f-gift-std-s">—</div></div>
+    <div class="fact"><div class="k">GTA 6 Ultimate com gift card</div><div class="v" id="f-gift-ult">—</div><div class="s" id="f-gift-ult-s">—</div></div>
   </div>
 
   <!-- TVs (26/10/2026: o usuário ficou com a TV; com "tvs_desligadas" no latest esta parte fica escondida) -->
@@ -505,6 +616,142 @@ function tabelaCustoFinal(fontes) {
     <h3 class="modelo-cab">Edição Ultimate <span class="sub2">só digital no Brasil; ou a Standard + upgrade de R$ 100 na PS Store</span></h3>${nota ? `<p class="nota">${nota}</p>` : ''}${ult.length ? tabela(ult) : '<p class="nota">Sem preço da Ultimate agora.</p>'}`;
 }
 
+// ---- vitrine (30/10/2026): a grade com todos os produtos e o placar do produto escolhido (melhor lugar agora, barras
+// das lojas, rosca da loja mais barata e o gráfico por dia, com filtro de período). Usa o que painelDoModelo() já
+// calcula (mesmas regras de agregador, confiança e coleta antiga). Fora do navegador (testes no Node) não roda.
+const CORES_SERIE = ['--s1', '--s2', '--s3', '--s4', '--s5', '--s6', '--s7', '--s8'];
+const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reais = v => v == null || !isFinite(v) ? '—' : 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+const diaLocal = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const menorPorDia = serie => { const m = {};
+  for (const l in serie) for (const [d, v] of Object.entries(serie[l])) m[d] = Math.min(m[d] ?? Infinity, v);
+  return m; };
+// "R$ 439 acima da meta" / "R$ 51 abaixo da meta" / "na meta" (a mesma tolerância de R$ 0,50 do distMeta)
+const metaTxt = (v, meta) => v == null || !meta ? null
+  : v - meta > 0.5 ? {txt: `${reais(v - meta)} acima da meta`, cls: 'acima'}
+  : v - meta < -0.5 ? {txt: `${reais(meta - v)} abaixo da meta`, cls: 'abaixo'} : {txt: 'na meta', cls: 'abaixo'};
+
+function sparkline(porDia, meta) {
+  const dias = Object.keys(porDia).sort().slice(-30);
+  if (dias.length < 2) return '';
+  const vals = dias.map(d => porDia[d]), lo = Math.min(...vals, meta || Infinity), hi = Math.max(...vals);
+  const y = v => hi === lo ? 14 : 26 - (v - lo) / (hi - lo) * 24;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * 100).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const linhaMeta = meta && meta >= lo && meta <= hi ? `<line x1="0" x2="100" y1="${y(meta)}" y2="${y(meta)}" stroke="var(--ok)" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>` : '';
+  return `<svg viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">${linhaMeta}<polyline fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" points="${pts}"/></svg>`;
+}
+
+function vitrine(ctx, semTVs) {
+  if (typeof document.querySelectorAll !== 'function' || !document.getElementById('grade')) return;
+  const itens = Object.keys(CATALOGO).filter(id => CATALOGO[id].compara_preco !== false && !(semTVs && ehTV(id)))
+    .map(id => { const p = CATALOGO[id], r = painelDoModelo(id, ctx);
+      return {id, p, r, meta: r.melhor?.extra?.alvo?.pix ?? p.alvo_pix, porDia: menorPorDia(r.serie)}; })
+    .filter(it => it.r.melhor || Object.keys(it.r.serie).length);
+  const grade = document.getElementById('grade');
+  if (!itens.length) { grade.innerHTML = '<p class="vazio-msg">Nenhum preço coletado ainda. Os produtos aparecem aqui depois da primeira coleta.</p>'; return; }
+  grade.innerHTML = itens.map(({id, p, r, meta, porDia}) => {
+    const m = r.melhor, d = m ? metaTxt(m.melhor_preco, meta) : null;
+    return `<button type="button" class="tile${m ? '' : ' vazio'}" data-id="${esc(id)}" aria-pressed="false">
+      <span class="t-nome">${esc(p.curto || p.nome)}</span>
+      <span class="t-preco">${m ? reais(m.melhor_preco) : 'sem preço'}</span>
+      <span class="t-dist ${d ? d.cls : ''}">${d ? esc(d.txt) : m ? '' : 'nenhuma coleta recente'}</span>
+      ${sparkline(porDia, meta)}
+      <span class="t-onde">${m ? `${esc(m.loja)}, ${dt(m._visto)}` : ''}</span></button>`; }).join('');
+
+  const estado = {id: null, dias: 30, de: '', ate: ''};
+  const todosDias = Object.keys(Object.assign({}, ...itens.map(it => it.porDia))).sort();
+  const deEl = document.getElementById('pl-de'), ateEl = document.getElementById('pl-ate');
+  deEl.min = ateEl.min = todosDias[0] || ''; deEl.max = ateEl.max = todosDias[todosDias.length - 1] || '';
+  let grafico = null;
+
+  const intervalo = () => {
+    if (estado.de || estado.ate) return [estado.de || '0000', estado.ate || '9999'];
+    if (!estado.dias) return ['0000', '9999'];
+    return [diaLocal(new Date(Date.now() - (estado.dias - 1) * 864e5)), '9999'];
+  };
+
+  function desenhaPlacar() {
+    const it = itens.find(x => x.id === estado.id); if (!it) return;
+    const {p, r, meta} = it, m = r.melhor;
+    document.querySelectorAll('.tile').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === estado.id)));
+    document.querySelectorAll('.periodo button').forEach(b => b.setAttribute('aria-pressed', String(!estado.de && !estado.ate && Number(b.dataset.dias) === estado.dias)));
+    document.getElementById('pl-nome').textContent = p.nome;
+    document.getElementById('pl-preco').textContent = m ? fmt(m.melhor_preco) : 'sem preço recente';
+    document.getElementById('pl-forma').textContent = !m ? '' : m.preco_pix && m.melhor_preco === Number(m.preco_pix) ? 'no Pix' : 'à vista';
+    document.getElementById('pl-onde').innerHTML = m
+      ? `Melhor lugar agora: <b>${esc(quem(m))}</b>, coletado em ${esc(dt(m._visto))}.${m.cupom ? ` Cupom <code>${esc(m.cupom)}</code>.` : ''} <a href="${esc(m.url)}" target="_blank" rel="noopener">Abrir o anúncio</a>`
+      : 'Nenhuma loja com coleta recente. O histórico abaixo mostra os preços já vistos.';
+    const d = m ? metaTxt(m.melhor_preco, meta) : null, partes = [];
+    if (meta) partes.push(`Meta ${fmt(meta)}${d ? `: <span class="${d.cls}">${esc(d.txt)}</span>` : ''}.`);
+    if (r.melhorParc) partes.push(`Parcelado: ${fmt(r.melhorParc.pc.total)} em ${esc(quem(r.melhorParc.o))}.`);
+    if (r.min) partes.push(`Menor já visto: ${fmt(r.min.preco)} em ${esc(r.min.loja || '?')}, ${esc(dt(r.min.quando))}.`);
+    document.getElementById('pl-meta').innerHTML = partes.join(' ');
+
+    // período: menor preço de cada loja nos dias escolhidos; a cor de cada loja é a mesma nas barras, na rosca e no gráfico
+    const [ini, fim] = intervalo(), noPeriodo = dia => dia >= ini && dia <= fim;
+    const lojas = Object.entries(r.serie).map(([loja, s]) => {
+      const vals = Object.entries(s).filter(([dia]) => noPeriodo(dia));
+      return {loja, s: Object.fromEntries(vals), min: Math.min(...vals.map(([, v]) => v))};
+    }).filter(l => isFinite(l.min)).sort((a, b) => a.min - b.min);
+    const cor = Object.fromEntries(lojas.map((l, i) => [l.loja, i < 8 ? cssVar(CORES_SERIE[i]) : cssVar('--ink-3')]));
+    const vazio = '<p class="vazio-msg">Sem preços neste período. Escolha um período maior.</p>';
+
+    const max = lojas.length ? lojas[lojas.length - 1].min : 0, base = lojas[0]?.min;
+    document.getElementById('pl-barras').innerHTML = lojas.length ? lojas.map((l, i) => `<span class="nome${i ? '' : ' primeira'}" title="${esc(l.loja)}">${esc(l.loja)}</span>
+      <span class="trilho"><span class="barra" style="display:block;width:${(l.min / max * 100).toFixed(1)}%;background:${cor[l.loja]}"></span></span>
+      <span class="valor${i ? '' : ' primeira'}">${reais(l.min)}${i ? `<small>+${reais(l.min - base)}</small>` : ' <span class="mais-barata">mais barata</span>'}</span>`).join('') : vazio;
+
+    // rosca: em cada dia do período, qual loja teve o menor preço (empate: as duas contam meio dia)
+    const dias = [...new Set(lojas.flatMap(l => Object.keys(l.s)))].sort(), vitorias = {};
+    for (const dia of dias) {
+      const vs = lojas.filter(l => l.s[dia] != null), menor = Math.min(...vs.map(l => l.s[dia]));
+      const ganhas = vs.filter(l => l.s[dia] === menor);
+      for (const l of ganhas) vitorias[l.loja] = (vitorias[l.loja] || 0) + 1 / ganhas.length;
+    }
+    let fatias = Object.entries(vitorias).sort((a, b) => b[1] - a[1]);
+    if (fatias.length > 5) fatias = [...fatias.slice(0, 4), ['Outras lojas', fatias.slice(4).reduce((s, [, n]) => s + n, 0)]];
+    const C = 2 * Math.PI * 42; let acc = 0;
+    const arcos = fatias.map(([loja, n]) => { const len = n / dias.length * C;
+      const a = `<circle cx="60" cy="60" r="42" fill="none" stroke="${cor[loja] || cssVar('--ink-3')}" stroke-width="22" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}" transform="rotate(-90 60 60)"/>`;
+      acc += len; return a; }).join('');
+    document.getElementById('pl-rosca').innerHTML = fatias.length ? `<svg viewBox="0 0 120 120" role="img" aria-label="Loja mais barata por dia no período">${arcos}
+        <text x="60" y="58" text-anchor="middle" font-size="22" font-weight="700" fill="currentColor">${dias.length}</text>
+        <text x="60" y="74" text-anchor="middle" font-size="11" fill="currentColor">${dias.length === 1 ? 'dia' : 'dias'}</text></svg>
+      <ul>${fatias.map(([loja, n]) => `<li><i style="background:${cor[loja] || cssVar('--ink-3')}"></i><b>${Math.round(n / dias.length * 100)}%</b>${esc(loja)}</li>`).join('')}</ul>` : vazio;
+
+    // gráfico por dia (uPlot): as 8 lojas mais baratas do período e a linha da meta; a legenda mostra o valor sob o cursor
+    const caixa = document.getElementById('pl-grafico');
+    if (grafico) { grafico.destroy(); grafico = null; }
+    if (typeof uPlot !== 'function') { caixa.innerHTML = '<p class="vazio-msg">O gráfico não carregou. Confira a conexão e recarregue a página.</p>'; return; }
+    if (dias.length < 2) { caixa.innerHTML = dias.length ? '<p class="vazio-msg">O gráfico aparece quando o período tem pelo menos dois dias de coleta.</p>' : vazio; return; }
+    caixa.innerHTML = '';
+    const top = lojas.slice(0, 8), xs = dias.map(dia => Date.parse(dia + 'T12:00:00') / 1000);
+    const dados = [xs, ...top.map(l => dias.map(dia => l.s[dia] ?? null))], series = [{label: 'Dia', value: (u, v) => v == null ? '—' : new Date(v * 1000).toLocaleDateString('pt-BR')}];
+    top.forEach(l => series.push({label: l.loja, stroke: cor[l.loja], width: 2, spanGaps: true, points: {size: 5}, value: (u, v) => v == null ? '—' : fmt(v)}));
+    if (meta) { dados.push(dias.map(() => meta)); series.push({label: 'Meta', stroke: cssVar('--ok'), width: 2, dash: [6, 4], points: {show: false}, value: (u, v) => fmt(v)}); }
+    const tinta = cssVar('--ink-2'), grade2 = {stroke: cssVar('--line-2'), width: 1};
+    const opcoes = {width: Math.max(280, caixa.clientWidth), height: 300, series, legend: {live: true},
+      cursor: {points: {size: 8}}, scales: {x: {time: true}},
+      axes: [{stroke: tinta, grid: grade2, ticks: grade2, font: '13px "D-DIN", sans-serif', values: (u, vs) => vs.map(v => new Date(v * 1000).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}))},
+             {stroke: tinta, grid: grade2, ticks: grade2, size: 70, font: '13px "D-DIN", sans-serif', values: (u, vs) => vs.map(reais)}]};
+    grafico = new uPlot(opcoes, dados, caixa);
+  }
+
+  const escolhe = id => { estado.id = id; document.getElementById('placar').hidden = false; desenhaPlacar();
+    try { history.replaceState(null, '', '#p=' + encodeURIComponent(id)); } catch {} };
+  grade.addEventListener('click', e => { const b = e.target.closest('.tile'); if (!b) return;
+    escolhe(b.dataset.id);
+    document.getElementById('placar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'}); });
+  document.querySelectorAll('.periodo button').forEach(b => b.addEventListener('click', () => {
+    estado.dias = Number(b.dataset.dias); estado.de = estado.ate = ''; deEl.value = ateEl.value = ''; desenhaPlacar(); }));
+  for (const el of [deEl, ateEl]) el.addEventListener('change', () => { estado.de = deEl.value; estado.ate = ateEl.value; desenhaPlacar(); });
+  let espera; addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(() => grafico && grafico.setSize({width: Math.max(280, document.getElementById('pl-grafico').clientWidth), height: 300}), 150); });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', desenhaPlacar);
+
+  const pedido = decodeURIComponent((location.hash.match(/^#p=(.+)$/) || [])[1] || '');
+  escolhe(itens.some(it => it.id === pedido) ? pedido : (itens.find(it => it.r.melhor) || itens[0]).id);
+}
+
 (async () => {
   const [cloud, pc, csv1, csv2] = await Promise.all([
     getJson('data/latest_cloud.json'), getJson('data/latest_pc.json'),
@@ -602,6 +849,7 @@ function tabelaCustoFinal(fontes) {
   for (const g of graficosProdutos) grafico(...g);
   grafico('chart-65', 'legend-65', r65.serie, alvos['65C6K'].pix);
   desenha(r55.serie, alvos['55C6K'].pix);
+  try { vitrine(ctx, semTVs); } catch (e) { console.error('vitrine', e); }
 })();
 
 // gráfico da 55C6K (nome de sempre; os testes do painel trocam esta função por um espião)
@@ -611,12 +859,12 @@ function grafico(idCanvas, idLegenda, serie, alvo) {
   const cv = document.getElementById(idCanvas); const ctx = cv.getContext('2d');
   const css = getComputedStyle(document.documentElement);
   const cores = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'].map(v => css.getPropertyValue(v).trim());
-  const ink3 = css.getPropertyValue('--ink-3').trim(), line = css.getPropertyValue('--line-2').trim(), accent = css.getPropertyValue('--accent').trim();
+  const ink3 = css.getPropertyValue('--ink-3').trim(), line = css.getPropertyValue('--line-2').trim(), accent = css.getPropertyValue('--ok').trim();
   const W = cv.width, H = cv.height, L = 64, R = 14, T = 14, B = 30;
   ctx.clearRect(0, 0, W, H);
   const lojas = Object.keys(serie).sort((a, b) => Math.min(...Object.values(serie[a])) - Math.min(...Object.values(serie[b]))).slice(0, 8);
   const dias = [...new Set(lojas.flatMap(l => Object.keys(serie[l])))].sort();
-  ctx.font = '12px "IBM Plex Mono", monospace'; ctx.fillStyle = ink3; ctx.textAlign = 'center';
+  ctx.font = '13px "D-DIN", sans-serif'; ctx.fillStyle = ink3; ctx.textAlign = 'center';
   if (!dias.length) { ctx.fillText('O histórico aparece a partir da segunda coleta.', W / 2, H / 2); document.getElementById(idLegenda).innerHTML = ''; return; }
   const vals = lojas.flatMap(l => Object.values(serie[l])).concat(alvo ? [alvo] : []);
   let y0 = Math.floor(Math.min(...vals) / 100) * 100 - 100, y1 = Math.ceil(Math.max(...vals) / 100) * 100 + 100;
@@ -629,7 +877,7 @@ function grafico(idCanvas, idLegenda, serie, alvo) {
   ctx.textAlign = 'center';
   const cada = Math.max(1, Math.ceil(dias.length / 8));
   dias.forEach((d, i) => { if (i % cada === 0 || i === dias.length - 1) ctx.fillText(d.slice(5).replace('-', '/'), x(i), H - 10); });
-  if (alvo) { ctx.setLineDash([5, 4]); ctx.strokeStyle = accent; ctx.beginPath(); ctx.moveTo(L, y(alvo)); ctx.lineTo(W - R, y(alvo)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = accent; ctx.textAlign = 'left'; ctx.fillText('alvo', L + 4, y(alvo) - 4); }
+  if (alvo) { ctx.setLineDash([5, 4]); ctx.strokeStyle = accent; ctx.beginPath(); ctx.moveTo(L, y(alvo)); ctx.lineTo(W - R, y(alvo)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = accent; ctx.textAlign = 'left'; ctx.fillText('meta', L + 4, y(alvo) - 4); }
   const leg = [];
   lojas.forEach((l, li) => {
     const cor = cores[li % cores.length]; ctx.strokeStyle = cor; ctx.fillStyle = cor; ctx.lineWidth = 2; ctx.beginPath(); let first = true, last = null;
