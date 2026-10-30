@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-10-29T18:22:02-03:00",
+ "atualizado": "2026-10-29T21:24:17-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -655,7 +655,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-16",
+    "entrega_prevista": "2026-12-15",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "simulação de frete",
@@ -674,10 +674,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-16",
+     "data": "2026-12-15",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 15/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -873,7 +873,7 @@
     "produto": {
      "plataforma_incerta": true
     },
-    "entrega_prevista": "2026-11-27",
+    "entrega_prevista": "2026-11-26",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "simulação de frete",
@@ -887,10 +887,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-11-27",
+     "data": "2026-11-26",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 27/11 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 26/11 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -1185,102 +1185,6 @@
    "melhor_preco": 700.0
   },
   {
-   "fonte": "mercadolivre.playstation",
-   "tipo": "loja",
-   "loja": "Mercado Livre",
-   "titulo": "Console Playstation 5 Slim Edição Digital 825 Gb",
-   "url": "https://www.mercadolivre.com.br/console-playstation-5-slim-edicao-digital-825-gb/p/MLB54963150?pdp_filters=item_id%3AMLB5775433852",
-   "id": "MLB5775433852",
-   "preco": 4099.0,
-   "preco_pix": 3894.0,
-   "parcelado": "10x R$ 409,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Loja oficial PlayStation",
-   "extra": {
-    "item_id": "MLB5775433852",
-    "catalogo": "MLB54963150",
-    "anuncio": "MLB5775433852",
-    "vendedor_id": "1047493289",
-    "loja_oficial": "PlayStation",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "mercadolivre.playstation:MLB5775433852",
-   "melhor_preco": 3894.0
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console PlayStation 5 Slim Digital 825GB com controle Dualsense",
-   "url": "https://www.magazineluiza.com.br/console-playstation-5-slim-digital-825gb-com-controle-dualsense-sony/p/hg9286bd4c/ga/gap5/",
-   "id": "hg9286bd4c-negociunoficial",
-   "preco": 4339.0,
-   "preco_pix": 4035.27,
-   "parcelado": "10x R$ 433,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Negociun Oficial",
-   "extra": {
-    "preco_de": 4485.0,
-    "1p": false,
-    "anuncio": "hg9286bd4c",
-    "vendedor_id": "negociunoficial",
-    "ficha": {
-     "avaliacoes": 1135,
-     "peso_kg": 4.1,
-     "razao_social": "negociunoficial",
-     "vendedor_desde": "2025-03-17",
-     "vendas_vendedor": 100000,
-     "nota_vendedor": 4.1
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas",
-      "catálogo da loja"
-     ],
-     "sinais": [],
-     "codigos": [],
-     "catalogo": {
-      "total": 676,
-      "tv": 38,
-      "games": 15
-     }
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:hg9286bd4c-negociunoficial",
-   "melhor_preco": 4035.27
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -1350,6 +1254,42 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "mercadolivre.playstation:MLB4214670787",
+   "melhor_preco": 4369.0
+  },
+  {
+   "fonte": "mercadolivre.playstation",
+   "tipo": "loja",
+   "loja": "Mercado Livre",
+   "titulo": "Console Playstation 5 Slim Edição Digital 825 Gb",
+   "url": "https://www.mercadolivre.com.br/console-playstation-5-slim-edicao-digital-825-gb/p/MLB54963150?pdp_filters=item_id%3AMLB5775433852",
+   "id": "MLB5775433852",
+   "preco": 4599.0,
+   "preco_pix": 4369.0,
+   "parcelado": "10x R$ 459,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Loja oficial PlayStation",
+   "extra": {
+    "item_id": "MLB5775433852",
+    "catalogo": "MLB54963150",
+    "anuncio": "MLB5775433852",
+    "vendedor_id": "1047493289",
+    "loja_oficial": "PlayStation",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "mercadolivre.playstation:MLB5775433852",
    "melhor_preco": 4369.0
   },
   {
@@ -1946,7 +1886,7 @@
      "razao_social": "Mcs Comercio De Variedades Ltda",
      "vendedor_desde": "2025-09-01",
      "vendas_vendedor": 4000,
-     "nota_vendedor": 1.7
+     "nota_vendedor": 1
     },
     "anuncio_exclusivo": false,
     "produto": {
@@ -2010,6 +1950,50 @@
    "modelo": "PS5_DIGITAL",
    "chave": "maiscorreios:Mais Correios-1474239-MCR008",
    "melhor_preco": 4874.85
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
+   "url": "https://www.magazineluiza.com.br/playstation-5-slim-disk-1tb-1-controle-branco-sony/p/240609000/ga/gap5/",
+   "id": "240609000-magazineluiza",
+   "preco": 5299.0,
+   "preco_pix": 4875.08,
+   "parcelado": "10x R$ 529,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Magalu",
+   "extra": {
+    "preco_de": 5399.9,
+    "1p": true,
+    "anuncio": "240609000",
+    "vendedor_id": "magazineluiza",
+    "ficha": {
+     "avaliacoes": 548,
+     "peso_kg": 4.9,
+     "razao_social": "Magazine Luiza SA",
+     "vendedor_desde": "2016-06-01",
+     "vendas_vendedor": 200000000,
+     "nota_vendedor": 5
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "magalu.produtos:240609000-magazineluiza",
+   "melhor_preco": 4875.08
   },
   {
    "fonte": "kabum.produtos",
@@ -2661,7 +2645,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3154247",
    "melhor_preco": 3309.2,
-   "ultima_vez": "2026-10-29T18:22:01-03:00"
+   "ultima_vez": "2026-10-29T21:24:15-03:00"
   },
   {
    "primeira_vez": "2026-10-29T17:37:13-03:00",
@@ -2694,7 +2678,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3154191",
    "melhor_preco": 3359.0,
-   "ultima_vez": "2026-10-29T18:22:01-03:00"
+   "ultima_vez": "2026-10-29T21:24:15-03:00"
   },
   {
    "primeira_vez": "2026-10-29T17:37:13-03:00",
@@ -2727,7 +2711,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3154161",
    "melhor_preco": 3309.0,
-   "ultima_vez": "2026-10-29T18:22:01-03:00"
+   "ultima_vez": "2026-10-29T21:24:15-03:00"
   },
   {
    "primeira_vez": "2026-10-29T12:37:36-03:00",
@@ -2760,7 +2744,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3152444",
    "melhor_preco": 3880.0,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 3880.0,
    "menor_preco": 3880.0
   },
@@ -2802,7 +2786,7 @@
    "modelo": "PS5_DISCO_GTA6",
    "chave": "promobit:3153689",
    "melhor_preco": 4436.26,
-   "ultima_vez": "2026-10-29T18:22:01-03:00"
+   "ultima_vez": "2026-10-29T21:24:15-03:00"
   },
   {
    "primeira_vez": "2026-10-29T13:22:32-03:00",
@@ -2939,7 +2923,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:LOOPechinchas/5506#GTA6_CODE_IN_BOX",
    "melhor_preco": 357.74,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 357.74,
    "menor_preco": 357.74
   },
@@ -3120,7 +3104,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3151472",
    "melhor_preco": 379.91,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 379.91,
    "menor_preco": 379.91
   },
@@ -3314,7 +3298,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150934",
    "melhor_preco": 360.91,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 360.91,
    "menor_preco": 360.91
   },
@@ -3401,7 +3385,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150183",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3481,7 +3465,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150108",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-10-29T18:22:01-03:00"
+   "ultima_vez": "2026-10-29T21:24:15-03:00"
   },
   {
    "primeira_vez": "2026-10-28T15:59:23-03:00",
@@ -3521,7 +3505,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3150102",
    "melhor_preco": 357.73,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 357.73,
    "menor_preco": 357.73
   },
@@ -3643,7 +3627,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3149982",
    "melhor_preco": 350.92,
-   "ultima_vez": "2026-10-28T20:16:07-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 350.92,
    "menor_preco": 350.92
   },
@@ -3721,7 +3705,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3149727",
    "melhor_preco": 541.85,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 541.85,
    "menor_preco": 541.85
   },
@@ -3994,7 +3978,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3149036",
    "melhor_preco": 6881.0,
-   "ultima_vez": "2026-10-29T18:22:01-03:00",
+   "ultima_vez": "2026-10-29T21:24:15-03:00",
    "ultimo_preco": 6881.0,
    "menor_preco": 6881.0
   },
@@ -4380,7 +4364,7 @@
    "custo_final": 400.41,
    "cupom": null,
    "entrega": "depois",
-   "entrega_texto": "📦 Entrega: previsão 16/12 — ⚠️ chega DEPOIS do lançamento (19/11)",
+   "entrega_texto": "📦 Entrega: previsão 15/12 — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
   },
   {
@@ -4450,7 +4434,7 @@
    "custo_final": 449.99,
    "cupom": null,
    "entrega": "depois",
-   "entrega_texto": "📦 Entrega: previsão 27/11 — ⚠️ chega DEPOIS do lançamento (19/11)",
+   "entrega_texto": "📦 Entrega: previsão 26/11 — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
   },
   {
@@ -5025,72 +5009,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:12-03:00",
+   "ultimo_ok": "2026-10-29T21:23:27-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:20-03:00",
+   "ultimo_ok": "2026-10-29T21:23:33-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:58-03:00",
+   "ultimo_ok": "2026-10-29T21:24:12-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:15-03:00",
+   "ultimo_ok": "2026-10-29T21:23:28-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:24-03:00",
+   "ultimo_ok": "2026-10-29T21:23:42-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:31-03:00",
+   "ultimo_ok": "2026-10-29T21:23:47-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:32-03:00",
+   "ultimo_ok": "2026-10-29T21:23:48-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:33-03:00",
+   "ultimo_ok": "2026-10-29T21:23:50-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:35-03:00",
+   "ultimo_ok": "2026-10-29T21:23:52-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:38-03:00",
+   "ultimo_ok": "2026-10-29T21:23:53-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 524,
+   "falhas": 525,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-10-29T18:21:44-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-10-29T21:23:59-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:47-03:00",
+   "ultimo_ok": "2026-10-29T21:24:01-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:48-03:00",
+   "ultimo_ok": "2026-10-29T21:24:02-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-10-29T18:21:50-03:00",
+   "ultimo_ok": "2026-10-29T21:24:04-03:00",
    "ultimo_erro": null
   }
  },
