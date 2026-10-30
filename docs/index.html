@@ -78,6 +78,7 @@
   /* logos das lojas e foto do produto (em selo branco, legíveis nos dois temas) */
   .logo { display:inline-block; vertical-align:middle; height:22px; width:auto; max-width:92px; object-fit:contain;
     background:#fff; padding:3px 6px; border-radius:3px; box-shadow:0 0 0 1px var(--line-2); }
+  .logo.q, .tile .t-logo .logo.q, .meta .logo.q { padding:0; border-radius:4px; }
   .logo-txt { font-weight:700; }
   .meta .logo { height:16px; padding:1px 4px; vertical-align:-3px; }
   .foto-prod { display:block; height:64px; width:auto; max-width:100%; object-fit:contain; object-position:left center; }
@@ -684,8 +685,10 @@ const LOGOS = {'amazon': 'amazon.webp', 'magazine luiza': 'magalu.webp', 'kabum!
   'shopee': 'shopee.webp', 'playstation store': 'psstore.webp', 'loja tcl': 'tcl.webp', 'mais correios': 'correios.webp',
   'fast shop': 'fastshop.png', 'carrefour': 'carrefour.png', 'webcontinental': 'webcontinental.png', 'nuuvem': 'nuuvem.png',
   'hype': 'hype.jpg', 'telegram': 'telegram.webp'};
+// ícone quadrado (aplicativo/site) ocupa o selo inteiro, sem a margem branca dos logos horizontais
+const QUADRADOS = new Set(['kabum.webp', 'fastshop.png', 'carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
 const logo = loja => { const f = LOGOS[normLoja(loja)];
-  return f ? `<img class="logo" src="logos/${f}" alt="${esc(loja)}" title="${esc(loja)}">` : `<span class="logo-txt">${esc(loja)}</span>`; };
+  return f ? `<img class="logo${QUADRADOS.has(f) ? ' q' : ''}" src="logos/${f}" alt="${esc(loja)}" title="${esc(loja)}">` : `<span class="logo-txt">${esc(loja)}</span>`; };
 const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produtos/gta6.webp'};
 const nomeOuFoto = (id, nome) => FOTOS[id] ? `<img class="foto-prod" src="${FOTOS[id]}" alt="${esc(nome)}" title="${esc(nome)}">` : esc(nome);
 const CUPOM_ICO = '<svg class="cupom-ico" viewBox="0 0 22 16" aria-hidden="true"><path fill="currentColor" d="M2 0h4.5L8 1.5 9.5 0H20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9.5L8 14.5 6.5 16H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/><g fill="#fff"><rect x="7.2" y="3.5" width="1.6" height="1.6"/><rect x="7.2" y="7.2" width="1.6" height="1.6"/><rect x="7.2" y="10.9" width="1.6" height="1.6"/><circle cx="12.6" cy="5.2" r="1.5"/><circle cx="17.4" cy="10.8" r="1.5"/><path d="M17.9 3.6l1 .8-6.8 8-1-.8z"/></g></svg>';
