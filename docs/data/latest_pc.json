@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-11-03T22:44:23-03:00",
+ "atualizado": "2026-11-03T23:14:44-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -665,50 +665,6 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
-   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
-   "id": "B0GWNKJDCZ-destaque",
-   "preco": 4198.92,
-   "preco_pix": 3989.05,
-   "parcelado": "12x R$ 349,91 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0GWNKJDCZ",
-    "asin": "B0GWNKJDCZ",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [
-      "a busca da Amazon não diz quem vende e o preço R$ 3.989,05 está abaixo da loja confiável mais barata (R$ 4.146,87, KaBuM!); nova tentativa na próxima rodada"
-     ],
-     "codigos": [
-      "sem_vendedor"
-     ]
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
-   "melhor_preco": 3989.05
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
    "titulo": "PlayStation®5 Slim Digital 825GB",
    "url": "https://www.amazon.com.br/dp/B0FPGF9J2J",
    "id": "B0FPGF9J2J-destaque",
@@ -748,6 +704,46 @@
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0FPGF9J2J-destaque",
    "melhor_preco": 4146.86
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
+   "id": "B0GWNKJDCZ-destaque",
+   "preco": 4398.96,
+   "preco_pix": 4179.05,
+   "parcelado": "12x R$ 366,58 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
+   "melhor_preco": 4179.05
   },
   {
    "fonte": "amazon.produtos",
@@ -921,8 +917,7 @@
     "item_id": "MLB4214670787",
     "catalogo": "MLB57081243",
     "opcoes_no_catalogo": 53,
-    "vendedor_id": "480263032",
-    "vendas_vendedor": 1000000,
+    "vendedor_id": null,
     "confianca": {
      "veredito": "confiavel"
     },
@@ -2102,7 +2097,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-03T19:42:40-03:00",
+   "publicado": "2026-11-03T19:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2126,7 +2121,41 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:c66f4dd4-c367-41ce-8386-99f1115778f2",
    "melhor_preco": 376.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
+  },
+  {
+   "primeira_vez": "2026-11-03T22:18:28-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Cartão Presente PlayStation Store R$550",
+   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar550-0c41",
+   "id": "b45ba409-64f0-41bf-8e97-c801f7f9f107",
+   "preco": 494.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-03T11:12:41-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "402°",
+    "produto": {
+     "valor_face": 550.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:b45ba409-64f0-41bf-8e97-c801f7f9f107",
+   "melhor_preco": 494.0,
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
+   "ultimo_preco": 494.0,
+   "menor_preco": 494.0
   },
   {
    "primeira_vez": "2026-11-03T22:18:28-03:00",
@@ -2141,7 +2170,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-03T11:42:41-03:00",
+   "publicado": "2026-11-03T11:12:41-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -2158,7 +2187,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:e76482ad-3a42-4337-949c-fb0b90d9618d",
    "melhor_preco": 269.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 269.0,
    "menor_preco": 269.0
   },
@@ -2175,7 +2204,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-03T11:42:40-03:00",
+   "publicado": "2026-11-03T11:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2199,41 +2228,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:f6209bc9-0db9-4ee8-bc0b-37b91644fcac",
    "melhor_preco": 376.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-03T22:18:28-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Cartão Presente PlayStation Store R$550",
-   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar550-0c41",
-   "id": "b45ba409-64f0-41bf-8e97-c801f7f9f107",
-   "preco": 494.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-03T10:42:41-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "383°",
-    "produto": {
-     "valor_face": 550.0
-    },
-    "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "loja não oficial para gift card"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "pelando:b45ba409-64f0-41bf-8e97-c801f7f9f107",
-   "melhor_preco": 494.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
-   "ultimo_preco": 494.0,
-   "menor_preco": 494.0
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-11-02T10:44:22-03:00",
@@ -2452,7 +2447,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-30T22:42:40-03:00",
+   "publicado": "2026-10-30T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2476,7 +2471,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:2809870a-15c6-43da-a161-c3bf7c7ebcd8",
    "melhor_preco": 325.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-30T13:06:39-03:00",
@@ -2559,7 +2554,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-29T22:42:40-03:00",
+   "publicado": "2026-10-29T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2583,7 +2578,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:2ab2b734-9ab0-4a6a-a892-2adbebbb30c5",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 280.0,
    "menor_preco": 280.0
   },
@@ -2600,7 +2595,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-29T22:42:40-03:00",
+   "publicado": "2026-10-29T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2624,7 +2619,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:f34b6890-14f9-4037-a368-c5291b164210",
    "melhor_preco": 355.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 355.0,
    "menor_preco": 355.0
   },
@@ -2641,7 +2636,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-28T22:42:41-03:00",
+   "publicado": "2026-10-28T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2658,7 +2653,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:c9ab2ead-592a-4f39-b63f-f7fcabc7c461",
    "melhor_preco": 405.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 405.0,
    "menor_preco": 405.0
   },
@@ -2709,7 +2704,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-27T22:42:40-03:00",
+   "publicado": "2026-10-27T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2733,7 +2728,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:148de91c-4cea-4ea8-9f3c-50c1388811fd",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 350.0,
    "menor_preco": 350.0
   },
@@ -2750,7 +2745,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-26T22:42:41-03:00",
+   "publicado": "2026-10-26T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2767,7 +2762,7 @@
    "modelo": "PS5_DISCO",
    "chave": "pelando:42f209f6-c6a7-4a32-943c-1bf1b8b3706b",
    "melhor_preco": 3419.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-26T21:39:47-03:00",
@@ -2782,7 +2777,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-25T22:42:42-03:00",
+   "publicado": "2026-10-25T23:12:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2806,7 +2801,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:8f8c334f-a3da-4b6a-ba59-984828a4b87c",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-24T20:16:18-03:00",
@@ -2821,7 +2816,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-23T22:42:40-03:00",
+   "publicado": "2026-10-23T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2845,7 +2840,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:f7b2caf5-320c-4d0d-978c-e8f008896741",
    "melhor_preco": 363.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 363.0,
    "menor_preco": 363.0
   },
@@ -2862,7 +2857,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T22:42:42-03:00",
+   "publicado": "2026-10-22T23:12:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2886,7 +2881,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:7bbf1788-bc4e-40df-9808-1cbce1db0ff7",
    "melhor_preco": 280.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -2901,7 +2896,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T22:42:41-03:00",
+   "publicado": "2026-10-21T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2918,7 +2913,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6d783364-8547-4ca8-8f13-98e60ae618e3",
    "melhor_preco": 124.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 124.0,
    "menor_preco": 124.0
   },
@@ -2935,7 +2930,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T22:42:41-03:00",
+   "publicado": "2026-10-21T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2952,7 +2947,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:b6e379e1-e7a9-4515-8f25-8f024e5e64a9",
    "melhor_preco": 244.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 244.0,
    "menor_preco": 244.0
   },
@@ -2969,7 +2964,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-21T22:42:40-03:00",
+   "publicado": "2026-10-21T23:12:40-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2993,7 +2988,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:c5c74ddc-3a02-468b-bd54-982e9d2dc0ab",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-23T15:49:26-03:00",
@@ -3322,7 +3317,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "pelando:88e209c4-fa0e-4bbf-815f-19dd67db8674",
    "melhor_preco": 415.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:34:59-03:00",
@@ -3383,7 +3378,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:97f7de57-465a-4787-a013-60c79e4f0cc6",
    "melhor_preco": 499.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   },
   {
    "primeira_vez": "2026-10-12T18:47:58-03:00",
@@ -3398,7 +3393,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-11T22:42:41-03:00",
+   "publicado": "2026-10-11T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3415,7 +3410,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:9ca86c7a-26a3-4c3f-bc02-1e13e3483229",
    "melhor_preco": 325.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 325.0,
    "menor_preco": 325.0
   },
@@ -3432,7 +3427,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-08T22:42:41-03:00",
+   "publicado": "2026-10-08T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3449,7 +3444,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6368be2d-83b2-49b5-9eb6-61cd642bdcdf",
    "melhor_preco": 499.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 499.0,
    "menor_preco": 499.0
   },
@@ -3466,7 +3461,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T22:42:41-03:00",
+   "publicado": "2026-10-06T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3483,7 +3478,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:01ef7d76-0e47-4ebc-9df4-e172e5fd136e",
    "melhor_preco": 90.0,
-   "ultima_vez": "2026-11-03T22:44:23-03:00",
+   "ultima_vez": "2026-11-03T23:14:44-03:00",
    "ultimo_preco": 90.0,
    "menor_preco": 90.0
   },
@@ -3500,7 +3495,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-06T22:42:41-03:00",
+   "publicado": "2026-10-06T23:12:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3514,7 +3509,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:970fff40-f5a3-4441-b43d-f47543943dfc",
    "melhor_preco": null,
-   "ultima_vez": "2026-11-03T22:44:23-03:00"
+   "ultima_vez": "2026-11-03T23:14:44-03:00"
   }
  ],
  "gta6_custo_final": [
@@ -3598,7 +3593,7 @@
    "id": "78a48347-a245-4ffc-a5bd-c433afeb6b9c",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-11-03T08:42:43-03:00",
+   "publicado": "2026-11-03T09:12:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:78a48347-a245-4ffc-a5bd-c433afeb6b9c"
@@ -3612,7 +3607,7 @@
    "id": "4404bb07-d826-4864-ab2f-85a8dace072c",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.                              📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-11-01T22:42:43-03:00",
+   "publicado": "2026-11-01T23:12:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:4404bb07-d826-4864-ab2f-85a8dace072c"
@@ -3626,7 +3621,7 @@
    "id": "f20e5047-9aee-43af-8aa5-c438dd3a4b5e",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-10-25T22:42:43-03:00",
+   "publicado": "2026-10-25T23:12:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:f20e5047-9aee-43af-8aa5-c438dd3a4b5e"
@@ -3640,7 +3635,7 @@
    "id": "ecea6534-d342-4fd5-9a73-7722f03c19f4",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T22:42:43-03:00",
+   "publicado": "2026-10-19T23:12:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:ecea6534-d342-4fd5-9a73-7722f03c19f4"
@@ -3654,7 +3649,7 @@
    "id": "41c625dc-a375-4e78-b7be-a9a727807a7c",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-10-19T22:42:43-03:00",
+   "publicado": "2026-10-19T23:12:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:41c625dc-a375-4e78-b7be-a9a727807a7c"
@@ -3663,37 +3658,37 @@
  "saude": {
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:42:42-03:00",
+   "ultimo_ok": "2026-11-03T23:12:43-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:42:43-03:00",
+   "ultimo_ok": "2026-11-03T23:12:44-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:44:22-03:00",
+   "ultimo_ok": "2026-11-03T23:14:21-03:00",
    "ultimo_erro": null
   },
   "amazon.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:43:43-03:00",
+   "ultimo_ok": "2026-11-03T23:13:41-03:00",
    "ultimo_erro": null
   },
   "casasbahia.produtos": {
-   "falhas": 2,
+   "falhas": 3,
    "ultimo_ok": "2026-11-02T18:14:06-03:00",
-   "ultimo_erro": "2026-11-03T22:44:01-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
+   "ultimo_erro": "2026-11-03T23:13:59-03:00 RuntimeError: Casas Bahia bloqueou (Akamai)"
   },
   "netshoes": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:44:10-03:00",
+   "ultimo_ok": "2026-11-03T23:14:09-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-03T22:44:21-03:00",
+   "ultimo_ok": "2026-11-03T23:14:20-03:00",
    "ultimo_erro": null
   }
  },
