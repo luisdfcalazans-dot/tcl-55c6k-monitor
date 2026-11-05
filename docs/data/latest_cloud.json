@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-05T00:19:51-03:00",
+ "atualizado": "2026-11-05T00:34:54-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -2431,7 +2431,7 @@
    "preco": 5999.0,
    "preco_pix": 5399.1,
    "parcelado": "10x R$ 599,90 sem juros",
-   "cupom": "MAGALU30",
+   "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "Mcs Comercio de Variedades",
@@ -2452,9 +2452,6 @@
     "produto": {
      "versao_incerta": false
     },
-    "preco_com_cupom": 5369.1,
-    "cupom_preco": "MAGALU30",
-    "cupom_regra": "R$ 30.00 OFF com cupom: MAGALU30",
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
@@ -2999,7 +2996,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:tecnoarthardware/51701#PS5_DIGITAL",
    "melhor_preco": 3679.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 3679.0,
    "menor_preco": 3679.0
   },
@@ -3039,7 +3036,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:IskandarSouza/194802#PS5_DIGITAL",
    "melhor_preco": 3679.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 3679.0,
    "menor_preco": 3679.0
   },
@@ -3077,7 +3074,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/84290#PS5_DIGITAL",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 3599.0,
    "menor_preco": 3599.0
   },
@@ -3150,7 +3147,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3173548",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 3599.0,
    "menor_preco": 3599.0
   },
@@ -3218,7 +3215,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3172664",
    "melhor_preco": 3899.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00"
+   "ultima_vez": "2026-11-05T00:34:52-03:00"
   },
   {
    "primeira_vez": "2026-11-04T15:17:43-03:00",
@@ -3383,7 +3380,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3172148",
    "melhor_preco": 6999.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 6999.0,
    "menor_preco": 6999.0
   },
@@ -3499,7 +3496,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3170586",
    "melhor_preco": 357.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00"
+   "ultima_vez": "2026-11-05T00:34:52-03:00"
   },
   {
    "primeira_vez": "2026-11-04T07:22:36-03:00",
@@ -4524,7 +4521,7 @@
    "modelo": "PS5_DISCO_GTA6",
    "chave": "promobit:3153689",
    "melhor_preco": 4436.26,
-   "ultima_vez": "2026-11-05T00:19:49-03:00"
+   "ultima_vez": "2026-11-05T00:34:52-03:00"
   },
   {
    "primeira_vez": "2026-11-03T14:19:43-03:00",
@@ -4564,7 +4561,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3167682",
    "melhor_preco": 366.0,
-   "ultima_vez": "2026-11-05T00:19:49-03:00",
+   "ultima_vez": "2026-11-05T00:34:52-03:00",
    "ultimo_preco": 366.0,
    "menor_preco": 366.0
   }
@@ -5492,20 +5489,6 @@
   {
    "fonte": "magalu",
    "loja": "Magazine Luiza",
-   "codigo": "MAGALU30",
-   "titulo": "R$ 30.00 OFF com cupom: MAGALU30",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-slim-digital-825-gb-branco/p/cb167fbh9g/ga/gap5/",
-   "id": "MAGALU30--PS5_DIGITAL",
-   "regra": "R$ 30.00 OFF com cupom: MAGALU30",
-   "validade": null,
-   "publicado": null,
-   "especifico": true,
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu:MAGALU30--PS5_DIGITAL"
-  },
-  {
-   "fonte": "magalu",
-   "loja": "Magazine Luiza",
    "codigo": "GTA60",
    "titulo": "R$ 60.00 OFF com cupom: GTA60",
    "url": "https://www.magazineluiza.com.br/jogo-grand-theft-auto-vi-gta-6-ps5-code-in-box-pre-venda-lancamento-19-11/p/241923300/ga/jgpn/",
@@ -5521,72 +5504,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:03-03:00",
+   "ultimo_ok": "2026-11-05T00:34:03-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:10-03:00",
+   "ultimo_ok": "2026-11-05T00:34:10-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:43-03:00",
+   "ultimo_ok": "2026-11-05T00:34:49-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:04-03:00",
+   "ultimo_ok": "2026-11-05T00:34:05-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:14-03:00",
+   "ultimo_ok": "2026-11-05T00:34:20-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:19-03:00",
+   "ultimo_ok": "2026-11-05T00:34:25-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:20-03:00",
+   "ultimo_ok": "2026-11-05T00:34:26-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:22-03:00",
+   "ultimo_ok": "2026-11-05T00:34:28-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:24-03:00",
+   "ultimo_ok": "2026-11-05T00:34:30-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:24-03:00",
+   "ultimo_ok": "2026-11-05T00:34:31-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 630,
+   "falhas": 631,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-05T00:19:30-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-05T00:34:37-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:32-03:00",
+   "ultimo_ok": "2026-11-05T00:34:38-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:33-03:00",
+   "ultimo_ok": "2026-11-05T00:34:40-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-05T00:19:36-03:00",
+   "ultimo_ok": "2026-11-05T00:34:42-03:00",
    "ultimo_erro": null
   }
  },
