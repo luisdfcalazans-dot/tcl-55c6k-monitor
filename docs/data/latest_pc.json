@@ -1,6 +1,6 @@
 {
  "modo": "pc",
- "atualizado": "2026-11-07T14:14:52-03:00",
+ "atualizado": "2026-11-07T19:50:05-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -254,40 +254,49 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Estojo de transporte para consoles de jogos PS5 Bolsa de armazenamento Caso de viagem protetor",
-   "url": "https://www.amazon.com.br/dp/B0CP3THYYY?smid=A27GZR1DUGZLXM",
-   "id": "B0CP3THYYY-A27GZR1DUGZLXM",
-   "preco": 286.59,
+   "titulo": "GTA VI STRATEGY GUIDE: The Unofficial Walkthrough with Mission Strategies, Exploration Tips, Vehicles, Hidden Locations, and Illustrated Maps",
+   "url": "https://www.amazon.com.br/dp/B0HNWZ8P1D?smid=A2EB9PYM83FCP9",
+   "id": "B0HNWZ8P1D-A2EB9PYM83FCP9",
+   "preco": 128.69,
    "preco_pix": null,
-   "parcelado": "6x R$ 49,74 sem juros",
+   "parcelado": "4x R$ 32,18 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": false,
-   "vendedor": "springway",
+   "vendedor": "Amazon Global",
    "extra": {
-    "anuncio": "B0CP3THYYY",
-    "asin": "B0CP3THYYY",
-    "vendedor_id": "A27GZR1DUGZLXM",
+    "anuncio": "B0HNWZ8P1D",
+    "asin": "B0HNWZ8P1D",
+    "vendedor_id": "A2EB9PYM83FCP9",
     "destaque": true,
     "ficha": {
-     "avaliacoes_vendedor": 1429,
-     "positivas_pct": 81,
-     "enviado_por": "springway Origem do envio China.",
-     "full": false
+     "enviado_por": "Amazon Global Origem do envio Estados Unidos.",
+     "full": true
     },
     "produto": {
-     "versao_incerta": true
+     "plataforma_incerta": true
     },
-    "descartado": "fora da faixa do produto (2500 a 7000)",
+    "entrega_prevista": "2026-11-18",
+    "entrega_ate_lancamento": true,
+    "cep_referencia": false,
+    "entrega_origem": "página da Amazon",
+    "descartado": "fora da faixa do produto (200 a 800)",
     "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-18",
+     "origem": "loja",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: previsão 18/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
     }
    },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0CP3THYYY-A27GZR1DUGZLXM",
-   "melhor_preco": 286.59
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "amazon.produtos:B0HNWZ8P1D-A2EB9PYM83FCP9",
+   "melhor_preco": 128.69
   },
   {
    "fonte": "amazon.produtos",
@@ -341,26 +350,20 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "Grand Theft Auto VI - PlayStation 5",
-   "url": "https://www.amazon.com.br/dp/B0H6KWVV6F?smid=A1Y0ELKDUA6NH4",
-   "id": "B0H6KWVV6F-A1Y0ELKDUA6NH4",
+   "url": "https://www.amazon.com.br/dp/B0H6KWVV6F",
+   "id": "B0H6KWVV6F-destaque",
    "preco": 449.84,
    "preco_pix": 427.4,
    "parcelado": "8x R$ 56,23 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Loja de Games",
+   "vendedor": null,
    "extra": {
     "anuncio": "B0H6KWVV6F",
     "asin": "B0H6KWVV6F",
-    "vendedor_id": "A1Y0ELKDUA6NH4",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 199,
-     "positivas_pct": 82,
-     "enviado_por": "Amazon",
-     "full": true
-    },
+    "vendedor_id": null,
+    "origem": "busca",
     "produto": {
      "plataforma_incerta": false
     },
@@ -371,9 +374,7 @@
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
+      "preço"
      ],
      "sinais": [],
      "codigos": []
@@ -392,7 +393,7 @@
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "amazon.produtos:B0H6KWVV6F-A1Y0ELKDUA6NH4",
+   "chave": "amazon.produtos:B0H6KWVV6F-destaque",
    "melhor_preco": 427.4
   },
   {
@@ -581,8 +582,8 @@
     "ficha": {
      "avaliacoes_vendedor": 199,
      "positivas_pct": 82,
-     "enviado_por": "Loja de Games",
-     "full": false
+     "enviado_por": "Amazon",
+     "full": true
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
@@ -591,12 +592,8 @@
       "Full",
       "avaliações do vendedor"
      ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
+     "sinais": [],
+     "codigos": []
     },
     "alvo": {
      "pix": 300.0,
@@ -814,25 +811,30 @@
    "melhor_preco": 3998.07
   },
   {
-   "fonte": "netshoes",
+   "fonte": "amazon.produtos",
    "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony com 2 Jogos",
-   "url": "https://www.netshoes.com.br/p/playstation-5-edicao-digital-825gb-1-controle-branco-sony-com-2-jogos-D32-286N-014",
-   "id": "D32-286N-014-29198",
-   "preco": 4749.0,
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=ACUNARZFR75ET",
+   "id": "B0GWNKJDCZ-ACUNARZFR75ET",
+   "preco": null,
    "preco_pix": 4274.1,
-   "parcelado": "11x R$ 431,73 sem juros",
+   "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Magalu Oficial",
+   "vendedor": "Magalu.",
    "extra": {
-    "anuncio": "D32-286N-014",
-    "sku": "D32-286N-014-01",
-    "vendedor_id": "29198",
-    "preco_de": 4999.9,
-    "pre_venda": false,
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "ACUNARZFR75ET",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 5056,
+     "positivas_pct": 60,
+     "enviado_por": "Magalu.",
+     "full": false
+    },
     "produto": {
      "versao_incerta": false
     },
@@ -846,7 +848,7 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "netshoes:D32-286N-014-29198",
+   "chave": "amazon.produtos:B0GWNKJDCZ-ACUNARZFR75ET",
    "melhor_preco": 4274.1
   },
   {
@@ -890,30 +892,42 @@
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
-   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ",
-   "id": "B0GWNKJDCZ-destaque",
-   "preco": 4599.84,
-   "preco_pix": 4369.9,
-   "parcelado": "12x R$ 383,32 sem juros",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A3391ZCWNCQKXA",
+   "id": "B0GWNKJDCZ-A3391ZCWNCQKXA",
+   "preco": null,
+   "preco_pix": 4369.05,
+   "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": null,
+   "vendedor": "META SHOPPE",
    "extra": {
     "anuncio": "B0GWNKJDCZ",
     "asin": "B0GWNKJDCZ",
-    "vendedor_id": null,
-    "origem": "busca",
+    "vendedor_id": "A3391ZCWNCQKXA",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 155,
+     "positivas_pct": 55,
+     "enviado_por": "META SHOPPE",
+     "full": false
+    },
     "produto": {
      "versao_incerta": false
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
-      "preço"
+      "preço",
+      "Full",
+      "avaliações do vendedor"
      ],
-     "sinais": [],
-     "codigos": []
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
     },
     "alvo": {
      "pix": 3550.0,
@@ -922,8 +936,62 @@
     }
    },
    "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B0GWNKJDCZ-destaque",
-   "melhor_preco": 4369.9
+   "chave": "amazon.produtos:B0GWNKJDCZ-A3391ZCWNCQKXA",
+   "melhor_preco": 4369.05
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A7PTFS3I4Y64X",
+   "id": "B0GWNKJDCZ-A7PTFS3I4Y64X",
+   "preco": null,
+   "preco_pix": 4369.05,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "IDEOLAB",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A7PTFS3I4Y64X",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2164,
+     "positivas_pct": 47,
+     "enviado_por": "IDEOLAB",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)",
+      "vendedor com só 47% de avaliações positivas (2.164 avaliações)"
+     ],
+     "codigos": [
+      "sem_full",
+      "vendedor_mal_avaliado"
+     ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A7PTFS3I4Y64X",
+   "melhor_preco": 4369.05
   },
   {
    "fonte": "amazon.produtos",
@@ -969,55 +1037,97 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=A5AWFXGJJU4NV",
-   "id": "B0GWNFMG5L-A5AWFXGJJU4NV",
-   "preco": 4798.92,
-   "preco_pix": 4415.08,
-   "parcelado": "12x R$ 399,91 sem juros",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=APJANL1RGWUHD",
+   "id": "B0GWNKJDCZ-APJANL1RGWUHD",
+   "preco": 4599.84,
+   "preco_pix": 4369.9,
+   "parcelado": "12x R$ 383,32 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "DOMUS SHOP",
+   "vendedor": "Power.Shoppe",
    "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "A5AWFXGJJU4NV",
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "APJANL1RGWUHD",
     "destaque": true,
     "ficha": {
-     "avaliacoes_vendedor": 2804,
-     "positivas_pct": 32,
-     "enviado_por": "DOMUS SHOP",
-     "full": false
+     "avaliacoes_vendedor": 727,
+     "positivas_pct": 55,
+     "enviado_por": "Amazon",
+     "full": true
     },
     "produto": {
      "versao_incerta": false
     },
     "confianca": {
-     "veredito": "suspeito",
+     "veredito": "sem_risco_aparente",
      "checagens": [
       "preço",
       "Full",
       "avaliações do vendedor"
      ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 32% de avaliações positivas (2.804 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
+     "sinais": [],
+     "codigos": []
     },
     "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
+     "pix": 3550.0,
+     "parcelado": 3700.0,
      "nota": ""
     }
    },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-A5AWFXGJJU4NV",
-   "melhor_preco": 4415.08
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-APJANL1RGWUHD",
+   "melhor_preco": 4369.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A2LLU9EAT5LSXD",
+   "id": "B0GWNKJDCZ-A2LLU9EAT5LSXD",
+   "preco": null,
+   "preco_pix": 4369.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "REDELINE",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A2LLU9EAT5LSXD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2405,
+     "positivas_pct": 50,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A2LLU9EAT5LSXD",
+   "melhor_preco": 4369.9
   },
   {
    "fonte": "amazon.produtos",
@@ -1060,15 +1170,175 @@
    "melhor_preco": 4459.0
   },
   {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=A7PTFS3I4Y64X",
+   "id": "B0CM9VHGY7-A7PTFS3I4Y64X",
+   "preco": 4999.8,
+   "preco_pix": 4599.9,
+   "parcelado": "12x R$ 416,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "IDEOLAB",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "A7PTFS3I4Y64X",
+    "destaque": true,
+    "ficha": {
+     "avaliacoes_vendedor": 2164,
+     "positivas_pct": 47,
+     "enviado_por": "IDEOLAB",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "suspeito",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)",
+      "vendedor com só 47% de avaliações positivas (2.164 avaliações)"
+     ],
+     "codigos": [
+      "sem_full",
+      "vendedor_mal_avaliado"
+     ]
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-A7PTFS3I4Y64X",
+   "melhor_preco": 4599.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=A3391ZCWNCQKXA",
+   "id": "B0CM9VHGY7-A3391ZCWNCQKXA",
+   "preco": null,
+   "preco_pix": 4599.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "META SHOPPE",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "A3391ZCWNCQKXA",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 155,
+     "positivas_pct": 55,
+     "enviado_por": "META SHOPPE",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-A3391ZCWNCQKXA",
+   "melhor_preco": 4599.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=A5AWFXGJJU4NV",
+   "id": "B0CM9VHGY7-A5AWFXGJJU4NV",
+   "preco": null,
+   "preco_pix": 4691.08,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "DOMUS SHOP",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "A5AWFXGJJU4NV",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2804,
+     "positivas_pct": 32,
+     "enviado_por": "DOMUS SHOP",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "suspeito",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)",
+      "vendedor com só 32% de avaliações positivas (2.804 avaliações)"
+     ],
+     "codigos": [
+      "sem_full",
+      "vendedor_mal_avaliado"
+     ]
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-A5AWFXGJJU4NV",
+   "melhor_preco": 4691.08
+  },
+  {
    "fonte": "netshoes",
    "tipo": "loja",
    "loja": "Netshoes",
    "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
    "url": "https://www.netshoes.com.br/p/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital-HTW-025Z-014",
    "id": "HTW-025Z-014-30835",
-   "preco": 4459.0,
+   "preco": 4692.51,
    "preco_pix": null,
-   "parcelado": "11x R$ 405,36 sem juros",
+   "parcelado": "11x R$ 426,59 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -1098,224 +1368,33 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "netshoes:HTW-025Z-014-30835",
-   "melhor_preco": 4459.0
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A5AWFXGJJU4NV",
-   "id": "B0GBYZ4R2K-A5AWFXGJJU4NV",
-   "preco": 4798.92,
-   "preco_pix": 4559.05,
-   "parcelado": "12x R$ 399,91 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "DOMUS SHOP",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A5AWFXGJJU4NV",
-    "destaque": true,
-    "ficha": {
-     "avaliacoes_vendedor": 2804,
-     "positivas_pct": 32,
-     "enviado_por": "DOMUS SHOP",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 32% de avaliações positivas (2.804 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A5AWFXGJJU4NV",
-   "melhor_preco": 4559.05
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Standard (Slim)",
-   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7",
-   "id": "B0CM9VHGY7-destaque",
-   "preco": 4999.8,
-   "preco_pix": 4599.9,
-   "parcelado": "12x R$ 416,65 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0CM9VHGY7",
-    "asin": "B0CM9VHGY7",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0CM9VHGY7-destaque",
-   "melhor_preco": 4599.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=A7PTFS3I4Y64X",
-   "id": "B0GWNFMG5L-A7PTFS3I4Y64X",
-   "preco": null,
-   "preco_pix": 4599.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "IDEOLAB",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "A7PTFS3I4Y64X",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2164,
-     "positivas_pct": 47,
-     "enviado_por": "IDEOLAB",
-     "full": false
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 47% de avaliações positivas (2.164 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-A7PTFS3I4Y64X",
-   "melhor_preco": 4599.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console PlayStation 5 - Digital Edition",
-   "url": "https://www.amazon.com.br/dp/B09FGCKBPK",
-   "id": "B09FGCKBPK-destaque",
-   "preco": 4884.96,
-   "preco_pix": 4640.75,
-   "parcelado": "12x R$ 407,08 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B09FGCKBPK",
-    "asin": "B09FGCKBPK",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B09FGCKBPK-destaque",
-   "melhor_preco": 4640.75
+   "melhor_preco": 4692.51
   },
   {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
    "titulo": "PlayStation®5 + God of War Ragnarök",
-   "url": "https://www.amazon.com.br/dp/B0BLW5C5KN",
-   "id": "B0BLW5C5KN-destaque",
+   "url": "https://www.amazon.com.br/dp/B0BLW5C5KN?smid=A3391ZCWNCQKXA",
+   "id": "B0BLW5C5KN-A3391ZCWNCQKXA",
    "preco": 4998.96,
    "preco_pix": 4699.06,
    "parcelado": "12x R$ 416,58 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": null,
+   "vendedor": "META SHOPPE",
    "extra": {
     "anuncio": "B0BLW5C5KN",
     "asin": "B0BLW5C5KN",
-    "vendedor_id": null,
-    "origem": "busca",
+    "vendedor_id": "A3391ZCWNCQKXA",
+    "destaque": true,
+    "ficha": {
+     "avaliacoes_vendedor": 155,
+     "positivas_pct": 55,
+     "enviado_por": "META SHOPPE",
+     "full": false
+    },
     "produto": {
      "base": "PS5_DIGITAL",
      "extras": [
@@ -1330,9 +1409,16 @@
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
-     "checagens": [],
-     "sinais": [],
-     "codigos": []
+     "checagens": [
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
     },
     "alvo": {
      "pix": 3750.0,
@@ -1341,7 +1427,7 @@
     }
    },
    "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0BLW5C5KN-destaque",
+   "chave": "amazon.produtos:B0BLW5C5KN-A3391ZCWNCQKXA",
    "melhor_preco": 4699.06
   },
   {
@@ -1389,46 +1475,6 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "amazon.produtos:B0H6LVH152-A1ZZFT5FULY4LN",
    "melhor_preco": 4699.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console PlayStation 5 - Digital Edition",
-   "url": "https://www.amazon.com.br/dp/B08CWG5K2D",
-   "id": "B08CWG5K2D-destaque",
-   "preco": 4984.92,
-   "preco_pix": 4735.75,
-   "parcelado": "12x R$ 415,41 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B08CWG5K2D",
-    "asin": "B08CWG5K2D",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "amazon.produtos:B08CWG5K2D-destaque",
-   "melhor_preco": 4735.75
   },
   {
    "fonte": "amazon.produtos",
@@ -1487,6 +1533,59 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
+   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
+   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K",
+   "id": "B0GBYZ4R2K-destaque",
+   "preco": 4999.8,
+   "preco_pix": 4749.9,
+   "parcelado": "12x R$ 416,65 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "anuncio": "B0GBYZ4R2K",
+    "asin": "B0GBYZ4R2K",
+    "vendedor_id": null,
+    "origem": "busca",
+    "produto": {
+     "base": "PS5_DISCO",
+     "extras": [
+      {
+       "tipo": "jogo",
+       "valor": 200.0,
+       "nome": "lacrado"
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "suspeito",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [
+      "a busca da Amazon não diz quem vende e o preço R$ 4.749,90 está abaixo da loja confiável mais barata (R$ 4.999,00, KaBuM!); nova tentativa na próxima rodada"
+     ],
+     "codigos": [
+      "sem_vendedor"
+     ]
+    },
+    "alvo": {
+     "pix": 4150.0,
+     "parcelado": 4350.0,
+     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0GBYZ4R2K-destaque",
+   "melhor_preco": 4749.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
    "titulo": "Stea PlayStation®5 console (slim)",
    "url": "https://www.amazon.com.br/dp/B0CL61F39H",
    "id": "B0CL61F39H-destaque",
@@ -1522,223 +1621,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "amazon.produtos:B0CL61F39H-destaque",
    "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A3391ZCWNCQKXA",
-   "id": "B0GBYZ4R2K-A3391ZCWNCQKXA",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "META SHOPPE",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A3391ZCWNCQKXA",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 153,
-     "positivas_pct": 55,
-     "enviado_por": "META SHOPPE",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A3391ZCWNCQKXA",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A7PTFS3I4Y64X",
-   "id": "B0GBYZ4R2K-A7PTFS3I4Y64X",
-   "preco": null,
-   "preco_pix": 4749.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "IDEOLAB",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A7PTFS3I4Y64X",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2164,
-     "positivas_pct": 47,
-     "enviado_por": "IDEOLAB",
-     "full": false
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "suspeito",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)",
-      "vendedor com só 47% de avaliações positivas (2.164 avaliações)"
-     ],
-     "codigos": [
-      "sem_full",
-      "vendedor_mal_avaliado"
-     ]
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A7PTFS3I4Y64X",
-   "melhor_preco": 4749.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=A3391ZCWNCQKXA",
-   "id": "B0GWNFMG5L-A3391ZCWNCQKXA",
-   "preco": null,
-   "preco_pix": 4783.08,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "META SHOPPE",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "A3391ZCWNCQKXA",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 153,
-     "positivas_pct": 55,
-     "enviado_por": "META SHOPPE",
-     "full": false
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [
-      "não é enviado pela loja (sem Full)"
-     ],
-     "codigos": [
-      "sem_full"
-     ]
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-A3391ZCWNCQKXA",
-   "melhor_preco": 4783.08
-  },
-  {
-   "fonte": "netshoes",
-   "tipo": "loja",
-   "loja": "Netshoes",
-   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.netshoes.com.br/p/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos-D32-2879-014",
-   "id": "D32-2879-014-30835",
-   "preco": 4879.0,
-   "preco_pix": null,
-   "parcelado": "11x R$ 443,55 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "anuncio": "D32-2879-014",
-    "sku": "D32-2879-014-01",
-    "vendedor_id": "30835",
-    "preco_de": 5697.85,
-    "pre_venda": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "netshoes:D32-2879-014-30835",
-   "melhor_preco": 4879.0
   },
   {
    "fonte": "amazon.produtos",
@@ -1791,208 +1673,6 @@
    "modelo": "PS5_KIT",
    "chave": "amazon.produtos:B0HN8L7Q46-destaque",
    "melhor_preco": 4899.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "PlayStation 5 Slim Disk 1TB 1 Controle Branco Sony",
-   "url": "https://www.amazon.com.br/dp/B0GWNFMG5L?smid=APJANL1RGWUHD",
-   "id": "B0GWNFMG5L-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 4922.0,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0GWNFMG5L",
-    "asin": "B0GWNFMG5L",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 727,
-     "positivas_pct": 55,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0GWNFMG5L-APJANL1RGWUHD",
-   "melhor_preco": 4922.0
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=APJANL1RGWUHD",
-   "id": "B0GBYZ4R2K-APJANL1RGWUHD",
-   "preco": null,
-   "preco_pix": 4939.9,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "Power.Shoppe",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "APJANL1RGWUHD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 727,
-     "positivas_pct": 55,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-APJANL1RGWUHD",
-   "melhor_preco": 4939.9
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console PS5 c/Drive Slim 1TB + 1 Controle",
-   "url": "https://www.amazon.com.br/dp/B0DTJ771FF",
-   "id": "B0DTJ771FF-destaque",
-   "preco": 5248.92,
-   "preco_pix": 4986.55,
-   "parcelado": "12x R$ 437,41 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "anuncio": "B0DTJ771FF",
-    "asin": "B0DTJ771FF",
-    "vendedor_id": null,
-    "origem": "busca",
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "amazon.produtos:B0DTJ771FF-destaque",
-   "melhor_preco": 4986.55
-  },
-  {
-   "fonte": "amazon.produtos",
-   "tipo": "loja",
-   "loja": "Amazon",
-   "titulo": "Console Playstation 5 Slim Disk + Controle DualSense lacrado",
-   "url": "https://www.amazon.com.br/dp/B0GBYZ4R2K?smid=A2LLU9EAT5LSXD",
-   "id": "B0GBYZ4R2K-A2LLU9EAT5LSXD",
-   "preco": null,
-   "preco_pix": 4987.5,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "REDELINE",
-   "extra": {
-    "anuncio": "B0GBYZ4R2K",
-    "asin": "B0GBYZ4R2K",
-    "vendedor_id": "A2LLU9EAT5LSXD",
-    "destaque": false,
-    "ficha": {
-     "avaliacoes_vendedor": 2405,
-     "positivas_pct": 50,
-     "enviado_por": "Amazon",
-     "full": true
-    },
-    "produto": {
-     "base": "PS5_DISCO",
-     "extras": [
-      {
-       "tipo": "jogo",
-       "valor": 200.0,
-       "nome": "lacrado"
-      }
-     ],
-     "valor_extra": 200.0,
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "Full",
-      "avaliações do vendedor"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 4150.0,
-     "parcelado": 4350.0,
-     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
-    }
-   },
-   "modelo": "PS5_KIT",
-   "chave": "amazon.produtos:B0GBYZ4R2K-A2LLU9EAT5LSXD",
-   "melhor_preco": 4987.5
   },
   {
    "fonte": "amazon.produtos",
@@ -2124,47 +1804,57 @@
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
-   "titulo": "Bundle GTA VI + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
-   "url": "https://www.amazon.com.br/dp/B0H6LPVFWQ?smid=A1ZZFT5FULY4LN",
-   "id": "B0H6LPVFWQ-A1ZZFT5FULY4LN",
-   "preco": 5328.9,
-   "preco_pix": null,
+   "titulo": "PlayStation®5 + God of War Ragnarök",
+   "url": "https://www.amazon.com.br/dp/B0BLW5C5KN?smid=A2LLU9EAT5LSXD",
+   "id": "B0BLW5C5KN-A2LLU9EAT5LSXD",
+   "preco": null,
+   "preco_pix": 5263.9,
    "parcelado": null,
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "Amazon.com.br Política de devolução",
+   "vendedor": "REDELINE",
    "extra": {
-    "anuncio": "B0H6LPVFWQ",
-    "asin": "B0H6LPVFWQ",
-    "vendedor_id": "A1ZZFT5FULY4LN",
-    "destaque": true,
+    "anuncio": "B0BLW5C5KN",
+    "asin": "B0BLW5C5KN",
+    "vendedor_id": "A2LLU9EAT5LSXD",
+    "destaque": false,
     "ficha": {
-     "enviado_por": "Amazon.com.br",
+     "avaliacoes_vendedor": 2405,
+     "positivas_pct": 50,
+     "enviado_por": "Amazon",
      "full": true
     },
     "produto": {
-     "versao_incerta": false
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "jogo",
+       "valor": 200.0,
+       "nome": "god of war ragnarok"
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": true
     },
     "confianca": {
-     "veredito": "confiavel"
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
     },
     "alvo": {
-     "pix": 4300.0,
-     "parcelado": 4450.0,
-     "nota": ""
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+     "pix": 3750.0,
+     "parcelado": 3900.0,
+     "nota": "meta do PS5 Slim Digital + R$ 200 do extra"
     }
    },
-   "modelo": "PS5_DISCO_GTA6",
-   "chave": "amazon.produtos:B0H6LPVFWQ-A1ZZFT5FULY4LN",
-   "melhor_preco": 5328.9
+   "modelo": "PS5_KIT",
+   "chave": "amazon.produtos:B0BLW5C5KN-A2LLU9EAT5LSXD",
+   "melhor_preco": 5263.9
   },
   {
    "fonte": "amazon.produtos",
@@ -2255,6 +1945,189 @@
    "melhor_preco": 5414.05
   },
   {
+   "fonte": "netshoes",
+   "tipo": "loja",
+   "loja": "Netshoes",
+   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
+   "url": "https://www.netshoes.com.br/p/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos-D32-2879-014",
+   "id": "D32-2879-014-30835",
+   "preco": 5499.0,
+   "preco_pix": null,
+   "parcelado": "11x R$ 499,91 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "anuncio": "D32-2879-014",
+    "sku": "D32-2879-014-01",
+    "vendedor_id": "30835",
+    "preco_de": 5499.0,
+    "pre_venda": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "netshoes:D32-2879-014-30835",
+   "melhor_preco": 5499.0
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=A2LLU9EAT5LSXD",
+   "id": "B0CM9VHGY7-A2LLU9EAT5LSXD",
+   "preco": null,
+   "preco_pix": 5519.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "REDELINE",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "A2LLU9EAT5LSXD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 2405,
+     "positivas_pct": 50,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-A2LLU9EAT5LSXD",
+   "melhor_preco": 5519.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Standard (Slim)",
+   "url": "https://www.amazon.com.br/dp/B0CM9VHGY7?smid=APJANL1RGWUHD",
+   "id": "B0CM9VHGY7-APJANL1RGWUHD",
+   "preco": null,
+   "preco_pix": 5519.9,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Power.Shoppe",
+   "extra": {
+    "anuncio": "B0CM9VHGY7",
+    "asin": "B0CM9VHGY7",
+    "vendedor_id": "APJANL1RGWUHD",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 727,
+     "positivas_pct": 55,
+     "enviado_por": "Amazon",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "amazon.produtos:B0CM9VHGY7-APJANL1RGWUHD",
+   "melhor_preco": 5519.9
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Bundle GTA VI + PlayStation 5 Slim Disk Pacote Astro Bot e Gran Turismo 7",
+   "url": "https://www.amazon.com.br/dp/B0H6LPVFWQ?smid=A1ZZFT5FULY4LN",
+   "id": "B0H6LPVFWQ-A1ZZFT5FULY4LN",
+   "preco": 5549.8,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Amazon.com.br Política de devolução",
+   "extra": {
+    "anuncio": "B0H6LPVFWQ",
+    "asin": "B0H6LPVFWQ",
+    "vendedor_id": "A1ZZFT5FULY4LN",
+    "destaque": true,
+    "ficha": {
+     "enviado_por": "Amazon.com.br",
+     "full": true
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 4300.0,
+     "parcelado": 4450.0,
+     "nota": ""
+    },
+    "entrega": {
+     "classe": "desconhecida",
+     "data": null,
+     "origem": "",
+     "cep_referencia": false,
+     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
+    }
+   },
+   "modelo": "PS5_DISCO_GTA6",
+   "chave": "amazon.produtos:B0H6LPVFWQ-A1ZZFT5FULY4LN",
+   "melhor_preco": 5549.8
+  },
+  {
    "fonte": "amazon.produtos",
    "tipo": "loja",
    "loja": "Amazon",
@@ -2299,6 +2172,58 @@
    "modelo": "PS5_KIT",
    "chave": "amazon.produtos:B0FML8XKTZ-destaque",
    "melhor_preco": 6096.09
+  },
+  {
+   "fonte": "amazon.produtos",
+   "tipo": "loja",
+   "loja": "Amazon",
+   "titulo": "Sony PlayStation 5 Edição Digital 825GB 1 Controle",
+   "url": "https://www.amazon.com.br/dp/B0GWNKJDCZ?smid=A3D0TXJD63U55A",
+   "id": "B0GWNKJDCZ-A3D0TXJD63U55A",
+   "preco": null,
+   "preco_pix": 6145.45,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Loja Gazin",
+   "extra": {
+    "anuncio": "B0GWNKJDCZ",
+    "asin": "B0GWNKJDCZ",
+    "vendedor_id": "A3D0TXJD63U55A",
+    "destaque": false,
+    "ficha": {
+     "avaliacoes_vendedor": 156,
+     "positivas_pct": 78,
+     "enviado_por": "Loja Gazin",
+     "full": false
+    },
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "Full",
+      "avaliações do vendedor"
+     ],
+     "sinais": [
+      "não é enviado pela loja (sem Full)"
+     ],
+     "codigos": [
+      "sem_full"
+     ]
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "amazon.produtos:B0GWNKJDCZ-A3D0TXJD63U55A",
+   "melhor_preco": 6145.45
   },
   {
    "fonte": "amazon.produtos",
@@ -2359,7 +2284,7 @@
     "vendedor_id": "A3391ZCWNCQKXA",
     "destaque": false,
     "ficha": {
-     "avaliacoes_vendedor": 153,
+     "avaliacoes_vendedor": 155,
      "positivas_pct": 55,
      "enviado_por": "META SHOPPE",
      "full": false
@@ -2676,6 +2601,47 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-07T19:50:05-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "Grand Theft Auto VI The Album - CD",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-cd-700e",
+   "id": "3bde6b05-e7d2-42df-8b8c-3dcbc105733b",
+   "preco": 211.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-07T13:47:40-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "277°",
+    "produto": {
+     "plataforma_incerta": true
+    },
+    "alvo": {
+     "pix": 345.0,
+     "parcelado": 370.0,
+     "nota": "chega até 18/11"
+    },
+    "entrega": {
+     "classe": "a_tempo",
+     "data": "2026-11-16",
+     "origem": "estimativa",
+     "cep_referencia": true,
+     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+    }
+   },
+   "modelo": "GTA6_CODE_IN_BOX",
+   "chave": "pelando:3bde6b05-e7d2-42df-8b8c-3dcbc105733b",
+   "melhor_preco": 211.0,
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
+   "ultimo_preco": 211.0,
+   "menor_preco": 211.0
+  },
+  {
    "primeira_vez": "2026-11-07T10:43:58-03:00",
    "preco_alertado": null,
    "fonte": "pelando",
@@ -2688,11 +2654,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-07T09:12:41-03:00",
+   "publicado": "2026-11-07T08:47:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
-    "temperatura": "-81°",
+    "temperatura": "-100°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -2712,7 +2678,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:36222a56-27db-4468-bcf4-a1072bfa39f0",
    "melhor_preco": 369.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 369.0,
    "menor_preco": 369.0
   },
@@ -2729,7 +2695,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-06T14:12:39-03:00",
+   "publicado": "2026-11-06T19:47:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2746,7 +2712,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:72098049-75c7-4655-a2bc-bc8b64afffa1",
    "melhor_preco": 250.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00"
+   "ultima_vez": "2026-11-07T19:50:05-03:00"
   },
   {
    "primeira_vez": "2026-11-06T10:34:24-03:00",
@@ -2761,11 +2727,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-06T14:12:38-03:00",
+   "publicado": "2026-11-06T19:47:40-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "3962°",
+    "temperatura": "4227°",
     "produto": {
      "plataforma_incerta": false
     },
@@ -2785,7 +2751,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:85588e57-3e17-4fd2-9964-a3a34ba1b7f8",
    "melhor_preco": 362.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 362.0,
    "menor_preco": 362.0
   },
@@ -2870,7 +2836,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-05T14:12:41-03:00",
+   "publicado": "2026-11-05T19:47:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2894,7 +2860,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:07add22b-9410-4713-85cb-fb931086a492",
    "melhor_preco": 372.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 372.0,
    "menor_preco": 372.0
   },
@@ -2911,7 +2877,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-05T14:12:41-03:00",
+   "publicado": "2026-11-05T19:47:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -2935,7 +2901,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:52084311-a64c-40a6-864f-1fbdd0eb4ca4",
    "melhor_preco": 351.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00"
+   "ultima_vez": "2026-11-07T19:50:05-03:00"
   },
   {
    "primeira_vez": "2026-11-05T13:53:59-03:00",
@@ -2950,11 +2916,11 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-05T14:12:38-03:00",
+   "publicado": "2026-11-05T19:47:40-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
-    "temperatura": "-203°",
+    "temperatura": "-224°",
     "produto": {
      "versao_incerta": false
     },
@@ -2967,7 +2933,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "pelando:f0c5c6a6-73d1-4ec7-a2c3-0e63f5da87f3",
    "melhor_preco": 3599.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 3599.0,
    "menor_preco": 3599.0
   },
@@ -3018,7 +2984,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-04T14:12:41-03:00",
+   "publicado": "2026-11-04T19:47:42-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3042,7 +3008,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:11e988f2-e23f-47c3-a1f6-77ea462ac3c7",
    "melhor_preco": 373.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 373.0,
    "menor_preco": 373.0
   },
@@ -3059,7 +3025,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-11-04T14:12:38-03:00",
+   "publicado": "2026-11-04T19:47:40-03:00",
    "ativo": true,
    "vendedor": null,
    "extra": {
@@ -3083,7 +3049,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "pelando:628503cb-677f-42f3-81e4-3f875198d1c1",
    "melhor_preco": 376.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 376.0,
    "menor_preco": 376.0
   },
@@ -3126,6 +3092,74 @@
    "preco_alertado": null,
    "fonte": "pelando",
    "tipo": "post",
+   "loja": "?",
+   "titulo": "Cartão Presente PlayStation Store R$550",
+   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar550-0c41",
+   "id": "b45ba409-64f0-41bf-8e97-c801f7f9f107",
+   "preco": 494.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-03T19:47:41-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "911°",
+    "produto": {
+     "valor_face": 550.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:b45ba409-64f0-41bf-8e97-c801f7f9f107",
+   "melhor_preco": 494.0,
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
+   "ultimo_preco": 494.0,
+   "menor_preco": 494.0
+  },
+  {
+   "primeira_vez": "2026-11-03T22:18:28-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
+   "loja": "?",
+   "titulo": "Cartão Presente PlayStation Store R$300",
+   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar300-1911",
+   "id": "e76482ad-3a42-4337-949c-fb0b90d9618d",
+   "preco": 269.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-03T19:47:41-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "temperatura": "202°",
+    "produto": {
+     "valor_face": 300.0
+    },
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "loja não oficial para gift card"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "pelando:e76482ad-3a42-4337-949c-fb0b90d9618d",
+   "melhor_preco": 269.0,
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
+   "ultimo_preco": 269.0,
+   "menor_preco": 269.0
+  },
+  {
+   "primeira_vez": "2026-11-03T22:18:28-03:00",
+   "preco_alertado": null,
+   "fonte": "pelando",
+   "tipo": "post",
    "loja": "Mercado Livre",
    "titulo": "Grand Theft Auto VI - PlayStation 5",
    "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-playstation-5-bb3e",
@@ -3159,74 +3193,6 @@
    "chave": "pelando:f6209bc9-0db9-4ee8-bc0b-37b91644fcac",
    "melhor_preco": 376.0,
    "ultima_vez": "2026-11-07T14:14:52-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-03T22:18:28-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Cartão Presente PlayStation Store R$550",
-   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar550-0c41",
-   "id": "b45ba409-64f0-41bf-8e97-c801f7f9f107",
-   "preco": 494.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-03T14:12:39-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "911°",
-    "produto": {
-     "valor_face": 550.0
-    },
-    "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "loja não oficial para gift card"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "pelando:b45ba409-64f0-41bf-8e97-c801f7f9f107",
-   "melhor_preco": 494.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
-   "ultimo_preco": 494.0,
-   "menor_preco": 494.0
-  },
-  {
-   "primeira_vez": "2026-11-03T22:18:28-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "Cartão Presente PlayStation Store R$300",
-   "url": "https://www.pelando.com.br/d/cartao-presente-playstation-store-rdollar300-1911",
-   "id": "e76482ad-3a42-4337-949c-fb0b90d9618d",
-   "preco": 269.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-03T14:12:39-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "202°",
-    "produto": {
-     "valor_face": 300.0
-    },
-    "alvo": {
-     "pix": null,
-     "parcelado": null,
-     "nota": "loja não oficial para gift card"
-    }
-   },
-   "modelo": "GIFT_CARD_PSN",
-   "chave": "pelando:e76482ad-3a42-4337-949c-fb0b90d9618d",
-   "melhor_preco": 269.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
-   "ultimo_preco": 269.0,
-   "menor_preco": 269.0
   },
   {
    "primeira_vez": "2026-11-03T22:18:28-03:00",
@@ -3673,7 +3639,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-29T14:12:39-03:00",
+   "publicado": "2026-10-29T19:47:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3690,7 +3656,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:c9ab2ead-592a-4f39-b63f-f7fcabc7c461",
    "melhor_preco": 405.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 405.0,
    "menor_preco": 405.0
   },
@@ -3782,7 +3748,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-27T14:12:40-03:00",
+   "publicado": "2026-10-27T19:47:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3799,7 +3765,7 @@
    "modelo": "PS5_DISCO",
    "chave": "pelando:42f209f6-c6a7-4a32-943c-1bf1b8b3706b",
    "melhor_preco": 3419.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00"
+   "ultima_vez": "2026-11-07T19:50:05-03:00"
   },
   {
    "primeira_vez": "2026-10-26T21:39:47-03:00",
@@ -3933,7 +3899,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T14:12:39-03:00",
+   "publicado": "2026-10-22T19:47:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3950,7 +3916,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:6d783364-8547-4ca8-8f13-98e60ae618e3",
    "melhor_preco": 124.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 124.0,
    "menor_preco": 124.0
   },
@@ -3967,7 +3933,7 @@
    "preco_pix": null,
    "parcelado": null,
    "cupom": null,
-   "publicado": "2026-10-22T14:12:39-03:00",
+   "publicado": "2026-10-22T19:47:41-03:00",
    "ativo": false,
    "vendedor": null,
    "extra": {
@@ -3984,7 +3950,7 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "pelando:b6e379e1-e7a9-4515-8f25-8f024e5e64a9",
    "melhor_preco": 244.0,
-   "ultima_vez": "2026-11-07T14:14:52-03:00",
+   "ultima_vez": "2026-11-07T19:50:05-03:00",
    "ultimo_preco": 244.0,
    "menor_preco": 244.0
   },
@@ -4107,48 +4073,38 @@
    "chave": "pelando:fae3943c-c3fb-4f28-9d8d-260c9cfbf2af",
    "melhor_preco": 347.0,
    "ultima_vez": "2026-11-02T18:14:29-03:00"
-  },
-  {
-   "primeira_vez": "2026-10-23T15:49:26-03:00",
-   "preco_alertado": null,
-   "fonte": "pelando",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "[Disco e Vinil] Grand Theft Auto VI: The Album (Amazon Exclusive)",
-   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-amazon-exclusive-e804",
-   "id": "e5f9ce1d-9564-430d-86f0-08f42628b051",
-   "preco": 400.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-10-19T18:12:44-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "temperatura": "278°",
-    "produto": {
-     "plataforma_incerta": true
-    },
-    "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
-    },
-    "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-16",
-     "origem": "estimativa",
-     "cep_referencia": true,
-     "texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "pelando:e5f9ce1d-9564-430d-86f0-08f42628b051",
-   "melhor_preco": 400.0,
-   "ultima_vez": "2026-11-02T18:14:29-03:00"
   }
  ],
  "gta6_custo_final": [
+  {
+   "produto": "GTA6_CODE_IN_BOX",
+   "edicao": "Standard",
+   "forma": "GTA 6 PS5 Code in Box",
+   "loja": "Amazon",
+   "tipo": "post",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-cd-700e",
+   "preco": 211.0,
+   "custo_final": 211.0,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 345.0
+  },
+  {
+   "produto": "GTA6_UPGRADE",
+   "via": "GTA6_CODE_IN_BOX",
+   "edicao": "Ultimate",
+   "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
+   "loja": "Amazon",
+   "tipo": "calculo",
+   "url": "https://www.pelando.com.br/d/grand-theft-auto-vi-the-album-cd-700e",
+   "preco": 311.0,
+   "custo_final": 311.0,
+   "cupom": null,
+   "entrega": "a_tempo",
+   "entrega_texto": "Code in Box R$ 211,00 em Amazon + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: previsão 16/11 (estimativa da pesquisa de 03/10) — chega a tempo ✅ (até 18/11; lançamento 19/11)",
+   "meta": 450.0
+  },
   {
    "produto": "GTA6_CODE_IN_BOX",
    "edicao": "Standard",
@@ -4197,28 +4153,13 @@
    "forma": "GTA 6 PS5 Code in Box",
    "loja": "Amazon",
    "tipo": "loja",
-   "url": "https://www.amazon.com.br/dp/B0H6KWVV6F?smid=A1Y0ELKDUA6NH4",
+   "url": "https://www.amazon.com.br/dp/B0H6KWVV6F",
    "preco": 427.4,
    "custo_final": 427.4,
    "cupom": null,
    "entrega": "depois",
    "entrega_texto": "📦 Entrega: previsão 22/11 — ⚠️ chega DEPOIS do lançamento (19/11)",
    "meta": 300.0
-  },
-  {
-   "produto": "GTA6_UPGRADE",
-   "via": "GTA6_CODE_IN_BOX",
-   "edicao": "Ultimate",
-   "forma": "GTA 6 Ultimate = Standard (Code in Box) + upgrade",
-   "loja": "?",
-   "tipo": "calculo",
-   "url": "https://www.pelando.com.br/d/jogo-grand-theft-auto-gta-vi-ps5-tt000272ps5-3161",
-   "preco": 462.0,
-   "custo_final": 462.0,
-   "cupom": null,
-   "entrega": "desconhecida",
-   "entrega_texto": "Code in Box R$ 362,00 em ? + upgrade R$ 100,00 (preço oficial) na PS Store · 📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)",
-   "meta": 450.0
   },
   {
    "produto": "GTA6_ULTIMATE",
@@ -4271,7 +4212,7 @@
    "id": "23a7c21b-d174-4be6-b4b7-aaad2c89cbac",
    "regra": "Cupom válido em compras de até R$ 1000 em lojas Parceiras",
    "validade": null,
-   "publicado": "2026-11-04T14:12:42-03:00",
+   "publicado": "2026-11-04T19:47:43-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:23a7c21b-d174-4be6-b4b7-aaad2c89cbac"
@@ -4279,16 +4220,44 @@
   {
    "fonte": "pelando",
    "loja": "Mercado Livre",
-   "codigo": "MELIOFERTAS",
-   "titulo": "Cupom Mercado Livre - 20% OFF acima de R$79 limitado a R$60",
+   "codigo": "SITETODO0711",
+   "titulo": "Cupom Mercado Livre - R$100  OFF acima de R$999 Todo Site",
    "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
-   "id": "6626bf76-1a1a-4ff3-a9b4-27728944dda3",
-   "regra": "Em itens Selecionados, testem q as pega em tudo",
+   "id": "2f0188a0-18a0-4fe3-af05-1eb55e721b56",
+   "regra": "Em itens Selecionados, mas as vezes pega em mta coisa.",
    "validade": null,
-   "publicado": "2026-11-07T13:50:42-03:00",
+   "publicado": "2026-11-07T14:47:44-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "pelando:6626bf76-1a1a-4ff3-a9b4-27728944dda3"
+   "chave": "pelando:2f0188a0-18a0-4fe3-af05-1eb55e721b56"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "TODOSITE0711",
+   "titulo": "Cupom Mercado Livre - R$40 OFF acima de R$399 Todo Site",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "4aaf2fb1-57c2-441b-b8bb-b73174af28ab",
+   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.                              📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
+   "validade": null,
+   "publicado": "2026-11-07T14:47:44-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:4aaf2fb1-57c2-441b-b8bb-b73174af28ab"
+  },
+  {
+   "fonte": "pelando",
+   "loja": "Mercado Livre",
+   "codigo": "SITE0711TODO",
+   "titulo": "Cupom Mercado Livrer R$220 OFF acima de R$1499 Todo Site",
+   "url": "https://www.pelando.com.br/cupons-de-descontos/mercado-livre",
+   "id": "85d24f5f-08a4-4284-8763-b32382faceb9",
+   "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.                              📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
+   "validade": null,
+   "publicado": "2026-11-07T14:47:44-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "pelando:85d24f5f-08a4-4284-8763-b32382faceb9"
   },
   {
    "fonte": "pelando",
@@ -4299,7 +4268,7 @@
    "id": "b3cb75dd-a806-492d-b570-aea0dbb68237",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-11-07T12:12:42-03:00",
+   "publicado": "2026-11-07T11:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b3cb75dd-a806-492d-b570-aea0dbb68237"
@@ -4313,7 +4282,7 @@
    "id": "58be716d-6a71-455c-96dc-bf8e7b007148",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-11-07T09:12:42-03:00",
+   "publicado": "2026-11-07T08:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:58be716d-6a71-455c-96dc-bf8e7b007148"
@@ -4327,7 +4296,7 @@
    "id": "d9976fb4-57d3-4deb-88c7-d715a07453b1",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-11-07T09:12:42-03:00",
+   "publicado": "2026-11-07T08:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:d9976fb4-57d3-4deb-88c7-d715a07453b1"
@@ -4341,7 +4310,7 @@
    "id": "d30382eb-30d1-4e96-879c-54901285b0ff",
    "regra": "Válido Somente pra quem Resgatou \nCupom diz TODO Site confiram",
    "validade": null,
-   "publicado": "2026-11-07T00:12:42-03:00",
+   "publicado": "2026-11-06T23:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:d30382eb-30d1-4e96-879c-54901285b0ff"
@@ -4355,7 +4324,7 @@
    "id": "c99bde83-0045-484e-9e83-6ce16bfc12fc",
    "regra": "Testem, alguns estão funcionando em tudo",
    "validade": null,
-   "publicado": "2026-11-06T20:12:42-03:00",
+   "publicado": "2026-11-06T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:c99bde83-0045-484e-9e83-6ce16bfc12fc"
@@ -4369,7 +4338,7 @@
    "id": "b3901079-0855-4074-88bf-3548ad655a69",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-11-06T14:12:42-03:00",
+   "publicado": "2026-11-06T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:b3901079-0855-4074-88bf-3548ad655a69"
@@ -4383,7 +4352,7 @@
    "id": "8c2af811-0a5d-47bd-959f-d252a1505bba",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-11-05T14:12:42-03:00",
+   "publicado": "2026-11-05T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:8c2af811-0a5d-47bd-959f-d252a1505bba"
@@ -4397,7 +4366,7 @@
    "id": "c5e65d74-1e95-48b7-b17e-57041ecae3e6",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-11-05T14:12:42-03:00",
+   "publicado": "2026-11-05T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:c5e65d74-1e95-48b7-b17e-57041ecae3e6"
@@ -4411,7 +4380,7 @@
    "id": "10e8e4e1-9d3c-4358-b8ac-2f92ff1ec7a4",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista.",
    "validade": null,
-   "publicado": "2026-11-04T14:12:42-03:00",
+   "publicado": "2026-11-04T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:10e8e4e1-9d3c-4358-b8ac-2f92ff1ec7a4"
@@ -4425,7 +4394,7 @@
    "id": "944ec8aa-c305-4520-9dfa-56f5cf69cf77",
    "regra": "Cupom diz TODO Site, confiram",
    "validade": null,
-   "publicado": "2026-11-04T14:12:42-03:00",
+   "publicado": "2026-11-04T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:944ec8aa-c305-4520-9dfa-56f5cf69cf77"
@@ -4439,7 +4408,7 @@
    "id": "f20e5047-9aee-43af-8aa5-c438dd3a4b5e",
    "regra": "🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se aplica apenas a itens selecionados.      \n                        \n📌 Dica: Na hora de adicionar o cupom, clique em \"Conferir lista\" para ver todos os produtos participantes da lista",
    "validade": null,
-   "publicado": "2026-10-26T14:12:42-03:00",
+   "publicado": "2026-10-26T19:47:44-03:00",
    "especifico": false,
    "modelo": null,
    "chave": "pelando:f20e5047-9aee-43af-8aa5-c438dd3a4b5e"
@@ -4448,38 +4417,38 @@
  "saude": {
   "pelando.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:12:41-03:00",
+   "ultimo_ok": "2026-11-07T19:47:42-03:00",
    "ultimo_erro": null
   },
   "pelando.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:12:43-03:00",
+   "ultimo_ok": "2026-11-07T19:47:44-03:00",
    "ultimo_erro": null
   },
   "telegram.usuario": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:14:29-03:00",
+   "ultimo_ok": "2026-11-07T19:49:19-03:00",
    "ultimo_erro": null
   },
   "amazon.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:13:29-03:00",
+   "ultimo_ok": "2026-11-07T19:48:22-03:00",
    "ultimo_erro": null
   },
   "casasbahia.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:14:00-03:00",
+   "ultimo_ok": "2026-11-07T19:48:50-03:00",
    "ultimo_erro": null
   },
   "netshoes": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-07T14:14:10-03:00",
+   "ultimo_ok": "2026-11-07T19:49:00-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.produtos": {
-   "falhas": 2,
+   "falhas": 3,
    "ultimo_ok": "2026-11-07T10:43:31-03:00",
-   "ultimo_erro": "2026-11-07T14:14:28-03:00 RuntimeError: Mercado Livre pediu verificação anti-bot no catálogo do PS5; próxima tentativa em 2 h"
+   "ultimo_erro": "2026-11-07T19:49:18-03:00 RuntimeError: Mercado Livre pediu verificação anti-bot no catálogo do PS5; próxima tentativa em 2 h"
   }
  },
  "confianca": {
