@@ -320,7 +320,10 @@ def test_entrega_estimada_pela_loja_quando_a_fonte_nao_diz():
     assert produtos.entrega(Oferta("x", "loja", "Amazon", "PS5", "u", "q", preco=3800.0, modelo="PS5_DIGITAL")) is None
 
 
-def test_meta_do_kit_e_do_gift_card():
+def test_meta_do_kit_e_do_gift_card(monkeypatch):
+    # fora da janela de 01/11 a 11/11/2026 (perto do prazo da pré-venda a meta do gift card cai para 10%): o teste não
+    # pode depender da data em que roda
+    monkeypatch.setattr(produtos, "JANELA_GIFT_ACEITAVEL", ("2000-01-01", "2000-01-01"))
     kit = Oferta("x", "post", "KaBuM!", "Console PS5 Slim Digital + 2 Controles", "u", "k", preco=3800.0,
                  modelo="PS5_KIT")
     assert produtos.alvos_da_oferta(kit) == (3850.0, 4000.0, "meta do PS5 Slim Digital + R$ 300 do extra")

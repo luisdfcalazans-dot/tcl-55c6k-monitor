@@ -238,7 +238,10 @@ def test_kit_entra_so_quando_e_o_caminho_mais_barato(amb):
     assert tc.por_modelo(anuncios) == {}, "sem anúncio do principal na loja: o caminho não é testado"
 
 
-def test_gift_card_so_de_loja_oficial_e_vira_caminho_do_gta():
+def test_gift_card_so_de_loja_oficial_e_vira_caminho_do_gta(monkeypatch):
+    # fora da janela de 01/11 a 11/11/2026 (perto do prazo da pré-venda a meta do gift card cai para 10%): o teste não
+    # pode depender da data em que roda
+    monkeypatch.setattr(produtos, "JANELA_GIFT_ACEITAVEL", ("2000-01-01", "2000-01-01"))
     ml = MercadoLivre()
     url = "https://produto.mercadolivre.com.br/MLB-50200776-gift-card-playstation-r-100-_JM"
     base = {"fonte": "mercadolivre", "tipo": "loja", "loja": "Mercado Livre", "titulo": "Gift Card PlayStation R$ 100",
