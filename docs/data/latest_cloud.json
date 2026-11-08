@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-08T09:32:05-03:00",
+ "atualizado": "2026-11-08T14:32:42-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -666,6 +666,48 @@
    "melhor_preco": 360.0
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Videogame Sony PS5 Diablo IV para Xbox",
+   "url": "https://www.magazineluiza.com.br/videogame-sony-ps5-diablo-iv-para-xbox/p/hh31e551ag/ga/otga/",
+   "id": "hh31e551ag-nocnocestadosunidos",
+   "preco": 424.84,
+   "preco_pix": 395.1,
+   "parcelado": "7x R$ 60,69 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 449.55,
+    "1p": false,
+    "anuncio": "hh31e551ag",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.09,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 4.4
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": true
+    },
+    "descartado": "fora da faixa do produto (2500 a 7000)",
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:hh31e551ag-nocnocestadosunidos",
+   "melhor_preco": 395.1
+  },
+  {
    "fonte": "vtex.fastshop.ps5",
    "tipo": "loja",
    "loja": "Fast Shop",
@@ -1266,9 +1308,9 @@
    "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
    "url": "https://www.kabum.com.br/produto/989702",
    "id": "989702",
-   "preco": 4692.51,
-   "preco_pix": 4364.03,
-   "parcelado": "10x de R$ 469,25 sem juros",
+   "preco": 4644.19,
+   "preco_pix": 4319.1,
+   "parcelado": "10x de R$ 464,41 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -1276,6 +1318,7 @@
    "extra": {
     "preco_tabela": 4692.51,
     "openbox": false,
+    "oferta": "NINJA FRIDAY",
     "kabum_seller_id": "0",
     "kabum_oferta_id": 0,
     "produto": {
@@ -1292,7 +1335,67 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "kabum.produtos:989702",
-   "melhor_preco": 4364.03
+   "melhor_preco": 4319.1
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
+   "id": "aebh5a7a94-kabum",
+   "preco": 4644.18,
+   "preco_pix": 4365.53,
+   "parcelado": "10x R$ 464,42 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 4692.51,
+    "1p": false,
+    "anuncio": "aebh5a7a94",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 3621,
+     "peso_kg": 3.808,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.2
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas",
+      "catálogo da loja"
+     ],
+     "sinais": [],
+     "codigos": [],
+     "catalogo": {
+      "total": 3367,
+      "tv": 26,
+      "games": 162
+     }
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:aebh5a7a94-kabum",
+   "melhor_preco": 4365.53
   },
   {
    "fonte": "mercadolivre.playstation",
@@ -1446,66 +1549,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "kabum.produtos:1050570",
    "melhor_preco": 4370.07
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
-   "id": "aebh5a7a94-kabum",
-   "preco": 4692.51,
-   "preco_pix": 4410.96,
-   "parcelado": "10x R$ 469,25 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_de": 4692.51,
-    "1p": false,
-    "anuncio": "aebh5a7a94",
-    "vendedor_id": "kabum",
-    "ficha": {
-     "avaliacoes": 3621,
-     "peso_kg": 3.808,
-     "razao_social": "KABUM S.A.",
-     "vendedor_desde": "2021-06-30",
-     "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.2
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas",
-      "catálogo da loja"
-     ],
-     "sinais": [],
-     "codigos": [],
-     "catalogo": {
-      "total": 3367,
-      "tv": 26,
-      "games": 162
-     }
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:aebh5a7a94-kabum",
-   "melhor_preco": 4410.96
   },
   {
    "fonte": "americanas",
@@ -2891,6 +2934,74 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-08T14:32:42-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "AliExpress",
+   "titulo": "Console PlayStation5 Slim Digital",
+   "url": "https://www.promobit.com.br/oferta/console-playstation5-slim-digital-3185916/",
+   "id": "3185916",
+   "preco": 3703.23,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "AFFNOV11",
+   "publicado": "2026-11-08T12:51:09-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 4749.0,
+    "status": "APPROVED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3185916",
+   "melhor_preco": 3703.23,
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
+   "ultimo_preco": 3703.23,
+   "menor_preco": 3703.23
+  },
+  {
+   "primeira_vez": "2026-11-08T14:32:42-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "AliExpress",
+   "titulo": "PlayStation 5 Slim 1TB 1 Controle Branco Sony",
+   "url": "https://www.promobit.com.br/oferta/playstation-5-slim-1tb-1-controle-branco-sony-3185783/",
+   "id": "3185783",
+   "preco": 4299.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "AFFNOV09 ou PAEL8366VTKP",
+   "publicado": "2026-11-08T12:12:31-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 5299.0,
+    "status": "FINISHED",
+    "produto": {
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "promobit:3185783",
+   "melhor_preco": 4299.0,
+   "ultima_vez": "2026-11-08T14:32:42-03:00"
+  },
+  {
    "primeira_vez": "2026-11-08T08:47:04-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -3088,7 +3199,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3184814",
    "melhor_preco": 379.0,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 379.0,
    "menor_preco": 379.0
   },
@@ -3126,7 +3237,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/84359#PS5_DIGITAL",
    "melhor_preco": 2879.1,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 2879.1,
    "menor_preco": 2879.1
   },
@@ -3161,7 +3272,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3184444",
    "melhor_preco": 6999.0,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 6999.0,
    "menor_preco": 6999.0
   },
@@ -3196,7 +3307,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3184314",
    "melhor_preco": 2879.1,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 2879.1,
    "menor_preco": 2879.1
   },
@@ -3231,7 +3342,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3184089",
    "melhor_preco": 4351.56,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 4351.56,
    "menor_preco": 4351.56
   },
@@ -3347,7 +3458,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3184002",
    "melhor_preco": 373.41,
-   "ultima_vez": "2026-11-08T09:32:03-03:00"
+   "ultima_vez": "2026-11-08T14:32:42-03:00"
   },
   {
    "primeira_vez": "2026-11-07T17:39:13-03:00",
@@ -3592,7 +3703,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:vrlofertas/72106#GTA6_CODE_IN_BOX",
    "melhor_preco": 373.41,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
+   "ultima_vez": "2026-11-08T14:32:42-03:00",
    "ultimo_preco": 373.41,
    "menor_preco": 373.41
   },
@@ -3679,7 +3790,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182840",
    "melhor_preco": 369.0,
-   "ultima_vez": "2026-11-08T09:32:03-03:00"
+   "ultima_vez": "2026-11-08T14:32:42-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -3719,7 +3830,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182807",
    "melhor_preco": 369.9,
-   "ultima_vez": "2026-11-08T09:32:03-03:00"
+   "ultima_vez": "2026-11-08T14:32:42-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -4406,76 +4517,6 @@
    "ultima_vez": "2026-11-06T16:57:38-03:00",
    "ultimo_preco": 3679.27,
    "menor_preco": 3679.27
-  },
-  {
-   "primeira_vez": "2026-11-06T16:42:53-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Amazon",
-   "titulo": "PlayStation5 Slim Digital 825GB Pacote ASTRO BOT e Gran Turismo 7",
-   "url": "https://www.promobit.com.br/oferta/playstation5-slim-digital-825gb-pacote-astro-bot-e-gran-turismo-7-3180271/",
-   "id": "3180271",
-   "preco": 4146.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-06T13:38:50-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 0.01,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3180271",
-   "melhor_preco": 4146.0,
-   "ultima_vez": "2026-11-06T21:34:54-03:00",
-   "ultimo_preco": 4146.0,
-   "menor_preco": 4146.0
-  },
-  {
-   "primeira_vez": "2026-11-06T16:42:53-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony Playstation 5 Ssd 825GB Controle Sem Fio Dualsense 2 Jogos Digitais Edicao Digital",
-   "url": "https://www.promobit.com.br/oferta/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital-3180139/",
-   "id": "3180139",
-   "preco": 3732.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "GTAHUMILDE",
-   "publicado": "2026-11-06T13:09:33-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4692.51,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3180139",
-   "melhor_preco": 3732.0,
-   "ultima_vez": "2026-11-08T09:32:03-03:00",
-   "ultimo_preco": 3732.0,
-   "menor_preco": 3732.0
   }
  ],
  "gta6_custo_final": [
@@ -5121,6 +5162,20 @@
   {
    "fonte": "promobit",
    "loja": "KaBuM!",
+   "codigo": "STAR100OFF",
+   "titulo": "A chance de economizar R$ 100 em compras na KaBuM!",
+   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
+   "id": "71386",
+   "regra": "produtos KaBuM!",
+   "validade": "2026-11-09T23:59:59-03:00",
+   "publicado": "2026-11-04T12:01:07-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:71386"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "KaBuM!",
    "codigo": "LOOT15",
    "titulo": "Cupom de desconto Kabum oferece 15% OFF em suas compras",
    "url": "https://www.promobit.com.br/cupons/loja/kabum/",
@@ -5131,20 +5186,6 @@
    "especifico": false,
    "modelo": null,
    "chave": "promobit:71380"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "KaBuM!",
-   "codigo": "FARMOU",
-   "titulo": "Cupom de desconto KaBuM! oferece 11% OFF em suas compras",
-   "url": "https://www.promobit.com.br/cupons/loja/kabum/",
-   "id": "71005",
-   "regra": "produtos KaBuM!",
-   "validade": "2026-11-09T23:59:59-03:00",
-   "publicado": "2026-10-22T10:40:22-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:71005"
   },
   {
    "fonte": "promobit",
@@ -5177,20 +5218,6 @@
   {
    "fonte": "promobit",
    "loja": "Fast Shop",
-   "codigo": "5OFF",
-   "titulo": "A chance de economizar 5% em compras na Fast Shop",
-   "url": "https://www.promobit.com.br/cupons/loja/fastshop/",
-   "id": "70912",
-   "regra": "produtos Fast Shop",
-   "validade": "2026-11-30T23:59:59-03:00",
-   "publicado": "2026-10-20T13:40:16-03:00",
-   "especifico": false,
-   "modelo": null,
-   "chave": "promobit:70912"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Fast Shop",
    "codigo": "PS5200",
    "titulo": "O momento chegou: Aplique cupom Fast Shop e ganhe R$ 5.229.90 OFF",
    "url": "https://www.promobit.com.br/cupons/loja/fastshop/",
@@ -5219,30 +5246,44 @@
   {
    "fonte": "promobit",
    "loja": "AliExpress",
-   "codigo": "AEMEGA3",
-   "titulo": "Cupom de desconto Aliexpress oferece R$ 50 OFF em suas compras",
+   "codigo": "AEMEGA7",
+   "titulo": "Cupom de desconto Aliexpress oferece R$ 2.569 OFF em suas compras",
    "url": "https://www.promobit.com.br/cupons/loja/aliexpress/",
-   "id": "71290",
+   "id": "71294",
    "regra": "produtos Aliexpress",
-   "validade": "2026-11-18T23:59:59-03:00",
-   "publicado": "2026-11-03T12:11:11-03:00",
+   "validade": "2026-11-10T23:59:59-03:00",
+   "publicado": "2026-11-03T12:11:12-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "promobit:71290"
+   "chave": "promobit:71294"
   },
   {
    "fonte": "promobit",
    "loja": "AliExpress",
-   "codigo": "AFFNOV07",
-   "titulo": "A chance de economizar R$ 400 em compras na Aliexpress",
+   "codigo": "AEMEGA1",
+   "titulo": "Cupom de desconto Aliexpress oferece R$ 16 OFF em suas compras",
    "url": "https://www.promobit.com.br/cupons/loja/aliexpress/",
-   "id": "71212",
+   "id": "71288",
    "regra": "produtos Aliexpress",
    "validade": "2026-11-18T23:59:59-03:00",
-   "publicado": "2026-10-29T00:10:12-03:00",
+   "publicado": "2026-11-03T12:11:10-03:00",
    "especifico": false,
    "modelo": null,
-   "chave": "promobit:71212"
+   "chave": "promobit:71288"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "AliExpress",
+   "codigo": "AFFNOV01",
+   "titulo": "A chance de economizar R$ 16 em compras na Aliexpress",
+   "url": "https://www.promobit.com.br/cupons/loja/aliexpress/",
+   "id": "71209",
+   "regra": "produtos Aliexpress",
+   "validade": "2026-11-18T23:59:59-03:00",
+   "publicado": "2026-10-29T00:10:11-03:00",
+   "especifico": false,
+   "modelo": null,
+   "chave": "promobit:71209"
   },
   {
    "fonte": "promobit",
@@ -5472,72 +5513,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:09-03:00",
+   "ultimo_ok": "2026-11-08T14:31:45-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:17-03:00",
+   "ultimo_ok": "2026-11-08T14:31:51-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:32:01-03:00",
+   "ultimo_ok": "2026-11-08T14:32:38-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:10-03:00",
+   "ultimo_ok": "2026-11-08T14:31:48-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:30-03:00",
+   "ultimo_ok": "2026-11-08T14:32:03-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:36-03:00",
+   "ultimo_ok": "2026-11-08T14:32:10-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:37-03:00",
+   "ultimo_ok": "2026-11-08T14:32:11-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:38-03:00",
+   "ultimo_ok": "2026-11-08T14:32:13-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:40-03:00",
+   "ultimo_ok": "2026-11-08T14:32:16-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:41-03:00",
+   "ultimo_ok": "2026-11-08T14:32:17-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 688,
+   "falhas": 689,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-08T09:31:47-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-08T14:32:23-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:49-03:00",
+   "ultimo_ok": "2026-11-08T14:32:25-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:51-03:00",
+   "ultimo_ok": "2026-11-08T14:32:26-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T09:31:53-03:00",
+   "ultimo_ok": "2026-11-08T14:32:28-03:00",
    "ultimo_erro": null
   }
  },
