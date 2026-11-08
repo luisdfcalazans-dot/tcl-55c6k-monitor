@@ -371,12 +371,14 @@ CUPONS_TELEGRAM_PODA_DIAS = float(_env("CUPONS_TELEGRAM_PODA_DIAS", "15"))
 TELEGRAM_CANAIS_CUPONS = [c.strip().lstrip("@") for c in _env("TELEGRAM_CANAIS_CUPONS", "chinacuponsbr").split(",")
                           if c.strip()]
 # busca t.me/s/<canal>?q=<termo> nos canais que postam listas de cupons: o Xavier posta ~3 vezes por minuto e a 1ª
-# página (20 posts) não cobre o intervalo entre rodadas; a busca por "OFF" traz as 20 listas mais recentes. Só os cupons
-# dessas páginas entram (as ofertas de produto continuam só da 1ª página)
+# página (20 posts) não cobre o intervalo entre rodadas; a busca por "OFF" traz as 20 listas mais recentes e a por
+# "esgot" os avisos de "Cupom X esgotou" (post curto, sem "OFF", que some da 1ª página em minutos). Só os cupons dessas
+# páginas entram (as ofertas de produto continuam só da 1ª página)
 TELEGRAM_BUSCA_CUPONS_CANAIS = [
     c.strip().lstrip("@") for c in
     _env("TELEGRAM_BUSCA_CUPONS_CANAIS", "xaviertechpromo,linguicapromocoes,IskandarSouza").split(",") if c.strip()]
-TELEGRAM_BUSCA_CUPONS_TERMOS = [t.strip() for t in _env("TELEGRAM_BUSCA_CUPONS_TERMOS", "OFF").split(",") if t.strip()]
+TELEGRAM_BUSCA_CUPONS_TERMOS = [t.strip() for t in _env("TELEGRAM_BUSCA_CUPONS_TERMOS", "OFF,esgot").split(",")
+                                if t.strip()]
 # canais que repostam o mesmo texto (contam como um só no número de grupos que citaram o código)
 TELEGRAM_GRUPOS_ESPELHO = ({"hardmob_promo", "ofertasdodia"}, {"IskandarSouza", "tecnoarthardware", "xaviertechpromo"})
 

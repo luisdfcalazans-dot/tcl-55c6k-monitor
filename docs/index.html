@@ -529,7 +529,7 @@ function painelDoModelo(modelo, ctx) {
   const tabela = lojas.length ? lojas.map(o => `<tr class="${o === melhor ? 'best' : suspeito(o) ? 'sus' : o._velho ? 'velho' : ''}">
     <td><b>${esc(o.loja)}</b>${selo(o)}${o.vendedor && o.vendedor !== o.loja ? `<span class="sub2">vendido por ${esc(o.vendedor)}</span>` : ''}${o.extra?.oferta ? `<span class="sub2">${esc(o.extra.oferta)}</span>` : ''}${ehTV(modelo) ? '' : infoProduto(o)}</td>
     <td class="num">${fmt(o.preco)}</td>
-    <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${o.extra?.preco_com_cupom ? `<span class="sub2">c/ cupom ${fmt(o.extra.preco_com_cupom)}</span>` : ''}</td>
+    <td class="num"><b>${o.preco_pix ? fmt(o.preco_pix) : (o.preco ? fmt(o.preco) : '—')}</b>${((cc, p) => cc && (!p || cc < p) ? `<span class="sub2">c/ cupom ${fmt(cc)}</span>` : '')(o.extra?.preco_melhor_cupom || o.extra?.preco_com_cupom, o.preco_pix || o.preco)}</td>
     <td class="num">${(pc => pc ? `<b>${fmt(pc.total)}</b>${melhorParc && melhorParc.o === o ? ' <span class="chip ok">melhor</span>' : ''}<span class="sub2">${esc(textoParc(pc))}</span>` : esc(o.parcelado || '—'))(parcela(o))}</td>
     <td>${o.cupom ? `<code>${esc(o.cupom)}</code>` : '—'}</td>
     <td><span class="chip mute">${esc(o.fonte)}</span>${ehAgregador(o) ? '<span class="sub2">agregador</span>' : ''}</td>

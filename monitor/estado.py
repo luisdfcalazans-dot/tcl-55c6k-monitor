@@ -196,6 +196,30 @@ def _minimo_dos_registros(registros: Any, diretas: set[str], bloqueado: Callable
             "url": r.get("url"), "titulo": r.get("titulo"), "modelo": modelo}
 
 
+def _iso_dt(v: Any) -> datetime | None:
+    try:
+        d = datetime.fromisoformat(str(v))
+    except (TypeError, ValueError):
+        return None
+    return d if d.tzinfo else d.replace(tzinfo=TZ_BR)
+
+
+def _mantem_esgotado(antigo: Any, novo: Any) -> dict:
+    """O 'extra' novo de um cupom do Telegram com o "esgotou" de uma rodada anterior (revisão de 08/11/2026): o post que
+    disse "esgotou" sai das páginas lidas em poucas horas, e a leitura seguinte (só com a lista antiga) apagava o aviso
+    e devolvia o código à lista. Fica o 'esgotado_em' mais novo, até aparecer uma citação ativa ('ultima_ativa') mais
+    nova que ele."""
+    novo = dict(novo) if isinstance(novo, dict) else {}
+    antes = _iso_dt(antigo.get("esgotado_em")) if isinstance(antigo, dict) else None
+    if antes is None:
+        return novo
+    agora_esg = _iso_dt(novo.get("esgotado_em"))
+    ativa = _iso_dt(novo.get("ultima_ativa"))
+    if (agora_esg is None or antes > agora_esg) and (ativa is None or ativa <= antes):
+        novo["esgotado_em"] = antigo["esgotado_em"]
+    return novo
+
+
 class Estado:
     def __init__(self, modo: str):
         self.modo = modo
@@ -656,7 +680,10 @@ class Estado:
 
     def registra_cupom(self, c: Cupom) -> None:
         reg = self.dados["cupons"].get(c.chave) or {"primeira_vez": agora_iso()}
-        reg.update(c.to_dict())
+        novo = c.to_dict()
+        if c.fonte in config.FONTES_CUPOM_SO_LISTA:
+            novo["extra"] = _mantem_esgotado(reg.get("extra"), novo.get("extra"))
+        reg.update(novo)
         reg["ultima_vez"] = agora_iso()
         self.dados["cupons"][c.chave] = reg
 

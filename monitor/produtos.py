@@ -1699,12 +1699,16 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
             como = "com a melhor combinação de gift cards vista" if cartoes is not None else \
                 f"com gift card a {desc * 100:.0f}% de desconto"
             out.append(f"💳 O gift card PSN só paga na PS Store: lá, {como}, sai por {_fmt(na_ps)}")
-    cc = preco_com_cupom_do_anuncio(o)
-    if cc and valor == cc[0]:
-        from .lista_cupons import texto_do_melhor_cupom
+    from .lista_cupons import texto_do_melhor_cupom
 
-        # o melhor cupom ativo da loja (lista de cupons; AliExpress, 08/11/2026) ou o cupom da página do anúncio
-        out.append(texto_do_melhor_cupom(o) or f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
+    cc = preco_com_cupom_do_anuncio(o)
+    # o melhor cupom ativo da loja (lista de cupons; AliExpress, 08/11/2026: a linha diz também com que cupom a meta
+    # foi conferida, e sai mesmo quando a meta fica com o preço sem cupom) ou o cupom da página do anúncio
+    txt_lista = texto_do_melhor_cupom(o)
+    if txt_lista:
+        out.append(txt_lista)
+    elif cc and valor == cc[0]:
+        out.append(f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
     if alvo.pix:
         meta = f"🎯 Meta: Pix {_fmt(alvo.pix)}"
         if alvo.parcelado and abs(alvo.parcelado - alvo.pix) > 0.5:

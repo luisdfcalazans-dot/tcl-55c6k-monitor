@@ -109,6 +109,74 @@ def test_vendedor_da_lista_de_confiaveis_quando_a_pagina_nao_diz_vendido_por():
     assert o.vendedor == "Magalu Store"
 
 
+def test_vendedor_pelo_nome_so_no_bloco_do_produto_e_so_no_item_do_catalogo():
+    # o nome da loja confiável só nos recomendados: não é o vendedor do item
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace("Vendido por\nMagalu Store\n", "").replace(
+        "Itens recomendados\n", "Itens recomendados\nMagalu Store\n")
+    assert ps.AliExpressProdutos._parse(HTML_OG, texto, [], ITEM, "PS5_DIGITAL").vendedor is None
+    # item fora do catálogo (outra loja) que cita a confiável no topo: sem vendedor (as checagens de golpe valem)
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace("Vendido por\n", "")
+    assert ps.AliExpressProdutos._parse(HTML_OG, texto, [], "1005000000000001", "PS5_DIGITAL").vendedor is None
+
+
+# o topo da página sem o "-5%" e o "Economize" (sem eles, só os rótulos e o cupom da página dizem qual valor é o preço)
+_TOPO = "R$\n4\n.\n500\n,\n00\nR$4.749,00\n-5%\nEconomize R$249,00\n"
+
+
+@pytest.mark.parametrize("topo", [
+    "C/desconto\nR$3.830,00\nR$4.500,00\nR$4.749,00\n",              # rótulo na linha de cima
+    "R$3.830,00\nC/desconto\nR$4.500,00\nR$4.749,00\n",              # rótulo na linha de baixo
+    "R$\n3\n.\n830\n,\n00\nPreço estimado\nR$4.500,00\nR$4.749,00\n",  # estilo do app
+    "R$3.830,00\nApós cupons\nR$4.500,00\nR$4.749,00\n",
+    "R$3.830,00\nR$4.500,00\nR$4.749,00\n",                          # sem rótulo: 4.500 - 3.830 = o cupom da página
+    "Em até 12x de\nR$ 375,00\nR$4.500,00\nR$4.749,00\n",            # parcela quebrada antes do preço
+])
+def test_preco_com_cupom_da_pagina_nao_vira_o_preco_do_item(topo):
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace(_TOPO, topo)
+    o = ps.AliExpressProdutos._parse(HTML_OG, texto, [], ITEM, "PS5_DIGITAL")
+    assert (o.preco, o.extra.get("preco_original")) == (4500.0, 4749.0)
+
+
+def test_preco_e_riscado_pelo_economize_ou_pelo_percentual_em_qualquer_ordem():
+    base = _fx("aliexpress_item_ps5_texto_2026-11-08.txt")
+    # o riscado antes do preço, com o "Economize R$249,00"
+    o = ps.AliExpressProdutos._parse(HTML_OG, base.replace("R$\n4\n.\n500\n,\n00\nR$4.749,00",
+                                                           "R$4.749,00\nR$\n4\n.\n500\n,\n00"), [], ITEM, "PS5_DIGITAL")
+    assert (o.preco, o.extra.get("preco_original")) == (4500.0, 4749.0)
+    # só com o "-5%"
+    o = ps.AliExpressProdutos._parse(HTML_OG, base.replace(_TOPO, "R$4.749,00\nR$4.500,00\n-5%\n"), [], ITEM,
+                                     "PS5_DIGITAL")
+    assert (o.preco, o.extra.get("preco_original")) == (4500.0, 4749.0)
+    # o "Economize" escolhe o par mesmo com o preço com cupom (sem rótulo) no meio
+    o = ps.AliExpressProdutos._parse(HTML_OG, base.replace(_TOPO, "R$3.830,00\nR$4.500,00\nR$4.749,00\n"
+                                                                  "Economize R$249,00\n"), [], ITEM, "PS5_DIGITAL")
+    assert (o.preco, o.extra.get("preco_original")) == (4500.0, 4749.0)
+
+
+def test_na_duvida_entre_preco_com_cupom_e_preco_nao_devolve_preco():
+    # dois valores, a diferença é o cupom da página e não há riscado depois: pode ser "com cupom" e "preço"
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace(_TOPO, "R$3.830,00\nR$4.500,00\n")
+    assert ps.AliExpressProdutos._parse(HTML_OG, texto, [], ITEM, "PS5_DIGITAL") is None
+
+
+def test_api_le_cada_campo_no_modulo_dele():
+    capt = _api()
+    res = capt[0]["json"]["data"]["result"]
+    # "displayAmount" no PRICE não é frete; um recomendado antes de tudo não dá título, preço nem loja
+    res["PRICE"]["targetSkuPriceInfo"]["displayAmount"] = 4500
+    capt[0]["json"]["data"]["result"] = {"RECOMMEND": {"subject": "Controle DualSense", "salePriceString": "R$399,00",
+                                                       "storeName": "Outra Loja"}, **res}
+    o = ps.AliExpressProdutos._parse(HTML_OG, TEXTO_VAZIO, capt, ITEM, "PS5_DIGITAL")
+    assert (o.preco, o.vendedor, o.extra["frete"]) == (4500.0, "Magalu Store", 21.63)
+    assert o.titulo == "PlayStation 5 Edição Digital 825GB 1 Controle Branco Sony"
+    assert o.extra["cupom_pagina"] == "R$670,00 OFF em compras acima de R$4.200,00"   # módulo COUPON
+    # resposta sem módulo conhecido: a busca solta, sem o "displayAmount" como frete
+    solta = [{"url": URL_API, "json": {"data": {"x": {"salePriceString": "R$4.500,00", "displayAmount": 4500,
+                                                      "storeName": "Magalu Store"}}, "ret": ["SUCCESS"]}}]
+    d = ps._ali_da_api(solta)
+    assert (d["preco"], d["vendedor"], d.get("frete")) == (4500.0, "Magalu Store", None)
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # coleta: 1 página por rodada, bloqueio
 # ---------------------------------------------------------------------------------------------------------------------
@@ -296,23 +364,85 @@ def test_aplica_melhor_cupom_no_anuncio_do_aliexpress():
     regs = HOJE + [_c("AFFNOV11", "R$ 785 OFF acima de R$ 4.200")]
     assert lc.aplica_melhor_cupom([o, kabum], regs, expirados=set()) == 1
     assert kabum.extra == {} and kabum.cupom is None
-    assert o.extra["preco_com_cupom"] == 3736.63            # 4.500 - 785 + 21,63 de frete
-    assert (o.extra["cupom_preco"], o.extra["cupom_origem"], o.cupom) == ("AFFNOV11", "lista", "AFFNOV11")
-    assert o.extra["cupom_regra"] == "R$ 785 OFF acima de R$ 4.200"
+    # o melhor código: o que o usuário digita (e o painel mostra)
+    assert o.extra["preco_melhor_cupom"] == 3736.63            # 4.500 - 785 + 21,63 de frete
+    assert (o.extra["cupom_melhor"], o.extra["cupom_origem"], o.cupom) == ("AFFNOV11", "lista", "AFFNOV11")
     assert [a["codigo"] for a in o.extra["cupons_alternativos"]] == ["AFFNOV09", "AFFNOV22", "AEMEGA8"]
-    assert produtos.preco_com_cupom_do_anuncio(o) == (3736.63, "AFFNOV11")
-    assert produtos.preco_comparavel(o) == 3736.63
+    # a meta conta com o 2º melhor (o AFFNOV11 pode ter esgotado para quem não resgatou), melhor que o do app (AFFNOV22)
+    assert (o.extra["preco_com_cupom"], o.extra["cupom_preco"], o.extra["cupom_meta"]) == (3771.63, "AFFNOV09",
+                                                                                         "alternativa")
+    assert o.extra["cupom_regra"] == "R$ 750 OFF acima de R$ 4.500"
+    assert produtos.preco_com_cupom_do_anuncio(o) == (3771.63, "AFFNOV09")
+    assert produtos.preco_comparavel(o) == 3771.63
     linhas = "\n".join(produtos.linhas_da_oferta(o))
     assert ("🎟️ Com o cupom AFFNOV11 (melhor cupom AliExpress ativo; 1 por pedido, digite no app): R$ 3.736,63 "
-            "(item R$ 4.500 − R$ 785 + frete R$ 21,63) · se esgotado: AFFNOV09 → R$ 3.771,63, AFFNOV22 → R$ 3.851,63") \
-        in linhas
-    # R$ 3.736,63 ainda está acima da meta do PS5 Digital: sem 🎯; num item de R$ 4.200 o cupom põe abaixo
+            "(item R$ 4.500 − R$ 785 + frete R$ 21,63) · se esgotado: AFFNOV09 → R$ 3.771,63, AFFNOV22 → R$ 3.851,63"
+            " · a meta usa AFFNOV09 (R$ 3.771,63), caso o AFFNOV11 já tenha esgotado") in linhas
+    assert "R$ 221,63 acima da meta" in linhas
     assert produtos.preco_comparavel(o) > config.alvo_pix("PS5_DIGITAL")
+    # num item de R$ 4.200 só o AFFNOV11 poria abaixo da meta: o 2º (AFFNOV22, o que o app aplica) deixa acima, sem 🎯
     o2 = ps.AliExpressProdutos._parse(HTML_OG, _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace(
-        "R$\n4\n.\n500\n,\n00", "R$ 4.200,00"), [], ITEM, "PS5_DIGITAL")
+        "R$\n4\n.\n500\n,\n00", "R$ 4.200,00").replace("Economize R$249,00", "Economize R$549,00"), [], ITEM,
+        "PS5_DIGITAL")
     lc.aplica_melhor_cupom([o2], regs, expirados=set())
-    assert o2.extra["cupom_preco"] == "AFFNOV11" and produtos.preco_comparavel(o2) == 3436.63
+    assert (o2.extra["cupom_melhor"], o2.extra["preco_melhor_cupom"]) == ("AFFNOV11", 3436.63)
+    assert (o2.extra["cupom_preco"], produtos.preco_comparavel(o2)) == ("AFFNOV22", 3551.63)
+    assert produtos.preco_comparavel(o2) > config.alvo_pix("PS5_DIGITAL")
+    # com dois códigos fortes (de 10 a 12/11: IFP de R$ 800 em R$ 4.000 e o AFFNOV11), o 🎯 vale mesmo se um esgotar
+    lc.aplica_melhor_cupom([o2], regs + [_c("IFPTS24X", "R$ 800 OFF acima de R$ 4.000")], expirados=set())
+    assert (o2.extra["cupom_melhor"], o2.extra["cupom_preco"], produtos.preco_comparavel(o2)) == \
+        ("IFPTS24X", "AFFNOV11", 3436.63)
     assert produtos.preco_comparavel(o2) <= config.alvo_pix("PS5_DIGITAL")
+
+
+def test_meta_com_o_cupom_que_o_app_aplica_ou_sem_cupom():
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt")
+    # um código só, mas a página mostra o cupom de R$ 670 (o app aplica sozinho): a meta usa o do app
+    o = ps.AliExpressProdutos._parse(HTML_OG, texto, [], ITEM, "PS5_DIGITAL")
+    lc.aplica_melhor_cupom([o], [_c("AFFNOV09", "R$ 750 OFF acima de R$ 4.500")], expirados=set())
+    assert (o.extra["cupom_melhor"], o.extra["cupom_preco"], o.extra["preco_com_cupom"]) == \
+        ("AFFNOV09", lc.CUPOM_DO_APP, 3851.63)
+    assert "a meta usa o cupom que o app aplica sozinho (R$ 3.851,63)" in lc.texto_do_melhor_cupom(o)
+    # o código da lista com o valor do cupom da página é o próprio: a meta usa ele
+    lc.aplica_melhor_cupom([o], [_c("AFFNOV22", "R$ 670 OFF acima de R$ 4.200")], expirados=set())
+    assert (o.extra["cupom_melhor"], o.extra["cupom_preco"], o.extra["preco_com_cupom"]) == ("AFFNOV22", "AFFNOV22",
+                                                                                           3851.63)
+    assert "a meta usa" not in lc.texto_do_melhor_cupom(o)
+    # sem o cupom da página e com um código só: a meta fica com o preço sem cupom (a linha do cupom sai igual)
+    sem = ps.AliExpressProdutos._parse(HTML_OG, texto.replace("R$670,00 OFF em compras acima de R$4.200,00\n", ""), [],
+                                       ITEM, "PS5_DIGITAL")
+    lc.aplica_melhor_cupom([sem], [_c("AFFNOV11", "R$ 785 OFF acima de R$ 4.200")], expirados=set())
+    assert "preco_com_cupom" not in sem.extra and sem.extra["cupom_melhor"] == "AFFNOV11"
+    assert produtos.preco_comparavel(sem) == 4500.0
+    linhas = "\n".join(produtos.linhas_da_oferta(sem))
+    assert "Com o cupom AFFNOV11" in linhas and "a meta usa o preço sem cupom (só o AFFNOV11 vale aqui)" in linhas
+
+
+def test_rodada_do_pc_com_item_de_4300_nao_da_alvo_so_pelo_melhor_codigo(isolado, monkeypatch, capsys):
+    """Revisão de 08/11: com o item a R$ 4.300, só o AFFNOV11 (provavelmente esgotado) punha o PS5 abaixo da meta."""
+    texto = _fx("aliexpress_item_ps5_texto_2026-11-08.txt").replace("R$\n4\n.\n500\n,\n00", "R$4.300,00").replace(
+        "Economize R$249,00", "Economize R$449,00")
+    out = _rodada_pc(isolado, monkeypatch, capsys, texto, HOJE + [_c("AFFNOV11", "R$ 785 OFF acima de R$ 4.200")])
+    assert "🎯" not in out
+    lt = json.loads((isolado / "latest_pc.json").read_text(encoding="utf-8"))
+    [reg] = [o for o in lt["ofertas_loja"] if o.get("fonte") == "aliexpress.produtos"]
+    assert (reg["preco"], reg["extra"]["cupom_melhor"], reg["extra"]["cupom_preco"], reg["extra"]["preco_com_cupom"]) == \
+        (4300.0, "AFFNOV11", "AFFNOV22", 3651.63)
+
+
+def test_total_com_cupom_acima_do_item_nao_vira_preco_com_cupom():
+    o = Oferta(fonte="aliexpress.produtos", tipo="loja", loja="AliExpress", titulo="PS5 Digital", url="u", id=ITEM,
+               preco=4500.0, modelo="PS5_DIGITAL", extra={"frete": 900.0})
+    lc.aplica_melhor_cupom([o], HOJE, expirados=set())
+    assert o.extra["cupom_melhor"] == "AFFNOV09" and "preco_com_cupom" not in o.extra
+    assert produtos.preco_com_cupom_do_anuncio(o) is None
+
+
+def test_percentual_sem_teto_nao_vira_desconto_irreal():
+    # "25% OFF" sem teto (a linha de desconto do produto lida como cupom): fora da conta num item de R$ 4.500
+    assert _opcoes(4500, [_c("PCT25", "25% OFF")]) == []
+    # % pequeno sem teto continua (até 15% do item)
+    assert _opcoes(4500, [_c("PCT10", "10% OFF acima de R$ 149")]) == [("PCT10", 450.0)]
 
 
 def test_sem_cupom_que_sirva_nada_muda():
@@ -321,19 +451,18 @@ def test_sem_cupom_que_sirva_nada_muda():
     assert "preco_com_cupom" not in o.extra and produtos.preco_comparavel(o) == 4500.0
 
 
-def test_run_pc_grava_o_preco_com_o_melhor_cupom_no_latest(isolado, monkeypatch, capsys):
-    """Rodada do pc com o item do AliExpress e os cupons do Telegram que a nuvem gravou no state dela."""
+def _rodada_pc(isolado, monkeypatch, capsys, texto: str, cupons_da_nuvem: list[dict]) -> str:
+    """Uma rodada do pc com o item do AliExpress (texto da página) e os cupons do Telegram que a nuvem gravou no state
+    dela; devolve o que a rodada imprimiu."""
     import run
     from monitor import sources
 
     st = {"ofertas": {}, "cupons": {}, "minimo": None, "saude": {}, "ultimo_resumo": hoje(),
           "criado_em": "2026-09-13T15:22:00-03:00", "cupons_alertados": {}, "modelos_iniciados": list(produtos.IDS)}
     (isolado / "state_pc.json").write_text(json.dumps(st), encoding="utf-8")
-    nuvem = dict(st, cupons={f"telegram:{r['id']}": dict(r, ultima_vez=agora_iso())
-                             for r in HOJE + [_c("AFFNOV11", "R$ 785 OFF acima de R$ 4.200")]})
+    nuvem = dict(st, cupons={f"telegram:{r['id']}": dict(r, ultima_vez=agora_iso()) for r in cupons_da_nuvem})
     (isolado / "state_cloud.json").write_text(json.dumps(nuvem), encoding="utf-8")
-    oferta = ps.AliExpressProdutos._parse(HTML_OG, _fx("aliexpress_item_ps5_texto_2026-11-08.txt"), [], ITEM,
-                                          "PS5_DIGITAL")
+    oferta = ps.AliExpressProdutos._parse(HTML_OG, texto, [], ITEM, "PS5_DIGITAL")
 
     class Fake(sources.Fonte):
         nome = "aliexpress.produtos"
@@ -347,8 +476,16 @@ def test_run_pc_grava_o_preco_com_o_melhor_cupom_no_latest(isolado, monkeypatch,
     monkeypatch.setattr(config, "TELEGRAM_BOT_TOKEN", "")
     monkeypatch.setattr(sys, "argv", ["run.py", "--mode", "pc", "--no-notify"])
     assert run.main() == 0
-    assert "melhor cupom do AliExpress calculado em 1" in capsys.readouterr().out
+    return capsys.readouterr().out
+
+
+def test_run_pc_grava_o_preco_com_o_melhor_cupom_no_latest(isolado, monkeypatch, capsys):
+    """Rodada do pc com o item do AliExpress e os cupons do Telegram que a nuvem gravou no state dela."""
+    out = _rodada_pc(isolado, monkeypatch, capsys, _fx("aliexpress_item_ps5_texto_2026-11-08.txt"),
+                     HOJE + [_c("AFFNOV11", "R$ 785 OFF acima de R$ 4.200")])
+    assert "melhor cupom do AliExpress calculado em 1" in out
     lt = json.loads((isolado / "latest_pc.json").read_text(encoding="utf-8"))
     [reg] = [o for o in lt["ofertas_loja"] if o.get("fonte") == "aliexpress.produtos"]
-    assert reg["extra"]["preco_com_cupom"] == 3736.63 and reg["extra"]["cupom_preco"] == "AFFNOV11"
-    assert reg["vendedor"] == "Magalu Store"
+    assert reg["extra"]["preco_melhor_cupom"] == 3736.63 and reg["extra"]["cupom_melhor"] == "AFFNOV11"
+    assert reg["extra"]["preco_com_cupom"] == 3771.63 and reg["extra"]["cupom_preco"] == "AFFNOV09"
+    assert reg["vendedor"] == "Magalu Store" and reg["cupom"] == "AFFNOV11"

@@ -117,9 +117,9 @@ def test_codigos_da_plataforma_dizem_a_loja_sem_link_nem_cabecalho():
     ("Cupons AliExpress\nAFFNOV04 R$ 125 OFF acima de R$ 740\nAFFNOV22 R$ 670 OFF acima de R$ 4.200 🆕",
      ["https://cupom.cc/abc"],
      [("AliExpress", "AFFNOV04", "R$ 125 OFF acima de R$ 740"), ("AliExpress", "AFFNOV22", "R$ 670 OFF acima de R$ 4.200")]),
-    # Iskandar no ML, em 3 linhas
+    # Iskandar no ML, em 3 linhas (a do meio é a categoria do cupom)
     ("📝 TAMOSJUNTO 👉 10% OFF\nTecnologia\nCompra mínima: R$149 | Desconto máx: R$200", [MELI],
-     [("Mercado Livre", "TAMOSJUNTO", "10% OFF acima de R$ 149, limite de R$ 200")]),
+     [("Mercado Livre", "TAMOSJUNTO", "10% OFF em Tecnologia acima de R$ 149, limite de R$ 200")]),
 ])
 def test_codigo_embaixo_ou_antes_do_valor(texto, links, esperado):
     assert _trios(_cits(texto, links)) == esperado
@@ -274,8 +274,11 @@ def test_esgotado_no_texto_riscado_e_aviso_solto():
     # o promotop edita o post original
     [c] = _cits("❌Cupom Esgotado❌\n🚨 Console PS5 Digital\n💵 R$ 3.690\n🎯 Usem o cupom: AFFNOV11\n" + ALI, [ALI])
     assert c.esgotado
-    # sem loja conhecida (nem link, nem prefixo da plataforma), o aviso fica de fora
-    assert _cits("Cupom AMAIOR50 esgotado!") == []
+    # sem loja conhecida (nem link, nem prefixo da plataforma): o "esgotou" vale para o código em qualquer loja
+    [c] = _cits("Cupom AMAIOR50 esgotado!")
+    assert (c.loja, c.codigo, c.esgotado) == (ct.LOJA_QUALQUER, "AMAIOR50", True)
+    # o código ativo sem loja continua de fora
+    assert _cits("🎟 Cupom: AMAIOR50") == []
 
 
 def test_quem_resgatou_vira_restricao():
@@ -357,6 +360,206 @@ def test_esgotado_depois_da_ultima_citacao_ativa():
 
 
 # ---------------------------------------------------------------------------------------------------------------------
+# revisão de 08/11/2026: esgotado, datas, desconto do produto, mínimo/teto entre parênteses, escopo e códigos
+# ---------------------------------------------------------------------------------------------------------------------
+@pytest.mark.parametrize("texto, links", [
+    # xaviertechpromo/285372 e /293278
+    ("🚨 Perfume Versace Crystal Noir EDP 30ml Feminino\n💵 R$ 318,00\n🎟 Cupom: TODOSITECOMPRITTAS\n" + MELI +
+     "\nClique abaixo para adquirir o seu antes que o estoque esgote\nOferta por tempo limitado!", [MELI]),
+    # xaviertechpromo/115142: o post diz que o cupom VOLTOU
+    ("🚨 Pra quem não viu ontem, voltou o cupom da Amazon, corre antes que esgote de novo!!! 🔥\n‼️ Apple iPhone 16 (128 GB)\n"
+     "Saindo a R$ 4389 no pix\n🤑 Resgate o cupom CELULAR10 de desconto no anúncio", ["https://www.amazon.com.br/dp/X"]),
+    # xaviertechpromo/164742, /246835, /282517 e linguicapromocoes/53941
+    ("🚨 5.5 NÃo ACABOU\n💵 Kit 9 Potes Mantimentos Vidro\n💰 R$ 74 com cupom: CASA25", [MELI]),
+    ("🚨 ACABOU A BRIGA PARA LAVAR LOUÇA\nLava Louças 8 Serviços Preta\n- resgate o cupom NOITE8DO8 do anuncio\n"
+     "1.429,10 no pix", ["https://www.amazon.com.br/dp/X"]),
+    ("🚨 Perfume Club De Nuit Intense\n💵 R$ 182\n🎟 Cupom: APLICANDO + aproveita antes que esgote", [MELI]),
+    ("💲 ️ CALOR INSUPORTÁVEL ACABOU HOJE MESMO\n🏷 R$ 1529 no PIX com cupom:\nSUPERVANTAGEM", [MELI]),
+    # formato do hardmob/OfertasDoDia: o "❌ De:" é o preço antigo
+    ("💥 Console PlayStation 5 Slim Digital\n❌ De: R$4.749,00\n✅ Por: R$3.690,00\n🔻 22% de desconto\n"
+     "🎟️ Cupom: AFFNOV11\n🏪 Loja: #AliExpress", ["https://cupom.cc/abc"]),
+    ("PS5 Slim\n💵 R$ 3.690\n🎟 Cupom: AFFNOV11\n❌ Não vale para Pix", [ALI]),
+    ("⚠️ Cupom esgotando rápido!\nPS5 Slim\n💵 R$ 3.690\n🎟 Cupom: AFFNOV11", [ALI]),
+    ("PS5 Slim\n💵 R$ 3.690\n🎟 Cupom: AFFNOV11 ou AFFNOV09\n⚠️ Se esgotar, tente o outro", [ALI]),
+    ("PS5 Slim\n💵 R$ 3.690\n🎟 Cupom: AFFNOV11 (o cupom ainda não esgotou)", [ALI]),
+    # xaviertechpromo/290830: o código é ESGOTE
+    ("🚨 Micro-ondas Britânia 20L\n💵 Por R$ 379,91\n🎟 Cupom: ESGOTE + Garimpodonossolar", ["https://s.shopee.com.br/x"]),
+])
+def test_falso_esgotado_dos_posts_reais(texto, links):
+    cits = _cits(texto, links, codes=["ESGOTE", "APLICANDO"])
+    assert cits and not any(c.esgotado for c in cits), [(c.codigo, c.esgotado) for c in cits]
+
+
+def test_esgotado_de_verdade_nos_formatos_reais():
+    # hardmob_promo/66292
+    [c] = _cits("😍 Deixa o carrinho pronto 😉\n❌ Cupom: SUPERMELI ESGOTADO ❌\n🏪 Loja: #MercadoLivre", [MELI])
+    assert (c.codigo, c.esgotado) == ("SUPERMELI", True)
+    # hardmob_promo/96901: o esgotado é de um código; o outro do mesmo post está ativo
+    cits = {c.codigo: c for c in _cits("🚀 cupom *DESCONTO18* esgotado\n🎟️ Cupom: MANUGAVASSI15\n🏪 Loja: #MercadoLivre",
+                                       [MELI])}
+    assert cits["DESCONTO18"].esgotado and not cits["MANUGAVASSI15"].esgotado
+    # hardmob_promo/137958: o status vale para o código da esquerda
+    cits = _cits("💥 CUPOM MELIPROMO ESGOTADO ❌\n🎟️ Cupons: MELIPROMO - ESGOTADO - COMECOU12H - ATIVO\n"
+                 "🏪 Loja: #MercadoLivre", [MELI])
+    assert {(c.codigo, c.esgotado) for c in cits} == {("MELIPROMO", True), ("COMECOU12H", False)}
+    # promotop/259752: a linha só com o status, no post de produto
+    [c] = _cits("Monitor Gamer AOC AGON\n🔥 Por: R$ 981,57 à vista\n🎯 Usem o cupom: 150SITE\n🛒 " + MELI + "\n❌ ESGOTADO ❌",
+                [MELI])
+    assert c.esgotado
+    # xaviertechpromo/97602
+    [c] = _cits("🚨 cupom DESCONTAML acabou ❌\n" + MELI, [MELI])
+    assert (c.codigo, c.esgotado) == ("DESCONTAML", True)
+
+
+def test_post_de_produto_com_preco_antigo_nao_tira_o_codigo_das_outras_fontes():
+    lista = _cits("🚨 Cupons novos AliExpress\n🏷 R$ 785 OFF em R$ 4200: AFFNOV11\n🏷 R$ 750 OFF em R$ 4500: AFFNOV09",
+                  [ALI], canal="xaviertechpromo", post="xaviertechpromo/1", publicado=_iso(hours=4))
+    hard = _cits("💥 Console PlayStation 5 Slim Digital\n❌ De: R$4.749,00\n✅ Por: R$3.690,00\n🔻 22% de desconto\n"
+                 "🎟️ Cupom: AFFNOV11\n🏪 Loja: #AliExpress", ["https://cupom.cc/abc"], canal="hardmob_promo",
+                 post="hardmob_promo/2", publicado=_iso(hours=1))
+    # a linha "🔻 22% de desconto" é do produto: o AFFNOV11 do hardmob não ganha "22% OFF"
+    assert [(c.codigo, c.chave_valor, c.esgotado) for c in hard] == [("AFFNOV11", "post", False)]
+    regs = [c.to_dict() for c in ct.consolida(lista + hard)]
+    regs.append({"fonte": "promobit", "loja": "AliExpress", "codigo": "AFFNOV11", "titulo": "R$ 785 OFF acima de R$ 4.200",
+                 "url": "u", "id": "p1", "publicado": _iso(hours=8),
+                 "validade": (agora() + timedelta(days=10)).date().isoformat()})
+    assert [r["codigo"] for r in lc.cupons_ativos(regs, set())["AliExpress"]][:2] == ["AFFNOV11", "AFFNOV09"]
+
+
+def test_esgotou_sem_loja_tira_o_codigo_de_qualquer_loja():
+    promobit = {"fonte": "promobit", "loja": "Mercado Livre", "codigo": "AMIGOVIP", "titulo": "15% OFF acima de R$ 99",
+                "url": "u", "id": "p1", "publicado": _iso(hours=5)}
+    assert lc.cupons_ativos([promobit], set())["Mercado Livre"]
+    # IskandarSouza/193274 ("Cupom MELIPROMO3111 esgotou ‼️"): sem link e sem prefixo da plataforma
+    [aviso] = ct.consolida(_cits("Cupom AMIGOVIP esgotou ‼️", post="IskandarSouza/1", publicado=_iso(hours=1)))
+    assert aviso.loja == ct.LOJA_QUALQUER and aviso.extra["esgotado_em"]
+    assert "Mercado Livre" not in lc.cupons_ativos([promobit, aviso.to_dict()], set())
+    assert ct.LOJA_QUALQUER not in lc.cupons_ativos([promobit, aviso.to_dict()], set())
+    # o código citado como ativo depois do aviso: fica
+    novo = dict(promobit, id="p2", publicado=_iso(minutes=10))
+    assert lc.cupons_ativos([promobit, novo, aviso.to_dict()], set())["Mercado Livre"]
+    # na mesma leitura, o aviso sem loja marca o registro da loja onde o código é citado
+    lista = _cits("🏷 15% OFF em R$ 99, Limite de R$ 30 OFF: AMIGOVIP", [MELI], post="x/1", publicado=_iso(hours=3))
+    cups = {c.loja: c for c in ct.consolida(lista + _cits("Cupom AMIGOVIP esgotou ‼️", post="i/2",
+                                                         publicado=_iso(hours=1)))}
+    assert cups["Mercado Livre"].extra.get("esgotado_em") and cups[ct.LOJA_QUALQUER].extra.get("esgotado_em")
+
+
+def test_esgotou_continua_valendo_depois_que_o_aviso_sai_das_paginas(dados):
+    lista = _cits("🚨 Cupons novos AliExpress\n🏷 R$ 785 OFF em R$ 4200: AFFNOV11\n🏷 R$ 750 OFF em R$ 4500: AFFNOV09",
+                  canal="xaviertechpromo", post="xaviertechpromo/1", publicado=_iso(hours=3))
+    esgotou = _cits("- O cupom AFFNOV11 esgotou, use o AFFNOV09", canal="IskandarSouza", post="IskandarSouza/2",
+                    publicado=_iso(hours=2))
+    e = Estado("cloud")
+
+    def rodada(cits):
+        cupons = ct.consolida(cits)
+        ativos = [r["codigo"] for r in lc.cupons_ativos(lc.cupons_conhecidos(e, cupons), set()).get("AliExpress", [])]
+        for c in cupons:
+            e.registra_cupom(c)
+        return ativos
+
+    assert rodada(lista + esgotou) == ["AFFNOV09"]
+    assert rodada(lista) == ["AFFNOV09"]     # o aviso saiu da página: o state guarda o "esgotou"
+    assert rodada(lista) == ["AFFNOV09"]
+    # uma citação ativa mais nova que o "esgotou": volta
+    voltou = _cits("🏷 R$ 785 OFF em R$ 4200: AFFNOV11", [ALI], post="xaviertechpromo/9", publicado=_iso(minutes=5))
+    assert rodada(lista + voltou) == ["AFFNOV11", "AFFNOV09"]
+
+
+@pytest.mark.parametrize("titulo", [
+    # xaviertechpromo/384169 e /383597
+    "🚨 Smartphone Samsung Galaxy A36 5g 128gb 6gb Ram Câmera Tripla De Até 50mp Selfie De 12mp Ip67 Super Amoled 6.7'' Nfc",
+    "🔥 Processador AMD Ryzen 5 5600 3.5GHz (Turbo até 4.4GHz)",
+    "Fone JBL Tune com Bluetooth até 5.3 e bateria",
+])
+def test_numero_decimal_do_titulo_do_produto_nao_vira_data(titulo):
+    [c] = _cits(f"{titulo}\n💵 R$ 1.367,10 no Pix\nOu em até 10x\n🎟 Cupom: BORTODEZ\n{MELI}", [MELI], codes=["BORTODEZ"])
+    assert (c.validade, c.inicio, c.regra) == (None, None, "")
+    [r] = [x.to_dict() for x in ct.consolida([c])]
+    assert lc.motivo_inativo(dict(r, publicado=_iso(hours=1)), set()) == ""
+
+
+def test_nome_do_evento_nao_atrapalha_a_faixa_da_secao():
+    # Chinacuponsbr/117082
+    cits = {c.codigo: c for c in _cits("CUPONS ALIEXPRESS PROMO 11.11(01/11 À 18/11)\nR$16 de desconto em R$80\n"
+                                       "AEMEGA1 AFFNOV01", [ALI])}
+    assert (cits["AEMEGA1"].inicio, cits["AEMEGA1"].validade) == ("2026-11-01", "2026-11-18")
+
+
+def test_validade_do_registro_vem_da_lista_e_nao_do_post_de_produto():
+    lista = _cits("🚨 Cupons novos AliExpress\n⏰ Vai até 18.11.2026\n🏷 R$ 750 OFF em R$ 4500: AFFNOV09", [ALI], post="a/1")
+    produto = _cits("PS5 Slim\n💵 R$ 3.690\n🎟 Cupom: AFFNOV09", [ALI], post="b/2")
+    assert {c.validade for c in ct.consolida(lista + produto) if c.codigo == "AFFNOV09"} == {"2026-11-18", None}
+
+
+@pytest.mark.parametrize("linha", ["🔻 22% de desconto", "🔻 R$ 1.059 OFF", "💰 R$ 200 de desconto no PIX",
+                                   "✅ Por R$ 3.690 (R$ 785 OFF)"])
+def test_desconto_do_produto_nao_e_o_valor_do_cupom(linha):
+    [c] = _cits(f"💥 Console PlayStation 5 Slim Digital\n💵 R$ 3.690\n{linha}\n🎟️ Cupom: AFFNOV22\n{ALI}", [ALI])
+    assert (c.codigo, c.tipo, c.chave_valor) == ("AFFNOV22", "produto", "post")
+
+
+def test_cupom_com_valor_e_selecao_na_mesma_linha():
+    # IskandarSouza/195592: "CUPOM 10% OFF" é cupom (não desconto do produto), e só nas placas da lista
+    sh = "https://seuhardware.com/s/lYMwq4O"
+    [c] = _cits(f"🇧🇷   #Kabum\n💰 🔥 CUPOM 10% OFF - Placas de video selecionadas na lista abaixo. 🔽 🔽 🔽\n"
+                f"🏷 Cupom: ZAFADINHO10\n✅ {sh}", [sh])
+    assert (c.loja, c.codigo, c.chave_valor) == ("KaBuM!", "ZAFADINHO10", "P10-0")
+    v = lc.valor_do_cupom(c.titulo, c.regra)
+    assert v.selecao and v.restrito
+
+
+def test_categoria_do_formato_em_tres_linhas_vira_escopo():
+    # IskandarSouza/195737
+    cits = {c.codigo: c for c in _cits("🔥 Novo Cupom Mercado Livre\n📝 HOJECONSTRU 👉 15% OFF\nIndústria e comércio\n"
+                                       "Compra mínima: R$79 | Desconto máx: R$60\n📝 COMPRAHOJE 👉 25% OFF\nCasa & decor\n"
+                                       "Compra mínima: R$79 | Desconto máx: R$80", [MELI])}
+    v = lc.valor_do_cupom(cits["HOJECONSTRU"].titulo)
+    assert (v.escopo, v.minimo, v.teto, v.restrito) == ("indústria e comércio", 79, 60, True)
+    assert lc.valor_do_cupom(cits["COMPRAHOJE"].titulo).escopo == "casa decor"
+
+
+@pytest.mark.parametrize("texto, esperado", [
+    # Chinacuponsbr/117080
+    ("CUPOM MERCADO LIVRE\n10% de desconto em R$79(Limite de R$30)\nPROMODEZ",
+     ("PROMODEZ", "P10-79-30", "10% OFF acima de R$ 79, limite de R$ 30")),
+    ("🏷 R$ 785 OFF (mín. R$ 4.200): AFFNOV11", ("AFFNOV11", "R785-4200", "R$ 785 OFF acima de R$ 4.200")),
+    ("🏷 R$ 785 OFF | Mínimo R$ 4.200: AFFNOV11", ("AFFNOV11", "R785-4200", "R$ 785 OFF acima de R$ 4.200")),
+    ("🏷 15% OFF em R$ 500 (máx. R$ 100): ELETRO0811",
+     ("ELETRO0811", "P15-500-100", "15% OFF acima de R$ 500, limite de R$ 100")),
+    ("🏷 R$ 50 OFF com compra mínima de R$ 249: MELI50X", ("MELI50X", "R50-249", "R$ 50 OFF acima de R$ 249")),
+    ("🏷 R$ 50 OFF em Eletrônicos acima de R$ 500: ELETRO50X",
+     ("ELETRO50X", "R50-500", "R$ 50 OFF em Eletrônicos acima de R$ 500")),
+])
+def test_minimo_e_teto_entre_parenteses_ou_depois_de_outro_texto(texto, esperado):
+    [c] = _cits(texto, [MELI], codes=[esperado[0]])   # o chinacuponsbr põe o código (só de letras) em <code>
+    assert (c.codigo, c.chave_valor, c.titulo) == esperado
+
+
+@pytest.mark.parametrize("texto", [
+    "🎟 Cupom: AUTOMÁTICO", "🎟 Cupom: DISPONÍVEL NO ANÚNCIO", "🏷 R$ 20 OFF em R$ 100: SOMENTE NO APP",
+    "🏷 R$ 20 OFF em R$ 100: ATIVE NO LINK", "🎟 Cupom: CONFIRA", "🎟 Cupom: PEGUE AQUI", "R$ 100 OFF em R$ 1.000\nRX7600",
+])
+def test_instrucao_palavra_acentuada_e_modelo_nao_viram_codigo(texto):
+    assert _cits(texto, [MELI]) == []
+
+
+def test_codigo_de_influenciador_antes_do_mais_fica_e_o_da_loja_sai():
+    # IskandarSouza/195772: "ISKANDAR4 ou AFFNOV04 ou AEMEGA4 + M1RC35BR" (o M1RC35BR é cupom da loja)
+    cits = _cits(f"🔥 Monitor Arzopa Gamer 27\" QHD\n💰 R$ 853 em até 6x ‼️\n📝 Cupom: ISKANDAR4 ou AFFNOV04 ou AEMEGA4 + "
+                 f"M1RC35BR + 332 moedas no APP\n{ALI}", [ALI])
+    assert [c.codigo for c in cits] == ["ISKANDAR4", "AFFNOV04", "AEMEGA4"]
+
+
+def test_codigo_so_de_letras_antes_do_parentese():
+    # LOOPechinchas/5774
+    [c] = _cits("🖥️ Monitor Gamer OLED\n✅ Por: R$ 3.188,03 no Pix\n🏷 Cupom: TAMOSJUNTO (10% OFF, limite de R$ 200, compra "
+                "mínima de R$ 149, vence hoje)\n🔗 " + MELI, [MELI])
+    assert (c.loja, c.codigo) == ("Mercado Livre", "TAMOSJUNTO")
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 # HTML da prévia (mensagens reais de 08/11/2026)
 # ---------------------------------------------------------------------------------------------------------------------
 def _fx(nome: str) -> str:
@@ -431,9 +634,10 @@ def test_fonte_devolve_cupons_e_as_ofertas_nao_mudam(monkeypatch):
 
     monkeypatch.setattr(telegram_public, "get_html", site)
     ofertas, cupons = telegram_public.TelegramPublico().coletar()
-    # 1ª página de cada canal, o canal só de cupom e a busca por "OFF" só no canal de listas que está sendo lido
+    # 1ª página de cada canal, o canal só de cupom e as buscas por "OFF" e "esgot" só no canal de listas que está sendo
+    # lido
     assert pedidas == ["https://t.me/s/xaviertechpromo", "https://t.me/s/linguicapromocoes", "https://t.me/s/chinacuponsbr",
-                       "https://t.me/s/xaviertechpromo?q=OFF"]
+                       "https://t.me/s/xaviertechpromo?q=OFF", "https://t.me/s/xaviertechpromo?q=esgot"]
     assert ofertas == telegram_public.parse_canal(xavier, "xaviertechpromo") + \
         telegram_public.parse_canal(linguica, "linguicapromocoes")
     por = {c.id: c for c in cupons}

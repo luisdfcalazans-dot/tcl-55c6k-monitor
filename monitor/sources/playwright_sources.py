@@ -1362,6 +1362,19 @@ _RE_ALI_CUPOM = re.compile(r"R\$\s?[\d.,]+\s*OFF\s+(?:em|acima\s+de|em\s+compras
                            r"[^\n]{0,20}?R\$\s?[\d.,]+", re.I)
 _RE_ALI_ESGOTADO = re.compile(r"\besgotad[oa]\b|n[ãa]o\s+est[áa]\s+mais\s+dispon[ií]vel|produto\s+indispon[ií]vel", re.I)
 _RE_ALI_MOEDA_FORA = re.compile(r"US\s?\$|€|£")
+# rótulo do preço JÁ COM cupom/desconto na linha vizinha ("C/desconto" / "R$3.830,00", "R$3.830,00" / "Após cupons",
+# "Preço estimado"): o valor não é o preço do item (revisão de 08/11/2026: virava o preço, o cupom era descontado de
+# novo e saía 🎯 falso). Na linha de cima também a parcela quebrada ("Em até 12x de" / "R$ 375,00")
+_RE_ALI_ROTULO_CUPOM = re.compile(r"c/\s*desconto|com\s+cupo|ap[óo]s\s+(?:o\s+|os\s+)?cupo|depois\s+do\s+cupo|"
+                                  r"pre[çc]o\s+(?:estimado|final|com\s+cupo)|\bestimad[oa]\b", re.I)
+_RE_ALI_PARCELA_ANTES = re.compile(r"\d+\s*x\s*(?:de)?\s*$", re.I)
+# "Economize R$249,00" e o "-5%" do topo: dizem qual par de valores é preço e riscado
+_RE_ALI_ECONOMIA = re.compile(r"economi\w*\s*:?\s*R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)", re.I)
+_RE_ALI_PCT = re.compile(r"(?<![\w,.])-\s?(\d{1,2})\s?%")
+# módulo da resposta da API onde cada campo mora (revisão de 08/11/2026: a busca solta pegava a 1ª chave em qualquer
+# lugar: o "displayAmount" do PRICE virava frete, um recomendado antes do título traria título/preço de outro item)
+_ALI_MODULOS = {"preco": ("PRICE",), "loja": ("SHOP_CARD", "STORE", "SELLER"), "titulo": ("PRODUCT_TITLE", "TITLE"),
+                "frete": ("SHIPPING", "LOGISTICS", "DELIVERY"), "parcela": ("INSTALLMENT",), "cupom": ("COUPON",)}
 
 
 def _ali_valor(v: Any) -> float | None:
@@ -1404,9 +1417,23 @@ def _ali_chaves(obj: Any, chaves: tuple[str, ...], prof: int = 0) -> dict[str, A
     return achados
 
 
+def _ali_modulo(d: dict, nomes: tuple[str, ...]) -> Any:
+    """O módulo da resposta cuja chave começa pelo 1º dos `nomes` que existir ("PRICE", "SHOP_CARD_PC", "SHIPPING"...),
+    em `d` ou em d['result']; None sem ele."""
+    raizes = [r for r in (d, d.get("result")) if isinstance(r, dict)]
+    for nome in nomes:
+        for raiz in raizes:
+            for k, v in raiz.items():
+                if isinstance(k, str) and k.upper().startswith(nome) and isinstance(v, (dict, list)):
+                    return v
+    return None
+
+
 def _ali_da_api(capturados: list[Any]) -> dict[str, Any]:
     """O que a API mtop.aliexpress.pdp.pc.query trouxe: título, preço, preço original, loja, frete, "já no Brasil",
-    parcelado. Campos ausentes ficam de fora."""
+    parcelado. Cada campo é lido só no módulo dele (_ALI_MODULOS: preço no PRICE, loja no SHOP_CARD_PC, frete no
+    SHIPPING...); a busca solta só vale quando a resposta não tem módulo nenhum conhecido (e ali o "displayAmount",
+    genérico demais, não vira frete). Campos ausentes ficam de fora."""
     out: dict[str, Any] = {}
     for c in capturados:
         j = c.get("json") if isinstance(c, dict) else None
@@ -1418,38 +1445,54 @@ def _ali_da_api(capturados: list[Any]) -> dict[str, Any]:
         d = j.get("data")
         if not isinstance(d, dict) or not d:
             continue
-        k = _ali_chaves(d, ("salePriceString", "salePriceLocal", "formatedActivityAmount", "formattedActivityPrice",
-                            "salePrice", "minActivityAmount", "originalPrice", "storeName", "subject", "PRODUCT_TITLE",
-                            "shipFromCode", "shipFrom", "displayAmount", "freightAmount", "freeShipping",
-                            "installmentInfo"))
+        mods = {campo: _ali_modulo(d, nomes) for campo, nomes in _ALI_MODULOS.items()}
+        estruturada = any(m is not None for m in mods.values())
+
+        def chaves(campo: str, ks: tuple[str, ...], soltas: tuple[str, ...] | None = None) -> dict[str, Any]:
+            if mods[campo] is not None:
+                return _ali_chaves(mods[campo], ks)
+            return {} if estruturada else _ali_chaves(d, soltas if soltas is not None else ks)
+
+        kp = chaves("preco", ("salePriceString", "salePriceLocal", "formatedActivityAmount", "formattedActivityPrice",
+                              "salePrice", "minActivityAmount", "originalPrice"))
         for chave in ("salePriceString", "salePriceLocal", "formatedActivityAmount", "formattedActivityPrice",
                       "salePrice", "minActivityAmount"):
-            p = _ali_valor(k.get(chave)) if chave in k else None
+            p = _ali_valor(kp.get(chave)) if chave in kp else None
             if p:
                 out.setdefault("preco", p)
                 break
-        if "originalPrice" in k:
-            orig = _ali_valor(k["originalPrice"])
+        if "originalPrice" in kp:
+            orig = _ali_valor(kp["originalPrice"])
             if orig:
                 out.setdefault("preco_original", orig)
-        if isinstance(k.get("storeName"), str):
-            out.setdefault("vendedor", k["storeName"].strip())
-        titulo = k.get("subject") or (k["PRODUCT_TITLE"].get("text") if isinstance(k.get("PRODUCT_TITLE"), dict)
-                                      else None)
+        kl = chaves("loja", ("storeName",))
+        if isinstance(kl.get("storeName"), str):
+            out.setdefault("vendedor", kl["storeName"].strip())
+        kt = chaves("titulo", ("subject", "text"), ("subject", "PRODUCT_TITLE"))
+        titulo = kt.get("subject") or kt.get("text") or \
+            (kt["PRODUCT_TITLE"].get("text") if isinstance(kt.get("PRODUCT_TITLE"), dict) else None)
         if isinstance(titulo, str) and titulo.strip():
             out.setdefault("titulo", titulo.strip())
-        de = str(k.get("shipFromCode") or k.get("shipFrom") or "").strip().lower()
+        kf = chaves("frete", ("shipFromCode", "shipFrom", "displayAmount", "freightAmount", "freeShipping"),
+                    ("shipFromCode", "freightAmount", "freeShipping"))
+        de = str(kf.get("shipFromCode") or kf.get("shipFrom") or "").strip().lower()
         if de:
             out.setdefault("no_brasil", de in ("br", "brazil", "brasil"))
-        if k.get("freeShipping") is True:
+        if kf.get("freeShipping") is True:
             out.setdefault("frete", 0.0)
         for chave in ("displayAmount", "freightAmount"):
-            f = _ali_valor(k.get(chave)) if chave in k else None
+            f = _ali_valor(kf.get(chave)) if chave in kf else None
             if f is not None:
                 out.setdefault("frete", f)
                 break
-        if isinstance(k.get("installmentInfo"), str):
-            out.setdefault("parcelado", _parcelado_sem_juros(k["installmentInfo"]))
+        ki = chaves("parcela", ("installmentInfo",))
+        if isinstance(ki.get("installmentInfo"), str):
+            out.setdefault("parcelado", _parcelado_sem_juros(ki["installmentInfo"]))
+        # o cupom que a página mostra ("R$670,00 OFF em compras acima de R$4.200,00"): o app aplica sozinho
+        if mods["cupom"] is not None:
+            mc = _RE_ALI_CUPOM.search(json.dumps(mods["cupom"], ensure_ascii=False))
+            if mc:
+                out.setdefault("cupom_pagina", re.sub(r"\s+", " ", mc.group(0)).strip())
     return out
 
 
@@ -1460,26 +1503,76 @@ def _ali_titulo_og(html: str) -> str:
     return re.sub(r"\s*-\s*AliExpress(?:\s+\d+)?\s*$", "", t).strip()
 
 
+def _ali_par(valores: list[float], economia: float | None, pct: float | None) -> tuple[float, float] | None:
+    """(preço, riscado) pelo "Economize R$X" (a diferença bate até R$ 1) ou, sem ele, pelo "-N%" (até 1 ponto), nos
+    valores do topo, em qualquer ordem ("R$4.749,00" antes de "R$4.500,00"). O maior riscado primeiro: o preço com
+    cupom de ~5% não forma par com o preço de venda quando o riscado também forma."""
+    for b in sorted(set(valores), reverse=True):
+        for a in sorted(set(valores)):
+            if a >= b:
+                break
+            if economia and abs((b - a) - economia) <= 1:
+                return a, b
+    if pct:
+        for b in sorted(set(valores), reverse=True):
+            for a in sorted(set(valores), reverse=True):
+                if a < b and abs((1 - a / b) * 100 - pct) <= 1:
+                    return a, b
+    return None
+
+
 def _ali_do_texto(texto: str, piso: float) -> dict[str, Any]:
-    """O que o texto renderizado do item mostra: o preço (o 1º valor do bloco do produto que não é frete, parcela,
-    cupom, moedas ou economia, e não fica abaixo do piso do produto), o preço riscado (o valor maior logo depois),
-    frete, "Produto já no Brasil", parcelado sem juros, o cupom que a página mostra, a loja ("Vendido por") e
-    esgotado."""
+    """O que o texto renderizado do item mostra: o preço e o riscado, frete, "Produto já no Brasil", parcelado sem
+    juros, o cupom que a página mostra, a loja ("Vendido por") e esgotado.
+
+    O preço (revisão de 08/11/2026): só os valores do bloco do produto fora das linhas de frete, parcela, cupom, moedas
+    e economia. Com "Economize R$X" ou "-N%", o par que bate com eles (em qualquer ordem). Sem isso, o 1º valor que não
+    tem rótulo de preço com cupom na linha vizinha ("C/desconto", "Após cupons", "Preço estimado") e não fica abaixo do
+    piso, com o maior seguinte como riscado; se a diferença dele para o seguinte é o cupom da própria página, o 1º era o
+    preço com cupom: vale o seguinte (com um riscado depois) ou, na dúvida, nenhum."""
     bloco = _junta_precos(_bloco_principal(texto, _RE_ALI_FIM))
     out: dict[str, Any] = {}
-    precos: list[float] = []
-    for ln in bloco.splitlines():
-        if _RE_ALI_NAO_PRECO.search(ln):
-            continue
-        precos += precos_no_texto(ln)
-    # o 1º valor é o preço de venda (o riscado vem logo depois); abaixo do piso do produto não é o preço dele (e o
-    # riscado nunca toma o lugar)
-    if precos and precos[0] >= piso:
-        out["preco"] = precos[0]
-        maiores = [v for v in precos[1:3] if v > precos[0]]
-        if maiores:
-            out["preco_original"] = maiores[0]
-    elif not precos and _RE_ALI_MOEDA_FORA.search(bloco):
+    mc = _RE_ALI_CUPOM.search(bloco)
+    if mc:
+        out["cupom_pagina"] = re.sub(r"\s+", " ", mc.group(0)).strip()
+    linhas = bloco.splitlines()
+    valores = {i: precos_no_texto(ln) for i, ln in enumerate(linhas) if not _RE_ALI_NAO_PRECO.search(ln)}
+    valores = {i: v for i, v in valores.items() if v}
+    rotuladas: set[int] = set()   # linhas de valor com rótulo de preço com cupom (ou de parcela) ao lado
+    for j, ln in enumerate(linhas):
+        if _RE_ALI_ROTULO_CUPOM.search(ln):
+            # o rótulo entre dois valores ("R$3.830,00" / "C/desconto" / "R$4.500,00") é do menor: o preço com cupom
+            # é sempre o mais baixo
+            vizinhas = [i for i in (j - 1, j + 1) if i in valores]
+            if vizinhas:
+                rotuladas.add(min(vizinhas, key=lambda i: min(valores[i])))
+        if _RE_ALI_PARCELA_ANTES.search(ln) and j + 1 in valores:
+            rotuladas.add(j + 1)
+    cands: list[tuple[float, bool]] = [(v, i in rotuladas) for i in sorted(valores) for v in valores[i]]
+    me = _RE_ALI_ECONOMIA.search(bloco)
+    mp = _RE_ALI_PCT.search(bloco)
+    par = _ali_par([v for v, _r in cands if v >= piso][:4], parse_preco(me.group(1)) if me else None,
+                   float(mp.group(1)) if mp else None)
+    livres = [v for v, rot in cands if not rot]
+    if par:
+        out["preco"], out["preco_original"] = par
+    elif livres and livres[0] >= piso:
+        # o 1º valor é o preço de venda (o riscado vem logo depois); abaixo do piso do produto não é o preço dele (e o
+        # riscado nunca toma o lugar)
+        preco: float | None = livres[0]
+        maiores = [v for v in livres[1:3] if v > livres[0]]
+        cp = re.search(r"R\$\s?([\d.,]+)\s*OFF", out.get("cupom_pagina") or "", re.I)
+        desc_pagina = parse_preco(cp.group(1)) if cp else None
+        if maiores and desc_pagina and abs(maiores[0] - livres[0] - desc_pagina) <= 1:
+            # "R$3.830,00" (com o cupom da página, rótulo não reconhecido) / "R$4.500,00" / "R$4.749,00"
+            seguinte = maiores[0]
+            depois_dele = [v for v in livres[livres.index(seguinte) + 1:][:2] if v > seguinte]
+            preco, maiores = (seguinte, depois_dele) if depois_dele else (None, [])
+        if preco is not None:
+            out["preco"] = preco
+            if maiores:
+                out["preco_original"] = maiores[0]
+    elif not cands and _RE_ALI_MOEDA_FORA.search(bloco):
         out["moeda_fora"] = True
     m = _RE_ALI_FRETE.search(bloco)
     if m:
@@ -1491,9 +1584,6 @@ def _ali_do_texto(texto: str, piso: float) -> dict[str, Any]:
     parc = _parcelado_sem_juros(bloco)
     if parc:
         out["parcelado"] = parc
-    mc = _RE_ALI_CUPOM.search(bloco)
-    if mc:
-        out["cupom_pagina"] = re.sub(r"\s+", " ", mc.group(0)).strip()
     mv = re.search(r"Vendid[oa]\s+por\s*:?\s*\n?\s*([^\n]{2,60})", bloco, re.I)
     if mv:
         out["vendedor"] = mv.group(1).strip()
@@ -1581,12 +1671,14 @@ class AliExpressProdutos(Fonte):
         if not preco or not produtos.preco_plausivel(modelo, preco):
             return None   # sem preço em real (a página em dólar não traz "R$"), ou fora da faixa do produto
         vendedor = api.get("vendedor") or txt.get("vendedor")
-        if not vendedor:
-            # o nome da loja aparece solto no cartão da loja: só aceita um da lista de confiáveis do AliExpress
+        if not vendedor and produtos.produto_por_id_loja("AliExpress", item):
+            # o nome da loja aparece solto no cartão da loja: só um da lista de confiáveis do AliExpress, só no bloco do
+            # produto (não nos recomendados e no "Mais desta loja") e só nos itens do catálogo (item novo de outra loja
+            # que cite uma confiável nos recomendados passaria pelas checagens de golpe sem ser dela)
             from ..confianca import nomes_confiaveis
 
-            vendedor = next((nm for nm in nomes_confiaveis("AliExpress") if nm and nm.lower() in (texto or "").lower()),
-                            None)
+            principal = _bloco_principal(texto or "", _RE_ALI_FIM).lower()
+            vendedor = next((nm for nm in nomes_confiaveis("AliExpress") if nm and nm.lower() in principal), None)
         extra: dict[str, Any] = {"item_id": item, "moeda": "BRL"}
         for chave in ("frete", "no_brasil", "preco_original", "cupom_pagina"):
             v = api.get(chave) if api.get(chave) is not None else txt.get(chave)
