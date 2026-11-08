@@ -30,6 +30,10 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 
 A lista 🎟️ **Cupons ativos** junta os cupons do Promobit, do Pelando e das páginas de anúncio (dos dois modos) e mostra só os que estão valendo: validade no futuro (a validade de anúncio antigo que parece data-padrão, como 31/12 num anúncio de meses atrás, não conta) ou, sem validade, publicados nos últimos `CUPONS_ATIVOS_DIAS` dias (padrão 3; no Pelando, que só mostra cupom ativo, `CUPONS_ATIVOS_DIAS_PELANDO`, padrão 14); código com data (TODOSITE0811) só no dia; o que o testador viu expirado nos últimos 2 dias sai. Cada loja vem num bloco separado por uma linha em branco: primeiro os cupons do anúncio monitorado (⭐), depois os gerais e por fim os de lista, categoria ou produto, cada grupo com o maior desconto primeiro (`15% OFF · mín. R$ 500 · até R$ 100 · som vídeo eletro`; "até 60% OFF" quando o anúncio só diz o máximo). Códigos diferentes com o mesmo valor ficam na mesma linha; `CUPONS_ATIVOS_MAX_POR_LOJA` limita as linhas por loja (padrão 10; 0 = todas; o resto vira "… e mais N códigos"). A hora muda com `HORA_LISTA_CUPONS` (vazio = a do resumo; -1 desliga); para receber na hora: `gh workflow run monitor.yml -f cupons=true` ou `python run.py --cupons`.
 
+A lista também traz os cupons citados nos **posts dos canais do Telegram** (`monitor/cupons_telegram.py`): linhas como `🏷 R$ 785 OFF em R$ 4200: AFFNOV11` (um cupom por código alternativo, com o valor e o mínimo), o código da linha de baixo e o `Cupom: X` dos posts de produto; a loja sai do prefixo do código (AFFNOV/AEMEGA/AESUPER/IFP = AliExpress), do cabeçalho ("Cupons novos AliExpress") ou do link, e a validade do cabeçalho da seção ("Válidos de 10/11 até 12/11"). Sem validade, valem por `CUPONS_ATIVOS_DIAS_TELEGRAM` dias (padrão 2) desde a citação mais recente; o post que diz "esgotou" tira o código. Eles nunca viram alerta de "cupom novo". Além dos canais de sempre, `chinacuponsbr` é lido só pelos cupons (`TELEGRAM_CANAIS_CUPONS`), e a busca `?q=OFF` no Xavier, no Linguiça e no Iskandar pega a lista que saiu da 1ª página.
+
+**PS5 no AliExpress** (PC): a página pública do item `1005010260639712` (PS5 Digital da Magalu Store, "Produto já no Brasil"; troque com `ALIEXPRESS_ITENS="<id>:PS5_DIGITAL"`) é lida num perfil do Chrome só dela, nunca logado, uma página por rodada. O alerta e o painel ganham o preço com o **melhor cupom AliExpress ativo** da lista (mínimo ≤ preço do item, maior desconto, um código por pedido, total com o frete) e os próximos códigos se ele esgotar; quem digita o código no app é você. Se a página pedir verificação (slider), a fonte espera 6 h (`ALIEXPRESS_ESPERA_BLOQUEIO_H`) sem quebrar a rodada.
+
 Todo alerta diz o modelo. Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO` (55C6K) e `ALVO_PIX_65` e `ALVO_PARCELADO_65` (65C6K). O painel mostra as duas TVs, uma tabela com quanto a 65" custa a mais que a 55" na mesma loja (à vista e parcelado) e um gráfico de histórico por modelo.
 
 ### PS5 e GTA 6
@@ -120,7 +124,8 @@ monitor/produtos.py      catálogo dos produtos (TVs, PS5, GTA 6...) e o classif
 monitor/filtro.py        aceita só 55C6K e 65C6K e diz qual (rejeita 75/85C6K, vizinhos como 65C7K, combos, acessórios, usados)
 monitor/sources/*.py     um coletor por fonte (entrega.py: prazo de entrega do GTA 6, dias úteis, datas por extenso)
 monitor/regras.py        o que vira alerta
-monitor/lista_cupons.py  lista diária de cupons ativos por loja (código e valor do desconto)
+monitor/lista_cupons.py  lista diária de cupons ativos por loja (código e valor do desconto) e melhor cupom do AliExpress
+monitor/cupons_telegram.py  cupons citados nos posts dos canais do Telegram
 monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
 monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json

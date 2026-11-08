@@ -96,6 +96,9 @@ class Cupom:
     publicado: Optional[str] = None
     especifico: bool = False   # True quando o cupom está atrelado ao produto (ex.: tag do Magalu)
     modelo: Optional[str] = None  # cupom do produto: o produto do anúncio (None = cupom do site/loja, vale para todos)
+    # dados da fonte (08/11/2026, cupons dos canais do Telegram: 'canais', 'n_grupos', 'inicio', 'esgotado_em', 'tipo',
+    # 'linha'). Fica no fim: registro antigo sem o campo continua valendo
+    extra: dict[str, Any] = field(default_factory=dict)
 
     @property
     def chave(self) -> str:

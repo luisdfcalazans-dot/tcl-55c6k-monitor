@@ -168,7 +168,9 @@ PRODUTOS: dict[str, Produto] = {p.id: p for p in (
                   "Casas Bahia": ("1581976879", "1582493592"), "Americanas": ("8269631", "8299917", "8299907"),
                   "Carrefour": ("336324399", "340173928", "340058675", "340532210"),
                   "Mercado Livre": ("MLB4214670787", "MLB57081243"),  # item + catálogo
-                  "Sam's Club": ("146554",), "Mais Correios": ("1474239",), "Fast Shop": ("181030", "141991")},
+                  "Sam's Club": ("146554",), "Mais Correios": ("1474239",), "Fast Shop": ("181030", "141991"),
+                  # Magalu Store dentro do AliExpress, "Produto já no Brasil" (pedido de 08/11/2026)
+                  "AliExpress": ("1005010260639712",)},
         temas=("console",), carrinho=True),
     Produto(
         "PS5_DISCO", "PS5 Slim com leitor", FAMILIA_PS5, "PS5 c/ leitor", FAMILIA_PS5, 3950.0, 4150.0,
@@ -1699,7 +1701,10 @@ def linhas_da_oferta(o: Any, desconto_gift: Optional[tuple[float, Any]] = None,
             out.append(f"💳 O gift card PSN só paga na PS Store: lá, {como}, sai por {_fmt(na_ps)}")
     cc = preco_com_cupom_do_anuncio(o)
     if cc and valor == cc[0]:
-        out.append(f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
+        from .lista_cupons import texto_do_melhor_cupom
+
+        # o melhor cupom ativo da loja (lista de cupons; AliExpress, 08/11/2026) ou o cupom da página do anúncio
+        out.append(texto_do_melhor_cupom(o) or f"🎟️ Com o cupom {cc[1]} do anúncio: {_fmt(cc[0])}")
     if alvo.pix:
         meta = f"🎯 Meta: Pix {_fmt(alvo.pix)}"
         if alvo.parcelado and abs(alvo.parcelado - alvo.pix) > 0.5:

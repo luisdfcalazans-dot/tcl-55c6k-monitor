@@ -452,6 +452,9 @@ def test_urls_de_busca_cobrem_os_produtos():
 def test_telegram_coleta_a_busca_sem_repetir_a_mesma_postagem(monkeypatch):
     pagina = _fx(f"telegram_pelandobr_busca_gta_{D}.html")
     monkeypatch.setattr(config, "TELEGRAM_CANAIS_PUBLICOS", ["pelandobr"])
+    # (08/11/2026) os canais lidos só pelos cupons pedem uma página a mais cada: fora deste teste (ver
+    # test_cupons_telegram.py)
+    monkeypatch.setattr(config, "TELEGRAM_CANAIS_CUPONS", [])
     pedidas = []
     monkeypatch.setattr(telegram_public, "get_html", lambda url, **k: pedidas.append(url) or pagina)
     ofs, _ = telegram_public.TelegramPublico().coletar()

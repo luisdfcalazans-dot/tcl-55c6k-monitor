@@ -55,6 +55,17 @@ def _lancar(pw, pasta: Path, headless: bool):
     )
 
 
+def jsonp(texto: str) -> Any:
+    """O JSON de dentro de uma resposta JSONP ("mtopjsonp2({...})" ou "cb({...});"); JSON puro também vale. None se não
+    for nenhum dos dois."""
+    s = (texto or "").strip()
+    m = re.fullmatch(r"[\w$.]+\s*\((.*)\)\s*;?", s, re.S)
+    try:
+        return json.loads(m.group(1) if m else s)
+    except (ValueError, TypeError):
+        return None
+
+
 def _carregar(page, url: str, padroes: list[str], esperar: str | None, scroll: bool,
               timeout_ms: int, ocioso_ms: int = 15000) -> tuple[str, str, list[Any]]:
     """Carrega uma URL numa aba já aberta e devolve (html, texto visível, JSONs capturados nesta carga)."""
@@ -65,7 +76,15 @@ def _carregar(page, url: str, padroes: list[str], esperar: str | None, scroll: b
             if any(p in resp.url for p in padroes) and "json" in (resp.headers.get("content-type") or ""):
                 capturados.append({"url": resp.url, "json": resp.json()})
         except Exception:
-            pass
+            # JSONP ("mtopjsonp2({...})", a API mtop do AliExpress, que vem com content-type de JSON): só nos padrões
+            # "mtop." (as outras lojas ficam como sempre)
+            try:
+                if any(p.startswith("mtop.") and p in resp.url for p in padroes):
+                    j = jsonp(resp.text())
+                    if j is not None:
+                        capturados.append({"url": resp.url, "json": j})
+            except Exception:
+                pass
 
     if padroes:
         page.on("response", on_response)
@@ -1317,6 +1336,266 @@ class AliExpress(Fonte):
                                            url=f"https://pt.aliexpress.com/item/{pid}.html", id=pid,
                                            preco=min(precos) if precos else None, modelo=modelo))
         return list(out.values())
+
+
+# ---------------------------------------------------------------- AliExpress: página pública do item (08/11/2026)
+MARCA_BLOQUEIO_ALI = config.RAIZ / "logs" / "aliexpress_bloqueado_em"   # existe enquanto o AliExpress estiver "de castigo"
+# a página do item carrega o preço pela API mtop (JSONP); sem ela, o texto renderizado
+_ALI_API = "mtop.aliexpress.pdp.pc.query"
+# verificação anti-robô (slider/captcha do "baxia"): URL de castigo, resposta da API e o texto da página
+_RE_ALI_PUNICAO = re.compile(r"_____tmd_____/punish|x5secdata=|/punish\?")
+_RE_ALI_RET_BLOQUEIO = re.compile(r"RGV587|FAIL_SYS_USER_VALIDATE|punish", re.I)
+_RE_ALI_TEXTO_BLOQUEIO = re.compile(r"deslize\s+para\s+(?:a\s+)?verifica|slide\s+to\s+verify|arraste\s+o\s+controle|"
+                                    r"tr[áa]fego\s+incomum|unusual\s+traffic|verifica[çc][ãa]o\s+de\s+seguran[çc]a", re.I)
+# fim do bloco do produto no texto renderizado (o que vem depois são recomendados e a descrição)
+_RE_ALI_FIM = re.compile(r"^[ \t]*(?:Descri[çc][ãa]o|Especifica[çc][õo]es|Mais\s+(?:itens\s+)?desta\s+loja|"
+                         r"Itens\s+recomendados|Voc[êe]\s+tamb[ée]m\s+pode\s+gostar|Avalia[çc][õo]es\s+de\s+clientes|"
+                         r"Recomendado\s+para\s+voc[êe])\b", re.I | re.M)
+# linha com valor que não é o preço do item: frete, parcela, cupom, moedas, economia, imposto
+_RE_ALI_NAO_PRECO = re.compile(r"frete|envio|entrega|\d+\s*x\b|parcel|\boff\b|cupo|desconto|economi|moedas|imposto|"
+                               r"acima\s+de|em\s+compras|a\s+partir\s+de|ganhe|b[ôo]nus", re.I)
+_RE_ALI_FRETE = re.compile(r"(?:frete|envio)(?:\s+por)?\s*:?\s*R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)", re.I)
+_RE_ALI_FRETE_GRATIS = re.compile(r"(?:frete|envio)\s+gr[áa]tis", re.I)
+_RE_ALI_NO_BRASIL = re.compile(r"j[áa]\s+no\s+brasil|(?:enviado|envio|envia|despachado)\s+do\s+brasil|"
+                               r"armaz[ée]m\s+(?:no|do)\s+brasil", re.I)
+_RE_ALI_CUPOM = re.compile(r"R\$\s?[\d.,]+\s*OFF\s+(?:em|acima\s+de|em\s+compras\s+acima\s+de|nas\s+compras\s+acima\s+de)"
+                           r"[^\n]{0,20}?R\$\s?[\d.,]+", re.I)
+_RE_ALI_ESGOTADO = re.compile(r"\besgotad[oa]\b|n[ãa]o\s+est[áa]\s+mais\s+dispon[ií]vel|produto\s+indispon[ií]vel", re.I)
+_RE_ALI_MOEDA_FORA = re.compile(r"US\s?\$|€|£")
+
+
+def _ali_valor(v: Any) -> float | None:
+    """'R$4.500,00', 'R$4.500,00|4500|00', 4500, {'value': 4500, 'currency': 'BRL'} -> 4500.0; outra moeda -> None."""
+    if isinstance(v, dict):
+        moeda = str(v.get("currency") or v.get("currencyCode") or "BRL").upper()
+        if moeda != "BRL":
+            return None
+        for k in ("value", "amount", "formatedAmount", "formattedAmount", "minAmount"):
+            if v.get(k) not in (None, ""):
+                return _ali_valor(v[k])
+        return None
+    if isinstance(v, (int, float)):
+        return float(v) if v > 0 else None
+    s = str(v or "").split("|", 1)[0].strip()
+    if _RE_ALI_MOEDA_FORA.search(s):
+        return None
+    return parse_preco(re.sub(r"[^\d.,]", "", s)) if re.search(r"\d", s) else None
+
+
+def _ali_chaves(obj: Any, chaves: tuple[str, ...], prof: int = 0) -> dict[str, Any]:
+    """O primeiro valor de cada chave em qualquer lugar do JSON da API (a estrutura muda: procura sem depender do
+    caminho)."""
+    achados: dict[str, Any] = {}
+
+    def anda(o: Any, p: int) -> None:
+        if p > 12 or len(achados) == len(chaves):
+            return
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k in chaves and k not in achados and v not in (None, "", {}, []):
+                    achados[k] = v
+            for v in o.values():
+                anda(v, p + 1)
+        elif isinstance(o, list):
+            for v in o[:60]:
+                anda(v, p + 1)
+
+    anda(obj, prof)
+    return achados
+
+
+def _ali_da_api(capturados: list[Any]) -> dict[str, Any]:
+    """O que a API mtop.aliexpress.pdp.pc.query trouxe: título, preço, preço original, loja, frete, "já no Brasil",
+    parcelado. Campos ausentes ficam de fora."""
+    out: dict[str, Any] = {}
+    for c in capturados:
+        j = c.get("json") if isinstance(c, dict) else None
+        if not isinstance(j, dict) or _ALI_API not in str(c.get("url") or ""):
+            continue
+        if any(_RE_ALI_RET_BLOQUEIO.search(str(r)) for r in j.get("ret") or []):
+            out["bloqueio"] = True
+            continue
+        d = j.get("data")
+        if not isinstance(d, dict) or not d:
+            continue
+        k = _ali_chaves(d, ("salePriceString", "salePriceLocal", "formatedActivityAmount", "formattedActivityPrice",
+                            "salePrice", "minActivityAmount", "originalPrice", "storeName", "subject", "PRODUCT_TITLE",
+                            "shipFromCode", "shipFrom", "displayAmount", "freightAmount", "freeShipping",
+                            "installmentInfo"))
+        for chave in ("salePriceString", "salePriceLocal", "formatedActivityAmount", "formattedActivityPrice",
+                      "salePrice", "minActivityAmount"):
+            p = _ali_valor(k.get(chave)) if chave in k else None
+            if p:
+                out.setdefault("preco", p)
+                break
+        if "originalPrice" in k:
+            orig = _ali_valor(k["originalPrice"])
+            if orig:
+                out.setdefault("preco_original", orig)
+        if isinstance(k.get("storeName"), str):
+            out.setdefault("vendedor", k["storeName"].strip())
+        titulo = k.get("subject") or (k["PRODUCT_TITLE"].get("text") if isinstance(k.get("PRODUCT_TITLE"), dict)
+                                      else None)
+        if isinstance(titulo, str) and titulo.strip():
+            out.setdefault("titulo", titulo.strip())
+        de = str(k.get("shipFromCode") or k.get("shipFrom") or "").strip().lower()
+        if de:
+            out.setdefault("no_brasil", de in ("br", "brazil", "brasil"))
+        if k.get("freeShipping") is True:
+            out.setdefault("frete", 0.0)
+        for chave in ("displayAmount", "freightAmount"):
+            f = _ali_valor(k.get(chave)) if chave in k else None
+            if f is not None:
+                out.setdefault("frete", f)
+                break
+        if isinstance(k.get("installmentInfo"), str):
+            out.setdefault("parcelado", _parcelado_sem_juros(k["installmentInfo"]))
+    return out
+
+
+def _ali_titulo_og(html: str) -> str:
+    m = re.search(r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"', html or "") or \
+        re.search(r'<meta[^>]+content="([^"]+)"[^>]+property="og:title"', html or "")
+    t = limpa_html(m.group(1)) if m else ""
+    return re.sub(r"\s*-\s*AliExpress(?:\s+\d+)?\s*$", "", t).strip()
+
+
+def _ali_do_texto(texto: str, piso: float) -> dict[str, Any]:
+    """O que o texto renderizado do item mostra: o preço (o 1º valor do bloco do produto que não é frete, parcela,
+    cupom, moedas ou economia, e não fica abaixo do piso do produto), o preço riscado (o valor maior logo depois),
+    frete, "Produto já no Brasil", parcelado sem juros, o cupom que a página mostra, a loja ("Vendido por") e
+    esgotado."""
+    bloco = _junta_precos(_bloco_principal(texto, _RE_ALI_FIM))
+    out: dict[str, Any] = {}
+    precos: list[float] = []
+    for ln in bloco.splitlines():
+        if _RE_ALI_NAO_PRECO.search(ln):
+            continue
+        precos += precos_no_texto(ln)
+    # o 1º valor é o preço de venda (o riscado vem logo depois); abaixo do piso do produto não é o preço dele (e o
+    # riscado nunca toma o lugar)
+    if precos and precos[0] >= piso:
+        out["preco"] = precos[0]
+        maiores = [v for v in precos[1:3] if v > precos[0]]
+        if maiores:
+            out["preco_original"] = maiores[0]
+    elif not precos and _RE_ALI_MOEDA_FORA.search(bloco):
+        out["moeda_fora"] = True
+    m = _RE_ALI_FRETE.search(bloco)
+    if m:
+        out["frete"] = parse_preco(m.group(1))
+    elif _RE_ALI_FRETE_GRATIS.search(bloco):
+        out["frete"] = 0.0
+    if _RE_ALI_NO_BRASIL.search(bloco):
+        out["no_brasil"] = True
+    parc = _parcelado_sem_juros(bloco)
+    if parc:
+        out["parcelado"] = parc
+    mc = _RE_ALI_CUPOM.search(bloco)
+    if mc:
+        out["cupom_pagina"] = re.sub(r"\s+", " ", mc.group(0)).strip()
+    mv = re.search(r"Vendid[oa]\s+por\s*:?\s*\n?\s*([^\n]{2,60})", bloco, re.I)
+    if mv:
+        out["vendedor"] = mv.group(1).strip()
+    if _RE_ALI_ESGOTADO.search(bloco):
+        out["esgotado"] = True
+    return out
+
+
+def _ali_bloqueado(html: str, texto: str, capturados: list[Any]) -> bool:
+    if _RE_ALI_TEXTO_BLOQUEIO.search(texto or "") or _RE_ALI_PUNICAO.search(html or ""):
+        return True
+    return bool(_ali_da_api(capturados).get("bloqueio"))
+
+
+class AliExpressProdutos(Fonte):
+    """PS5 no AliExpress pela página pública do item (pedido de 08/11/2026): config.ALIEXPRESS_ITENS (o PS5 Digital da
+    Magalu Store, "Produto já no Brasil"), no máximo config.ALIEXPRESS_MAX_CARGAS páginas por rodada, num perfil do
+    Chrome só dele (.pw-profile-ali), NUNCA logado: nada de login, carrinho, CEP, "resgatar" ou clique. Só lê o preço
+    público; o melhor cupom ativo da loja é calculado depois (lista_cupons.aplica_melhor_cupom) e quem digita o código
+    é o usuário.
+
+    A página monta o preço no navegador pela API mtop (JSONP); sem ela, o texto renderizado. A verificação anti-robô
+    (slider do "baxia") vale como bloqueio: registra (logs/aliexpress_bloqueado_em), apaga o perfil e espera
+    config.ALIEXPRESS_ESPERA_BLOQUEIO_H horas (Pular), sem quebrar a rodada e sem aviso de falha (no teste ao vivo de
+    08/11/2026 o perfil novo levou o slider na 1ª carga). Título que não é do produto, moeda que não é real ou preço
+    fora da faixa do produto: nada."""
+
+    nome = "aliexpress.produtos"
+    modo = "pc"
+    alerta_falha = False
+    PERFIL = "ali"
+
+    def coletar(self) -> Resultado:
+        import shutil
+        import time as _t
+
+        if not config.ALIEXPRESS_ITENS:
+            return [], []
+        espera = config.ALIEXPRESS_ESPERA_BLOQUEIO_H * 3600
+        if MARCA_BLOQUEIO_ALI.exists():
+            restante = espera - (_t.time() - MARCA_BLOQUEIO_ALI.stat().st_mtime)
+            if restante > 0:
+                raise Pular(f"o AliExpress pediu verificação; nova tentativa em {restante / 60:.0f} min")
+            MARCA_BLOQUEIO_ALI.unlink(missing_ok=True)
+        itens = list(config.ALIEXPRESS_ITENS.items())
+        n = max(1, config.ALIEXPRESS_MAX_CARGAS)
+        if len(itens) > n:   # revezamento: cada rodada (de meia em meia hora) começa num item
+            ini = int(_t.time() // 1800) % len(itens)
+            itens = (itens[ini:] + itens[:ini])[:n]
+        out: dict[str, Oferta] = {}
+        bloqueado = False
+        with sessao(self.PERFIL):
+            for item, modelo in itens:
+                url = f"https://pt.aliexpress.com/item/{item}.html"
+                html, texto, capt = _abrir(url, esperar="[class*=price]", capturar=[_ALI_API], perfil=self.PERFIL,
+                                           ocioso_ms=8000)
+                o = self._parse(html, texto, capt, item, modelo)
+                if o is not None:
+                    out[o.id] = o
+                elif _ali_bloqueado(html, texto, capt):
+                    bloqueado = True
+                    break
+                else:
+                    print(f"[aliexpress.produtos] item {item}: preço não encontrado na página")
+        if bloqueado:
+            shutil.rmtree(_dir_perfil(self.PERFIL), ignore_errors=True)
+            MARCA_BLOQUEIO_ALI.parent.mkdir(exist_ok=True)
+            MARCA_BLOQUEIO_ALI.write_text(_t.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
+            if not out:
+                raise RuntimeError("AliExpress pediu verificação (slider) na página do item; nova tentativa em "
+                                   f"{config.ALIEXPRESS_ESPERA_BLOQUEIO_H:.0f} h")
+        return list(out.values()), []
+
+    @staticmethod
+    def _parse(html: str, texto: str, capturados: list[Any], item: str, modelo: str) -> Oferta | None:
+        """A Oferta do item (preço em real, título do produto, loja), ou None."""
+        api = _ali_da_api(capturados)
+        txt = _ali_do_texto(texto, produtos.piso(modelo))
+        titulo = api.get("titulo") or _ali_titulo_og(html)
+        # o título decide sozinho (sem a pista do id do catálogo, que faria qualquer título valer): o anúncio editado
+        # para outro produto (controle, PS5 usado, importado) não vira preço do PS5
+        if not titulo or not _e_do_produto(titulo, modelo, "AliExpress"):
+            return None
+        preco = api.get("preco") or txt.get("preco")
+        if not preco or not produtos.preco_plausivel(modelo, preco):
+            return None   # sem preço em real (a página em dólar não traz "R$"), ou fora da faixa do produto
+        vendedor = api.get("vendedor") or txt.get("vendedor")
+        if not vendedor:
+            # o nome da loja aparece solto no cartão da loja: só aceita um da lista de confiáveis do AliExpress
+            from ..confianca import nomes_confiaveis
+
+            vendedor = next((nm for nm in nomes_confiaveis("AliExpress") if nm and nm.lower() in (texto or "").lower()),
+                            None)
+        extra: dict[str, Any] = {"item_id": item, "moeda": "BRL"}
+        for chave in ("frete", "no_brasil", "preco_original", "cupom_pagina"):
+            v = api.get(chave) if api.get(chave) is not None else txt.get(chave)
+            if v is not None:
+                extra[chave] = v
+        return Oferta(fonte="aliexpress.produtos", tipo="loja", loja="AliExpress", titulo=titulo[:200],
+                      url=f"https://pt.aliexpress.com/item/{item}.html", id=item, preco=round(float(preco), 2),
+                      parcelado=api.get("parcelado") or txt.get("parcelado"), ativo=not txt.get("esgotado"),
+                      vendedor=vendedor, extra=extra, modelo=modelo)
 
 
 class Shopee(Fonte):

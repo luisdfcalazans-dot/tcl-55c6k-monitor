@@ -133,9 +133,12 @@ _RE_SITE_TODO = re.compile(r"\b(?:todo\s+(?:o\s+)?site|site\s+todo|loja\s+toda|t
 _RE_APP = re.compile(r"\[\s*app\b|\bapp\s*[/\]]|\bno\s+app\b|\bpelo\s+app\b|"
                      r"\bvalido\s+(?:somente\s+|apenas\s+|so\s+)?no\s+app\b|\bcupom\s+\w+\s+app\b")
 _RE_ASSINANTE = re.compile(r"\bprime\b|\bmeli\s?\+|\bmeli\s+mais\b|\bassinantes?\b")
-_RE_NOVOS = re.compile(r"\b(?:1a|primeira)\s+compra\b|\bnov[oa]s\s+(?:clientes|usuarios|contas)\b|"
-                       r"\b(?:clientes|usuarios|contas)\s+nov[oa]s\b")
+_RE_NOVOS = re.compile(r"\b(?:1a|primeira)\s+compra\b|\bnov[oa]s\s+(?:clientes|usuarios|contas|compradores)\b|"
+                       r"\b(?:clientes|usuarios|contas|compradores)\s+nov[oa]s\b")
 _RE_WHATSAPP = re.compile(r"\bwhats\s?app\b|\bno\s+zap\b")
+# "Cupom funcionando para quem resgatou no início da promoção" (canais do Telegram): só serve a quem já resgatou
+_RE_RESGATOU = re.compile(r"\bquem\s+(?:ja\s+)?resgatou\b")
+MARCA_RESGATOU = "só p/ quem resgatou"
 # o que sobra do título depois do desconto e não diz onde o cupom vale
 _RE_RESTO_FORA = re.compile(
     r"\(?\s*(?:acima\s+de|a\s+partir\s+de|minim[oa](?:\s+de)?|min\.|compras?\s+(?:de|acima\s+de|a\s+partir\s+de))\s*"
@@ -445,6 +448,8 @@ def valor_do_cupom(titulo: str, regra: str = "") -> Valor:
         v.marcas.append("1ª compra")
     if _RE_WHATSAPP.search(texto):
         v.marcas.append("WhatsApp")
+    if _RE_RESGATOU.search(texto):
+        v.marcas.append(MARCA_RESGATOU)
     return v
 
 
@@ -613,6 +618,15 @@ def motivo_inativo(reg: dict, expirados: set[str] = frozenset(), dias: Optional[
     if codigo_valido(codigo) and marca_cupom(loja, codigo) in expirados:
         return "expirado no testador"
     agora_ = agora()
+    telegram = str(reg.get("fonte") or "") == "telegram"
+    if telegram:
+        # cupom citado nos canais do Telegram (monitor/cupons_telegram.py): um post mais novo que todas as citações
+        # ativas disse que esgotou; a seção do post diz quando começa ("Válidos de 10/11 até 12/11")
+        if esgotado_depois(reg, [reg]):
+            return "esgotado"
+        ini = _data((reg.get("extra") or {}).get("inicio"))
+        if ini is not None and ini.date() > agora_.date():
+            return f"começa {ini:%d/%m}"
     validade = validade_declarada(reg)
     if validade is not None and validade < agora_:
         return "vencido"
@@ -629,7 +643,24 @@ def motivo_inativo(reg: dict, expirados: set[str] = frozenset(), dias: Optional[
         # maior. O "há 3 dias" dele é arredondado para baixo (3,0 dias antes da leitura): conta o dia inteiro
         limite = max(dias, config.CUPONS_ATIVOS_DIAS_PELANDO)
         return "" if d < limite + 1 else f"publicado há {d:.0f} dias"
+    if telegram:
+        # janela própria: a citação mais recente do código nos canais (cada post novo renova)
+        dias = config.CUPONS_ATIVOS_DIAS_TELEGRAM
     return "" if d <= dias else f"publicado há {d:.0f} dias"
+
+
+def esgotado_depois(reg: dict, ativos: Iterable[dict]) -> bool:
+    """O registro diz (extra['esgotado_em'], cupom do Telegram) que o código esgotou DEPOIS da publicação de todos os
+    `ativos` (o próprio registro, ou os anúncios ativos do mesmo código em qualquer fonte)? Anúncio sem data conta
+    como mais velho."""
+    esg = _data((reg.get("extra") or {}).get("esgotado_em")) if isinstance(reg.get("extra"), dict) else None
+    if esg is None:
+        return False
+    for r in ativos:
+        pub = _data(r.get("publicado"))
+        if pub is not None and pub > esg:
+            return False
+    return True
 
 
 def _como_dict(c: Any) -> Optional[dict]:
@@ -668,6 +699,9 @@ def cupons_ativos(regs: Iterable[Any], expirados: Optional[set[str]] = None,
     for chave, grupo in grupos.items():
         ativos = [r for r in grupo if r["_ativo"]]
         if not ativos:
+            continue
+        # um post do Telegram disse que o código esgotou depois de todos os anúncios ativos dele (de qualquer fonte)
+        if any(esgotado_depois(r, ativos) for r in grupo if r.get("fonte") == "telegram"):
             continue
         melhor = _o_melhor(ativos)
         # o valor do anúncio que diz mais, mesmo que ele não conte como ativo (o mesmo código no Pelando, publicado há
@@ -837,3 +871,137 @@ def mensagens_cupons_ativos(regs: Iterable[Any], expirados: Optional[set[str]] =
                             quando: Optional[datetime] = None, limite: int = LIMITE_MENSAGEM) -> list[str]:
     """A lista "🎟️ Cupons ativos" pronta para o Telegram (uma ou mais mensagens)."""
     return mensagens(cupons_ativos(regs, expirados), quando, limite)
+
+
+def cupons_conhecidos(estado: Any, cupons: Iterable[Any]) -> list[dict]:
+    """Todos os cupons que a rodada conhece, como registros (dict), para a lista de cupons ativos e o melhor cupom do
+    AliExpress: os desta rodada, os da última leitura (por fonte e loja) deste modo que não vieram agora (a página de
+    uma loja que falhou nesta rodada não tira a loja da lista) e os do outro modo (latest e última leitura do state
+    dele). Os do Telegram entram sempre que estão dentro da janela (Estado.cupons_da_ultima_leitura): o post que saiu da
+    1ª página do canal entre uma rodada e outra continua valendo."""
+    regs = [c.to_dict() if hasattr(c, "to_dict") else dict(c) for c in cupons]
+    lidas_agora = {(r.get("fonte"), loja_canonica(str(r.get("loja") or ""))) for r in regs}
+    regs += [r for r in estado.cupons_da_ultima_leitura()
+             if r.get("fonte") in config.FONTES_CUPOM_SO_LISTA
+             or (r.get("fonte"), loja_canonica(str(r.get("loja") or ""))) not in lidas_agora]
+    regs += estado.cupons_de_outros_modos()
+    return regs
+
+
+# ---- melhor cupom de plataforma para um anúncio (pedido de 08/11/2026: PS5 do AliExpress) ----
+# marcas que tiram o cupom da conta: público restrito (1ª compra, assinante, WhatsApp)
+_MARCAS_FORA_DA_CONTA = {"Prime/assinante", "1ª compra", "WhatsApp"}
+# desconto fixo sem compra mínima conhecida entra na conta só até esta fração do preço do item
+DESCONTO_SEM_MINIMO_MAX = 0.15
+
+
+def opcoes_de_cupom(preco_item: float, ativos_da_loja: Iterable[dict]) -> list[dict]:
+    """Os cupons ativos da loja (cupons_ativos(...)[loja]) que valem num item de `preco_item` (o preço do item, sem o
+    frete: o cupom é sobre o item), do maior desconto para o menor; os "só para quem resgatou" vão para o fim. Fica de
+    fora: sem desconto legível, valor duvidoso, "até X%" de vitrine, só frete, lista/seleção, categoria/produto, 1ª
+    compra, assinante e WhatsApp ("só no app" fica: o código é digitado no app), compra mínima acima do preço do item
+    e teto da compra abaixo dele. % sai do preço com o teto. Um código por pedido: a lista é de alternativas.
+    Cada opção: {'codigo', 'desconto', 'minimo', 'texto', 'fonte', 'resgatou', 'validade'}."""
+    melhores: dict[str, dict] = {}
+    for r in ativos_da_loja:
+        v: Valor = r.get("_valor") or valor_do_cupom(r.get("titulo") or "", r.get("regra") or "")
+        cod = str(r.get("codigo") or "").strip().upper()
+        if not cod or r.get("especifico") or v.desconto is None or v.duvidoso or v.ate or v.so_frete or v.selecao:
+            continue
+        if v.escopo and v.escopo != "todo site":
+            continue
+        if any(m in _MARCAS_FORA_DA_CONTA for m in v.marcas):
+            continue
+        if v.minimo and v.minimo > preco_item + 0.005:
+            continue
+        if v.teto_compra and preco_item > v.teto_compra + 0.005:
+            continue
+        tipo, x = v.desconto
+        desconto = x if tipo == "R$" else preco_item * x / 100
+        if tipo == "%" and v.teto:
+            desconto = min(desconto, v.teto)
+        if not 0 < desconto < preco_item:
+            continue
+        if tipo == "R$" and not v.minimo and desconto > DESCONTO_SEM_MINIMO_MAX * preco_item:
+            continue   # "R$ 785 OFF" sem a compra mínima: na dúvida não entra na conta (todo cupom grande tem mínimo)
+        validade = validade_declarada(r)
+        op = {"codigo": cod, "desconto": round(desconto, 2), "minimo": v.minimo, "texto": r.get("_texto") or
+              texto_do_valor(v, r.get("titulo") or ""), "fonte": r.get("fonte"), "resgatou": MARCA_RESGATOU in v.marcas,
+              "validade": validade.date().isoformat() if validade else None}
+        if cod not in melhores or op["desconto"] > melhores[cod]["desconto"]:
+            melhores[cod] = op
+    return sorted(melhores.values(), key=lambda o: (o["resgatou"], -o["desconto"], o["minimo"] or 0, o["codigo"]))
+
+
+def regra_do_cupom(op: dict) -> str:
+    """'R$ 785 OFF acima de R$ 4.200' (o produtos.preco_com_cupom_do_anuncio confere a compra mínima nesse texto)."""
+    return f"{fmt_reais(op['desconto'])} OFF" + (f" acima de {fmt_reais(op['minimo'])}" if op.get("minimo") else "")
+
+
+def aplica_melhor_cupom(ofertas: Iterable[Any], regs: Iterable[Any], loja: str = "AliExpress",
+                        expirados: Optional[set[str]] = None) -> int:
+    """Grava em cada oferta de loja da `loja` (produto que não é TV) o preço com o melhor cupom ativo da loja (o maior
+    desconto com compra mínima <= preço do item), para o alerta, o 🎯 e o painel (produtos.preco_com_cupom_do_anuncio):
+    extra['preco_com_cupom'] = item - desconto + frete (quando o frete é conhecido), 'cupom_preco' (o código),
+    'cupom_regra', 'cupom_origem' = 'lista', 'cupom_desconto', 'cupom_validade' e 'cupons_alternativos' (os 3
+    seguintes, para quando o melhor esgotar). Só calcula: quem digita o código no app é o usuário (1 por pedido).
+    Devolve quantas ofertas ganharam o preço com cupom."""
+    from . import produtos
+    from .models import modelo_de
+
+    alvo = [o for o in ofertas if getattr(o, "tipo", "") == "loja" and loja_canonica(getattr(o, "loja", "")) == loja
+            and getattr(o, "ativo", True) and (o.preco or o.melhor_preco) and not produtos.eh_tv(modelo_de(o))]
+    if not alvo:
+        return 0
+    ativos = cupons_ativos(regs, expirados).get(loja, [])
+    n = 0
+    for o in alvo:
+        preco_item = float(o.preco or o.melhor_preco)
+        ops = opcoes_de_cupom(preco_item, ativos)
+        if not ops:
+            continue
+        frete = o.extra.get("frete")
+        frete = float(frete) if isinstance(frete, (int, float)) and frete >= 0 else 0.0
+
+        def total(op: dict) -> float:
+            return round(preco_item - op["desconto"] + frete, 2)
+
+        b = ops[0]
+        o.extra.update({
+            "preco_com_cupom": total(b), "cupom_preco": b["codigo"], "cupom_regra": regra_do_cupom(b),
+            "cupom_origem": "lista", "cupom_desconto": b["desconto"],
+            "cupons_alternativos": [{"codigo": a["codigo"], "desconto": a["desconto"], "preco": total(a),
+                                     "resgatou": a["resgatou"]} for a in ops[1:4]]})
+        if b.get("validade"):
+            o.extra["cupom_validade"] = b["validade"]
+        else:
+            o.extra.pop("cupom_validade", None)
+        o.cupom = b["codigo"]
+        n += 1
+    return n
+
+
+def texto_do_melhor_cupom(o: Any) -> str:
+    """A linha do alerta com o melhor cupom da lista (aplica_melhor_cupom): "🎟️ Com o cupom AFFNOV11 (melhor cupom
+    AliExpress ativo; 1 por pedido, digite no app): R$ 3.736,63 (item R$ 4.500 − R$ 785 + frete R$ 21,63) · se
+    esgotado: AFFNOV09 → R$ 3.771,63". '' sem o cálculo."""
+    extra = (o.get("extra") if isinstance(o, dict) else getattr(o, "extra", None)) or {}
+    if extra.get("cupom_origem") != "lista" or not extra.get("preco_com_cupom") or not extra.get("cupom_preco"):
+        return ""
+    loja = loja_canonica(str((o.get("loja") if isinstance(o, dict) else getattr(o, "loja", "")) or ""))
+    preco = (o.get("preco") if isinstance(o, dict) else getattr(o, "preco", None))
+    conta = ""
+    if preco and extra.get("cupom_desconto"):
+        conta = f" (item {fmt_reais(float(preco))} − {fmt_reais(float(extra['cupom_desconto']))}"
+        frete = extra.get("frete")
+        if isinstance(frete, (int, float)) and frete > 0:
+            conta += f" + frete {fmt_reais(float(frete))}"
+        elif frete == 0:
+            conta += " + frete grátis"
+        conta += ")"
+    txt = (f"🎟️ Com o cupom {extra['cupom_preco']} (melhor cupom {loja} ativo; 1 por pedido, digite no app): "
+           f"{fmt_reais(float(extra['preco_com_cupom']))}{conta}")
+    alts = [a for a in extra.get("cupons_alternativos") or [] if isinstance(a, dict) and a.get("codigo")]
+    if alts:
+        txt += " · se esgotado: " + ", ".join(f"{a['codigo']} → {fmt_reais(float(a['preco']))}" for a in alts[:2])
+    return txt

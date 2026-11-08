@@ -276,6 +276,26 @@ AMAZON_MAX_PAINEIS_PRODUTOS = 8  # painéis de ofertas (vendedor dos preços da 
 CASASBAHIA_MAX_CARGAS_PRODUTOS = 3
 # catálogos do ML abertos no Chrome do PC depois dos das TVs (só se a rodada não levou bloqueio)
 ML_CATALOGOS_PRODUTOS = {"PS5_DIGITAL": "MLB57081243"}
+# AliExpress (pedido de 08/11/2026): itens lidos pela página pública no Chrome do PC (perfil próprio, nunca logado; nada
+# de carrinho, CEP ou "resgatar"), como oferta de loja do produto. O 1005010260639712 é o PS5 Digital da Magalu Store
+# ("Produto já no Brasil"). Trocar sem mexer no código: ALIEXPRESS_ITENS="<id>:<produto>,<id>:<produto>" (sem o
+# ":<produto>", o produto sai do catálogo, produtos.produto_por_id_loja). No máximo ALIEXPRESS_MAX_CARGAS páginas por
+# rodada (com mais itens, eles se revezam)
+def _itens_aliexpress(bruto: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for parte in bruto.split(","):
+        item, _, pid = parte.strip().partition(":")
+        item = re.sub(r"\D", "", item)
+        pid = pid.strip().upper() or (_produtos.produto_por_id_loja("AliExpress", item) or "")
+        if item and pid in _produtos.PRODUTOS:
+            out[item] = pid
+    return out
+
+
+ALIEXPRESS_ITENS: dict[str, str] = _itens_aliexpress(_env("ALIEXPRESS_ITENS", "1005010260639712:PS5_DIGITAL"))
+ALIEXPRESS_MAX_CARGAS = int(_env("ALIEXPRESS_MAX_CARGAS", "1"))
+# a página do AliExpress pediu verificação (slider/captcha): fica tantas horas sem abrir (logs/aliexpress_bloqueado_em)
+ALIEXPRESS_ESPERA_BLOQUEIO_H = float(_env("ALIEXPRESS_ESPERA_BLOQUEIO_H", "6"))
 
 # --- Sites de promoção ---
 PROMOBIT_CUPONS_LOJAS = [
@@ -340,6 +360,25 @@ CUPONS_ATIVOS_DIAS_PELANDO = float(_env("CUPONS_ATIVOS_DIAS_PELANDO", "14"))
 # no máximo tantas linhas por loja na lista (primeiro os do anúncio monitorado, depois os gerais, depois os de lista,
 # categoria ou produto, cada grupo com o maior desconto primeiro; o resto vira "… e mais N códigos"); 0 = todas
 CUPONS_ATIVOS_MAX_POR_LOJA = int(_env("CUPONS_ATIVOS_MAX_POR_LOJA", "10"))
+# Cupons citados nos posts dos canais do Telegram (pedido de 08/11/2026; monitor/cupons_telegram.py): sem validade no
+# post, ativo até tantos dias da citação mais recente (código datado DDMM, só no dia). Eles vão só para a lista diária
+# (FONTES_CUPOM_SO_LISTA): nunca viram "🎟️ Novo cupom aplicável" (seria um alerta a cada post)
+CUPONS_ATIVOS_DIAS_TELEGRAM = float(_env("CUPONS_ATIVOS_DIAS_TELEGRAM", "2"))
+FONTES_CUPOM_SO_LISTA = ("telegram",)
+# cupom do Telegram fica no state por tantos dias depois da última citação (os outros cupons não são podados)
+CUPONS_TELEGRAM_PODA_DIAS = float(_env("CUPONS_TELEGRAM_PODA_DIAS", "15"))
+# canais lidos SÓ pelos cupons (as ofertas de produto deles não entram): listas de cupons citadas pelo usuário em 08/11
+TELEGRAM_CANAIS_CUPONS = [c.strip().lstrip("@") for c in _env("TELEGRAM_CANAIS_CUPONS", "chinacuponsbr").split(",")
+                          if c.strip()]
+# busca t.me/s/<canal>?q=<termo> nos canais que postam listas de cupons: o Xavier posta ~3 vezes por minuto e a 1ª
+# página (20 posts) não cobre o intervalo entre rodadas; a busca por "OFF" traz as 20 listas mais recentes. Só os cupons
+# dessas páginas entram (as ofertas de produto continuam só da 1ª página)
+TELEGRAM_BUSCA_CUPONS_CANAIS = [
+    c.strip().lstrip("@") for c in
+    _env("TELEGRAM_BUSCA_CUPONS_CANAIS", "xaviertechpromo,linguicapromocoes,IskandarSouza").split(",") if c.strip()]
+TELEGRAM_BUSCA_CUPONS_TERMOS = [t.strip() for t in _env("TELEGRAM_BUSCA_CUPONS_TERMOS", "OFF").split(",") if t.strip()]
+# canais que repostam o mesmo texto (contam como um só no número de grupos que citaram o código)
+TELEGRAM_GRUPOS_ESPELHO = ({"hardmob_promo", "ofertasdodia"}, {"IskandarSouza", "tecnoarthardware", "xaviertechpromo"})
 
 
 def hora_lista_cupons() -> int:

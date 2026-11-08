@@ -395,6 +395,12 @@ def _entradas(tipo: str, loja: str) -> list[dict]:
     return [e for e in (listas()[tipo].get(loja) or []) if isinstance(e, dict)]
 
 
+def nomes_confiaveis(loja: str) -> list[str]:
+    """Os nomes de vendedor da lista de confiáveis da loja (para achar a loja no texto de uma página que não diz
+    "Vendido por": o "Magalu Store" no AliExpress)."""
+    return [str(n) for e in _entradas("confiaveis", loja) for n in e.get("nomes") or [] if str(n or "").strip()]
+
+
 def _casa(e: dict, vid: str, nome: str, anuncios: set[str], estrito: bool, automatico: bool = False) -> bool:
     """A entrada é deste vendedor/anúncio?
 

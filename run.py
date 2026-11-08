@@ -146,6 +146,24 @@ def main() -> int:
     # cupom da página de anúncio reprovado/suspeito (no Magalu, o do vendedor do buy box, com o link do anúncio) não vai
     # ao alerta, ao painel nem ao testador
     cupons = confianca.descarta_cupons_barrados(estado, cupons, coletadas)  # type: ignore[arg-type]
+    # cupons citados nos canais do Telegram (08/11/2026) vão só para a lista diária e para o state: nunca viram "🎟️ Novo
+    # cupom aplicável" (seria um alerta a cada post) nem entram nos cupons aplicáveis do painel/resumo
+    cupons_alerta = [c for c in cupons if c.fonte not in config.FONTES_CUPOM_SO_LISTA]  # type: ignore[union-attr]
+
+    # todos os cupons que a rodada conhece (desta rodada, do state e do outro modo): a lista diária usa, e o anúncio do
+    # AliExpress ganha o preço com o melhor cupom ativo da loja (só a conta: quem digita o código no app é o usuário)
+    regs_cupons: list[dict] | None = None
+    try:
+        from monitor import lista_cupons as _lc
+
+        regs_cupons = _lc.cupons_conhecidos(estado, cupons)
+        n_cc = _lc.aplica_melhor_cupom(ofertas, regs_cupons)
+        if n_cc:
+            print(f"[cupons] melhor cupom do AliExpress calculado em {n_cc} anúncio(s)")
+    except Exception as e:  # noqa: BLE001 - o cálculo não pode derrubar a rodada
+        print(f"[cupons] melhor cupom do AliExpress não calculado: {type(e).__name__}: {str(e)[:160]}")
+        if os.environ.get("DEBUG"):
+            traceback.print_exc()
 
     # chave de oferta que mudou de formato (a coleta passou a pôr o vendedor nela) leva o histórico junto:
     # sem isto a rodada não manda 🔻 e pode repetir 🎯 no mesmo anúncio
@@ -169,12 +187,12 @@ def main() -> int:
             print(f"[vigia] TV comprada por R$ {config.VIGIA_PRECO_PAGO:.2f}; das TVs, alerta só da {config.VIGIA_MODELO} "
                   f"até R$ {config.VIGIA_LIMITE:.2f} (até {config.VIGIA_ATE}): {len(candidatas)} candidata(s); "
                   f"{len(outras)} oferta(s)/postagem(ns) de PS5/GTA 6 seguem normais")
-        msgs, alertados = gerar_alertas(estado, candidatas + outras, cupons, vigia=True)  # type: ignore[arg-type]
+        msgs, alertados = gerar_alertas(estado, candidatas + outras, cupons_alerta, vigia=True)  # type: ignore[arg-type]
     else:
-        msgs, alertados = gerar_alertas(estado, ofertas, cupons)  # type: ignore[arg-type]
+        msgs, alertados = gerar_alertas(estado, ofertas, cupons_alerta)  # type: ignore[arg-type]
     # cupons para o painel e o resumo: os das TVs continuam no painel durante a vigia (como antes); com as TVs
     # desligadas, nenhum cupom "da TV" (a 55C6K deixa de estar sempre em jogo)
-    aplicaveis = cupons_aplicaveis(ofertas, cupons, estado, vigia=config.TVS_DESLIGADAS)  # type: ignore[arg-type]
+    aplicaveis = cupons_aplicaveis(ofertas, cupons_alerta, estado, vigia=config.TVS_DESLIGADAS)  # type: ignore[arg-type]
     # lojas com fonte direta nesta rodada, no state ou no outro modo: a linha do agregador (Zoom) delas não é preço
     diretas = estado.lojas_diretas_conhecidas(ofertas)  # type: ignore[arg-type]
 
@@ -210,17 +228,12 @@ def main() -> int:
     if args.resumo or args.cupons or (hora_lista >= 0 and h >= hora_lista and args.mode != "pc"
                                        and estado.dados.get("ultima_lista_cupons") != hoje()):
         try:
-            from monitor.lista_cupons import mensagens_cupons_ativos
-            from monitor.util import loja_canonica
+            from monitor.lista_cupons import cupons_conhecidos, mensagens_cupons_ativos
 
             # os cupons desta rodada, os da última leitura (por fonte e loja) deste modo que não vieram agora (a página
-            # de uma loja que falhou nesta rodada não tira a loja da lista) e os do outro modo (latest e última leitura
-            # do state dele)
-            lidas_agora = {(c.fonte, loja_canonica(c.loja)) for c in cupons}  # type: ignore[union-attr]
-            regs = [c.to_dict() for c in cupons]  # type: ignore[union-attr]
-            regs += [r for r in estado.cupons_da_ultima_leitura()
-                     if (r.get("fonte"), loja_canonica(str(r.get("loja") or ""))) not in lidas_agora]
-            regs += estado.cupons_de_outros_modos()
+            # de uma loja que falhou nesta rodada não tira a loja da lista), os do Telegram dentro da janela e os do
+            # outro modo (latest e última leitura do state dele): lista_cupons.cupons_conhecidos
+            regs = regs_cupons if regs_cupons is not None else cupons_conhecidos(estado, cupons)
             lista_cupons = mensagens_cupons_ativos(regs)
         except Exception as e:  # noqa: BLE001 - a lista não pode derrubar a rodada (o state ainda não foi salvo)
             print(f"[cupons] lista de cupons ativos não montada: {type(e).__name__}: {str(e)[:160]}")
@@ -271,6 +284,9 @@ def main() -> int:
         chaves_vistas.add(o.chave)  # type: ignore[union-attr]
     for c in cupons:  # type: ignore[assignment]
         estado.registra_cupom(c)  # type: ignore[arg-type]
+    podados = estado.poda_cupons_so_lista()   # cupons do Telegram não vistos há mais de 15 dias
+    if podados:
+        print(f"[estado] {podados} cupom(ns) antigo(s) do Telegram fora do state")
     estado.marca_inativas(chaves_vistas, executadas)
     # postagens antigas de PS5/GTA 6 que não apareceram nesta rodada saem do state (as das TVs ficam como sempre)
     podadas = estado.poda_postagens(chaves_vistas)

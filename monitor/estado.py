@@ -480,6 +480,10 @@ class Estado:
                     regs += self._cupons_do_modo(m)
         out = []
         for reg in regs:
+            # cupom citado no Telegram fica fora: o título é a linha do post ("cupom citado no post de Tênis..."), que
+            # não diz a categoria do cupom (restricao_do_codigo leria o produto como categoria)
+            if reg.get("fonte") in config.FONTES_CUPOM_SO_LISTA:
+                continue
             d = dias_desde(reg.get("ultima_vez") or reg.get("primeira_vez"))
             if d is None or d <= dias:
                 out.append(reg)
@@ -519,12 +523,30 @@ class Estado:
                 por_fonte.setdefault(chave, []).append((quando, r))
         out: list[dict] = []
         limite = agora() - timedelta(hours=horas)
-        for itens in por_fonte.values():
+        # cupons dos canais do Telegram (08/11/2026): a 1ª página do canal mostra só ~20 posts, e o código postado de
+        # madrugada já saiu dela na leitura da manhã. Entram todos os vistos dentro da janela de ativo deles
+        janela_tg = agora() - timedelta(days=max(config.CUPONS_ATIVOS_DIAS_TELEGRAM, 1.0))
+        for (fonte, _loja), itens in por_fonte.items():
+            if fonte in config.FONTES_CUPOM_SO_LISTA:
+                out += [r for q, r in itens if q >= janela_tg]
+                continue
             maior = max(q for q, _r in itens)
             if maior < limite:
                 continue
             out += [r for q, r in itens if q >= maior - timedelta(minutes=10)]
         return out
+
+    def poda_cupons_so_lista(self, dias: float | None = None) -> int:
+        """Tira do state os cupons do Telegram (config.FONTES_CUPOM_SO_LISTA) não vistos há mais de `dias` dias
+        (config.CUPONS_TELEGRAM_PODA_DIAS): cada post novo pode trazer códigos novos, e o state não pode crescer sem
+        fim. Os outros cupons ficam como sempre. Devolve quantos saíram."""
+        dias = config.CUPONS_TELEGRAM_PODA_DIAS if dias is None else dias
+        fora = [k for k, r in self.dados["cupons"].items()
+                if isinstance(r, dict) and r.get("fonte") in config.FONTES_CUPOM_SO_LISTA
+                and (dias_desde(r.get("ultima_vez") or r.get("primeira_vez")) or 0) > dias]
+        for k in fora:
+            del self.dados["cupons"][k]
+        return len(fora)
 
     def cupons_de_outros_modos(self, horas: float = 36) -> list[dict]:
         """Cupons do outro modo para a lista de cupons ativos: os do latest_<outro>.json ("cupons": os que serviram no

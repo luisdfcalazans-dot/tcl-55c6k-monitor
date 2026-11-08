@@ -55,6 +55,8 @@ def todas() -> list[Fonte]:
         netshoes.Netshoes(),
         playwright_sources.MercadoLivre(), playwright_sources.MercadoLivreProdutos(),
         playwright_sources.AliExpress(),
+        # PS5 Digital da Magalu Store no AliExpress, pela página pública do item (08/11/2026)
+        playwright_sources.AliExpressProdutos(),
         playwright_sources.Shopee(),
         telegram_user.TelegramUsuario(),
     ]
