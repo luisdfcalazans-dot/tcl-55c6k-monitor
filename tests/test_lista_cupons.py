@@ -94,7 +94,7 @@ AVISO_ML = ("🚨 Fiquem atentos: A maioria dos cupons do Mercado Livre agora se
     ("Use o cupom e ganhe 15% de desconto no seu carrinho", "", "15% OFF"),
     ("Ganhe 20% de desconto em botas Acero", "", "20% OFF · botas acero"),
     ("Garanta 5% OFF em sua primeira compra na KaBuM!", "", "5% OFF · 1ª compra"),
-    # o Promobit às vezes põe o preço do produto no lugar do desconto
+    # o título do anúncio no Promobit às vezes traz o preço do produto no lugar do desconto
     ("O momento chegou: Aplique cupom Fast Shop e ganhe R$ 5.229.90 OFF", "produtos Fast Shop",
      "valor a conferir (o anúncio diz R$ 5.229,90 OFF)"),
 ])
@@ -146,9 +146,9 @@ def test_codigo_datado_de_ontem_fora_e_de_hoje_dentro():
 
 
 def test_codigo_datado_fora_do_ml_so_com_a_data_perto_da_publicacao():
-    # PS0707 da Hype: publicado em 07/07, 7% OFF com validade explícita no futuro: a validade vale
-    hype = _cupom("PS0707", "DESBLOQUEIE O PLAY: 7% OFF em Giftcard Playstation (acima de R$150)", loja="Hype",
-                  fonte="promobit", publicado="2026-07-07T18:27:51-03:00",
+    # como o PS0707 da Hype (publicado em 07/07 com o código "do dia"), mas com validade explícita no futuro: ela vale
+    hype = _cupom(f"PS{_ddmm(5)}", "DESBLOQUEIE O PLAY: 7% OFF em Giftcard Playstation (acima de R$150)", loja="Hype",
+                  fonte="promobit", publicado=_iso(days=5),
                   validade=(agora() + timedelta(days=20)).isoformat(timespec="seconds"))
     assert lc.motivo_inativo(hype) == ""
     # sem validade, o código que termina na data da publicação é datado (de outro dia: fora)
@@ -181,8 +181,11 @@ def test_validade_escrita_no_texto():
 
 
 def test_publicado_ha_5_dias_fora_e_ha_2_dentro(monkeypatch):
-    velho = _cupom("VELHO10", "Cupom Mercado Livre - 10% OFF acima de R$79 limitado à R$40", publicado=_iso(days=5))
-    novo = _cupom("NOVO10", "Cupom Mercado Livre - 10% OFF acima de R$79 limitado à R$40", publicado=_iso(days=2))
+    # fonte sem sinal de status (o Promobit sem validade): a janela de CUPONS_ATIVOS_DIAS
+    velho = _cupom("VELHO10", "Cupom Mercado Livre - 10% OFF acima de R$79 limitado à R$40", fonte="promobit",
+                   publicado=_iso(days=5))
+    novo = _cupom("NOVO10", "Cupom Mercado Livre - 10% OFF acima de R$79 limitado à R$40", fonte="promobit",
+                  publicado=_iso(days=2))
     assert lc.motivo_inativo(velho).startswith("publicado há")
     assert lc.motivo_inativo(novo) == ""
     monkeypatch.setattr(config, "CUPONS_ATIVOS_DIAS", 7.0)
@@ -265,12 +268,12 @@ def test_dedupe_sem_diferenca_de_maiusculas_fica_o_registro_mais_completo():
 
 
 def test_dedupe_usa_o_valor_do_anuncio_mais_completo_mesmo_fora_da_janela():
-    """AFFNOV22 em 08/11: o Promobit diz que vale até 10/11, mas com um valor gerado errado; o Pelando tem o valor certo
-    num anúncio de 5 dias atrás (fora da janela de 3 dias). Entra pelo Promobit, com o valor do Pelando."""
+    """Como o AFFNOV22 em 08/11: o Promobit diz que vale até 10/11, mas o título do anúncio traz outro valor; o Pelando
+    tem o valor certo num anúncio fora da janela dele. Entra pelo Promobit, com o valor do Pelando."""
     vence = agora() + timedelta(days=2)
     promobit = _cupom("AFFNOV22", "A chance de economizar R$ 4.369 em compras na Aliexpress", loja="AliExpress",
                       fonte="promobit", validade=vence.isoformat(timespec="seconds"), publicado=_iso(days=6))
-    pelando = _cupom("AFFNOV22", "Cupom R$620 off em R$4200 aliexpress", loja="AliExpress", publicado=_iso(days=5))
+    pelando = _cupom("AFFNOV22", "Cupom R$620 off em R$4200 aliexpress", loja="AliExpress", publicado=_iso(days=20))
     assert lc.motivo_inativo(pelando).startswith("publicado há")
     m = lc.mensagens_cupons_ativos([promobit, pelando], expirados=set())[0]
     assert f"<code>AFFNOV22</code> — R$ 620 OFF · mín. R$ 4.200 · vence {vence:%d/%m}" in m
@@ -284,7 +287,7 @@ def test_maximo_de_cupons_por_loja(monkeypatch):
     m = lc.mensagens_cupons_ativos(regs, expirados=set())[0]
     assert "🛒 <b>KABUM!</b> (5)" in m
     assert "<code>KAB50</code>" in m and "<code>KAB40</code>" in m and "<code>KAB30</code>" not in m
-    assert "<i>… e mais 3 (os de menor desconto)</i>" in m
+    assert "<i>… e mais 3 códigos de lista, categoria ou menor desconto</i>" in m
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -543,3 +546,340 @@ def test_run_falha_no_telegram_tenta_de_novo_na_proxima_rodada(dados, monkeypatc
     lista = [(m, s) for m, s in enviadas if m.startswith("🎟️ <b>Cupons ativos</b>")]
     assert lista and lista[0][1] is False, "a primeira parte da lista toca"
     assert _ultima_lista(dados) == hoje()
+
+
+# =====================================================================================================================
+# correções da verificação (08/11/2026)
+# =====================================================================================================================
+# ---- valor: "até X" de vitrine, "100%" do produto, teto depois de outra palavra, frete e parcelamento --------------
+@pytest.mark.parametrize("titulo, regra, esperado", [
+    # o "até 60%" do título é a vitrine; a regra diz o valor do cupom (SLIME10 na Nuuvem)
+    ("Marcas em alta com até 60% de desconto", "produtos Nuuvem 10% DE DESCONTO NOS PRODUTOS SELECIONADOS, APROVEITE!",
+     "10% OFF · itens selecionados"),
+    # sem valor certo em lugar nenhum: mostra que é o máximo (QUERO45 na Netshoes, 6DO6 na Americanas)
+    ("Até 60% OFF em produtos Alpha Co com desconto na Netshoes",
+     "produtos Netshoes PARA PRODUTOS ALPHA CO SELECIONADOS, EM COMPRAS ACIMA DE R$0,01. APLIQUE O CUPOM E GANHE ATÉ 60% OFF",
+     "até 60% OFF · alpha co · itens selecionados"),
+    ("Garanta até R$100 de desconto na Americanas com este cupom",
+     "produtos Americanas CONFIRA O REGULAMENTO DA PROMOÇÃO NO SITE", "até R$ 100 OFF"),
+    ("Cupom de desconto Shopee oferece até R$160 OFF em suas compras", "produtos Shopee", "até R$ 160 OFF"),
+    # o valor certo vem antes do "até" de vitrine no mesmo título
+    ("Ofertas de Data Dupla com até R$100 OFF no cupom Americanas",
+     "produtos Americanas DESCONTO DE R$20 OFF EM COMPRAS ACIMA DE R$200", "R$ 20 OFF · mín. R$ 200"),
+    # "100%" do nome do produto não é desconto
+    ("Whey Protein 100% Pure 900g com R$ 30 OFF", "", "R$ 30 OFF · whey protein 100% pure 900g"),
+    ("Camiseta 100% algodão com 10% OFF", "", "10% OFF · camiseta 100% algodão"),
+    ("Tudo com 100% OFF no frete", "", "100% OFF"),
+    # teto escrito depois de outra palavra; frete grátis com limite
+    ("15% OFF no Pix até R$ 200", "", "15% OFF · até R$ 200"),
+    ("Compras com cupom Americanas e frete grátis garantido",
+     "produtos Americanas FRETE GRÁTIS ATÉ R$15 EM PEDIDOS ACIMA DE R$100", "frete grátis · mín. R$ 100 · até R$ 15"),
+    ("10% OFF em compras de até R$ 1000", "", "10% OFF · compras até R$ 1.000"),
+    # frete e parcelamento não são escopo
+    ("Cupom R$ 15 OFF no frete", "", "R$ 15 OFF no frete"),
+    ("R$ 20 OFF acima de R$ 99 + frete grátis", "", "R$ 20 OFF · mín. R$ 99"),
+    ("Cupom 12% OFF em até 10x sem juros", "", "12% OFF"),
+    ("Cupom de R$ 30 para compras acima de R$ 199", "", "R$ 30 OFF · mín. R$ 199"),
+    ("R$ 30 para compras acima de R$ 199", "", "R$ 30 OFF · mín. R$ 199"),
+])
+def test_valor_vitrine_produto_teto_e_frete(titulo, regra, esperado):
+    assert lc.texto_do_valor(lc.valor_do_cupom(titulo, regra), titulo) == esperado
+
+
+def test_valor_ate_de_vitrine_pesa_menos_e_e_restrito():
+    certo = lc.valor_do_cupom("60% OFF em tudo")
+    vitrine = lc.valor_do_cupom("Até 60% OFF em tudo")
+    assert vitrine.ate and not certo.ate
+    assert vitrine.peso == certo.peso / 2
+    assert vitrine.restrito and not certo.restrito
+
+
+# ---- escopo: o produto antes do desconto e a regra do Promobit -----------------------------------------------------
+@pytest.mark.parametrize("titulo, regra, esperado", [
+    ("Adquira o Meta Quest 3 512GB com R$500 de desconto",
+     "produtos KaBuM! GANHE R$500 OFF NO ÓCULOS DE REALIDADE VIRTUAL META QUEST 3 512GB BRANCO. FAÇA LOGIN",
+     "R$ 500 OFF · meta quest 3 512gb"),
+    ("Smartphone Galaxy A17 256GB com R$300 de desconto",
+     "produtos KaBuM! SMARTPHONE SAMSUNG GALAXY A17 256GB COM R$300 OFF", "R$ 300 OFF · smartphone galaxy a17 256gb"),
+    ("Split Midea 18.000 BTUs com R$300 de desconto", "", "R$ 300 OFF · split midea 18.000 btus"),
+    ("Faça um upgrade com o Intel Core i5-12600K e 15% OFF", "", "15% OFF · intel core i5-12600k"),
+    ("Turbine seu setup com o processador AMD Ryzen 7 5700 e 15% de desconto", "",
+     "15% OFF · processador amd ryzen 7 5700"),
+    ("Phantom Blade Zero Deluxe com 10% OFF no cupom Hype Games", "", "10% OFF · phantom blade zero deluxe"),
+    ("Galaxy S24+ com 10% OFF", "", "10% OFF · galaxy s24+"),
+    # nome longo: corta com "…"
+    ("Aspirador de água e pó Philco PAS34 1400W com 20% OFF", "", "20% OFF · aspirador de água e pó philco pas34…"),
+    # frase de campanha antes do desconto não é produto
+    ("Os melhores itens do site com R$ 200 OFF aplicando cupom KaBuM!", "produtos KaBuM!", "R$ 200 OFF"),
+    ("A chance de economizar R$ 120 em compras na KaBuM!", "produtos KaBuM!", "R$ 120 OFF"),
+    ("Compre com código promocional Kabum e economize 10%", "produtos KaBuM!", "10% OFF"),
+    ("O momento chegou: Aplique cupom Fast Shop e ganhe 10% OFF", "produtos Fast Shop", "10% OFF"),
+    # o título não diz onde vale; a regra do Promobit diz o produto (depois ou antes do desconto)
+    ("A Netshoes oferece R$100 OFF para os seus pedidos", "produtos Netshoes R$100 OFF ASICS DYNABLAST 6",
+     "R$ 100 OFF · asics dynablast 6"),
+    ("Economia de R$200 com o cupom de desconto Netshoes",
+     "produtos Netshoes TÊNIS MIZUNO WAVE PROPHECY COM R$200 OFF NO CUPOM", "R$ 200 OFF · tênis mizuno wave prophecy"),
+    ("Aplique o cupom KaBum! e receba 20% OFF em suas compras",
+     "produtos KaBuM! CUPOM EXCLUSIVO PARA NOTEBOOK LENOVO. VÁLIDO PARA O PRODUTO NOTEBOOK LENOVO IDEAPAD SLIM 3 COM 20% "
+     "DE DESCONTO", "20% OFF · notebook lenovo ideapad slim 3"),
+    # preço na regra ("LEVE 2 POR R$6,99 CADA + 20%") não é produto
+    ("Americanas com 20% OFF em suas compras", "produtos Americanas LEVE 2 POR R$6,99 CADA + 20% DE DESCONTO COM CUPOM",
+     "20% OFF"),
+    # a regra do Pelando é comentário de usuário: não vira escopo
+    ("Wella Professionals Oil Reflections: Kit por R$123,11 com cupom",
+     "R$ 100 OFF no KIT Wella Professionals Oil Reflections", "R$ 100 OFF"),
+    # "participantes da campanha": o que vem antes fica; vira seleção
+    ("10% de Desconto em Notebooks e Monitores participantes da campanha", "produtos KaBuM!",
+     "10% OFF · notebooks e monitores · itens selecionados"),
+    ("20% OFF em produtos participantes da campanha", "produtos KaBuM!", "20% OFF · itens selecionados"),
+    # nome de loja com duas palavras sai inteiro; o "shop" do "Pet Shop" fica
+    ("Cupom Mercado Livre oferece R$ 20 em R$ 149 em Pet Shop", "", "R$ 20 OFF · mín. R$ 149 · pet shop"),
+    ("Cupom Shopee - R$25 OFF acima de R$129 Todas as Lojas", "", "R$ 25 OFF · mín. R$ 129 · todo site"),
+    ("Cupom Mercado Livre 10% OFF acima de R$ 149 (Limitado a R$ 100 OFF) em itens selecionados",
+     "Cupom Mercado Libre 10% OFF acima de R$ 79 (Limitado a R$ 100 OFF) em itens selecionados",
+     "10% OFF · mín. R$ 149 · até R$ 100 · itens selecionados"),
+])
+def test_escopo_produto_antes_do_desconto_e_na_regra(titulo, regra, esperado):
+    assert lc.texto_do_valor(lc.valor_do_cupom(titulo, regra), titulo) == esperado
+
+
+def test_cupons_de_produtos_diferentes_nao_juntam_na_mesma_linha():
+    vence = (agora() + timedelta(days=4)).isoformat(timespec="seconds")
+    regs = [_cupom("ARNOVO10", "Split Midea 18.000 BTUs com R$300 de desconto", loja="KaBuM!", fonte="promobit",
+                   validade=vence),
+            _cupom("MAGA300", "Smartphone Galaxy A17 256GB com R$300 de desconto", loja="KaBuM!", fonte="promobit",
+                   validade=vence),
+            _cupom("PHANTOMPS", "Phantom Blade Zero Deluxe com 10% OFF no cupom Hype Games", loja="Hype",
+                   fonte="promobit", validade=vence),
+            _cupom("ZELDAOOT", "Zelda Ocarina of Time com 10% OFF usando o cupom Hype Games", loja="Hype",
+                   fonte="promobit", validade=vence)]
+    m = lc.mensagens_cupons_ativos(regs, expirados=set())[0]
+    assert " ou " not in m
+    assert "• <code>VR500</code>" not in m and "• <code>MAGA300</code> — R$ 300 OFF · smartphone galaxy a17 256gb" in m
+    assert "• <code>ZELDAOOT</code> — 10% OFF · zelda ocarina of time" in m
+
+
+def test_ordem_na_loja_anuncio_depois_gerais_depois_restritos():
+    regs = [_cupom("VR500", "Adquira o Meta Quest 3 512GB com R$500 de desconto", loja="KaBuM!", fonte="promobit"),
+            _cupom("LISTA30", "30% OFF em itens selecionados", loja="KaBuM!", fonte="promobit"),
+            _cupom("GERAL10", "10% OFF", loja="KaBuM!", fonte="promobit"),
+            _cupom("SITE5", "R$ 5 OFF em todo o site", loja="KaBuM!", fonte="promobit"),
+            _cupom("ANUNCIO", "R$ 20 OFF", loja="KaBuM!", fonte="kabum", publicado="", especifico=True,
+                   modelo="PS5_DIGITAL")]
+    ativos = lc.cupons_ativos(regs, expirados=set())
+    assert [c["codigo"] for c in ativos["KaBuM!"]] == ["ANUNCIO", "GERAL10", "SITE5", "VR500", "LISTA30"]
+
+
+def test_maximo_de_linhas_por_loja_conta_os_codigos_escondidos(monkeypatch):
+    monkeypatch.setattr(config, "CUPONS_ATIVOS_MAX_POR_LOJA", 1)
+    regs = [_cupom(c, "Cupom Aliexpress R$ 580 OFF acima de R$ 3.700", loja="AliExpress") for c in ("A1X", "B2X")]
+    regs += [_cupom("C3X", "Cupom Aliexpress R$ 50 OFF acima de R$ 290", loja="AliExpress"),
+             _cupom("D4X", "Cupom Aliexpress R$ 16 OFF acima de R$ 80", loja="AliExpress")]
+    m = lc.mensagens_cupons_ativos(regs, expirados=set())[0]
+    assert "🛒 <b>ALIEXPRESS</b> (4)" in m
+    assert "• <code>A1X</code> ou <code>B2X</code> — R$ 580 OFF · mín. R$ 3.700" in m
+    assert "<i>… e mais 2 códigos de lista, categoria ou menor desconto</i>" in m
+    monkeypatch.setattr(config, "CUPONS_ATIVOS_MAX_POR_LOJA", 3)
+    m = lc.mensagens_cupons_ativos(regs, expirados=set())[0]
+    assert "… e mais" not in m
+
+
+def test_padrao_de_linhas_por_loja_e_10_e_janela_do_pelando_14():
+    """Os padrões (sem a variável no ambiente), lidos do código para não recarregar o config no meio da suíte."""
+    fonte = (RAIZ / "monitor" / "config.py").read_text(encoding="utf-8")
+    assert '_env("CUPONS_ATIVOS_MAX_POR_LOJA", "10")' in fonte
+    assert '_env("CUPONS_ATIVOS_DIAS_PELANDO", "14")' in fonte
+    yml = (RAIZ / ".github" / "workflows" / "monitor.yml").read_text(encoding="utf-8")
+    assert "CUPONS_ATIVOS_DIAS_PELANDO: ${{ vars.CUPONS_ATIVOS_DIAS_PELANDO }}" in yml
+
+
+# ---- "ativo": janela do Pelando, validade-padrão, "fim do mês", datas que não são data --------------------------------
+def test_pelando_vale_ate_14_dias_e_conta_o_dia_inteiro(monkeypatch):
+    titulo = "Cupom Amazon - 20% OFF em Cozinha"
+    assert lc.motivo_inativo(_cupom("COZINHA20", titulo, loja="Amazon", publicado=_iso(days=10))) == ""
+    # "há 14 dias" é 14,0 dias antes da leitura: ainda vale umas horas depois
+    assert lc.motivo_inativo(_cupom("COZ14", titulo, loja="Amazon", publicado=_iso(days=14, hours=3))) == ""
+    assert lc.motivo_inativo(_cupom("COZ16", titulo, loja="Amazon", publicado=_iso(days=16))).startswith("publicado há")
+    # o Promobit sem validade continua com os 3 dias
+    assert lc.motivo_inativo(_cupom("PB4", titulo, loja="Amazon", fonte="promobit", publicado=_iso(days=4))) != ""
+    monkeypatch.setattr(config, "CUPONS_ATIVOS_DIAS_PELANDO", 5.0)
+    assert lc.motivo_inativo(_cupom("COZINHA20", titulo, loja="Amazon", publicado=_iso(days=10))) != ""
+    # o código datado e o testador valem também no Pelando
+    assert lc.motivo_inativo(_cupom(f"TODOSITE{_ddmm(2)}", "R$ 10 OFF", publicado=_iso(days=2))).startswith("código de")
+    assert lc.motivo_inativo(_cupom("ACABOU", titulo, publicado=_iso(days=1)), {"Mercado Livre|ACABOU"}) != ""
+
+
+def test_validade_padrao_de_anuncio_antigo_nao_conta():
+    # JBL25: publicado há mais de um ano, "válido" por mais dois
+    jbl = _cupom("JBL25", "25% de Desconto em produtos JBL", loja="KaBuM!", fonte="promobit",
+                 publicado=_iso(days=415), validade=(agora() + timedelta(days=320)).isoformat(timespec="seconds"))
+    assert lc.motivo_inativo(jbl).startswith("publicado há")
+    # 31/12 em anúncio de meses atrás: data-padrão
+    fim_do_ano = f"{agora().year}-12-31T23:59:59-03:00"
+    velho = _cupom("NUU10", "10% OFF", loja="Nuuvem", fonte="promobit", publicado=_iso(days=100), validade=fim_do_ano)
+    novo = _cupom("NUU11", "10% OFF", loja="Nuuvem", fonte="promobit", publicado=_iso(days=10), validade=fim_do_ano)
+    assert lc.motivo_inativo(velho).startswith("publicado há")
+    assert lc.motivo_inativo(novo) == "", "anúncio novo com validade em 31/12: vale"
+    # validade perto da publicação, mesmo em anúncio antigo: vale
+    perto = _cupom("OBA20", "Economize R$20", loja="Americanas", fonte="promobit", publicado=_iso(days=136),
+                   validade=(agora() + timedelta(days=5)).isoformat(timespec="seconds"))
+    if (agora() + timedelta(days=5)).strftime("%d/%m") != "31/12":
+        assert lc.motivo_inativo(perto) == ""
+    assert lc.validade_padrao(lc._data(jbl["validade"]), jbl["publicado"])
+    assert not lc.validade_padrao(None, jbl["publicado"]) and not lc.validade_padrao(lc._data(fim_do_ano), None)
+
+
+def test_validade_ate_o_fim_do_mes_e_parcelas_nao_sao_data():
+    reg = {"titulo": "25% de Desconto em produtos JBL. Oferta válida até o fim do mês",
+           "publicado": "2025-09-19T10:00:09-03:00"}
+    assert lc.validade_no_texto(reg).date().isoformat() == "2025-09-30"
+    dez = {"titulo": "Válido até o final do mês", "publicado": "2026-12-05T10:00:00-03:00"}
+    assert lc.validade_no_texto(dez).date().isoformat() == "2026-12-31"
+    assert lc.validade_no_texto({"titulo": "parcele em até 10/12 vezes", "publicado": agora_iso()}) is None
+    assert lc.validade_no_texto({"titulo": "em até 10/12x sem juros", "publicado": agora_iso()}) is None
+    assert lc.validade_no_texto({"titulo": "válido até 10/12", "publicado": agora_iso()}) is not None
+
+
+def test_codigo_com_4_digitos_sem_publicacao_fora_do_ml_nao_e_datado():
+    anuncio = {"codigo": "MAGALU0911", "loja": "Magazine Luiza", "especifico": True, "titulo": "10% OFF"}
+    assert lc.data_no_codigo("MAGALU0911", "Magazine Luiza") is None
+    assert lc.motivo_inativo(anuncio, set()) == ""
+    # no Mercado Livre continua datado em qualquer lugar do código
+    assert lc.data_no_codigo("SITE0911TODO", "Mercado Livre") == (9, 11)
+
+
+# ---- duplicados com valores diferentes, vencimento -----------------------------------------------------------------
+def test_anuncios_igualmente_completos_com_valores_diferentes_mostram_o_outro():
+    a = _cupom("AFFNOV22", "Cupom R$620 off em R$4200 aliexpress", loja="AliExpress", publicado=_iso(days=5))
+    b = _cupom("AFFNOV22", "Cupom Aliexpress R$ 670 acima de R$ 4200", loja="AliExpress", publicado=_iso(days=5))
+    # o título genérico do Promobit (menos completo) não conta como divergência
+    c = _cupom("AFFNOV22", "Os melhores itens do site com R$ 1.014 OFF aplicando cupom", loja="AliExpress",
+               fonte="promobit", publicado=_iso(days=5))
+    m = lc.mensagens_cupons_ativos([a, b, c], expirados=set())[0]
+    assert "<code>AFFNOV22</code> — R$ 620 OFF · mín. R$ 4.200 · outro anúncio diz R$ 670 OFF" in m
+    m = lc.mensagens_cupons_ativos([a, c], expirados=set())[0]
+    assert "<code>AFFNOV22</code> — R$ 620 OFF · mín. R$ 4.200" in m and "outro anúncio" not in m
+
+
+def test_vence_hoje_e_amanha():
+    fim = agora().replace(hour=23, minute=59, second=59, microsecond=0)
+    hoje_ = _cupom("HOJE10", "10% OFF", loja="KaBuM!", fonte="promobit", validade=fim.isoformat())
+    amanha = _cupom("AMANHA10", "10% OFF", loja="KaBuM!", fonte="promobit",
+                    validade=(fim + timedelta(days=1)).isoformat())
+    longe = _cupom("LONGE10", "10% OFF", loja="KaBuM!", fonte="promobit",
+                   validade=(fim + timedelta(days=5)).isoformat())
+    m = lc.mensagens_cupons_ativos([hoje_, amanha, longe], expirados=set())[0]
+    assert "<code>HOJE10</code> — 10% OFF · vence hoje" in m
+    assert "<code>AMANHA10</code> — 10% OFF · vence amanhã" in m
+    assert f"<code>LONGE10</code> — 10% OFF · vence {fim + timedelta(days=5):%d/%m}" in m
+
+
+# ---- divisão: linha longa e primeira parte sem cupom ---------------------------------------------------------------
+def test_muitos_codigos_com_o_mesmo_valor_nao_estouram_a_mensagem():
+    regs = [_cupom(f"COD{i:025d}", "R$ 10 OFF acima de R$ 50", loja="Shopee") for i in range(120)]
+    msgs = lc.mensagens_cupons_ativos(regs, expirados=set())
+    assert all(len(m) <= lc.LIMITE_MENSAGEM for m in msgs)
+    for m in msgs:
+        for ln in m.split("\n"):
+            assert ln.count("<code>") <= lc.MAX_CODIGOS_POR_LINHA
+    assert "<code>" in msgs[0], "a primeira parte não sai só com o cabeçalho"
+    tudo = "\n".join(msgs)
+    assert all(tudo.count(f"<code>{r['codigo']}</code>") == 1 for r in regs)
+
+
+# ---- última leitura por fonte e loja --------------------------------------------------------------------------------
+def test_ultima_leitura_por_loja_nao_some_quando_uma_pagina_falha(dados):
+    est = Estado("cloud")
+    est.dados["cupons"] = {
+        # a página da KaBuM! falhou na última leitura do Promobit: a leitura anterior dela vale
+        "promobit:1": dict(_cupom("KAB10", "10% OFF", loja="KaBuM!", fonte="promobit"), ultima_vez=_iso(hours=2)),
+        "promobit:2": dict(_cupom("NET10", "10% OFF", loja="Netshoes", fonte="promobit"), ultima_vez=_iso(minutes=5)),
+        "promobit:3": dict(_cupom("NETVELHO", "5% OFF", loja="Netshoes", fonte="promobit"), ultima_vez=_iso(hours=2)),
+    }
+    assert sorted(r["codigo"] for r in est.cupons_da_ultima_leitura()) == ["KAB10", "NET10"]
+
+
+def test_run_completa_por_loja_a_leitura_que_falhou(dados, monkeypatch, capsys):
+    cupons = {
+        "promobit:1": dict(_cupom("KABANTES", "10% OFF", loja="KaBuM!", fonte="promobit"), ultima_vez=_iso(hours=1)),
+        "promobit:2": dict(_cupom("NETANTES", "10% OFF", loja="Netshoes", fonte="promobit"), ultima_vez=_iso(hours=1)),
+    }
+    _state_inicial(dados, cupons=cupons)
+    monkeypatch.setattr(config, "HORA_RESUMO_DIARIO", -1)
+    agora_netshoes = Cupom("promobit", "Netshoes", "NETAGORA", "15% OFF", "https://exemplo/c", "n1", publicado=agora_iso())
+    out = _roda(monkeypatch, capsys, [agora_netshoes], argv_extra=("--cupons",))
+    assert "<code>NETAGORA</code>" in out and "<code>KABANTES</code>" in out
+    assert "<code>NETANTES</code>" not in out, "a Netshoes foi lida agora: a leitura anterior dela não conta"
+
+
+# ---- run.py: lista que chegou só em parte ---------------------------------------------------------------------------
+def _envio_por_partes(monkeypatch, falhas: dict[str, int]):
+    """notificar.enviar falso: a mensagem que começa com uma chave de `falhas` falha tantas vezes."""
+    from monitor import lista_cupons, notificar
+
+    monkeypatch.setattr(config, "TELEGRAM_BOT_TOKEN", "123456:teste")
+    monkeypatch.setattr(config, "TELEGRAM_CHAT_ID", "1")
+    monkeypatch.setattr(lista_cupons, "mensagens_cupons_ativos", lambda regs: ["PARTE1", "PARTE2"])
+    enviadas: list[str] = []
+
+    def enviar(m, silencioso=False):
+        if m.startswith("PARTE"):
+            enviadas.append(m)
+        if falhas.get(m, 0) > 0:
+            falhas[m] -= 1
+            return False
+        return True
+
+    monkeypatch.setattr(notificar, "enviar", enviar)
+    return enviadas
+
+
+def test_run_parte_que_falhou_ganha_nova_tentativa_na_hora(dados, monkeypatch, capsys):
+    _state_inicial(dados)
+    monkeypatch.setattr(config, "HORA_RESUMO_DIARIO", -1)
+    monkeypatch.setattr(config, "HORA_LISTA_CUPONS", 0)
+    enviadas = _envio_por_partes(monkeypatch, {"PARTE2": 1})
+    _roda(monkeypatch, capsys, [_cupom_da_rodada()], notificar=False)
+    assert enviadas == ["PARTE1", "PARTE2", "PARTE2"]
+    assert _ultima_lista(dados) == hoje()
+
+
+def test_run_lista_que_chegou_em_parte_repete_uma_vez_so(dados, monkeypatch, capsys):
+    _state_inicial(dados)
+    monkeypatch.setattr(config, "HORA_RESUMO_DIARIO", -1)
+    monkeypatch.setattr(config, "HORA_LISTA_CUPONS", 0)
+    enviadas = _envio_por_partes(monkeypatch, {"PARTE2": 99})
+    _roda(monkeypatch, capsys, [_cupom_da_rodada()], notificar=False)
+    assert _ultima_lista(dados) is None, "chegou só a 1ª parte: a próxima rodada manda de novo"
+    enviadas.clear()
+    _roda(monkeypatch, capsys, [_cupom_da_rodada()], notificar=False)
+    assert enviadas[:2] == ["PARTE1", "PARTE2"]
+    assert _ultima_lista(dados) == hoje(), "na 2ª vez em parte, desiste até amanhã"
+    enviadas.clear()
+    _roda(monkeypatch, capsys, [_cupom_da_rodada()], notificar=False)
+    assert enviadas == []
+
+
+# ---- canal novo: links encurtados do Mercado Livre e da Amazon ------------------------------------------------------
+def _post_canal(link: str, titulo: str = "Gta Vi - Playstation 5 Versão Standard Nacional Br") -> str:
+    return (
+        '<div class="tgme_widget_message_wrap"><div class="tgme_widget_message" data-post="linguicapromocoes/101">'
+        '<div class="tgme_widget_message_text js-message_text" dir="auto">'
+        f'<i class="emoji"><b>⏰</b></i> {titulo}<br/><br/>'
+        '<i class="emoji"><b>💹</b></i> R$ 378,40 com cupom:<br/><code>40ALLSITE</code><br/><br/>'
+        f'<i class="emoji"><b>✨</b></i> Link do produto:<br/><a href="{link}">{link}</a><br/><br/>'
+        'anúncio<br/>Entre no meu grupo de ofertas<br/><a href="https://linktr.ee/exemplo">https://linktr.ee/exemplo</a>'
+        '</div><div class="tgme_widget_message_footer"><a class="tgme_widget_message_date">'
+        f'<time datetime="{agora_iso()}"></time></a></div></div></div>')
+
+
+@pytest.mark.parametrize("link, loja", [("https://meli.la/1AbCdEf", "Mercado Livre"),
+                                        ("https://amzn.to/3XyZabc", "Amazon")])
+def test_canal_linguica_link_encurtado_diz_a_loja(link, loja):
+    from monitor.sources import telegram_public
+
+    ofs = telegram_public.parse_canal(_post_canal(link), "linguicapromocoes")
+    assert ofs, "a postagem do GTA 6 vira oferta"
+    assert {o.loja for o in ofs} == {loja}
+    assert all(o.cupom == "40ALLSITE" for o in ofs)
+    assert telegram_public.loja_no_texto("Oferta", ["https://meli.la/xyz"]) == "Mercado Livre"

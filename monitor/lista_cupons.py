@@ -10,8 +10,11 @@ state_<outro>.json; ver Estado.cupons_de_outros_modos). Tudo junto passa por:
 
 - código que dá para digitar (sem "Resgate no link", "Direto no link", id em base64...); sem código, só o desconto
   automático declarado no título ("desconto automático", "aplicado automaticamente"). Na dúvida, fora;
-- validade (do cupom ou "até DD/MM/AAAA" no texto) >= agora; sem validade, publicado nos últimos
-  config.CUPONS_ATIVOS_DIAS dias. Cupom da página do anúncio (especifico) sem data fica: a fonte acabou de vê-lo;
+- validade (do cupom ou "até DD/MM/AAAA" / "até o fim do mês" no texto) >= agora; a validade do cupom que parece
+  data-padrão do anúncio (publicado há mais de VALIDADE_PADRAO_IDADE dias e validade em 31/12 ou a mais de
+  VALIDADE_PADRAO_SPAN dias da publicação) não conta. Sem validade, publicado nos últimos config.CUPONS_ATIVOS_DIAS
+  dias; no Pelando, que só mostra (e o coletor só lê) cupom com status ativo, config.CUPONS_ATIVOS_DIAS_PELANDO dias.
+  Cupom da página do anúncio (especifico) sem data fica: a fonte acabou de vê-lo;
 - código datado (DDMM: TODOSITE0711, eletro0811, SITE0711TODO) vale só no dia: no Mercado Livre sempre, com o DDMM em
   qualquer lugar do código; nas outras lojas, só com o DDMM no fim, perto da data de publicação e sem validade
   explícita (o PS0707 da Hype, com validade, vale até ela);
@@ -19,12 +22,20 @@ state_<outro>.json; ver Estado.cupons_de_outros_modos). Tudo junto passa por:
   que não foi aceito em nenhum teste nesse período, sai. "Não se aplica a este pedido" não prova nada (é do produto);
 - duplicado (loja canônica + código em maiúsculas): entra se algum anúncio do código está ativo; fica o anúncio ativo com
   mais informação (desconto, mínimo, teto, validade; empate, o publicado mais recente), com o valor do anúncio mais
-  completo do código, ativo ou não (o Promobit gera valores errados no título; o Pelando diz "R$ 400 OFF acima de
-  R$ 2.500"). Desconto fixo absurdo (o preço do produto no lugar do desconto) vira "valor a conferir".
+  completo do código, ativo ou não (o título do anúncio no Promobit às vezes traz outro valor; o Pelando diz "R$ 400
+  OFF acima de R$ 2.500"). Dois anúncios igualmente completos com valores diferentes: o outro valor vai junto ("outro
+  anúncio diz R$ 670 OFF"). Desconto fixo acima do plausível (o preço do produto no lugar do desconto) vira "valor a
+  conferir".
+
+O valor: o desconto do título ("até 60%" de vitrine só quando nada diz o valor do cupom: a regra "10% DE DESCONTO" vale
+mais, e sem ela sai "até 60% OFF"); onde vale vem do que segue o desconto ("em Eletrônicos") ou, sem isso, do produto que
+vem antes ("Meta Quest 3 512GB com R$ 500 de desconto") ou da regra do Promobit ("R$ 100 OFF ASICS DYNABLAST 6").
 
 O texto: lojas que o monitor mais usa primeiro (ORDEM_LOJAS), depois as outras em ordem alfabética, uma linha em branco
-entre lojas; dentro da loja, o maior desconto primeiro, e códigos com o mesmo valor na mesma linha. Tudo que vem de fora
-passa por html.escape.
+entre lojas; dentro da loja, os cupons do anúncio monitorado (⭐), depois os gerais (todo site, sem restrição) e por fim
+os de lista, categoria ou produto, cada grupo com o maior desconto primeiro; códigos com o mesmo valor na mesma linha
+(até MAX_CODIGOS_POR_LINHA); no máximo config.CUPONS_ATIVOS_MAX_POR_LOJA linhas por loja. Tudo que vem de fora passa
+por html.escape.
 """
 
 from __future__ import annotations
@@ -34,7 +45,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, Iterable, Optional
 
 from . import config
@@ -49,6 +60,11 @@ ORDEM_LOJAS = ("Mercado Livre", "Amazon", "Magazine Luiza", "KaBuM!", "Shopee", 
 DESCONTO_REAIS_PLAUSIVEL = 2000.0
 LIMITE_MENSAGEM = 3800      # o notificar corta em 4000; sobra espaço para o "(2/3)" e para o HTML
 DIAS_TESTADOR = 2            # resultado do testador que ainda vale para tirar um código da lista
+MAX_CODIGOS_POR_LINHA = 6    # códigos com o mesmo valor numa linha; o 7º abre outra linha (a linha nunca passa da mensagem)
+# validade de anúncio antigo que parece data-padrão (31/12, ou +2 anos): publicado há mais disto...
+VALIDADE_PADRAO_IDADE = 60
+# ...e validade a mais disto da publicação (ou em 31/12): conta como sem validade
+VALIDADE_PADRAO_SPAN = 180
 CABECALHO = "🎟️ <b>Cupons ativos</b>"   # não começa com "🎟️ <b>Nov" (regras.e_mensagem_de_cupons fica False)
 RODAPE = "<i>Códigos de lista (itens selecionados) só valem nos produtos da lista.</i>"
 NENHUM = "Nenhum cupom ativo encontrado hoje."
@@ -61,8 +77,11 @@ _RE_AUTOMATICO = re.compile(r"desconto\s+automatico|aplicad[oa]s?\s+automaticame
 # DDMM no código: 4 dígitos sozinhos (nem 3, nem 5)
 _RE_DDMM = re.compile(r"(?<!\d)(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])(?!\d)")
 _RE_DDMM_NO_FIM = re.compile(r"(?<!\d)(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])$")
-# validade escrita no texto: "até 18/11/2026", "Validade: até 18.11", "válido até o dia 30/11"
-_RE_ATE_DATA = re.compile(r"\bate\s+(?:o\s+)?(?:dia\s+)?(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?(?!\d)(?![./]\d)")
+# validade escrita no texto: "até 18/11/2026", "Validade: até 18.11", "válido até o dia 30/11" (não "em até 10/12 vezes")
+_RE_ATE_DATA = re.compile(r"\bate\s+(?:o\s+)?(?:dia\s+)?(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?(?!\d)(?![./]\d)"
+                          r"(?!\s*(?:x\b|vezes\b|parcelas\b))")
+# "Oferta válida até o fim do mês": o último dia do mês da publicação
+_RE_FIM_DO_MES = re.compile(r"\bate\s+o\s+(?:fim|final)\s+(?:do|deste)\s+mes\b")
 # mensagem do testador que diz que o código não existe/acabou (não a que diz que não serve no produto testado)
 _RE_EXPIRADO = re.compile(r"nao\s+esta\s+mais\s+disponivel|nao\s+estar\s+mais\s+ativo|nao\s+esta\s+mais\s+ativo|"
                           r"expirad|esgotad|encerrad|inexistente|nao\s+existe|invalido|erro\s+de\s+digitacao|"
@@ -74,10 +93,17 @@ _NUM = r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2}|\.\d{2}(?!\d))?|\d+(?:[.,]\d{1,2})?)"
 _RE_PCT = re.compile(r"(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*%")
 _RE_REAIS = re.compile(
     r"r\$\s?" + _NUM + r"\s*(?:off|de\s+desconto|de\s+volta|em\s+desconto|reais\s+de\s+desconto)\b"
-    r"|(?:economiz\w*|ganhe|desconto\s+de|oferece|concede|economia\s+de|abatimento\s+de)\s+(?:ate\s+)?r\$\s?" + _NUM)
-# Pelando sem "OFF": "Cupom Aliexpress R$ 490 em R$ 3200", "R$ 785 acima de R$ R$ 4200"
-_RE_REAIS_EM = re.compile(r"r\$\s?" + _NUM + r"\s+(?:off\s+)?(?:em|acima\s+de|a\s+partir\s+de|(?:nas|em)\s+compras\s+"
+    r"|(?:economiz\w*|ganhe|desconto\s+de|oferece|concede|economia\s+de|abatimento\s+de|cupom\s+de)\s+(?:ate\s+)?"
+    r"r\$\s?" + _NUM)
+# Pelando sem "OFF": "Cupom Aliexpress R$ 490 em R$ 3200", "R$ 785 acima de R$ R$ 4200", "R$ 30 para compras acima de"
+_RE_REAIS_EM = re.compile(r"r\$\s?" + _NUM + r"\s+(?:off\s+)?(?:em|acima\s+de|a\s+partir\s+de|(?:nas|em|para)\s+compras\s+"
                           r"(?:acima\s+de|a\s+partir\s+de|de))\s+(?:r\$\s?)+" + _NUM)
+# o desconto vem logo depois de "até" ("Até 60% OFF", "Garanta até R$ 100 de desconto"): é o máximo da vitrine
+_RE_ATE_ANTES = re.compile(r"\bate\s+(?:de\s+)?$")
+# "100%" do nome do produto ("Whey 100% Pure", "100% algodão"): só é desconto com off/desconto logo depois
+_RE_PCT_DESCONTO_DEPOIS = re.compile(r"\s*(?:off\b|de\s+desconto|desconto)")
+# teto do desconto em % escrito depois de outra coisa: "15% OFF no Pix até R$ 200"
+_RE_ATE_REAIS = re.compile(r"\bate\s+r\$\s?" + _NUM)
 # compra mínima: "acima de R$ 99", "a partir de", "compra mínima (de)", "mín. R$", "OFF em R$ 59", ", em R$ 59"
 _RE_MINIMO = re.compile(
     r"(?:acima\s+de|a\s+partir\s+de|minim[oa](?:\s+de)?:?|min\.|compras?\s+(?:de|a\s+partir\s+de|acima\s+de))\s*"
@@ -90,7 +116,8 @@ _RE_TETO = re.compile(
     r"(?:limitad[oa]|limite)(?:\s+de\s+desconto)?\s*(?:a|de|:)?\s*r\$\s?" + _NUM
     + r"|(?:desconto\s+)?(?:maxim[oa]|max\.)(?:\s+de)?(?:\s+desconto)?\s*:?\s*(?:de\s+)?r\$\s?" + _NUM
     + r"|%\s*(?:off)?\s*[,(]?\s*ate\s+r\$\s?" + _NUM
-    + r"|\(\s*ate\s+r\$\s?" + _NUM + r"\s*(?:off\s*)?\)")
+    + r"|\(\s*ate\s+r\$\s?" + _NUM + r"\s*(?:off\s*)?\)"
+    + r"|\b(?:frete|entrega)\s+(?:gratis|gratuit[oa])\s+(?:de\s+)?ate\s+r\$\s?" + _NUM)
 # teto da COMPRA (não do desconto): "compras de até R$ 1000", "itens de até R$ 99", "pedidos de no máximo R$ 300"
 _RE_TETO_COMPRA = re.compile(r"\b(?:compras?|pedidos?|produtos?|itens?|carrinhos?)\s+(?:de\s+)?(?:ate|no\s+maximo)\s+"
                              r"r\$\s?" + _NUM)
@@ -99,10 +126,10 @@ _RE_DESCONTO_NO_FRETE = re.compile(r"\b(?:no|do|em|sobre\s+o)\s+frete\b|\bde\s+f
 # lista/seleção de produtos (no título; na regra, sem o aviso genérico do Pelando "a maioria dos cupons do ML...")
 _RE_SELECAO = re.compile(r"\bselecionad[oa]s?\b|\bselecao\b|\b(?:produtos|itens)\s+(?:listad|participant|do\s+link|"
                          r"marcad|qualificad)|\blista\s+(?:selecionada|de\s+produtos|de\s+itens)\b|\bem\s+lista\b|"
-                         r"\b(?:no|do)\s+link\b|\bconferir\s+lista\b")
+                         r"\b(?:no|do)\s+link\b|\bconferir\s+lista\b|\bda\s+lista\b|\bparticipantes\b")
 _RE_AVISO_GENERICO = re.compile(r"maioria\s+dos\s+cupons")
 _RE_SITE_TODO = re.compile(r"\b(?:todo\s+(?:o\s+)?site|site\s+todo|loja\s+toda|toda\s+(?:a\s+)?loja|"
-                           r"todos\s+os\s+produtos|em\s+tudo|qualquer\s+produto|sem\s+restric\w*)\b")
+                           r"todos\s+os\s+produtos|todas\s+as\s+lojas|em\s+tudo|qualquer\s+produto|sem\s+restric\w*)\b")
 _RE_APP = re.compile(r"\[\s*app\b|\bapp\s*[/\]]|\bno\s+app\b|\bpelo\s+app\b|"
                      r"\bvalido\s+(?:somente\s+|apenas\s+|so\s+)?no\s+app\b|\bcupom\s+\w+\s+app\b")
 _RE_ASSINANTE = re.compile(r"\bprime\b|\bmeli\s?\+|\bmeli\s+mais\b|\bassinantes?\b")
@@ -121,21 +148,45 @@ _RE_RESTO_FORA = re.compile(
     r"|\b(?:com|aplicando|aplique|usando|use|utilizando|usar|ao\s+aplicar)\s+(?:o\s+|este\s+|esse\s+|um\s+)?"
     r"(?:cupom|codigo|voucher)\b.*$|\bcom\s+desconto\b.*$"
     r"|\bno\s+carrinho\b.*$|\+\s*pix\b|\bno\s+pix\b|\bvia\s+pix\b"
+    # frete e parcelamento não dizem onde o cupom vale ("+ frete grátis", "no frete", "em até 10x sem juros")
+    r"|\+?\s*\b(?:e\s+|com\s+)?(?:frete|entrega)\s+(?:gratis|gratuit[oa])\b(?:\s+(?:de\s+)?ate\s+r\$\s?" + _NUM + r")?"
+    r"|\b(?:no|do|de|o)\s+frete\b|\b(?:em\s+)?ate\s+\d{1,2}\s*x\b.*$|\bsem\s+juros\b.*$"
     r"|\b(?:na|no|da|do)\s+(?:mercado\s+livre|amazon|magalu|magazine\s+luiza|aliexpress|kabum!?|shopee|fast\s*shop|"
     r"casas\s+bahia|americanas|netshoes|nuuvem|hype)\b.*$"
-    r"|\b(?:no|pelo)\s+app\b.*$|\[[^\]]*\]")
-_RE_PALAVRA_FORA = re.compile(r"selecionad[oa]s?|mercado|livrer?|amazon|magalu|magazine|luiza|aliexpress|kabum|shopee|"
-                              r"fastshop|netshoes|nuuvem|americanas|casas|bahia")
+    r"|\b(?:no|pelo)\s+app\b.*$|\[[^\]]*\]"
+    r"|\b(?:participantes?|qualificad[oa]s?|listad[oa]s?|elegiveis)\b.*$")
+# nome de loja com duas palavras ("Fast Shop", "Hype Games"): sai inteiro (o "shop" do "Pet Shop" fica)
+_RE_LOJA_FRASE = re.compile(r"\bfast\s*shop\b|\bhype\s+games\b|\bmercado\s+li[vb]re\b|\bmagazine\s+luiza\b|"
+                            r"\bcasas\s+bahia\b")
+_RE_PALAVRA_FORA = re.compile(r"selecionad[oa]s?|mercado|livrer?|libre|amazon|magalu|magazine|luiza|aliexpress|kabum|shopee|"
+                              r"fastshop|netshoes|nuuvem|americanas|casas|bahia|hype")
 _CONECTIVOS = {"em", "na", "no", "nas", "nos", "para", "pra", "de", "da", "do", "das", "dos", "off", "e", "-", "a", "o",
-               "com", "os", "as", "itens", "produtos", "desconto", "descontos", "extra", "categoria", "categorias"}
+               "com", "os", "as", "itens", "produtos", "desconto", "descontos", "extra", "categoria", "categorias",
+               "exclusivo", "exclusiva", "exclusivos", "todas", "todos", "versoes", "versao", "produto", "+"}
 # escopo com estas palavras é frase do site ("sua primeira compra", "desconto no seu carrinho", "voucher Fast Shop",
 # "economia", "aplicado"), não onde o cupom vale
 _RE_ESCOPO_GENERICO = re.compile(r"\b(?:seu|sua|seus|suas|voce|vc|carrinho|compras?|pedidos?|economia|aplicad\w*|"
                                  r"aplicar|aproveit\w*|garant\w*|cupom|cupons|voucher|valido|valida|promocao|"
-                                 r"promocoes|oferta|ofertas)\b")
+                                 r"promocoes|oferta|ofertas|lista|link|usuarios|clientes|vendid\w*|entregue\w*|"
+                                 r"exceto|utilizad\w*|carteira|expira\w*|clic\w*|clique|ver\s+mais|regulamento)\b")
 _NEUTRAS = {"compras", "compra", "pedido", "pedidos", "site", "loja", "produtos", "produto", "itens", "item", "tudo",
             "carrinho", "suas", "seus", "todas", "todos", "cupom", "desconto", "oferta", "ofertas", "promocao", "app",
             "e", "de", "em", "na", "no", "para"}
+# o produto ANTES do desconto ("Adquira o Meta Quest 3 512GB com R$500 de desconto", "Faça um upgrade com o Intel Core
+# i5-12600K e 15% OFF", "Válido para o produto Notebook Lenovo..."): saem as palavras de chamada do começo...
+_CHAMADA = {"adquira", "garanta", "garante", "compre", "aproveite", "leve", "ganhe", "obtenha", "receba", "confira",
+            "pegue", "turbine", "faca", "consiga", "tenha", "ter", "ative", "aplique", "use", "usar", "economize",
+            "economizar", "seu", "sua", "seus", "suas", "setup", "upgrade", "um", "uma", "o", "a", "os", "as", "com", "no",
+            "na", "nos", "nas", "em", "para", "pra", "e", "de", "do", "da", "dos", "das", "valido", "valida", "exclusivo",
+            "exclusiva", "produto", "produtos", "itens", "item", "selecao", "desconto", "ate", "cupom", "codigo",
+            "oferece", "concede", "por", "ganhar", "desbloqueie", "desfrute", "proporciona", "utilize", "receber",
+            "escolha", "encontre", "descubra", "conheca", "acesse", "renove", "aproveitar", "+"}
+# ...e, se sobrar frase de campanha ("Os melhores itens do site", "A chance de", "Marcas em alta"), não é produto
+_RE_ANTES_GENERICO = re.compile(r"\b(?:melhores|site|marcas?|alta|chance|momento|chegou|especial|super|mega|black|friday|"
+                                r"esquenta|hora|imperdive\w*|exclusiv\w*|prime|economi\w*|descont\w*|online|todos?|tudo|"
+                                r"precinho|login|cpf|regulamento|confira|corra|novidades?|lancamentos?|promocional|"
+                                r"hoje)\b")
+_MAX_PALAVRAS_PRODUTO = 8
 
 
 def _base(c: str) -> str:
@@ -192,7 +243,8 @@ class Valor:
     escopo: str = ""                               # "todo site", "som vídeo eletro", "itens selecionados"...
     selecao: bool = False
     so_frete: bool = False
-    duvidoso: bool = False   # desconto em R$ que não pode ser verdade (o Promobit às vezes põe o preço do produto)
+    duvidoso: bool = False   # desconto em R$ acima do plausível (no anúncio, o preço do produto no lugar do desconto)
+    ate: bool = False        # "até 60% OFF": o máximo da vitrine, não o valor certo do cupom
     marcas: list[str] = field(default_factory=list)   # "só no app", "Prime", "1ª compra", "WhatsApp"
 
     @property
@@ -200,14 +252,20 @@ class Valor:
         return self.desconto is not None or self.so_frete
 
     @property
+    def restrito(self) -> bool:
+        """Vale só numa lista, categoria, produto, no frete ou para um público (ou o valor não é certo)."""
+        return bool(self.selecao or self.so_frete or self.duvidoso or self.ate or self.desconto is None
+                    or (self.escopo and self.escopo != "todo site") or any(m != "só no app" for m in self.marcas))
+
+    @property
     def peso(self) -> float:
-        """Para ordenar (maior desconto primeiro): R$ fixo vale ele; % vale o teto ou, sem teto, o % de R$ 1.000."""
+        """Para ordenar (maior desconto primeiro): R$ fixo vale ele; % vale o teto ou, sem teto, o % de R$ 1.000. O
+        "até X" de vitrine vale metade."""
         if self.desconto is None or self.duvidoso:
             return 0.5 if self.so_frete else 0.0
         tipo, v = self.desconto
-        if tipo == "R$":
-            return v
-        return self.teto if self.teto else v * 10
+        p = v if tipo == "R$" else (self.teto if self.teto else v * 10)
+        return p / 2 if self.ate else p
 
     @property
     def informacao(self) -> int:
@@ -216,21 +274,31 @@ class Valor:
             (self.teto is not None) + bool(self.escopo)
 
 
-def _escopo_do_titulo(titulo: str, fim_desconto: int) -> str:
-    """O que o título diz sobre onde o cupom vale, depois do desconto: "Som Vídeo Eletro", "em Eletrônicos" ->
+_ESCOPO_MAX = 36   # caracteres do escopo na linha (o resto vira "…")
+
+
+def _encurta(texto: str) -> str:
+    texto = texto.strip(" .,-").lower()
+    if len(texto) > _ESCOPO_MAX:
+        texto = texto[:_ESCOPO_MAX].rsplit(" ", 1)[0] + "…"
+    return texto
+
+
+def _escopo_depois(titulo: str, fim_desconto: int) -> str:
+    """O que o texto diz sobre onde o cupom vale, depois do desconto: "Som Vídeo Eletro", "em Eletrônicos" ->
     "eletrônicos", "em Gift Cards na Nuuvem com cupom + PIX" -> "gift cards". '' se não sobra nada útil."""
     orig = titulo[fim_desconto:]
     norm = _norm1(orig)
     # apaga (com espaços, mantendo as posições) o que não é escopo
     chars = list(orig)
-    for m in _RE_RESTO_FORA.finditer(norm):
+    for m in [*_RE_RESTO_FORA.finditer(norm), *_RE_LOJA_FRASE.finditer(norm)]:
         for i in range(m.start(), m.end()):
             chars[i] = " "
     resto = "".join(chars)
-    # corta em pontuação que fecha a frase/abre outra condição
-    resto = re.split(r"[|(:;!?]|\s[-–]\s|,|\.\s", resto)[0]
+    # corta em pontuação que fecha a frase/abre outra condição ("+ frete grátis", mas não o "+" do "Galaxy S24+")
+    resto = re.split(r"[|(:;!?]|\s[-–]\s|\s\+|,(?!\d)|\.\s", resto)[0]
     # o nome da loja e a palavra "selecionados" (a marca "itens selecionados" já diz isso) não são escopo
-    palavras = [p for p in resto.split() if not _RE_PALAVRA_FORA.fullmatch(_norm1(p).strip(".,!"))]
+    palavras = [p for p in resto.split() if re.search(r"\w", p) and not _RE_PALAVRA_FORA.fullmatch(_norm1(p).strip(".,!"))]
     while palavras and _norm1(palavras[0]).strip(".,") in _CONECTIVOS:
         palavras.pop(0)
     while palavras and _norm1(palavras[-1]).strip(".,") in _CONECTIVOS:
@@ -239,14 +307,76 @@ def _escopo_do_titulo(titulo: str, fim_desconto: int) -> str:
             or not re.search(r"[^\W\d_]{3}", " ".join(palavras)) \
             or _RE_ESCOPO_GENERICO.search(_norm1(" ".join(palavras))):
         return ""
-    texto = " ".join(palavras).strip(" .,-").lower()
-    if len(texto) > 32:
-        texto = texto[:32].rsplit(" ", 1)[0] + "…"
-    return texto
+    return _encurta(" ".join(palavras))
+
+
+def _produto_antes(texto: str, ini_desconto: int) -> str:
+    """O produto escrito ANTES do desconto, quando depois dele não há nada: "Adquira o Meta Quest 3 512GB com R$500 de
+    desconto" -> "meta quest 3 512gb"; "Faça um upgrade com o Intel Core i5-12600K e 15% OFF" -> "intel core i5-12600k";
+    "produtos Netshoes TÊNIS MIZUNO WAVE PROPHECY COM R$200 OFF" -> "tênis mizuno wave prophecy". Frase de campanha ("Os
+    melhores itens do site com", "A chance de", "Marcas em alta com até") -> ''."""
+    antes = texto[:ini_desconto]
+    chars = list(antes)
+    for m in _RE_LOJA_FRASE.finditer(_norm1(antes)):
+        for i in range(m.start(), m.end()):
+            chars[i] = " "
+    pedacos = re.split(r"[|:;!?()\[\]]|\s[-–]\s|,(?!\d)|\.\s", "".join(chars))
+    palavras = [p for p in (pedacos[-1] if pedacos else "").split()
+                if re.search(r"\w", p) and not _RE_PALAVRA_FORA.fullmatch(_norm1(p).strip(".,!"))]
+    while palavras and _norm1(palavras[0]).strip(".,!") in _CHAMADA:
+        palavras.pop(0)
+    while palavras and _norm1(palavras[-1]).strip(".,!") in _CHAMADA | _CONECTIVOS | {"r$"}:
+        palavras.pop()
+    if not palavras or len(palavras) > _MAX_PALAVRAS_PRODUTO:
+        return ""
+    junto = " ".join(palavras)
+    n = _norm1(junto)
+    if not re.search(r"[^\W\d_]{3}", junto) or _RE_ESCOPO_GENERICO.search(n) or _RE_ANTES_GENERICO.search(n) \
+            or "r$" in n or all(_norm1(p).strip(".,") in _NEUTRAS for p in palavras):   # "LEVE 2 POR R$6,99 CADA"
+        return ""
+    return _encurta(junto)
+
+
+@dataclass
+class _Desconto:
+    tipo: str                  # '%' | 'R$'
+    valor: float
+    minimo: Optional[float]    # "R$ 490 em R$ 3200": o mínimo vem junto
+    ate: bool                  # "até 60%": máximo da vitrine
+    ini: int
+    fim: int
+
+
+def _ate_antes(txt: str, pos: int) -> bool:
+    return bool(_RE_ATE_ANTES.search(txt[max(0, pos - 12):pos]))
+
+
+def _descontos(txt: str) -> list[_Desconto]:
+    """Os descontos do texto (normalizado), na ordem de preferência: os em %, os em R$ com "OFF"/"de desconto" e os
+    "R$ X em R$ Y" do Pelando, cada grupo na ordem do texto. O "100%" do nome do produto fica de fora."""
+    out: list[_Desconto] = []
+    for m in _RE_PCT.finditer(txt):
+        x = _valor(m.group(1))
+        if not 0 < x <= 100 or (x >= 100 and not _RE_PCT_DESCONTO_DEPOIS.match(txt, m.end())):
+            continue
+        out.append(_Desconto("%", x, None, _ate_antes(txt, m.start()), m.start(), m.end()))
+    for m in _RE_REAIS.finditer(txt):
+        x = _primeiro(m)
+        if x and x > 0:
+            ate = _ate_antes(txt, m.start()) or bool(re.search(r"\bate\s+r\$", m.group(0)))
+            out.append(_Desconto("R$", x, None, ate, m.start(), m.end()))
+    for m in _RE_REAIS_EM.finditer(txt):
+        x = _primeiro(m)
+        if x and x > 0:
+            out.append(_Desconto("R$", x, _valor(m.group(2)), _ate_antes(txt, m.start()), m.start(), m.end()))
+    return out
 
 
 def valor_do_cupom(titulo: str, regra: str = "") -> Valor:
-    """Desconto, compra mínima, teto, escopo e marcas do cupom, lidos do título (e da regra quando o título não diz)."""
+    """Desconto, compra mínima, teto, escopo e marcas do cupom, lidos do título (e da regra quando o título não diz).
+
+    O desconto: o primeiro do título que não é "até X" de vitrine; senão o da regra ("Marcas em alta com até 60% de
+    desconto" + "10% DE DESCONTO NOS PRODUTOS SELECIONADOS" -> 10%); senão o "até X" (mostrado "até 60% OFF")."""
     from .regras import _conserta_mojibake
 
     titulo = _conserta_mojibake(titulo or "")
@@ -254,26 +384,16 @@ def valor_do_cupom(titulo: str, regra: str = "") -> Valor:
     t, r = _norm1(titulo), _norm1(regra)
     r_util = "" if _RE_AVISO_GENERICO.search(r) else r   # o aviso genérico do Pelando no ML não é a regra do cupom
     v = Valor()
-    fim = None
-    for txt, do_titulo in ((t, True), (r, False)):
-        m = _RE_PCT.search(txt)
-        if m and 0 < _valor(m.group(1)) <= 100:
-            v.desconto = ("%", _valor(m.group(1)))
-            fim = m.end() if do_titulo else None
-            break
-        m = _RE_REAIS.search(txt)
-        if m:
-            v.desconto = ("R$", _primeiro(m) or 0.0)
-            fim = m.end() if do_titulo else None
-            break
-        m = _RE_REAIS_EM.search(txt)
-        if m:
-            v.desconto = ("R$", _valor(m.group(1)))
-            v.minimo = _valor(m.group(2))
-            fim = m.end() if do_titulo else None
-            break
-    if v.desconto and v.desconto[1] <= 0:
-        v.desconto = None
+    ds_t, ds_r = _descontos(t), _descontos(r)
+    certo_t = next((d for d in ds_t if not d.ate), None)
+    certo_r = next((d for d in ds_r if not d.ate), None)
+    no_titulo = certo_t or (ds_t[0] if ds_t else None)          # onde o título fala do desconto (para o escopo)
+    escolha = certo_t or certo_r or no_titulo or (ds_r[0] if ds_r else None)
+    if escolha is not None:
+        v.desconto, v.minimo, v.ate = (escolha.tipo, escolha.valor), escolha.minimo, escolha.ate
+        if v.minimo is None and escolha.tipo == "R$":
+            # "oferece R$ 20 em R$ 149": o mesmo valor também casou como "R$ X em R$ Y", que traz o mínimo
+            v.minimo = next((d.minimo for d in ds_t + ds_r if d.minimo and abs(d.valor - escolha.valor) < 0.01), None)
     # mínimo e tetos: do título; se ele não diz, da regra
     for txt in (t, r):
         if v.minimo is None:
@@ -284,6 +404,9 @@ def valor_do_cupom(titulo: str, regra: str = "") -> Valor:
             v.teto = _primeiro(_RE_TETO.search(txt))
         if v.teto_compra is None:
             v.teto_compra = _primeiro(_RE_TETO_COMPRA.search(txt))
+    if v.desconto and v.desconto[0] == "%" and v.teto is None and escolha is not None:
+        # "15% OFF no Pix até R$ 200": o "até R$" depois do % (o "compras de até R$ 1000" sai logo abaixo)
+        v.teto = _primeiro(_RE_ATE_REAIS.search(t if any(d is escolha for d in ds_t) else r, escolha.fim))
     if v.minimo is not None and v.minimo <= 1:
         v.minimo = None   # "acima de R$ 1" é sem mínimo
     if v.desconto and v.desconto[0] == "R$" and v.teto is not None and abs(v.teto - v.desconto[1]) < 0.01:
@@ -299,11 +422,17 @@ def valor_do_cupom(titulo: str, regra: str = "") -> Valor:
         v.so_frete = True
     elif v.desconto and v.desconto[0] == "R$" and _RE_DESCONTO_NO_FRETE.search(t) and not _RE_SITE_TODO.search(t):
         v.so_frete = True
-    # escopo
+    # escopo: "todo site"; senão o que segue o desconto no título, o produto antes dele, ou o mesmo na regra (Promobit:
+    # "R$100 OFF ASICS DYNABLAST 6", "TÊNIS MIZUNO WAVE PROPHECY COM R$200 OFF")
     if _RE_SITE_TODO.search(t):
         v.escopo = "todo site"
-    elif fim is not None:
-        v.escopo = _escopo_do_titulo(titulo, fim)
+    else:
+        if no_titulo is not None:
+            v.escopo = _escopo_depois(titulo, no_titulo.fim) or _produto_antes(titulo, no_titulo.ini)
+        # a regra só no formato do Promobit ("produtos <Loja> ..."); a do Pelando é comentário de usuário
+        if not v.escopo and r_util.startswith("produtos ") and ds_r:
+            d = certo_r or ds_r[0]
+            v.escopo = _escopo_depois(regra, d.fim) or _produto_antes(regra, d.ini)
     v.selecao = bool(_RE_SELECAO.search(t) or _RE_SELECAO.search(r_util))
     if v.selecao and v.escopo == "todo site" and not _RE_SELECAO.search(t):
         v.escopo = ""     # o título (gerado pelo site) diz "todo o site", a regra diz "produtos selecionados no link"
@@ -329,7 +458,7 @@ def texto_do_valor(v: Valor, titulo: str = "") -> str:
         partes.append(f"valor a conferir (o anúncio diz {fmt_reais(v.desconto[1])} OFF)")
     elif v.desconto:
         tipo, x = v.desconto
-        partes.append(f"{_fmt_pct(x)} OFF" if tipo == "%" else f"{fmt_reais(x)} OFF")
+        partes.append(("até " if v.ate else "") + (f"{_fmt_pct(x)} OFF" if tipo == "%" else f"{fmt_reais(x)} OFF"))
     else:
         t = re.sub(r"\s+", " ", titulo or "").strip()
         partes.append(t if len(t) <= 70 else t[:69].rsplit(" ", 1)[0] + "…")
@@ -378,11 +507,15 @@ def _data_ddmm(dia: int, mes: int, perto_de: date) -> Optional[date]:
 
 
 def validade_no_texto(reg: dict) -> Optional[datetime]:
-    """"até 18/11/2026", "Validade: até 18.11" no título/regra (a maior data, fim do dia). Sem data -> None."""
+    """"até 18/11/2026", "Validade: até 18.11", "válida até o fim do mês" (o mês da publicação) no título/regra (a maior
+    data, fim do dia). Sem data -> None."""
     texto = _norm1(f"{reg.get('titulo') or ''} {reg.get('regra') or ''}")
     pub = _data(reg.get("publicado"))
     base = pub.date() if pub else agora().date()
     datas = []
+    if _RE_FIM_DO_MES.search(texto):
+        prox = date(base.year + (base.month == 12), base.month % 12 + 1, 1)
+        datas.append(prox - timedelta(days=1))
     for m in _RE_ATE_DATA.finditer(texto):
         dia, mes, ano = int(m.group(1)), int(m.group(2)), m.group(3)
         try:
@@ -401,6 +534,25 @@ def validade_no_texto(reg: dict) -> Optional[datetime]:
     return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=TZ_BR)
 
 
+def validade_padrao(validade: Optional[datetime], publicado: Any) -> bool:
+    """A validade do anúncio parece data-padrão de anúncio antigo (publicado há mais de VALIDADE_PADRAO_IDADE dias, com
+    validade em 31/12 ou a mais de VALIDADE_PADRAO_SPAN dias da publicação: JBL25, publicado em 09/2025 e "válido" até
+    09/2027)? Aí ela não prova que o cupom ainda vale."""
+    pub = _data(publicado)
+    if validade is None or pub is None or (agora() - pub).days <= VALIDADE_PADRAO_IDADE:
+        return False
+    v = validade.astimezone(TZ_BR)
+    return (v.month, v.day) == (12, 31) or (v - pub).days > VALIDADE_PADRAO_SPAN
+
+
+def validade_declarada(reg: dict) -> Optional[datetime]:
+    """A validade que conta: a do anúncio (menos a data-padrão de anúncio antigo) ou, sem ela, a escrita no texto."""
+    validade = _data(reg.get("validade"))
+    if validade_padrao(validade, reg.get("publicado")):
+        validade = None
+    return validade or validade_no_texto(reg)
+
+
 def data_no_codigo(codigo: str, loja: str, publicado: Any = None) -> Optional[tuple[int, int]]:
     """(dia, mês) de um código datado ("TODOSITE0711" -> (7, 11)). No Mercado Livre o DDMM pode estar em qualquer
     lugar do código ("SITE0711TODO"); nas outras lojas só no fim, e só quando bate (até 7 dias) com a publicação."""
@@ -414,7 +566,7 @@ def data_no_codigo(codigo: str, loja: str, publicado: Any = None) -> Optional[tu
     dia, mes = int(m.group(1)), int(m.group(2))
     pub = _data(publicado)
     if pub is None:
-        return dia, mes
+        return None   # sem publicação não dá para saber se os 4 dígitos são data (MAGALU0911 do anúncio)
     d = _data_ddmm(dia, mes, pub.date())
     return (dia, mes) if d and -3 <= (d - pub.date()).days <= 7 else None
 
@@ -461,7 +613,7 @@ def motivo_inativo(reg: dict, expirados: set[str] = frozenset(), dias: Optional[
     if codigo_valido(codigo) and marca_cupom(loja, codigo) in expirados:
         return "expirado no testador"
     agora_ = agora()
-    validade = _data(reg.get("validade")) or validade_no_texto(reg)
+    validade = validade_declarada(reg)
     if validade is not None and validade < agora_:
         return "vencido"
     ddmm = data_no_codigo(codigo, loja, reg.get("publicado")) if codigo_valido(codigo) else None
@@ -472,6 +624,11 @@ def motivo_inativo(reg: dict, expirados: set[str] = frozenset(), dias: Optional[
     d = dias_desde(reg.get("publicado"))
     if d is None:
         return "" if reg.get("especifico") else "sem data"
+    if str(reg.get("fonte") or "") == "pelando":
+        # o Pelando só mostra (e o coletor só lê) cupom com status ativo, e o registro é da última leitura: vale uma janela
+        # maior. O "há 3 dias" dele é arredondado para baixo (3,0 dias antes da leitura): conta o dia inteiro
+        limite = max(dias, config.CUPONS_ATIVOS_DIAS_PELANDO)
+        return "" if d < limite + 1 else f"publicado há {d:.0f} dias"
     return "" if d <= dias else f"publicado há {d:.0f} dias"
 
 
@@ -484,8 +641,9 @@ def _como_dict(c: Any) -> Optional[dict]:
 
 def cupons_ativos(regs: Iterable[Any], expirados: Optional[set[str]] = None,
                   dias: Optional[float] = None) -> dict[str, list[dict]]:
-    """{loja: [cupons ativos, o maior desconto primeiro]}; cada cupom é o registro (dict) com '_valor' (Valor) e
-    '_texto' (o valor pronto, sem HTML). `expirados`: None lê o testador."""
+    """{loja: [cupons ativos]}; cada cupom é o registro (dict) com '_valor' (Valor) e '_texto' (o valor pronto, sem
+    HTML). Ordem na loja: os do anúncio monitorado (especifico), os gerais e os restritos (lista, categoria, produto,
+    frete, público), cada grupo com o maior desconto primeiro. `expirados`: None lê o testador."""
     from . import produtos
 
     if expirados is None:
@@ -513,19 +671,37 @@ def cupons_ativos(regs: Iterable[Any], expirados: Optional[set[str]] = None,
             continue
         melhor = _o_melhor(ativos)
         # o valor do anúncio que diz mais, mesmo que ele não conte como ativo (o mesmo código no Pelando, publicado há
-        # mais dias, com "R$ 400 OFF acima de R$ 2.500", e no Promobit, com validade e um valor gerado errado)
+        # mais dias, com "R$ 400 OFF acima de R$ 2.500", e no Promobit, com validade e outro valor no título)
         mais = _o_melhor(grupo)
         if mais is not melhor and mais["_valor"].informacao > melhor["_valor"].informacao:
             melhor = {**melhor, "_valor": mais["_valor"]}
+        melhor["_outro_valor"] = _outro_valor(melhor["_valor"], grupo)
         melhores[chave] = melhor
     por_loja: dict[str, list[dict]] = {}
     for reg in melhores.values():
         reg["_texto"] = texto_do_valor(reg["_valor"], reg.get("titulo") or "")
+        if reg.get("_outro_valor"):
+            reg["_texto"] += f" · outro anúncio diz {reg['_outro_valor']}"
         por_loja.setdefault(reg["loja"], []).append(reg)
     for lista in por_loja.values():
-        lista.sort(key=lambda r: (-r["_valor"].peso, not r.get("especifico"), r["_valor"].minimo or 0,
-                                  r["codigo"].upper()))
+        lista.sort(key=lambda r: (not r.get("especifico"), r["_valor"].restrito, -r["_valor"].peso,
+                                  r["_valor"].minimo or 0, r["codigo"].upper()))
     return por_loja
+
+
+def _outro_valor(v: Valor, grupo: list[dict]) -> str:
+    """'R$ 670 OFF' quando outro anúncio do mesmo código, tão completo quanto o escolhido, diz outro desconto do mesmo
+    tipo (AFFNOV22 no Pelando: "R$620 off em R$4200" e "R$ 670 acima de R$ 4200"); '' se todos concordam. Anúncio menos
+    completo (o título genérico do Promobit) não entra."""
+    if not v.desconto or v.duvidoso:
+        return ""
+    tipo, x = v.desconto
+    for r in grupo:
+        o = r["_valor"]
+        if o.desconto and not o.duvidoso and o.desconto[0] == tipo and o.informacao >= v.informacao \
+                and abs(o.desconto[1] - x) > 0.01 * x:
+            return f"{_fmt_pct(o.desconto[1])} OFF" if tipo == "%" else f"{fmt_reais(o.desconto[1])} OFF"
+    return ""
 
 
 def _o_melhor(regs: list[dict]) -> dict:
@@ -539,8 +715,8 @@ def _o_melhor(regs: list[dict]) -> dict:
 def _melhor_registro(a: dict, b: dict) -> bool:
     """O registro `a` diz mais que `b`? Mais informação (desconto, mínimo, teto, escopo, validade); empate, o mais
     novo."""
-    ia = a["_valor"].informacao + bool(a.get("validade") or validade_no_texto(a))
-    ib = b["_valor"].informacao + bool(b.get("validade") or validade_no_texto(b))
+    ia = a["_valor"].informacao + (validade_declarada(a) is not None)
+    ib = b["_valor"].informacao + (validade_declarada(b) is not None)
     if ia != ib:
         return ia > ib
     return str(a.get("publicado") or "") > str(b.get("publicado") or "")
@@ -553,42 +729,55 @@ def ordem_das_lojas(lojas: Iterable[str]) -> list[str]:
 
 
 def _texto_da_linha(reg: dict) -> str:
-    """O que vem depois do código: o valor, o anúncio (cupom da página do produto) e o vencimento (até 31 dias)."""
+    """O que vem depois do código: o valor, o anúncio (cupom da página do produto) e o vencimento (até 31 dias; "vence
+    hoje", "vence amanhã")."""
     texto = reg.get("_texto") or texto_do_valor(reg.get("_valor") or Valor(), reg.get("titulo") or "")
     if reg.get("especifico"):
         modelo = reg.get("modelo")
         texto += f" · só no anúncio do {rotulo_modelo(str(modelo))}" if modelo else " · só no anúncio"
-    validade = _data(reg.get("validade")) or validade_no_texto(reg)
-    if validade is not None and (validade - agora()).days <= 31:
-        texto += f" · vence {validade:%d/%m}"
+    validade = validade_declarada(reg)
+    if validade is not None:
+        faltam = (validade.astimezone(TZ_BR).date() - agora().date()).days
+        if faltam <= 0:
+            texto += " · vence hoje"
+        elif faltam == 1:
+            texto += " · vence amanhã"
+        elif faltam <= 31:
+            texto += f" · vence {validade.astimezone(TZ_BR):%d/%m}"
     return texto
 
 
 def _bloco(loja: str, regs: list[dict]) -> list[str]:
-    """O título da loja e uma linha por valor: códigos diferentes com o MESMO valor (AEMEGA8, AFFNOV08 e Pelando8:
-    R$ 580 OFF acima de R$ 3.700) ficam na mesma linha, cada um no seu <code>."""
+    """O título da loja (com quantos códigos ela tem) e uma linha por valor: códigos diferentes com o MESMO valor
+    (AEMEGA8, AFFNOV08 e Pelando8: R$ 580 OFF acima de R$ 3.700) ficam na mesma linha, cada um no seu <code>, até
+    MAX_CODIGOS_POR_LINHA (o seguinte abre outra linha). No máximo config.CUPONS_ATIVOS_MAX_POR_LOJA linhas (0 = todas);
+    o resto vira "… e mais N códigos"."""
     grupos: list[tuple[str, list[dict]]] = []
     onde: dict[str, int] = {}
-    maximo = config.CUPONS_ATIVOS_MAX_POR_LOJA
-    mostra = regs[:maximo] if maximo > 0 else regs
-    for r in mostra:
+    for r in regs:
         texto = _texto_da_linha(r)
-        agrupa = bool(r.get("codigo")) and not r.get("especifico")
-        if agrupa and texto in onde:
-            grupos[onde[texto]][1].append(r)
+        # escopo cortado ("…") pode esconder produtos diferentes com o mesmo começo: não junta
+        agrupa = bool(r.get("codigo")) and not r.get("especifico") and "…" not in texto
+        i = onde.get(texto) if agrupa else None
+        if i is not None and len(grupos[i][1]) < MAX_CODIGOS_POR_LINHA:
+            grupos[i][1].append(r)
             continue
         if agrupa:
             onde[texto] = len(grupos)
         grupos.append((texto, [r]))
+    maximo = config.CUPONS_ATIVOS_MAX_POR_LOJA
+    mostra = grupos[:maximo] if maximo > 0 else grupos
+    escondidos = sum(len(rs) for _t, rs in grupos[len(mostra):])
     linhas = [f"🛒 <b>{html.escape(loja.upper(), quote=False)}</b> ({len(regs)})"]
-    for texto, rs in grupos:
+    for texto, rs in mostra:
         if rs[0].get("codigo"):
             ini = "• " + " ou ".join(f"<code>{html.escape(r['codigo'], quote=False)}</code>" for r in rs)
         else:
             ini = "• <i>sem código (automático)</i>"
         linhas.append(f"{ini} — {html.escape(texto, quote=False)}" + (" ⭐" if rs[0].get("especifico") else ""))
-    if len(mostra) < len(regs):
-        linhas.append(f"<i>… e mais {len(regs) - len(mostra)} (os de menor desconto)</i>")
+    if escondidos:
+        linhas.append(f"<i>… e mais {escondidos} código{'' if escondidos == 1 else 's'} de lista, categoria ou "
+                      "menor desconto</i>")
     return linhas
 
 
@@ -612,11 +801,12 @@ def mensagens(por_loja: dict[str, list[dict]], quando: Optional[datetime] = None
         if len(bloco) <= cabe:
             blocos.append(bloco)
             continue
-        # loja grande demais: corta entre linhas, repetindo o título com "(cont.)"
+        # loja grande demais: corta entre linhas, repetindo o título com "(cont.)" (o título nunca fica sozinho; a linha
+        # tem no máximo MAX_CODIGOS_POR_LINHA códigos, então sempre cabe)
         titulo = linhas[0]
         atual = titulo
         for ln in linhas[1:]:
-            if len(atual) + 1 + len(ln) > cabe:
+            if len(atual) + 1 + len(ln) > cabe and atual != titulo:
                 blocos.append(atual)
                 atual = titulo.replace(f"({len(por_loja[loja])})", "(cont.)") + "\n" + ln
             else:

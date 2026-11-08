@@ -503,18 +503,20 @@ class Estado:
         return [r for r in cupons.values() if isinstance(r, dict)] if isinstance(cupons, dict) else []
 
     def cupons_da_ultima_leitura(self, modo: str | None = None, horas: float = 36) -> list[dict]:
-        """Os cupons que cada fonte trouxe na última leitura dela (registros do state com 'ultima_vez' até 10 min antes
-        da maior 'ultima_vez' da fonte), para a lista de cupons ativos (monitor/lista_cupons.py). Fonte cuja última
-        leitura passou de `horas` horas fica de fora. modo None: este modo; outro modo: state_<modo>.json (só
-        leitura; ausente ou quebrado -> [])."""
+        """Os cupons que cada fonte trouxe na última leitura de cada loja (registros do state com 'ultima_vez' até 10 min
+        antes da maior 'ultima_vez' da fonte naquela loja), para a lista de cupons ativos (monitor/lista_cupons.py). Por
+        loja, e não só por fonte: a página de uma loja que falhou numa rodada (o Promobit lê uma página por loja e pula
+        a que falha) não apaga a leitura anterior dela. Leitura com mais de `horas` horas fica de fora. modo None: este
+        modo; outro modo: state_<modo>.json (só leitura; ausente ou quebrado -> [])."""
         regs = list(self.dados["cupons"].values()) if modo in (None, self.modo) else self._cupons_do_modo(modo)
-        por_fonte: dict[str, list[tuple[datetime, dict]]] = {}
+        por_fonte: dict[tuple[str, str], list[tuple[datetime, dict]]] = {}
         for r in regs:
             if not isinstance(r, dict):
                 continue
             quando = _dt(r.get("ultima_vez"))
             if quando is not None:
-                por_fonte.setdefault(str(r.get("fonte") or ""), []).append((quando, r))
+                chave = (str(r.get("fonte") or ""), loja_canonica(str(r.get("loja") or "")))
+                por_fonte.setdefault(chave, []).append((quando, r))
         out: list[dict] = []
         limite = agora() - timedelta(hours=horas)
         for itens in por_fonte.values():

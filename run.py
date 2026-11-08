@@ -211,12 +211,15 @@ def main() -> int:
                                        and estado.dados.get("ultima_lista_cupons") != hoje()):
         try:
             from monitor.lista_cupons import mensagens_cupons_ativos
+            from monitor.util import loja_canonica
 
-            # os cupons desta rodada, os da última leitura das fontes deste modo que não trouxeram nada agora e os do
-            # outro modo (latest e última leitura do state dele)
-            fontes_rodada = {c.fonte for c in cupons}  # type: ignore[union-attr]
+            # os cupons desta rodada, os da última leitura (por fonte e loja) deste modo que não vieram agora (a página
+            # de uma loja que falhou nesta rodada não tira a loja da lista) e os do outro modo (latest e última leitura
+            # do state dele)
+            lidas_agora = {(c.fonte, loja_canonica(c.loja)) for c in cupons}  # type: ignore[union-attr]
             regs = [c.to_dict() for c in cupons]  # type: ignore[union-attr]
-            regs += [r for r in estado.cupons_da_ultima_leitura() if r.get("fonte") not in fontes_rodada]
+            regs += [r for r in estado.cupons_da_ultima_leitura()
+                     if (r.get("fonte"), loja_canonica(str(r.get("loja") or ""))) not in lidas_agora]
             regs += estado.cupons_de_outros_modos()
             lista_cupons = mensagens_cupons_ativos(regs)
         except Exception as e:  # noqa: BLE001 - a lista não pode derrubar a rodada (o state ainda não foi salvo)
@@ -234,17 +237,26 @@ def main() -> int:
             estado.esquece_alertas_de_cupom_da_rodada()  # não chegou ao Telegram: os cupons não foram alertados
         enviados += 1
     if lista_cupons:
-        chegou = False
-        for i, m in enumerate(lista_cupons):
-            if args.no_notify:
+        if args.no_notify:
+            for m in lista_cupons:
                 print("[lista de cupons]\n" + m + "\n")
-            else:
-                chegou = notificar.enviar(m, silencioso=i > 0) or chegou
-        # fica registrada a lista do dia que chegou (ou que não tinha como chegar: --no-notify, sem bot); se o Telegram
-        # falhou em todas as partes, a próxima rodada tenta de novo
-        if chegou or args.no_notify or not config.TELEGRAM_BOT_TOKEN:
+            chegaram = [True] * len(lista_cupons)
+        else:
+            chegaram = [notificar.enviar(m, silencioso=i > 0) for i, m in enumerate(lista_cupons)]
+            if any(chegaram):
+                # a parte que falhou (rede) ganha mais uma tentativa já; se nada chegou, o Telegram está fora
+                chegaram = [ok or notificar.enviar(m, silencioso=True) for ok, m in zip(chegaram, lista_cupons)]
+        # a lista do dia fica registrada quando chegou inteira (ou não tinha como chegar: --no-notify, sem bot). Nada
+        # chegou: a próxima rodada tenta de novo. Chegou só parte: a próxima rodada manda a lista inteira mais uma vez
+        # (só uma, para não repetir a cada rodada as partes que chegaram)
+        if all(chegaram) or args.no_notify or not config.TELEGRAM_BOT_TOKEN:
             estado.dados["ultima_lista_cupons"] = hoje()
-        print(f"[cupons] lista de cupons ativos: {len(lista_cupons)} mensagem(ns)")
+        elif any(chegaram):
+            if estado.dados.get("lista_cupons_parcial") == hoje():
+                estado.dados["ultima_lista_cupons"] = hoje()
+            else:
+                estado.dados["lista_cupons_parcial"] = hoje()
+        print(f"[cupons] lista de cupons ativos: {sum(chegaram)}/{len(lista_cupons)} mensagem(ns) enviada(s)")
 
     # o que o painel e o resumo usam nos produtos que não são TV (meta desta oferta, entrega do GTA 6, detalhes do kit e
     # do gift card), gravado no extra antes de ir para o state/latest

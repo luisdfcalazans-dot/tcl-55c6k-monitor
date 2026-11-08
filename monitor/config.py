@@ -335,8 +335,11 @@ HORA_RESUMO_DIARIO = int(_env("HORA_RESUMO_DIARIO", "9"))  # hora de Brasília; 
 HORA_LISTA_CUPONS: int | None = int(_env("HORA_LISTA_CUPONS", "")) if _env("HORA_LISTA_CUPONS", "") else None
 # cupom sem validade entra na lista só se foi publicado há até tantos dias (código datado DDMM vale só no dia)
 CUPONS_ATIVOS_DIAS = float(_env("CUPONS_ATIVOS_DIAS", "3"))
-# no máximo tantos cupons por loja na lista (os de maior desconto; o resto vira "… e mais N"); 0 = todos
-CUPONS_ATIVOS_MAX_POR_LOJA = int(_env("CUPONS_ATIVOS_MAX_POR_LOJA", "0"))
+# no Pelando (que só mostra cupom com status ativo, e o coletor só lê esses): até tantos dias da publicação
+CUPONS_ATIVOS_DIAS_PELANDO = float(_env("CUPONS_ATIVOS_DIAS_PELANDO", "14"))
+# no máximo tantas linhas por loja na lista (primeiro os do anúncio monitorado, depois os gerais, depois os de lista,
+# categoria ou produto, cada grupo com o maior desconto primeiro; o resto vira "… e mais N códigos"); 0 = todas
+CUPONS_ATIVOS_MAX_POR_LOJA = int(_env("CUPONS_ATIVOS_MAX_POR_LOJA", "10"))
 
 
 def hora_lista_cupons() -> int:

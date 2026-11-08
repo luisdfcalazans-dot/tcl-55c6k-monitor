@@ -16,8 +16,10 @@ from . import Fonte, Resultado
 # Magalu; Mais Correios tem Ponto Frio, Casas Bahia...) vêm antes: o vendedor citado no texto não é a loja da compra
 _LOJAS_NO_TEXTO = [
     ("maiscorreios", "Mais Correios"), ("mais correios", "Mais Correios"), ("netshoes", "Netshoes"),
-    ("magazineluiza", "Magazine Luiza"), ("magalu", "Magazine Luiza"), ("amazon", "Amazon"),
-    ("mercadolivre", "Mercado Livre"), ("mercado livre", "Mercado Livre"), ("kabum", "KaBuM!"),
+    ("magazineluiza", "Magazine Luiza"), ("magalu", "Magazine Luiza"), ("amazon", "Amazon"), ("amzn.to", "Amazon"),
+    # meli.la: encurtador do Mercado Livre (todos os links de ML do @linguicapromocoes, 08/11/2026)
+    ("mercadolivre", "Mercado Livre"), ("mercado livre", "Mercado Livre"), ("meli.la", "Mercado Livre"),
+    ("kabum", "KaBuM!"),
     ("casasbahia", "Casas Bahia"), ("casas bahia", "Casas Bahia"), ("fastshop", "Fast Shop"), ("fast shop", "Fast Shop"),
     ("aliexpress", "AliExpress"), ("shopee", "Shopee"), ("pontofrio", "Ponto"), ("ponto frio", "Ponto"),
     ("extra.com", "Extra"), ("carrefour", "Carrefour"), ("americanas", "Americanas"), ("lojatcl", "Loja TCL"),
