@@ -307,6 +307,7 @@ TELEGRAM_CANAIS_PUBLICOS = [
     "LOOPechinchas",        # Loop Ofertas
     "ofertasmundoconectado",  # Ofertas Mundo Conectado
     "cacadoresofertas",     # Caçadores de Ofertas
+    "linguicapromocoes",    # Linguiça das Promoções (pedido de 08/11)
     "pelandobr",            # canal OFICIAL do Pelando: repete os posts (lido da nuvem; o site bloqueia datacenter)
     # @ENVOLTOTECH é grupo e @AquiSuaPromoBot é bot: só via conta (TELEGRAM_CHATS_USUARIO, no PC)
 ]
@@ -328,6 +329,20 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 MAX_ALERTAS_POR_EXECUCAO = int(_env("MAX_ALERTAS_POR_EXECUCAO", "15"))
 HORA_RESUMO_DIARIO = int(_env("HORA_RESUMO_DIARIO", "9"))  # hora de Brasília; -1 desliga
+# Lista "🎟️ Cupons ativos" (pedido de 08/11/2026; monitor/lista_cupons.py): uma vez por dia, fora do modo pc, a partir
+# desta hora de Brasília, em mensagem(ns) separada(s) do resumo. Vazio = a hora do resumo (lida na hora da chamada, ver
+# hora_lista_cupons); -1 desliga. Também sai com --resumo ou --cupons (workflow_dispatch: resumo=true ou cupons=true)
+HORA_LISTA_CUPONS: int | None = int(_env("HORA_LISTA_CUPONS", "")) if _env("HORA_LISTA_CUPONS", "") else None
+# cupom sem validade entra na lista só se foi publicado há até tantos dias (código datado DDMM vale só no dia)
+CUPONS_ATIVOS_DIAS = float(_env("CUPONS_ATIVOS_DIAS", "3"))
+# no máximo tantos cupons por loja na lista (os de maior desconto; o resto vira "… e mais N"); 0 = todos
+CUPONS_ATIVOS_MAX_POR_LOJA = int(_env("CUPONS_ATIVOS_MAX_POR_LOJA", "0"))
+
+
+def hora_lista_cupons() -> int:
+    """A hora da lista de cupons ativos: HORA_LISTA_CUPONS, ou a do resumo diário quando ela não foi definida."""
+    return HORA_RESUMO_DIARIO if HORA_LISTA_CUPONS is None else HORA_LISTA_CUPONS
+
 
 # Nomes canônicos de loja (usados para casar cupons com ofertas)
 LOJAS_CANONICAS = {

@@ -9,7 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       resumo:
-        description: "Enviar o resumo de preços agora"
+        description: "Enviar o resumo de preços agora (com a lista de cupons ativos)"
+        type: boolean
+        default: false
+      cupons:
+        description: "Enviar agora a lista de cupons ativos por loja"
         type: boolean
         default: false
       minutos:
@@ -43,6 +47,11 @@ jobs:
       MAGALU_ANUNCIOS_EXTRA: ${{ vars.MAGALU_ANUNCIOS_EXTRA }}
       MINUTOS: ${{ github.event.inputs.minutos || vars.MINUTOS_LOOP || '50' }}
       RESUMO: ${{ github.event.inputs.resumo }}
+      CUPONS: ${{ github.event.inputs.cupons }}
+      # lista diária de cupons ativos: hora (vazio = a do resumo, 9h; -1 desliga) e quantos dias vale o cupom sem validade
+      HORA_LISTA_CUPONS: ${{ vars.HORA_LISTA_CUPONS }}
+      CUPONS_ATIVOS_DIAS: ${{ vars.CUPONS_ATIVOS_DIAS }}
+      CUPONS_ATIVOS_MAX_POR_LOJA: ${{ vars.CUPONS_ATIVOS_MAX_POR_LOJA }}
     steps:
       - uses: actions/checkout@v4
 
@@ -63,6 +72,7 @@ jobs:
             inicio=$(date +%s)
             extra=""
             [ "$primeira" = "1" ] && [ "$RESUMO" = "true" ] && extra="--resumo"
+            [ "$primeira" = "1" ] && [ "$CUPONS" = "true" ] && extra="$extra --cupons"
             python run.py --mode cloud $extra || echo "::warning::coleta falhou nesta volta"
             primeira=0
 

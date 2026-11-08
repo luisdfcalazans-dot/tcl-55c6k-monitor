@@ -3,7 +3,8 @@
   python run.py --mode cloud     # fontes por API/HTML (GitHub Actions)
   python run.py --mode pc        # fontes que exigem IP residencial / navegador (seu PC)
   python run.py --mode all       # tudo (para testar localmente)
-  opções: --no-notify (não envia Telegram) --so fonte1,fonte2 (roda só essas) --resumo (força resumo diário)
+  opções: --no-notify (não envia Telegram) --so fonte1,fonte2 (roda só essas) --resumo (força resumo diário e a lista
+  de cupons ativos) --cupons (força só a lista de cupons ativos)
 """
 
 from __future__ import annotations
@@ -55,6 +56,7 @@ def main() -> int:
     ap.add_argument("--no-notify", action="store_true")
     ap.add_argument("--so", default="", help="lista de fontes separadas por vírgula")
     ap.add_argument("--resumo", action="store_true")
+    ap.add_argument("--cupons", action="store_true", help="envia agora a lista de cupons ativos")
     args = ap.parse_args()
 
     from monitor import config, notificar, produtos
@@ -200,6 +202,28 @@ def main() -> int:
             msgs.append(resumo_diario(estado, ofertas, aplicaveis, vigia))  # type: ignore[arg-type]
         estado.dados["ultimo_resumo"] = hoje()
 
+    # lista "🎟️ Cupons ativos" (pedido de 08/11/2026; monitor/lista_cupons.py): uma vez por dia, fora do modo pc, a
+    # partir de config.hora_lista_cupons() (padrão: a hora do resumo), ou na hora com --resumo/--cupons. São
+    # mensagens separadas, fora do limite de alertas da rodada (não são alertas), enviadas depois deles
+    lista_cupons: list[str] = []
+    hora_lista = config.hora_lista_cupons()
+    if args.resumo or args.cupons or (hora_lista >= 0 and h >= hora_lista and args.mode != "pc"
+                                       and estado.dados.get("ultima_lista_cupons") != hoje()):
+        try:
+            from monitor.lista_cupons import mensagens_cupons_ativos
+
+            # os cupons desta rodada, os da última leitura das fontes deste modo que não trouxeram nada agora e os do
+            # outro modo (latest e última leitura do state dele)
+            fontes_rodada = {c.fonte for c in cupons}  # type: ignore[union-attr]
+            regs = [c.to_dict() for c in cupons]  # type: ignore[union-attr]
+            regs += [r for r in estado.cupons_da_ultima_leitura() if r.get("fonte") not in fontes_rodada]
+            regs += estado.cupons_de_outros_modos()
+            lista_cupons = mensagens_cupons_ativos(regs)
+        except Exception as e:  # noqa: BLE001 - a lista não pode derrubar a rodada (o state ainda não foi salvo)
+            print(f"[cupons] lista de cupons ativos não montada: {type(e).__name__}: {str(e)[:160]}")
+            if os.environ.get("DEBUG"):
+                traceback.print_exc()
+
     msgs = limita_alertas(avisos + msgs, estado, config.MAX_ALERTAS_POR_EXECUCAO)
 
     enviados = 0
@@ -209,6 +233,18 @@ def main() -> int:
         elif not notificar.enviar(m) and config.TELEGRAM_BOT_TOKEN and e_mensagem_de_cupons(m):
             estado.esquece_alertas_de_cupom_da_rodada()  # não chegou ao Telegram: os cupons não foram alertados
         enviados += 1
+    if lista_cupons:
+        chegou = False
+        for i, m in enumerate(lista_cupons):
+            if args.no_notify:
+                print("[lista de cupons]\n" + m + "\n")
+            else:
+                chegou = notificar.enviar(m, silencioso=i > 0) or chegou
+        # fica registrada a lista do dia que chegou (ou que não tinha como chegar: --no-notify, sem bot); se o Telegram
+        # falhou em todas as partes, a próxima rodada tenta de novo
+        if chegou or args.no_notify or not config.TELEGRAM_BOT_TOKEN:
+            estado.dados["ultima_lista_cupons"] = hoje()
+        print(f"[cupons] lista de cupons ativos: {len(lista_cupons)} mensagem(ns)")
 
     # o que o painel e o resumo usam nos produtos que não são TV (meta desta oferta, entrega do GTA 6, detalhes do kit e
     # do gift card), gravado no extra antes de ir para o state/latest

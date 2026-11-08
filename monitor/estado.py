@@ -19,6 +19,7 @@ import csv
 import json
 import os
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
@@ -28,7 +29,7 @@ from .confianca import (
     reprovados_para_painel, veredito_de,
 )
 from .models import MODELO_PADRAO, MODELOS, Cupom, Oferta, modelo_de
-from .util import agora_iso, dias_desde, loja_canonica, sem_acentos
+from .util import TZ_BR, agora, agora_iso, dias_desde, loja_canonica, sem_acentos
 
 # todos os produtos do catálogo (as TVs primeiro); MODELOS continua sendo só as duas TVs
 PRODUTOS = produtos.IDS
@@ -67,6 +68,15 @@ def _linha_csv_valida(cab: list[str], row: list[str]) -> bool:
     """A linha tem o número de colunas do cabeçalho, ou uma a menos quando a que falta é a 'modelo' do fim (linha
     gravada antes de 26/09 num arquivo cujo cabeçalho já ganhou a coluna)."""
     return len(row) == len(cab) or (len(row) == len(cab) - 1 and bool(cab) and cab[-1] == "modelo")
+
+
+def _dt(iso: Any) -> datetime | None:
+    """ISO 8601 -> datetime com fuso (sem fuso: Brasília). Vazio ou ilegível -> None."""
+    try:
+        dt = datetime.fromisoformat(str(iso or "").strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=TZ_BR)
 
 
 def marca_cupom(loja: str, codigo: str) -> str:
@@ -491,6 +501,42 @@ class Estado:
     def _cupons_do_modo(self, modo: str) -> list[dict]:
         cupons = (self._arquivo_do_modo(f"state_{modo}.json") or {}).get("cupons")
         return [r for r in cupons.values() if isinstance(r, dict)] if isinstance(cupons, dict) else []
+
+    def cupons_da_ultima_leitura(self, modo: str | None = None, horas: float = 36) -> list[dict]:
+        """Os cupons que cada fonte trouxe na última leitura dela (registros do state com 'ultima_vez' até 10 min antes
+        da maior 'ultima_vez' da fonte), para a lista de cupons ativos (monitor/lista_cupons.py). Fonte cuja última
+        leitura passou de `horas` horas fica de fora. modo None: este modo; outro modo: state_<modo>.json (só
+        leitura; ausente ou quebrado -> [])."""
+        regs = list(self.dados["cupons"].values()) if modo in (None, self.modo) else self._cupons_do_modo(modo)
+        por_fonte: dict[str, list[tuple[datetime, dict]]] = {}
+        for r in regs:
+            if not isinstance(r, dict):
+                continue
+            quando = _dt(r.get("ultima_vez"))
+            if quando is not None:
+                por_fonte.setdefault(str(r.get("fonte") or ""), []).append((quando, r))
+        out: list[dict] = []
+        limite = agora() - timedelta(hours=horas)
+        for itens in por_fonte.values():
+            maior = max(q for q, _r in itens)
+            if maior < limite:
+                continue
+            out += [r for q, r in itens if q >= maior - timedelta(minutes=10)]
+        return out
+
+    def cupons_de_outros_modos(self, horas: float = 36) -> list[dict]:
+        """Cupons do outro modo para a lista de cupons ativos: os do latest_<outro>.json ("cupons": os que serviram no
+        PS5/GTA 6 na última rodada dele) e os da última leitura de cada fonte no state_<outro>.json (todos os cupons
+        que a fonte trouxe, não só os que servem nos produtos: o latest não tem os cupons gerais). Cada um leva
+        '_modo'. Rodada/leitura com mais de `horas` horas não entra; arquivo ausente ou quebrado é ignorado."""
+        out: list[dict] = []
+        for m in self._outros_modos():
+            lt = self._arquivo_do_modo(f"latest_{m}.json") or {}
+            quando = _dt(lt.get("atualizado"))
+            if isinstance(lt.get("cupons"), list) and (quando is None or quando >= agora() - timedelta(hours=horas)):
+                out += [{**c, "_modo": m} for c in lt["cupons"] if isinstance(c, dict)]
+            out += [{**c, "_modo": m} for c in self.cupons_da_ultima_leitura(m, horas)]
+        return out
 
     # ---- fontes diretas x agregador (Zoom) ----
     def lojas_diretas_conhecidas(self, ofertas: list[Oferta] = ()) -> set[str]:

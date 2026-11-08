@@ -26,6 +26,9 @@ O plano completo com a pesquisa que originou o projeto está em [PLANO.md](PLANO
 | Cupom novo numa loja que vende a TV, com regra compatível | 🎟️ com o preço da loja |
 | Uma fonte falhou 3 vezes seguidas | ⚠️ |
 | Todo dia às 9h | ☀️ resumo com todos os preços |
+| Todo dia às 9h, logo depois do resumo | 🎟️ lista de cupons ativos por loja: código (toque para copiar) e valor do desconto |
+
+A lista 🎟️ **Cupons ativos** junta os cupons do Promobit, do Pelando e das páginas de anúncio (dos dois modos) e mostra só os que estão valendo: validade no futuro ou, sem validade, publicados nos últimos `CUPONS_ATIVOS_DIAS` dias (padrão 3); código com data (TODOSITE0811) só no dia; o que o testador viu expirado nos últimos 2 dias sai. Cada loja vem num bloco separado por uma linha em branco, com o maior desconto primeiro (`15% OFF · mín. R$ 500 · até R$ 100 · som vídeo eletro`). Códigos diferentes com o mesmo valor ficam na mesma linha; `CUPONS_ATIVOS_MAX_POR_LOJA` limita quantos aparecem por loja (padrão 0 = todos). A hora muda com `HORA_LISTA_CUPONS` (vazio = a do resumo; -1 desliga); para receber na hora: `gh workflow run monitor.yml -f cupons=true` ou `python run.py --cupons`.
 
 Todo alerta diz o modelo. Os alvos são ajustáveis pelas variáveis `ALVO_PIX` e `ALVO_PARCELADO` (55C6K) e `ALVO_PIX_65` e `ALVO_PARCELADO_65` (65C6K). O painel mostra as duas TVs, uma tabela com quanto a 65" custa a mais que a 55" na mesma loja (à vista e parcelado) e um gráfico de histórico por modelo.
 
@@ -103,7 +106,8 @@ Para grupos fechados ou canais privados de que você participa:
 
 ## Rodar na mão
 ```
-gh workflow run monitor.yml -f resumo=true   # nuvem: coleta agora e manda o resumo no Telegram
+gh workflow run monitor.yml -f resumo=true   # nuvem: coleta agora e manda o resumo (e a lista de cupons) no Telegram
+gh workflow run monitor.yml -f cupons=true   # nuvem: coleta agora e manda só a lista de cupons ativos
 python run.py --mode cloud --no-notify      # só imprime, não envia
 python run.py --mode all --so zoom,kabum    # só algumas fontes
 python -m pytest -q                         # testes com páginas salvas
@@ -116,6 +120,7 @@ monitor/produtos.py      catálogo dos produtos (TVs, PS5, GTA 6...) e o classif
 monitor/filtro.py        aceita só 55C6K e 65C6K e diz qual (rejeita 75/85C6K, vizinhos como 65C7K, combos, acessórios, usados)
 monitor/sources/*.py     um coletor por fonte (entrega.py: prazo de entrega do GTA 6, dias úteis, datas por extenso)
 monitor/regras.py        o que vira alerta
+monitor/lista_cupons.py  lista diária de cupons ativos por loja (código e valor do desconto)
 monitor/confianca.py     veredito de cada anúncio (confiável, reprovado, suspeito, sem risco aparente)
 monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json

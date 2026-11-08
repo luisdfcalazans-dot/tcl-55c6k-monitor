@@ -1817,7 +1817,7 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom], vi
         linhas = [cab] + _resumo_produtos(estado, ofertas, diretas)
         if cupons:
             cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
-            linhas.append(f"Cupons ativos: {_esc(cods)}")
+            linhas.append(f"Cupons aplicáveis: {_esc(cods)}")
         return "\n".join(linhas)
     linhas = ["☀️ <b>Resumo diário — TCL 55C6K</b>"]
     itens = _linhas_do_resumo(estado, ofertas, diretas, MODELO_PADRAO)
@@ -1846,7 +1846,7 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom], vi
     linhas += _resumo_produtos(estado, ofertas, diretas)
     if cupons:
         cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
-        linhas.append(f"Cupons ativos: {_esc(cods)}")
+        linhas.append(f"Cupons aplicáveis: {_esc(cods)}")
     return "\n".join(linhas)
 
 
