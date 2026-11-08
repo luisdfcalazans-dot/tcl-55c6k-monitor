@@ -4106,7 +4106,7 @@
     "quantidade": 1
    },
    "INFLU200@240604800-magazineluiza": {
-    "testado_em": "2026-11-07T11:52:43-03:00",
+    "testado_em": "2026-11-08T13:47:57-03:00",
     "status": "aceito",
     "aceito": true,
     "mensagem": "",
@@ -10908,7 +10908,7 @@
     "quantidade": 1
    },
    "EPOCA10@240604800-magazineluiza": {
-    "testado_em": "2026-11-07T11:53:12-03:00",
+    "testado_em": "2026-11-08T13:48:27-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom não foi aplicado. Pode ter algum erro de digitação ou não estar mais ativo.",
@@ -11022,7 +11022,7 @@
     "quantidade": 1
    },
    "LU400@aebh5a7a94-kabum": {
-    "testado_em": "2026-11-07T10:48:36-03:00",
+    "testado_em": "2026-11-08T13:51:31-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom não foi aplicado. Pode ter algum erro de digitação ou não estar mais ativo.",
@@ -11030,11 +11030,11 @@
     "anuncio": "aebh5a7a94-kabum",
     "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
     "modelo": "PS5_DIGITAL",
-    "tv_pix": 4191.46,
-    "tv_cartao": 4459.0,
+    "tv_pix": 4365.53,
+    "tv_cartao": 4644.18,
     "pix_real": true,
-    "total_pix": 4191.46,
-    "total_cartao": 4459.0,
+    "total_pix": 4365.53,
+    "total_cartao": 4644.18,
     "frete": 0.0,
     "desconto": null,
     "parcelado": "10x R$ 474,90 sem juros",
@@ -12048,7 +12048,7 @@
     "quantidade": 1
    },
    "LU350@240604800-magazineluiza": {
-    "testado_em": "2026-11-07T11:53:24-03:00",
+    "testado_em": "2026-11-08T13:48:39-03:00",
     "status": "aceito",
     "aceito": true,
     "mensagem": "",
@@ -12067,7 +12067,7 @@
     "quantidade": 1
    },
    "AFFNOV11@240604800-magazineluiza": {
-    "testado_em": "2026-11-06T22:50:52-03:00",
+    "testado_em": "2026-11-08T13:49:09-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "Este cupom não foi aplicado. Pode ter algum erro de digitação ou não estar mais ativo.",
@@ -13056,18 +13056,18 @@
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-11-08T13:19:40-03:00",
+  "ultima_execucao": "2026-11-08T13:51:59-03:00",
   "precos": {
    "240604800-magazineluiza": {
     "vendedor": "Magalu",
     "url": "https://www.magazineluiza.com.br/playstation-5-edicao-digital-825gb-1-controle-branco-sony/p/240604800/ga/gap5/",
     "modelo": "PS5_DIGITAL",
-    "tv_pix": 4369.08,
-    "tv_cartao": 4749.0,
-    "parcelado": null,
-    "cupom": "(sem cupom)",
+    "tv_pix": 4019.08,
+    "tv_cartao": 4399.0,
+    "parcelado": "10x R$ 474,90 sem juros",
+    "cupom": "LU350",
     "frete": 0.0,
-    "lido_em": "2026-11-08T13:21:32-03:00",
+    "lido_em": "2026-11-08T13:51:59-03:00",
     "vendedor_id": "magazineluiza",
     "sem_cupom_pix": 4369.08,
     "sem_cupom_cartao": 4749.0
@@ -13104,15 +13104,15 @@
     "vendedor": "KaBuM!",
     "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
     "modelo": "PS5_DIGITAL",
-    "tv_pix": 4191.46,
-    "tv_cartao": 4459.0,
+    "tv_pix": 4365.53,
+    "tv_cartao": 4644.18,
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 0.0,
-    "lido_em": "2026-11-07T12:02:05-03:00",
+    "lido_em": "2026-11-08T13:51:59-03:00",
     "vendedor_id": "kabum",
-    "sem_cupom_pix": 4191.46,
-    "sem_cupom_cartao": 4459.0
+    "sem_cupom_pix": 4365.53,
+    "sem_cupom_cartao": 4644.18
    },
    "he23307282-kabum": {
     "vendedor": "KaBuM!",
@@ -13269,8 +13269,22 @@
     "sem_cupom_cartao": 5299.0
    }
   },
-  "pausa_ate": "2026-11-08T02:21:12-03:00",
-  "pausa_motivo": "o Magalu não carregou a sacola (instabilidade ou bloqueio antirrobô)"
+  "pausa_ate": "2026-11-08T16:51:59-03:00",
+  "pausa_motivo": "o Magalu não carregou a sacola (instabilidade ou bloqueio antirrobô)",
+  "tvs_fora": {
+   "PS5_DISCO": {
+    "desde": "2026-11-08T13:51:59-03:00",
+    "tentativas": 0
+   },
+   "PS5_PRO": {
+    "desde": "2026-11-08T13:51:59-03:00",
+    "tentativas": 0
+   },
+   "GTA6_CODE_IN_BOX": {
+    "desde": "2026-11-08T13:51:59-03:00",
+    "tentativas": 0
+   }
+  }
  },
  "mercadolivre": {
   "cupons": {
@@ -23695,10 +23709,10 @@
     "item": "MLB5728106336"
    },
    "CUPOMPRAAUTO@MLB4214670787": {
-    "testado_em": "2026-11-07T12:23:24-03:00",
+    "testado_em": "2026-11-08T13:53:30-03:00",
     "status": "recusado",
     "aceito": false,
-    "mensagem": "sem mudança no preço da TV",
+    "mensagem": "O cupom não está mais disponível.",
     "vendedor": "Loja oficial PlayStation",
     "anuncio": "MLB4214670787",
     "url": "https://www.mercadolivre.com.br/console-playstation5-slim-digital-pacote-astro-bot-e-gran-turismo-7-branco/p/MLB57081243?pdp_filters=item_id%3AMLB4214670787",
@@ -23715,7 +23729,7 @@
     "item": "MLB4214670787"
    },
    "LOJAS0711@MLB4214670787": {
-    "testado_em": "2026-11-07T12:23:39-03:00",
+    "testado_em": "2026-11-08T13:53:44-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "O cupom não está mais disponível.",
@@ -23755,10 +23769,10 @@
     "item": "MLB4214670787"
    },
    "CUPOMPRAAUTO@MLB5728106336": {
-    "testado_em": "2026-11-07T12:24:57-03:00",
+    "testado_em": "2026-11-08T13:55:30-03:00",
     "status": "recusado",
     "aceito": false,
-    "mensagem": "sem mudança no preço da TV",
+    "mensagem": "O cupom não está mais disponível.",
     "vendedor": "Loja oficial PlayStation",
     "anuncio": "MLB5728106336",
     "url": "https://www.mercadolivre.com.br/console-playstation5-slim-disk-pacote-astro-bot-e-gran-turismo-7/p/MLB57083347?pdp_filters=item_id%3AMLB5728106336",
@@ -23775,7 +23789,7 @@
     "item": "MLB5728106336"
    },
    "LOJAS0711@MLB5728106336": {
-    "testado_em": "2026-11-07T12:25:11-03:00",
+    "testado_em": "2026-11-08T13:55:44-03:00",
     "status": "recusado",
     "aceito": false,
     "mensagem": "O cupom não está mais disponível.",
@@ -23815,10 +23829,10 @@
     "item": "MLB5728106336"
    },
    "FULL0711@MLB4214670787": {
-    "testado_em": "2026-11-07T13:13:30-03:00",
+    "testado_em": "2026-11-08T13:53:15-03:00",
     "status": "recusado",
     "aceito": false,
-    "mensagem": "sem mudança no preço da TV",
+    "mensagem": "O cupom não está mais disponível.",
     "vendedor": "Loja oficial PlayStation",
     "anuncio": "MLB4214670787",
     "url": "https://www.mercadolivre.com.br/console-playstation5-slim-digital-pacote-astro-bot-e-gran-turismo-7-branco/p/MLB57081243?pdp_filters=item_id%3AMLB4214670787",
@@ -23835,10 +23849,10 @@
     "item": "MLB4214670787"
    },
    "FULL0711@MLB5728106336": {
-    "testado_em": "2026-11-07T13:14:35-03:00",
+    "testado_em": "2026-11-08T13:55:16-03:00",
     "status": "recusado",
     "aceito": false,
-    "mensagem": "sem mudança no preço da TV",
+    "mensagem": "O cupom não está mais disponível.",
     "vendedor": "Loja oficial PlayStation",
     "anuncio": "MLB5728106336",
     "url": "https://www.mercadolivre.com.br/console-playstation5-slim-disk-pacote-astro-bot-e-gran-turismo-7/p/MLB57083347?pdp_filters=item_id%3AMLB5728106336",
@@ -24013,10 +24027,90 @@
     "parcelado": null,
     "quantidade": 1,
     "item": "MLB5728106336"
+   },
+   "ELETRO0811@MLB4214670787": {
+    "testado_em": "2026-11-08T13:52:47-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "sem mudança no preço da TV",
+    "vendedor": "Loja oficial PlayStation",
+    "anuncio": "MLB4214670787",
+    "url": "https://www.mercadolivre.com.br/console-playstation5-slim-digital-pacote-astro-bot-e-gran-turismo-7-branco/p/MLB57081243?pdp_filters=item_id%3AMLB4214670787",
+    "modelo": "PS5_DIGITAL",
+    "tv_pix": 4369.9,
+    "tv_cartao": 4599.9,
+    "pix_real": true,
+    "total_pix": 4369.9,
+    "total_cartao": 4599.9,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1,
+    "item": "MLB4214670787"
+   },
+   "TODOSITE0811@MLB4214670787": {
+    "testado_em": "2026-11-08T13:53:01-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "O cupom não está mais disponível.",
+    "vendedor": "Loja oficial PlayStation",
+    "anuncio": "MLB4214670787",
+    "url": "https://www.mercadolivre.com.br/console-playstation5-slim-digital-pacote-astro-bot-e-gran-turismo-7-branco/p/MLB57081243?pdp_filters=item_id%3AMLB4214670787",
+    "modelo": "PS5_DIGITAL",
+    "tv_pix": 4369.9,
+    "tv_cartao": 4599.9,
+    "pix_real": true,
+    "total_pix": 4369.9,
+    "total_cartao": 4599.9,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1,
+    "item": "MLB4214670787"
+   },
+   "ELETRO0811@MLB5728106336": {
+    "testado_em": "2026-11-08T13:54:47-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "sem mudança no preço da TV",
+    "vendedor": "Loja oficial PlayStation",
+    "anuncio": "MLB5728106336",
+    "url": "https://www.mercadolivre.com.br/console-playstation5-slim-disk-pacote-astro-bot-e-gran-turismo-7/p/MLB57083347?pdp_filters=item_id%3AMLB5728106336",
+    "modelo": "PS5_DISCO",
+    "tv_pix": 4844.9,
+    "tv_cartao": 5099.9,
+    "pix_real": true,
+    "total_pix": 4844.9,
+    "total_cartao": 5099.9,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1,
+    "item": "MLB5728106336"
+   },
+   "TODOSITE0811@MLB5728106336": {
+    "testado_em": "2026-11-08T13:55:01-03:00",
+    "status": "recusado",
+    "aceito": false,
+    "mensagem": "O cupom não está mais disponível.",
+    "vendedor": "Loja oficial PlayStation",
+    "anuncio": "MLB5728106336",
+    "url": "https://www.mercadolivre.com.br/console-playstation5-slim-disk-pacote-astro-bot-e-gran-turismo-7/p/MLB57083347?pdp_filters=item_id%3AMLB5728106336",
+    "modelo": "PS5_DISCO",
+    "tv_pix": 4844.9,
+    "tv_cartao": 5099.9,
+    "pix_real": true,
+    "total_pix": 4844.9,
+    "total_cartao": 5099.9,
+    "frete": 0.0,
+    "desconto": null,
+    "parcelado": null,
+    "quantidade": 1,
+    "item": "MLB5728106336"
    }
   },
   "aviso_login": null,
-  "ultima_execucao": "2026-11-08T13:21:33-03:00",
+  "ultima_execucao": "2026-11-08T13:55:47-03:00",
   "precos": {
    "MLB4214670787": {
     "vendedor": "Loja oficial PlayStation",
@@ -24027,7 +24121,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 0.0,
-    "lido_em": "2026-11-07T23:56:05-03:00",
+    "lido_em": "2026-11-08T13:56:41-03:00",
     "vendedor_id": "1047493289",
     "sem_cupom_pix": 4369.9,
     "sem_cupom_cartao": 4599.9
@@ -24041,7 +24135,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": 0.0,
-    "lido_em": "2026-11-08T00:22:13-03:00",
+    "lido_em": "2026-11-08T13:56:41-03:00",
     "vendedor_id": "1047493289",
     "sem_cupom_pix": 4844.9,
     "sem_cupom_cartao": 5099.9
@@ -24052,7 +24146,7 @@
  "amazon": {
   "cupons": {},
   "aviso_login": null,
-  "ultima_execucao": "2026-11-08T13:09:08-03:00",
+  "ultima_execucao": "2026-11-08T13:45:46-03:00",
   "precos": {
    "B0H6LVH152-A1ZZFT5FULY4LN": {
     "vendedor": "Amazon.com.br Política de devolução",
@@ -24063,7 +24157,7 @@
     "parcelado": "10x R$ 469,99 sem juros",
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-11-08T13:09:08-03:00",
+    "lido_em": "2026-11-08T13:45:46-03:00",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "sem_cupom_pix": 4699.9,
     "sem_cupom_cartao": 4699.9
@@ -24104,7 +24198,7 @@
     "parcelado": "10x R$ 739,90 sem juros",
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-11-08T13:09:08-03:00",
+    "lido_em": "2026-11-08T13:45:46-03:00",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "sem_cupom_pix": 7399.0,
     "sem_cupom_cartao": 7399.0
@@ -24118,7 +24212,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-11-08T13:09:08-03:00",
+    "lido_em": "2026-11-08T13:45:46-03:00",
     "vendedor_id": "A1ZZFT5FULY4LN",
     "sem_cupom_pix": 418.4,
     "sem_cupom_cartao": null
@@ -24145,7 +24239,7 @@
     "parcelado": null,
     "cupom": "(sem cupom)",
     "frete": null,
-    "lido_em": "2026-11-08T13:09:08-03:00",
+    "lido_em": "2026-11-08T13:45:46-03:00",
     "vendedor_id": "A3391ZCWNCQKXA",
     "sem_cupom_pix": 4599.9,
     "sem_cupom_cartao": null
