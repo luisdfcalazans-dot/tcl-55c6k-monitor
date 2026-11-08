@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-08T18:09:41-03:00",
+ "atualizado": "2026-11-08T18:23:13-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -783,24 +783,24 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-11-18",
-    "entrega_ate_lancamento": true,
+    "entrega_prevista": "2026-11-19",
+    "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "cotação de frete",
     "confianca": {
      "veredito": "confiavel"
     },
     "alvo": {
-     "pix": 345.0,
-     "parcelado": 370.0,
-     "nota": "chega até 18/11"
+     "pix": 300.0,
+     "parcelado": 320.0,
+     "nota": "chega depois de 18/11"
     },
     "entrega": {
-     "classe": "a_tempo",
-     "data": "2026-11-18",
+     "classe": "no_dia",
+     "data": "2026-11-19",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 18/11 — chega a tempo ✅ (até 18/11; lançamento 19/11)"
+     "texto": "📦 Entrega: previsão 19/11 — ⚠️ chega no dia 19/11: joga no dia, mas não à meia-noite"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -2690,6 +2690,41 @@
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
+   "titulo": "Console Playstation 5 Slim Digital 825gb SSD 1 Controle Dualsense",
+   "url": "https://www.kabum.com.br/produto/1004851",
+   "id": "1004851",
+   "preco": 6468.9,
+   "preco_pix": 6145.46,
+   "parcelado": "10x de R$ 646,89 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "Loja Gazin",
+   "extra": {
+    "preco_tabela": 6468.9,
+    "openbox": false,
+    "kabum_seller_id": "8145",
+    "kabum_oferta_id": 2980774,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:1004851",
+   "melhor_preco": 6145.46
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
    "titulo": "Console Sony Playstation 5 Cfi-2114a, Leitor De Disco, SSD 1TB, 16gb Gddr6",
    "url": "https://www.kabum.com.br/produto/953110",
    "id": "953110",
@@ -3325,7 +3360,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3185916",
    "melhor_preco": 3703.23,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 3703.23,
    "menor_preco": 3703.23
   },
@@ -3360,7 +3395,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3185783",
    "melhor_preco": 4299.0,
-   "ultima_vez": "2026-11-08T18:09:39-03:00"
+   "ultima_vez": "2026-11-08T18:23:11-03:00"
   },
   {
    "primeira_vez": "2026-11-08T08:47:04-03:00",
@@ -3560,7 +3595,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3184814",
    "melhor_preco": 379.0,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 379.0,
    "menor_preco": 379.0
   },
@@ -3598,7 +3633,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "telegram:cupons_desconto/84359#PS5_DIGITAL",
    "melhor_preco": 2879.1,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 2879.1,
    "menor_preco": 2879.1
   },
@@ -3633,7 +3668,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3184444",
    "melhor_preco": 6999.0,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 6999.0,
    "menor_preco": 6999.0
   },
@@ -3668,7 +3703,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3184314",
    "melhor_preco": 2879.1,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 2879.1,
    "menor_preco": 2879.1
   },
@@ -3703,7 +3738,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3184089",
    "melhor_preco": 4351.56,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 4351.56,
    "menor_preco": 4351.56
   },
@@ -3819,7 +3854,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3184002",
    "melhor_preco": 373.41,
-   "ultima_vez": "2026-11-08T18:09:39-03:00"
+   "ultima_vez": "2026-11-08T18:23:11-03:00"
   },
   {
    "primeira_vez": "2026-11-07T17:39:13-03:00",
@@ -4064,7 +4099,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:vrlofertas/72106#GTA6_CODE_IN_BOX",
    "melhor_preco": 373.41,
-   "ultima_vez": "2026-11-08T18:09:39-03:00",
+   "ultima_vez": "2026-11-08T18:23:11-03:00",
    "ultimo_preco": 373.41,
    "menor_preco": 373.41
   },
@@ -4151,7 +4186,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182840",
    "melhor_preco": 369.0,
-   "ultima_vez": "2026-11-08T18:09:39-03:00"
+   "ultima_vez": "2026-11-08T18:23:11-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -4191,7 +4226,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182807",
    "melhor_preco": 369.9,
-   "ultima_vez": "2026-11-08T18:09:39-03:00"
+   "ultima_vez": "2026-11-08T18:23:11-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -5528,72 +5563,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:08:54-03:00",
+   "ultimo_ok": "2026-11-08T18:22:06-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:00-03:00",
+   "ultimo_ok": "2026-11-08T18:22:13-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:36-03:00",
+   "ultimo_ok": "2026-11-08T18:23:09-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:08:56-03:00",
+   "ultimo_ok": "2026-11-08T18:22:08-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:04-03:00",
+   "ultimo_ok": "2026-11-08T18:22:24-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:11-03:00",
+   "ultimo_ok": "2026-11-08T18:22:31-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:12-03:00",
+   "ultimo_ok": "2026-11-08T18:22:32-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:13-03:00",
+   "ultimo_ok": "2026-11-08T18:22:33-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:15-03:00",
+   "ultimo_ok": "2026-11-08T18:22:36-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:15-03:00",
+   "ultimo_ok": "2026-11-08T18:22:37-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 698,
+   "falhas": 699,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-08T18:09:21-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-08T18:22:43-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:23-03:00",
+   "ultimo_ok": "2026-11-08T18:22:46-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:24-03:00",
+   "ultimo_ok": "2026-11-08T18:22:48-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T18:09:26-03:00",
+   "ultimo_ok": "2026-11-08T18:22:56-03:00",
    "ultimo_erro": null
   }
  },
