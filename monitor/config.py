@@ -296,6 +296,9 @@ ALIEXPRESS_ITENS: dict[str, str] = _itens_aliexpress(_env("ALIEXPRESS_ITENS", "1
 ALIEXPRESS_MAX_CARGAS = int(_env("ALIEXPRESS_MAX_CARGAS", "1"))
 # a página do AliExpress pediu verificação (slider/captcha): fica tantas horas sem abrir (logs/aliexpress_bloqueado_em)
 ALIEXPRESS_ESPERA_BLOQUEIO_H = float(_env("ALIEXPRESS_ESPERA_BLOQUEIO_H", "6"))
+# no máximo uma leitura da página a cada tantas horas (o usuário não quer a conta do AliExpress marcada: menos acessos
+# do mesmo PC/IP; logs/aliexpress_ultima_carga). 0 = toda rodada
+ALIEXPRESS_INTERVALO_H = float(_env("ALIEXPRESS_INTERVALO_H", "2"))
 
 # --- Sites de promoção ---
 PROMOBIT_CUPONS_LOJAS = [

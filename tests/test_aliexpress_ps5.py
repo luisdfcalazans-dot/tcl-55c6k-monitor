@@ -34,6 +34,8 @@ TEXTO_VAZIO = "AliExpress\nFaça o download do aplicativo AliExpress\nEntre / Re
 def isolado(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "DIR_DADOS", tmp_path)
     monkeypatch.setattr(ps, "MARCA_BLOQUEIO_ALI", tmp_path / "logs" / "aliexpress_bloqueado_em")
+    monkeypatch.setattr(ps, "MARCA_CARGA_ALI", tmp_path / "logs" / "aliexpress_ultima_carga")
+    monkeypatch.setattr(config, "ALIEXPRESS_INTERVALO_H", 0.0)
     monkeypatch.setattr(ps, "_dir_perfil", lambda perfil: tmp_path / f".pw-profile-{perfil}")
     monkeypatch.setattr(config, "ALIEXPRESS_ITENS", {ITEM: "PS5_DIGITAL"})
     monkeypatch.setattr(config, "ALIEXPRESS_MAX_CARGAS", 1)
@@ -208,6 +210,23 @@ def test_slider_registra_espera_e_nao_quebra_a_rodada(monkeypatch, isolado):
         ps.AliExpressProdutos().coletar()
     assert abertas == [], "de castigo: nenhuma página aberta"
     assert ps.AliExpressProdutos.alerta_falha is False   # sem aviso de "falhou 3 vezes"
+
+
+def test_no_maximo_uma_leitura_a_cada_intervalo(monkeypatch):
+    """O usuário não quer a conta do AliExpress marcada: a página pública abre no máximo a cada ALIEXPRESS_INTERVALO_H."""
+    import os
+    import time
+
+    monkeypatch.setattr(config, "ALIEXPRESS_INTERVALO_H", 2.0)
+    abertas = _stub(monkeypatch, HTML_OG, _fx("aliexpress_item_ps5_texto_2026-11-08.txt"), [])
+    assert len(ps.AliExpressProdutos().coletar()[0]) == 1
+    with pytest.raises(Pular, match="próxima leitura"):
+        ps.AliExpressProdutos().coletar()       # a rodada de meia hora depois
+    assert len(abertas) == 1
+    velho = time.time() - (2 * 3600 - 240)     # 1 h 56 min depois: rodada das :12/:42 com folga de 5 min
+    os.utime(ps.MARCA_CARGA_ALI, (velho, velho))
+    assert len(ps.AliExpressProdutos().coletar()[0]) == 1
+    assert len(abertas) == 2
 
 
 def test_bloqueio_so_pela_resposta_da_api():

@@ -1340,6 +1340,7 @@ class AliExpress(Fonte):
 
 # ---------------------------------------------------------------- AliExpress: página pública do item (08/11/2026)
 MARCA_BLOQUEIO_ALI = config.RAIZ / "logs" / "aliexpress_bloqueado_em"   # existe enquanto o AliExpress estiver "de castigo"
+MARCA_CARGA_ALI = config.RAIZ / "logs" / "aliexpress_ultima_carga"   # hora da última leitura (config.ALIEXPRESS_INTERVALO_H)
 # a página do item carrega o preço pela API mtop (JSONP); sem ela, o texto renderizado
 _ALI_API = "mtop.aliexpress.pdp.pc.query"
 # verificação anti-robô (slider/captcha do "baxia"): URL de castigo, resposta da API e o texto da página
@@ -1601,8 +1602,8 @@ def _ali_bloqueado(html: str, texto: str, capturados: list[Any]) -> bool:
 class AliExpressProdutos(Fonte):
     """PS5 no AliExpress pela página pública do item (pedido de 08/11/2026): config.ALIEXPRESS_ITENS (o PS5 Digital da
     Magalu Store, "Produto já no Brasil"), no máximo config.ALIEXPRESS_MAX_CARGAS páginas por rodada, num perfil do
-    Chrome só dele (.pw-profile-ali), NUNCA logado: nada de login, carrinho, CEP, "resgatar" ou clique. Só lê o preço
-    público; o melhor cupom ativo da loja é calculado depois (lista_cupons.aplica_melhor_cupom) e quem digita o código
+    Chrome só dele (.pw-profile-ali), NUNCA logado: nada de login, carrinho, CEP, "resgatar" ou clique, e no máximo uma
+    leitura a cada config.ALIEXPRESS_INTERVALO_H horas (2 h). Só lê o preço público; o melhor cupom ativo da loja é calculado depois (lista_cupons.aplica_melhor_cupom) e quem digita o código
     é o usuário.
 
     A página monta o preço no navegador pela API mtop (JSONP); sem ela, o texto renderizado. A verificação anti-robô
@@ -1628,10 +1629,18 @@ class AliExpressProdutos(Fonte):
             if restante > 0:
                 raise Pular(f"o AliExpress pediu verificação; nova tentativa em {restante / 60:.0f} min")
             MARCA_BLOQUEIO_ALI.unlink(missing_ok=True)
+        intervalo = config.ALIEXPRESS_INTERVALO_H * 3600
+        if intervalo > 0 and MARCA_CARGA_ALI.exists():
+            # folga de 5 min: as rodadas do PC (de meia em meia hora) não caem sempre no mesmo segundo
+            restante = intervalo - 300 - (_t.time() - MARCA_CARGA_ALI.stat().st_mtime)
+            if restante > 0:
+                raise Pular(f"próxima leitura do AliExpress em {restante / 60:.0f} min (ALIEXPRESS_INTERVALO_H)")
+        MARCA_CARGA_ALI.parent.mkdir(exist_ok=True)
+        MARCA_CARGA_ALI.write_text(_t.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
         itens = list(config.ALIEXPRESS_ITENS.items())
         n = max(1, config.ALIEXPRESS_MAX_CARGAS)
-        if len(itens) > n:   # revezamento: cada rodada (de meia em meia hora) começa num item
-            ini = int(_t.time() // 1800) % len(itens)
+        if len(itens) > n:   # revezamento: cada leitura (de ALIEXPRESS_INTERVALO_H em ALIEXPRESS_INTERVALO_H) começa num item
+            ini = int(_t.time() // max(1800.0, intervalo)) % len(itens)
             itens = (itens[ini:] + itens[:ini])[:n]
         out: dict[str, Oferta] = {}
         bloqueado = False
