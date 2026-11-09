@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-08T19:08:14-03:00",
+ "atualizado": "2026-11-08T22:06:32-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -664,6 +664,48 @@
    "modelo": "GIFT_CARD_PSN",
    "chave": "kabum.produtos:1027532",
    "melhor_preco": 360.0
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Videogame Sony PS5 Diablo IV para Xbox",
+   "url": "https://www.magazineluiza.com.br/videogame-sony-ps5-diablo-iv-para-xbox/p/hh31e551ag/ga/otga/",
+   "id": "hh31e551ag-nocnocestadosunidos",
+   "preco": 424.84,
+   "preco_pix": 395.1,
+   "parcelado": "7x R$ 60,69 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": false,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 449.55,
+    "1p": false,
+    "anuncio": "hh31e551ag",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.09,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 4.4
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": true
+    },
+    "descartado": "fora da faixa do produto (2500 a 7000)",
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:hh31e551ag-nocnocestadosunidos",
+   "melhor_preco": 395.1
   },
   {
    "fonte": "vtex.fastshop.ps5",
@@ -2192,6 +2234,66 @@
    "melhor_preco": 5085.9
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console PlayStation 5 Sony, SSD 1TB, Leitor de Discos, Controle DualSense, Astro's Playroom, Branco - 1000049892",
+   "url": "https://www.magazineluiza.com.br/console-playstation-5-sony-ssd-1tb-leitor-de-discos-controle-dualsense-astro-s-playroom-branco-1000049892/p/kb3gfb61ab/ga/gap5/",
+   "id": "kb3gfb61ab-kabum",
+   "preco": 5099.0,
+   "preco_pix": null,
+   "parcelado": "10x R$ 509,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 5099.0,
+    "1p": false,
+    "anuncio": "kb3gfb61ab",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 3,
+     "peso_kg": 4.387,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.2
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas",
+      "catálogo da loja"
+     ],
+     "sinais": [],
+     "codigos": [],
+     "catalogo": {
+      "total": 3367,
+      "tv": 26,
+      "games": 162
+     }
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "magalu.produtos:kb3gfb61ab-kabum",
+   "melhor_preco": 5099.0
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -2813,6 +2915,49 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-08T22:06:30-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Amazon",
+   "titulo": "PlayStation 5 Edição Digital Wolverine Marvel Amarelo",
+   "url": "https://www.promobit.com.br/oferta/playstation-5-edicao-digital-wolverine-marvel-amarelo-3186968/",
+   "id": "3186968",
+   "preco": 4589.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-08T21:19:09-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": null,
+    "status": "APPROVED",
+    "produto": {
+     "base": "PS5_DIGITAL",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "alvo": {
+     "pix": 3750.0,
+     "parcelado": 3900.0,
+     "nota": "meta do PS5 Slim Digital + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "promobit:3186968",
+   "melhor_preco": 4589.0,
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
+   "ultimo_preco": 4589.0,
+   "menor_preco": 4589.0
+  },
+  {
    "primeira_vez": "2026-11-08T18:53:02-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -3372,7 +3517,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3185916",
    "melhor_preco": 3703.23,
-   "ultima_vez": "2026-11-08T19:08:12-03:00",
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
    "ultimo_preco": 3703.23,
    "menor_preco": 3703.23
   },
@@ -3407,7 +3552,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3185783",
    "melhor_preco": 4299.0,
-   "ultima_vez": "2026-11-08T19:08:12-03:00"
+   "ultima_vez": "2026-11-08T22:06:30-03:00"
   },
   {
    "primeira_vez": "2026-11-08T08:47:04-03:00",
@@ -3607,7 +3752,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3184814",
    "melhor_preco": 379.0,
-   "ultima_vez": "2026-11-08T19:08:12-03:00",
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
    "ultimo_preco": 379.0,
    "menor_preco": 379.0
   },
@@ -3680,7 +3825,7 @@
    "modelo": "PS5_PRO",
    "chave": "promobit:3184444",
    "melhor_preco": 6999.0,
-   "ultima_vez": "2026-11-08T19:08:12-03:00",
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
    "ultimo_preco": 6999.0,
    "menor_preco": 6999.0
   },
@@ -3715,7 +3860,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3184314",
    "melhor_preco": 2879.1,
-   "ultima_vez": "2026-11-08T19:08:12-03:00",
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
    "ultimo_preco": 2879.1,
    "menor_preco": 2879.1
   },
@@ -3750,7 +3895,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3184089",
    "melhor_preco": 4351.56,
-   "ultima_vez": "2026-11-08T19:08:12-03:00",
+   "ultima_vez": "2026-11-08T22:06:30-03:00",
    "ultimo_preco": 4351.56,
    "menor_preco": 4351.56
   },
@@ -4198,7 +4343,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182840",
    "melhor_preco": 369.0,
-   "ultima_vez": "2026-11-08T19:08:12-03:00"
+   "ultima_vez": "2026-11-08T22:06:30-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -4238,7 +4383,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3182807",
    "melhor_preco": 369.9,
-   "ultima_vez": "2026-11-08T19:08:12-03:00"
+   "ultima_vez": "2026-11-08T22:06:30-03:00"
   },
   {
    "primeira_vez": "2026-11-07T13:52:11-03:00",
@@ -4405,41 +4550,6 @@
    "ultima_vez": "2026-11-07T08:15:04-03:00",
    "ultimo_preco": 373.0,
    "menor_preco": 373.0
-  },
-  {
-   "primeira_vez": "2026-11-06T21:05:01-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Webcontinental",
-   "titulo": "Playstation 5 So00010 825gb Controle Sem Fio Fc 24 Ea Sports Sony Branco",
-   "url": "https://www.promobit.com.br/oferta/playstation-5-so00010-825gb-controle-sem-fio-fc-24-ea-sports-sony-branco-3181951/",
-   "id": "3181951",
-   "preco": 4284.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-06T20:53:37-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4760.0,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3181951",
-   "melhor_preco": 4284.0,
-   "ultima_vez": "2026-11-07T09:00:05-03:00",
-   "ultimo_preco": 4284.0,
-   "menor_preco": 4284.0
   }
  ],
  "gta6_custo_final": [
@@ -5456,72 +5566,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:05-03:00",
+   "ultimo_ok": "2026-11-08T22:05:24-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:14-03:00",
+   "ultimo_ok": "2026-11-08T22:05:28-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:08:09-03:00",
+   "ultimo_ok": "2026-11-08T22:06:26-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:08-03:00",
+   "ultimo_ok": "2026-11-08T22:05:25-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:27-03:00",
+   "ultimo_ok": "2026-11-08T22:05:40-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:35-03:00",
+   "ultimo_ok": "2026-11-08T22:05:50-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:36-03:00",
+   "ultimo_ok": "2026-11-08T22:05:51-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:38-03:00",
+   "ultimo_ok": "2026-11-08T22:05:53-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:41-03:00",
+   "ultimo_ok": "2026-11-08T22:05:56-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:42-03:00",
+   "ultimo_ok": "2026-11-08T22:05:57-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 702,
+   "falhas": 703,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-08T19:07:48-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-08T22:06:03-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:51-03:00",
+   "ultimo_ok": "2026-11-08T22:06:06-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:52-03:00",
+   "ultimo_ok": "2026-11-08T22:06:07-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-08T19:07:57-03:00",
+   "ultimo_ok": "2026-11-08T22:06:10-03:00",
    "ultimo_erro": null
   }
  },
