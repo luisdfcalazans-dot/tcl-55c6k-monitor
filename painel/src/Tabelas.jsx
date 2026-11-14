@@ -3,10 +3,10 @@
 import {Accordion, AccordionBody, AccordionHeader, AccordionList, TableCell, TableRow} from './tremor.js';
 import {Abrir, Chip, CodigoCupom, Fato, GraficoHistorico, H2, H3, Lista, Nota, Postagem, Sub, Tabela, TabelaLojas} from './componentes.jsx';
 
-export default function Tabelas({vm, familia}) {
+export default function Tabelas({vm}) {
   return <>
-    {vm.tvs && (!familia || familia === 'TV') && <TVs tvs={vm.tvs} />}
-    {vm.familias.filter(f => !familia || f.sec === familia).map(f => <Familia key={f.sec} f={f} />)}
+    {vm.tvs && <TVs tvs={vm.tvs} />}
+    {vm.familias.map(f => <Familia key={f.sec} f={f} />)}
   </>;
 }
 
