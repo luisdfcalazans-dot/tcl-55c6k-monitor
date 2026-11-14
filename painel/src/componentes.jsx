@@ -17,9 +17,11 @@ const LOGOS = {'amazon': 'amazon.webp', 'magazine luiza': 'magalu.webp', 'kabum!
 const QUADRADOS = new Set(['kabum.webp', 'carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
 const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produtos/gta6.webp'};
 
+const arquivoLogo = loja => LOGOS[String(loja ?? '').trim().toLowerCase()];
+
 // logo em selo branco (legível nos dois temas); altura pela classe
 export function Logo({loja, className = 'h-[22px] max-w-[92px]'}) {
-  const f = LOGOS[String(loja ?? '').trim().toLowerCase()];
+  const f = arquivoLogo(loja);
   if (!f) return <span className="font-bold">{loja}</span>;
   return <img className={`inline-block w-auto object-contain align-middle bg-white ring-1 ring-linha-2 ${QUADRADOS.has(f) ? 'rounded' : 'rounded-[3px] px-1.5 py-[3px]'} ${className}`}
     src={`logos/${f}`} alt={loja} title={loja} />;
@@ -128,6 +130,13 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
     const u = new uPlot({width: largura(), height: altura, series, legend: {live: true}, cursor: {points: {size: 8}}, scales: {x: {time: true}},
       axes: [{stroke: tinta, grid: grade, ticks: grade, font: fonte, values: (u, vs) => vs.map(v => new Date(v * 1000).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}))},
              {stroke: tinta, grid: grade, ticks: grade, font: fonte, size: 70, values: (u, vs) => vs.map(reais)}]}, dados, el);
+    // legenda com o logo da loja no lugar do nome (loja sem logo continua pelo nome); a 1ª linha é o dia, a última a meta
+    u.root.querySelectorAll('.u-legend .u-series').forEach((linha, i) => {
+      const loja = g.lojas[i - 1], f = loja && arquivoLogo(loja), rotulo = linha.querySelector('.u-label');
+      if (!f || !rotulo) return;
+      rotulo.replaceChildren(Object.assign(document.createElement('img'),
+        {src: `logos/${f}`, alt: loja, title: loja, className: QUADRADOS.has(f) ? 'logo-leg q' : 'logo-leg'}));
+    });
     const ro = new ResizeObserver(() => u.setSize({width: largura(), height: altura}));
     ro.observe(el);
     return () => { ro.disconnect(); u.destroy(); };
@@ -137,21 +146,6 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
   return <div ref={caixa} className="grafico min-h-[300px]" />;
 }
 export const GraficoHistorico = ({serie, alvo, altura}) => <Grafico serie={serie} meta={alvo} altura={altura} />;
-
-// sparkline do quadro da vitrine: os últimos 30 dias e a meta tracejada (quando cabe na escala)
-export function Sparkline({porDia, meta}) {
-  const dias = Object.keys(porDia).sort().slice(-30);
-  if (dias.length < 2) return null;
-  const vals = dias.map(d => porDia[d]), lo = Math.min(...vals, meta || Infinity), hi = Math.max(...vals);
-  const y = v => hi === lo ? 14 : 26 - (v - lo) / (hi - lo) * 24;
-  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * 100).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  return (
-    <svg className="my-1 block h-7 w-full" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
-      {meta && meta >= lo && meta <= hi && <line x1="0" x2="100" y1={y(meta)} y2={y(meta)} style={{stroke: css('--ok')}} strokeDasharray="3 2" vectorEffect="non-scaling-stroke" />}
-      <polyline fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" points={pts} />
-    </svg>
-  );
-}
 
 // barras do placar: o menor preço de cada loja no período (logo, barra na cor da loja, preço e a distância da mais barata).
 // No celular: logo e preço na mesma linha, a barra embaixo com a largura toda (dense devolve o preço à 1ª linha).

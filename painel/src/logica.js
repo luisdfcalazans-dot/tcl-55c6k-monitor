@@ -358,7 +358,7 @@ function vitrine(ctx, semTVs) {
       const meta = m?.extra?.alvo?.pix ?? p.alvo_pix;
       return {id, nome: p.nome, curto: p.curto || p.nome, familia: ehTV(id) ? 'TV' : p.secao, meta,
         serie: r.serie, porDia: menorPorDia(r.serie),
-        melhor: m ? {preco: fmt(m.melhor_preco), precoCurto: reais(m.melhor_preco), loja: m.loja,
+        melhor: m ? {preco: fmt(m.melhor_preco), loja: m.loja,
           forma: m.preco_pix && m.melhor_preco === Number(m.preco_pix) ? 'no Pix' : 'à vista',
           vendedor: vendedorChave(m) ? m.vendedor : null, visto: dt(m._visto), cupom: m.cupom || null, url: m.url,
           dist: metaTxt(m.melhor_preco, meta)} : null,

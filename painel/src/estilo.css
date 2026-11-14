@@ -52,5 +52,8 @@ code { font-family: ui-monospace, "Cascadia Mono", monospace; background: rgb(va
 .grafico .u-legend th, .grafico .u-legend td { border: 0; padding: 2px 4px; white-space: nowrap; }
 .grafico .u-legend th { font-weight: 400; }
 .grafico .u-legend .u-value { color: rgb(var(--ink)); }
+.grafico .logo-leg { display: inline-block; height: 20px; width: auto; max-width: 84px; object-fit: contain; vertical-align: middle;
+  background: #fff; padding: 2px 5px; border-radius: 3px; box-shadow: 0 0 0 1px rgb(var(--line-2)); }
+.grafico .logo-leg.q { padding: 0; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

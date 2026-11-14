@@ -3,7 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
 import {Abrir, Chip, Fato, H2, Lista, Postagem, Sub, Tabela} from './componentes.jsx';
-import Vitrine from './Vitrine.jsx';
+import Vitrine, {Pilulas} from './Vitrine.jsx';
 import Tabelas from './Tabelas.jsx';
 import './estilo.css';
 
@@ -27,6 +27,17 @@ function App() {
   // família salva que não existe mais (TVs desligadas): volta para todos
   const fam = vm?.semTVs && familia === 'TV' ? '' : familia;
   const rolaETroca = nome => { setAba(nome); scrollTo(0, 0); };
+
+  // produto escolhido nas pílulas (#p= no endereço) e o cartão dele, que só abre com o clique na pílula. Filtro por
+  // família que tira o escolhido: fica o primeiro que sobrou (com preço, de preferência)
+  const [prodId, setProdId] = useState(() => decodeURIComponent((location.hash.match(/^#p=(.+)$/) || [])[1] || ''));
+  const [cartao, setCartao] = useState(false);
+  const itens = vm ? vm.vitrine.filter(it => !fam || it.familia === fam) : [];
+  const atual = itens.find(it => it.id === prodId) || itens.find(it => it.melhor) || itens[0];
+  const escolhe = id => {
+    if (id === atual?.id) setCartao(c => !c); else { setProdId(id); setCartao(true); }
+    try { history.replaceState(null, '', '#p=' + encodeURIComponent(id)); } catch { /* sandbox */ }
+  };
   return <>
     <header className="bg-band text-band-ink">
       <div className="mx-auto flex max-w-[1180px] flex-wrap items-end justify-between gap-x-6 gap-y-2.5 px-4 pb-3.5 pt-[18px] sm:px-6 sm:pt-[22px]">
@@ -36,6 +47,7 @@ function App() {
           <BotaoTema />
         </div>
       </div>
+      {aba === 'produtos' && itens.length > 0 && <Pilulas itens={itens} atual={atual} cartao={cartao} onEscolhe={escolhe} />}
     </header>
 
     <main className="mx-auto max-w-[1180px] px-4 pb-[184px] pt-4 sm:px-6 sm:pb-[108px] sm:pt-6">
@@ -43,7 +55,7 @@ function App() {
         : !vm ? <p className="py-3 text-[15px] text-tinta-3">Ainda sem dados em data/.</p>
         : <>
           {aba === 'produtos' && <>
-            <Vitrine itens={vm.vitrine.filter(it => !fam || it.familia === fam)} />
+            <Vitrine it={atual} cartao={cartao} />
             <H2>Resumo</H2>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
               <Fato k="Cupons ativos" d={vm.resumo.cupons} /><Fato k="Postagens (7 dias)" d={vm.resumo.posts} />
