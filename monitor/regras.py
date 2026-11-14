@@ -11,7 +11,7 @@ from __future__ import annotations
 import html
 import re
 from functools import lru_cache
-from typing import Optional
+from typing import NamedTuple, Optional
 
 from . import config
 from . import confianca
@@ -703,6 +703,7 @@ _TEMAS_CUPOM = (
     ("gift", re.compile(r"\bgift\s?cards?\b|\bcart(?:ao|oes) presente\b|\bvale[\s-]presentes?\b|\bpsn card|"
                         r"\bsaldo (?:playstation|psn)\b")),
     ("leitor", re.compile(r"\bleitor(?:es)?\b|\bunidades? de dis[ck]os?\b|\bdrives? de dis[ck]os?\b|\bdisc drive\b")),
+    ("ssd", re.compile(r"\bssds?\b|\bnvme\b|\barmazenamento\b")),
 )
 _RE_TEMA_LEITOR = dict(_TEMAS_CUPOM)["leitor"]
 # o leitor como característica do console ou parte do kit, logo antes dele: "PS5 com leitor", "PS5 Slim c/ Leitor de
@@ -732,6 +733,44 @@ _CATEGORIAS_DENTRO_JOGOS = [d for d in _CATEGORIAS_DENTRO if d not in ("tv", "te
 _RE_QUALIFICA_EXCLUSAO = re.compile(r"r\$|\bvendid|\bterceiros\b|\bmarketplace\b|\bparceir|\binternaciona|\bimportad")
 # lojas em que games são uma parte pequena do catálogo: cupom genérico só vale se citar games/eletrônicos/o site todo
 _LOJAS_GAMES_POUCO = {"Netshoes", "Carrefour", "Americanas", "Sam's Club"}
+
+
+class _Perfil(NamedTuple):
+    """As listas da regra de cupons de uma família que não é TV: o que diz "é para mim" (alvo, categorias de dentro,
+    pedaço do código), o que exclui (exclusão, marcas/produtos de fora, categorias de fora) e se cupom de loja oficial
+    de outra marca vale."""
+    alvo: re.Pattern
+    exclui: re.Pattern
+    marcas: list
+    codigo: list
+    fora: list
+    dentro: list
+    codigo_dentro: re.Pattern
+    outra_marca_barra: bool
+
+
+# PS5, GTA 6 e acessórios: as listas de 03/10 (sem mudança)
+_PERFIL_JOGOS = _Perfil(_RE_ALVO_JOGOS, _RE_EXCLUI_JOGOS, _MARCAS_OUTRAS_JOGOS, _CODIGO_OUTRAS_JOGOS,
+                        _CATEGORIAS_FORA_JOGOS, _CATEGORIAS_DENTRO_JOGOS, re.compile(r"ps5|play|gta|game|console"), True)
+# SSD do notebook (14/11/2026): hardware/informática/armazenamento é o alvo; PS5/GTA são outro produto; qualquer marca
+# (cupom da loja oficial Kingston/WD/Samsung vale)
+_MARCAS_OUTRAS_SSD = [m for m in _MARCAS_OUTRAS_JOGOS if m not in ("ssd", "notebook", "pc")] + ["ps5", "playstation", "gta"]
+_PERFIL_SSD = _Perfil(
+    re.compile(r"\bssds?\b|\bnvme\b|\barmazenamento\b|\bhardware\b|informatica|\bcomputador(?:es)?\b|\bcomponentes\b|"
+               r"\bperifericos\b|\bpcs?\b|\bnotebooks?\b|eletronic|tecnolog|\beletro\b"),
+    re.compile(r"\bssds?\b|\barmazenamento\b|\bhardware\b|informatica|eletronic|tecnolog"),
+    _MARCAS_OUTRAS_SSD,
+    [m for m in _MARCAS_OUTRAS_SSD if " " not in m and len(m) >= 3] + _CODIGO_OUTRAS_JOGOS[_CODIGO_OUTRAS_JOGOS.index("prime"):],
+    [c for c in _CATEGORIAS_FORA_TEXTO if c not in ("informatica", "notebook")],
+    [d for d in _CATEGORIAS_DENTRO if d not in ("tv", "televis")] + [
+        "informatica", "hardware", "ssd", "armazenamento", "computador", "notebook", "pc gamer", "componentes",
+        "perifericos"],
+    re.compile(r"ssd|hard|info|tech|nvme|\bpc"),
+    False)
+
+
+def _perfil(modelo: str) -> _Perfil:
+    return _PERFIL_SSD if produtos.familia(modelo) == produtos.FAMILIA_SSD else _PERFIL_JOGOS
 
 
 def _loja_de_outra_marca_jogos(e: "_Escopo", loja: str) -> bool:
@@ -788,13 +827,15 @@ def _exclusao_tira(ex: str, temas_produto: set[str], modelo: str) -> bool:
     """A exclusão ("exceto games", "não vale para consoles", "exceto gift cards") tira este produto?"""
     if _RE_QUALIFICA_EXCLUSAO.search(ex):
         return False
-    if _RE_EXCLUI_JOGOS.search(ex):
+    if _perfil(modelo).exclui.search(ex):
         return True
     return bool({n for n, rx in _TEMAS_CUPOM if rx.search(ex)} & temas_produto)
 
 
 def _cupom_compativel_jogos(c: Cupom, preco_loja: Optional[float], modelo: str) -> tuple[bool, str]:
-    """cupom_compativel do PS5, do GTA 6 e dos acessórios (ver o comentário acima)."""
+    """cupom_compativel do PS5, do GTA 6, dos acessórios e do SSD (ver o comentário acima; as listas de cada família
+    estão no _Perfil)."""
+    pf = _perfil(modelo)
     p_obj = produtos.produto(modelo)
     temas_produto = set(p_obj.temas if p_obj else ())
     e = _escopo(c.titulo, c.regra)
@@ -802,13 +843,13 @@ def _cupom_compativel_jogos(c: Cupom, preco_loja: Optional[float], modelo: str) 
         if _exclusao_tira(ex, temas_produto, modelo):
             return False, f"exclui: {ex.strip()[:60]}"
     codigo = sem_acentos(c.codigo).lower()
-    for w in _MARCAS_OUTRAS_JOGOS:
+    for w in pf.marcas:
         if re.search(r"\b" + re.escape(w) + r"\b", e.escopo):
             return False, f"marca/produto: {w}"
-    for w in _CODIGO_OUTRAS_JOGOS:
+    for w in pf.codigo:
         if w in codigo:
             return False, f"código de outra marca: {w}"
-    if _loja_de_outra_marca_jogos(e, c.loja):
+    if pf.outra_marca_barra and _loja_de_outra_marca_jogos(e, c.loja):
         return False, f"loja/marca: {e.loja_de_marca}"
     if _RE_ASSINANTE.search(e.escopo):
         return False, f"exclusivo de assinatura: {_RE_ASSINANTE.search(e.escopo).group(0)} (o usuário não assina)"
@@ -825,29 +866,29 @@ def _cupom_compativel_jogos(c: Cupom, preco_loja: Optional[float], modelo: str) 
             return False, f"só para novos clientes: {m.group(0)}"
     if _so_frete(e):
         return False, "só frete"
-    dentro = e.site_todo or bool(temas) or any(_RE_ALVO_JOGOS.search(r) for k, r, _f in e.classes
+    dentro = e.site_todo or bool(temas) or any(pf.alvo.search(r) for k, r, _f in e.classes
                                                 if k in ("categoria", "tv", "selecao"))
-    if not dentro and not (any(d in e.cat for d in _CATEGORIAS_DENTRO_JOGOS) or _RE_EM_TUDO.search(e.cat)
-                           or re.search(r"ps5|play|gta|game|console", codigo)):
+    if not dentro and not (any(d in e.cat for d in pf.dentro) or _RE_EM_TUDO.search(e.cat)
+                           or pf.codigo_dentro.search(codigo)):
         # nada diz games, eletrônicos, o site todo ou "suas compras": o desconto é de outro produto ("10% OFF no
         # Starlink Mini", "15% OFF em diversas categorias")
-        return False, "cupom sem a categoria de games/eletrônicos nem o site todo"
-    if loja_canonica(c.loja) in _LOJAS_GAMES_POUCO and not (dentro or _RE_ALVO_JOGOS.search(e.cat)
-                                                             or re.search(r"ps5|play|gta|game|console", codigo)):
+        return False, "cupom sem a categoria do produto nem o site todo"
+    if loja_canonica(c.loja) in _LOJAS_GAMES_POUCO and not (dentro or pf.alvo.search(e.cat)
+                                                             or pf.codigo_dentro.search(codigo)):
         # loja em que games são uma parte pequena (Netshoes: esporte e moda; Carrefour: mercado): o cupom genérico dela
         # quase sempre é de outra categoria ("CAMISETA", "RUNNING", "VESTELES", "colágeno"); vale o que cita games, o
         # site todo ou tem o tema no código ("PLAY150")
         return False, "cupom genérico de loja que não é de games"
-    fora = [r for k, r, _f in e.classes if k in ("categoria", "tv") and not _RE_ALVO_JOGOS.search(r)]
+    fora = [r for k, r, _f in e.classes if k in ("categoria", "tv") and not pf.alvo.search(r)]
     if fora and not dentro:
         return False, f"categoria: {fora[0][:30]}"
     if e.cortado and not dentro:
         return False, "restrito: anúncio cortado (sem a categoria)"
-    dentro_txt = dentro or any(d in e.cat for d in _CATEGORIAS_DENTRO_JOGOS) or bool(_RE_EM_TUDO.search(e.cat))
+    dentro_txt = dentro or any(d in e.cat for d in pf.dentro) or bool(_RE_EM_TUDO.search(e.cat))
     if not dentro_txt:
         if _RE_SO_TV.search(_RE_NAO_E_TV.sub(" ", e.cat)):
             return False, "categoria: tv"
-        for w in _CATEGORIAS_FORA_JOGOS:
+        for w in pf.fora:
             if w in e.cat:
                 return False, f"categoria: {w.strip()}"
     m = _RE_SELECAO.search(e.cat)
@@ -862,6 +903,7 @@ def _cupom_compativel_jogos(c: Cupom, preco_loja: Optional[float], modelo: str) 
 def _restricao_jogos(cupons: list[Cupom], registros, modelo: str) -> set[str]:
     """restricao_do_codigo do PS5/GTA 6: o código que outro anúncio diz ser de outra categoria (não games/eletrônicos
     nem o site todo), de loja oficial de outra marca, de outro tema ("só GTA" para o console) ou que exclui o produto."""
+    pf = _perfil(modelo)
     p_obj = produtos.produto(modelo)
     temas_produto = set(p_obj.temas if p_obj else ())
     categoria: set[str] = set()
@@ -875,13 +917,13 @@ def _restricao_jogos(cupons: list[Cupom], registros, modelo: str) -> set[str]:
         temas = _temas_do_texto(e.escopo)
         if any(_exclusao_tira(ex, temas_produto, modelo) for ex in e.exclusoes):
             exclui.add(marca)
-        elif _loja_de_outra_marca_jogos(e, c.loja):
+        elif pf.outra_marca_barra and _loja_de_outra_marca_jogos(e, c.loja):
             categoria.add(marca)
         elif temas and not temas & temas_produto:
             categoria.add(marca)
-        elif temas or any(_RE_ALVO_JOGOS.search(r) for k, r, _f in e.classes if k in ("categoria", "tv")):
+        elif temas or any(pf.alvo.search(r) for k, r, _f in e.classes if k in ("categoria", "tv")):
             diz.add(marca)
-        elif any(f and k in ("categoria", "tv") and not _RE_ALVO_JOGOS.search(r) for k, r, f in e.classes):
+        elif any(f and k in ("categoria", "tv") and not pf.alvo.search(r) for k, r, f in e.classes):
             categoria.add(marca)
     return exclui | (categoria - diz)
 
@@ -1465,8 +1507,7 @@ def gerar_alertas(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom],
         secoes = {produtos.secao(m) for c, _l in novos[:12] for m in servem_por_cupom.get(c.chave, [])}
         if secoes - {produtos.FAMILIA_TV}:
             # cupom do PS5/GTA 6: o cabeçalho diz para quais seções (o prefixo "🎟️ <b>Nov" continua o mesmo)
-            nomes = ", ".join(produtos.SECOES.get(s, s) for s in (produtos.FAMILIA_TV, produtos.FAMILIA_PS5,
-                                                                   produtos.FAMILIA_GTA6) if s in secoes)
+            nomes = ", ".join(produtos.SECOES[s] for s in produtos.SECOES if s in secoes)
             cab = (f"🎟️ <b>Novos cupons aplicáveis</b> ({nomes})" if len(novos) > 1
                    else f"🎟️ <b>Novo cupom aplicável</b> ({nomes})")
         corpo = "\n".join(linha for _c, linha in novos[:12])
@@ -1534,7 +1575,14 @@ def _lojas_base(m: str) -> set[str]:
         return {"PlayStation Store"}
     if m == "GIFT_CARD_PSN":
         return set(produtos.LOJAS_GIFT_OFICIAIS)
+    if produtos.familia(m) == produtos.FAMILIA_SSD:
+        return set(_LOJAS_COM_SSD)
     return set(_LOJAS_COM_GAMES)
+
+
+# lojas que vendem SSD NVMe (14/11/2026): as grandes de informática e os marketplaces
+_LOJAS_COM_SSD = {"KaBuM!", "Amazon", "Mercado Livre", "Magazine Luiza", "Terabyte", "Pichau", "Americanas",
+                  "Casas Bahia", "Fast Shop"}
 
 
 def _precos_por_modelo(estado: Optional[Estado], ofertas: list[Oferta], diretas: Optional[set[str]],
@@ -1747,14 +1795,22 @@ def _linha_ultimate_resumo(c: dict) -> str:
             f"{fmt_preco(up['custo'])}{oficial if up['oficial'] else ''}) — {conclusao}")
 
 
+_SECOES_NAO_TV = tuple(s for s in produtos.SECOES if s != produtos.FAMILIA_TV)   # PS5, GTA 6, SSD (14/11)
+
+
+def _e_lista(nomes: list[str]) -> str:
+    """'PS5', 'PS5 e GTA 6', 'PS5, GTA 6 e SSD'."""
+    return nomes[0] if len(nomes) == 1 else ", ".join(nomes[:-1]) + " e " + nomes[-1]
+
+
 def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -> list[str]:
-    """Bloco do PS5 e do GTA 6 no resumo: uma linha por produto com o melhor preço da rodada (loja), a meta e a distância
-    até ela, e o menor já visto; no GTA 6, o melhor por custo final (com a entrega)."""
+    """Bloco do PS5, do GTA 6 e do SSD no resumo: uma linha por produto com o melhor preço da rodada (loja), a meta e a
+    distância até ela, e o menor já visto; no GTA 6, o melhor por custo final (com a entrega)."""
     linhas: list[str] = []
     gift = produtos.desconto_gift_card(ofertas)
     d_gift = gift[0] if gift else None
     cartoes = produtos.cartoes_gift(ofertas)
-    for sec in (produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6):
+    for sec in _SECOES_NAO_TV:
         bloco: list[str] = []
         for pid in produtos.por_secao(sec):
             cands = [o for o in ofertas if modelo_de(o) == pid and conta_como_preco(o, diretas)]
@@ -1792,7 +1848,7 @@ def _resumo_produtos(estado: Estado, ofertas: list[Oferta], diretas: set[str]) -
                 txt += f" · menor já visto {fmt_preco(float(m['preco']))}"
             bloco.append(txt)
         if bloco:
-            linhas.append(f"\n🎮 <b>{produtos.SECOES[sec]}</b>")
+            linhas.append(f"\n{'💾' if sec == produtos.FAMILIA_SSD else '🎮'} <b>{produtos.SECOES[sec]}</b>")
             linhas += bloco
             if sec == produtos.FAMILIA_GTA6:
                 linhas.append(_linha_ultimate_resumo(produtos.comparacao_ultimate(
@@ -1812,8 +1868,9 @@ def resumo_diario(estado: Estado, ofertas: list[Oferta], cupons: list[Cupom], vi
     do PS5 e do GTA 6 (quando há preço ou mínimo deles). No modo vigia, sem as TVs."""
     diretas = estado.lojas_diretas_conhecidas(ofertas)
     if vigia:
-        # TVs desligadas (26/10/2026: o usuário ficou com a TV): o resumo é só do PS5 e do GTA 6, sem falar de TV
-        cab = "☀️ <b>Resumo diário — PS5 e GTA 6</b>" + ("" if config.TVS_DESLIGADAS else " (TVs em modo vigia)")
+        # TVs desligadas (26/10/2026: o usuário ficou com a TV): o resumo é só do PS5, do GTA 6 e do SSD, sem falar de TV
+        cab = (f"☀️ <b>Resumo diário — {_e_lista([produtos.SECOES[s] for s in _SECOES_NAO_TV])}</b>"
+               + ("" if config.TVS_DESLIGADAS else " (TVs em modo vigia)"))
         linhas = [cab] + _resumo_produtos(estado, ofertas, diretas)
         if cupons:
             cods = ", ".join(sorted({f"{loja_canonica(c.loja)} {c.codigo}" for c in cupons}))[:400]
@@ -1880,9 +1937,8 @@ def _bootstrap_produtos(ofertas: list[Oferta], cupons: list[Cupom], modo: str, d
                         modelos: list[str]) -> str:
     """Mensagem de início dos produtos que começam neste modo (PS5, GTA 6...; as TVs junto, se for o caso): o melhor
     preço de loja de cada um, com a meta, e as postagens antigas registradas sem alerta."""
-    secoes = [produtos.SECOES[s] for s in (produtos.FAMILIA_TV, produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6)
-              if any(produtos.secao(m) == s for m in modelos)]
-    linhas = [f"✅ <b>Monitor de {' e '.join(secoes)} iniciado</b> (modo {modo})"]
+    secoes = [produtos.SECOES[s] for s in produtos.SECOES if any(produtos.secao(m) == s for m in modelos)]
+    linhas = [f"✅ <b>Monitor de {_e_lista(secoes)} iniciado</b> (modo {modo})"]
     for m in [x for x in produtos.IDS if x in modelos]:
         # pelo preço que conta para a meta (com o cupom da página do anúncio, quando há)
         lojas = sorted([o for o in ofertas if o.tipo == "loja" and modelo_de(o) == m and conta_como_preco(o, diretas)],
@@ -1899,7 +1955,8 @@ def _bootstrap_produtos(ofertas: list[Oferta], cupons: list[Cupom], modo: str, d
                       + (f" · meta {fmt_preco(alvo_pix)}" if alvo_pix else ""))
     posts = [o for o in ofertas if o.tipo == "post" and modelo_de(o) in modelos]
     linhas.append(f"{len(posts)} postagens antigas registradas, {len(cupons)} cupons ativos. A partir de agora só "
-                  "chegam novidades (toda postagem nova de PS5/GTA 6 vira alerta, com a meta e a distância até ela).")
+                  "chegam novidades (toda postagem nova de um produto monitorado vira alerta, com a meta e a distância "
+                  "até ela).")
     return "\n".join(linhas)
 
 

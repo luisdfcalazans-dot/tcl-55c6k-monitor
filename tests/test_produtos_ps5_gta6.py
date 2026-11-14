@@ -47,7 +47,7 @@ def test_catalogo_tem_os_ids_do_contrato_e_as_tvs_de_sempre():
                 "GTA6_CODE_IN_BOX", "GTA6_DIGITAL", "GTA6_ULTIMATE", "GTA6_UPGRADE", "GIFT_CARD_PSN", "LEITOR_PS5"):
         assert pid in produtos.IDS, pid
     assert produtos.TVS == ("55C6K", "65C6K") and produtos.IDS[:2] == produtos.TVS
-    assert {produtos.familia(p) for p in produtos.IDS} == {"TV", "PS5", "GTA6", "ACESSORIO"}
+    assert {produtos.familia(p) for p in produtos.IDS} == {"TV", "PS5", "GTA6", "ACESSORIO", "SSD"}   # SSD: 14/11
     assert produtos.secao("LEITOR_PS5") == "PS5" and produtos.secao("GIFT_CARD_PSN") == "GTA6"
     assert rotulo_modelo("55C6K") == "TCL 55C6K" and rotulo_modelo("PS5_PRO") == "PS5 Pro"
 

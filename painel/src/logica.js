@@ -571,6 +571,7 @@ function custoFinal(fontes) {
 // Uma seção por família (PS5, GTA 6): resumo por produto (meta, melhor à vista e parcelado agora, menor já visto,
 // distância da meta), a tabela de preços por loja e o gráfico de cada produto, as postagens recentes e, no GTA 6, o
 // gift card e todas as formas pelo custo final (com a entrega).
+const TITULO_SECAO = {PS5: 'PS5', GTA6: 'GTA 6'}; // seção sem título aqui usa o próprio id ("SSD")
 function secaoFamilia(sec, titulo, ctx, posts) {
   const {cat} = ctx;
   const ids = Object.keys(cat).filter(id => cat[id].secao === sec && !ehTV(id));
@@ -849,11 +850,18 @@ export function montaPainel({cloud, pc, csvCloud = '', csvPc = ''}, agora = Date
       ...resumoGift(gift),
     },
     tvs: semTVs ? null : tvs,
+    // uma seção por família do catálogo (PS5 e GTA 6 primeiro; família nova, como o SSD de 14/11, entra sozinha depois)
     familias: [
-      ['PS5', 'PS5'],
-      ['GTA6', 'GTA 6'],
+      ...new Set([
+        'PS5',
+        'GTA6',
+        ...Object.keys(cat)
+          .filter(id => !ehTV(id))
+          .map(id => cat[id].secao),
+      ]),
     ]
-      .map(([sec, titulo]) => secaoFamilia(sec, titulo, ctx, posts))
+      .filter(sec => sec && sec !== 'TV')
+      .map(sec => secaoFamilia(sec, TITULO_SECAO[sec] || sec, ctx, posts))
       .filter(Boolean),
     vitrine: vitrine(ctx, semTVs),
     cupons: lc.slice(0, 40).map(c => ({

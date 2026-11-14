@@ -207,8 +207,9 @@ class KaBuM(Fonte):
 
 
 class KaBuMProdutos(Fonte):
-    """PS5, GTA 6 e leitor na KaBuM: a lista de consoles (1 pedido), a lista dos gift cards da PlayStation Store (1
-    pedido, 26/10/2026: o gift card paga o GTA 6 digital na PS Store), a API dos anúncios do catálogo que as listas não
+    """PS5, GTA 6, leitor e SSD na KaBuM: a lista de consoles (1 pedido), a lista dos gift cards da PlayStation Store (1
+    pedido, 26/10/2026: o gift card paga o GTA 6 digital na PS Store), a busca do SSD NVMe 1TB (1 pedido, 14/11/2026),
+    a API dos anúncios do catálogo que as listas não
     trouxeram (GTA 6, leitor, kit) e a cotação de frete do GTA 6."""
 
     nome = "kabum.produtos"
@@ -216,7 +217,8 @@ class KaBuMProdutos(Fonte):
     def coletar(self) -> Resultado:
         por_id: dict[str, Oferta] = {}
         erros: list[str] = []
-        for rotulo, url in (("lista", config.URL_KABUM_LISTA_CONSOLES), ("gift card", config.URL_KABUM_LISTA_GIFT)):
+        for rotulo, url in (("lista", config.URL_KABUM_LISTA_CONSOLES), ("gift card", config.URL_KABUM_LISTA_GIFT),
+                            ("ssd", config.URL_KABUM_BUSCA_SSD)):
             try:
                 for o in parse_lista(get_html(url), self.nome):
                     por_id.setdefault(o.id, o)
