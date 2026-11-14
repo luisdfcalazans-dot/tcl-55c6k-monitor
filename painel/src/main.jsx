@@ -1,11 +1,10 @@
-import {StrictMode, useEffect, useRef, useState} from 'react';
+import {StrictMode, useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
 import {Chip, CodigoCupom, Fato, H2, Lista, Postagem, Sub, Tabela} from './componentes.jsx';
 import Vitrine, {Pilulas} from './Vitrine.jsx';
 import Tabelas from './Tabelas.jsx';
-import {CRIAR_TOKEN, buscaPendente, dispara, espera, guardaToken, temToken} from './busca.js';
 import './estilo.css';
 
 const pega = (u, como) =>
@@ -39,16 +38,14 @@ function App() {
   const [vm, setVm] = useState(undefined); // undefined: carregando; null: sem dados
   const [abaSalva, setAba] = useSessao('aba', 'produtos');
   const aba = ABAS.some(([k]) => k === abaSalva) ? abaSalva : 'produtos';
-  // dados publicados em data/: na abertura e quando a coleta disparada pelo botão de atualizar chega ao site
-  const carrega = () =>
+  // dados publicados em data/, buscados na abertura (o botão de atualizar recarrega a página)
+  useEffect(() => {
     Promise.all([
       pega('data/latest_cloud.json', 'json'),
       pega('data/latest_pc.json', 'json'),
       pega('data/historico_cloud.csv', 'text'),
       pega('data/historico_pc.csv', 'text'),
     ]).then(([cloud, pc, csvCloud, csvPc]) => setVm(montaPainel({cloud, pc, csvCloud, csvPc})));
-  useEffect(() => {
-    carrega();
   }, []);
   const rolaETroca = nome => {
     setAba(nome);
@@ -85,7 +82,7 @@ function App() {
               Última coleta:{' '}
               <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b>
             </p>
-            <BotaoAtualizar onConcluida={carrega} />
+            <BotaoAtualizar />
             <BotaoTema />
           </div>
         </div>
@@ -253,123 +250,30 @@ function BotaoTema() {
 const BOTAO_ICONE =
   'inline-flex items-center justify-center rounded-full p-1.5 text-band-ink transition-opacity duration-150 hover:opacity-80 disabled:cursor-wait';
 
-// atualizar: pergunta antes ("Deseja buscar agora?") e, no sim, roda o robô da coleta (workflow do GitHub, src/busca.js);
-// o ícone gira até a coleta nova chegar ao site, e aí o painel recarrega os dados. Sem token salvo, a janela pede um.
-function BotaoAtualizar({onConcluida}) {
-  const janela = useRef(null),
-    campo = useRef(null);
-  const [girando, setGirando] = useState(false),
-    [aviso, setAviso] = useState('');
-  const [pedeToken, setPedeToken] = useState(false);
-  const acompanha = inicio => {
-    setGirando(true);
-    setAviso('');
-    espera(inicio)
-      .then(onConcluida)
-      .catch(e => setAviso(e.message))
-      .finally(() => setGirando(false));
-  };
-  useEffect(() => {
-    const t = buscaPendente();
-    if (t) acompanha(t);
-  }, []); // recarregou no meio de uma busca
-  const abre = () => {
-    setPedeToken(!temToken());
-    janela.current.showModal();
-  };
-  const responde = sim => {
-    if (sim && pedeToken) {
-      if (!campo.current.value.trim()) return campo.current.focus();
-      guardaToken(campo.current.value);
-    }
-    janela.current.close();
-    if (sim) {
-      setGirando(true);
-      setAviso('');
-      dispara()
-        .then(acompanha)
-        .catch(e => {
-          setAviso(e.message);
-          setGirando(false);
-        });
-    }
-  };
-  return (
-    <>
-      <button
-        type="button"
-        aria-label={girando ? 'Buscando os preços…' : 'Buscar os preços agora'}
-        title={aviso || (girando ? 'Buscando os preços…' : 'Buscar os preços agora')}
-        disabled={girando}
-        onClick={abre}
-        className={BOTAO_ICONE}
-      >
-        <svg
-          className={`h-5 w-5 ${girando ? 'animate-spin' : ''}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8" />
-          <path d="M18.5 2v3.8h-3.8M5.5 22v-3.8h3.8" />
-        </svg>
-      </button>
-      {aviso && (
-        <p role="status" className="m-0 basis-full text-right text-xs text-etiqueta">
-          {aviso}
-        </p>
-      )}
-      <dialog
-        ref={janela}
-        aria-labelledby="buscar-titulo"
-        className="w-[min(360px,calc(100vw-32px))] rounded-[4px] border-2 border-linha bg-superficie p-5 text-tinta backdrop:bg-black/50"
-      >
-        <p id="buscar-titulo" className="m-0 text-center text-xl font-bold">
-          Deseja buscar agora?
-        </p>
-        {pedeToken && (
-          <label className="mt-3 block text-sm text-tinta-2">
-            Token do GitHub (fica só neste navegador)
-            <input
-              ref={campo}
-              type="password"
-              autoComplete="off"
-              spellCheck="false"
-              className="mt-1 block w-full rounded-[3px] border-2 border-linha bg-superficie px-2 py-1 text-tinta"
-            />
-            <span className="mt-1 block text-xs text-tinta-3">
-              Crie um token{' '}
-              <a href={CRIAR_TOKEN} target="_blank" rel="noopener noreferrer">
-                fine-grained
-              </a>{' '}
-              só para o repositório tcl-55c6k-monitor, com a permissão Actions: leitura e escrita.
-            </span>
-          </label>
-        )}
-        <div className="mt-4 flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => responde(true)}
-            className="min-w-[96px] rounded-[3px] bg-[#1F4FA3] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90"
-          >
-            Sim
-          </button>
-          <button
-            type="button"
-            onClick={() => responde(false)}
-            className="min-w-[96px] rounded-[3px] bg-[#D7263D] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90"
-          >
-            Não
-          </button>
-        </div>
-      </dialog>
-    </>
-  );
-}
+// atualizar: o mesmo que o F5 (recarrega a página e, com ela, os dados publicados em data/)
+const BotaoAtualizar = () => (
+  <button
+    type="button"
+    aria-label="Atualizar"
+    title="Atualizar"
+    onClick={() => location.reload()}
+    className={BOTAO_ICONE}
+  >
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8" />
+      <path d="M18.5 2v3.8h-3.8M5.5 22v-3.8h3.8" />
+    </svg>
+  </button>
+);
 
 // barra inferior (30/10/2026): as abas (uma parte do painel por vez); a escolha do produto fica nas pílulas do topo
 const ABAS = [
