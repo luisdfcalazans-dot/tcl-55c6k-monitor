@@ -1,7 +1,7 @@
 // Aba "Tabelas": as TVs (escondidas com "tvs_desligadas" no latest) e uma seção por família (PS5, GTA 6) com o resumo
 // por produto, o gift card e o custo final do GTA 6, e a tabela e o gráfico de cada produto num acordeão.
 import {Accordion, AccordionBody, AccordionHeader, AccordionList, TableCell, TableRow} from './tremor.js';
-import {Abrir, Chip, Fato, GraficoHistorico, H2, H3, Lista, Nota, Postagem, Sub, Tabela, TabelaLojas} from './componentes.jsx';
+import {Abrir, Chip, CodigoCupom, Fato, GraficoHistorico, H2, H3, Lista, Nota, Postagem, Sub, Tabela, TabelaLojas} from './componentes.jsx';
 
 export default function Tabelas({vm, familia}) {
   return <>
@@ -86,7 +86,7 @@ function Gift({g}) {
     {!m ? <Nota>Nenhum gift card com desconto em loja oficial agora (PS Store, Hype, Nuuvem, loja oficial PlayStation no Mercado Livre, ou vendido pela própria KaBuM, Americanas, Amazon ou Magalu). Meta: {regra.meta} de desconto ou mais; comprar e resgatar até {regra.prazo}.</Nota>
       : <>
         <p className="mb-4 max-w-[72ch] text-[15px] text-tinta-2">Melhor agora: <b className="text-tinta">{m.preco}</b> pelo cartão de <b className="text-tinta">{m.face}</b> ({m.desconto} de desconto) · {m.loja}
-          {m.post && ' · postagem'}{m.cupom && <> · cupom <code>{m.cupom}</code></>}{m.url && <> · <Abrir url={m.url} /></>}{m.naMeta && <> <Chip tipo="ok">na meta</Chip></>}</p>
+          {m.post && ' · postagem'}{m.cupom && <> · cupom <CodigoCupom codigo={m.cupom} /></>}{m.url && <> · <Abrir url={m.url} /></>}{m.naMeta && <> <Chip tipo="ok">na meta</Chip></>}</p>
         {g.gta.length > 0 && <Tabela cab={['GTA 6 digital', 'PS Store', 'Pagando com gift card', `Meta (${regra.minimo})`, 'Cartões']}>
           {g.gta.map(x => <TableRow key={x.edicao}>
             <TableCell><b className="text-tinta">{x.edicao}</b></TableCell><TableCell>{x.psstore}</TableCell>

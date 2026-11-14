@@ -4,7 +4,7 @@
 import {useMemo, useState} from 'react';
 import {Card} from './tremor.js';
 import {fmt, placar} from './logica.js';
-import {Abrir, Barras, Grafico, Logo, NomeOuFoto, Rosca, corDaPosicao} from './componentes.jsx';
+import {Abrir, Barras, CodigoCupom, Grafico, Logo, NomeOuFoto, Rosca, corDaPosicao} from './componentes.jsx';
 
 const diaLocal = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const PERIODOS = [[7, '7 dias'], [30, '30 dias'], [0, 'Tudo']];
@@ -32,20 +32,23 @@ function Cartao({it}) {
   const m = it.melhor;
   return (
     <Card className="mb-5 rounded-[3px] px-4 py-4 ring-2 sm:px-6 sm:py-5">
-      {/* foto e etiqueta do melhor preço sempre lado a lado; no celular as duas encolhem */}
+      {/* título do cartão: a foto e, ao lado, a pílula da meta sobre a etiqueta do melhor preço; no celular encolhem */}
       <div className="flex items-center gap-3 sm:gap-5">
         <h2 className="flex-none font-cond text-[22px] font-bold leading-tight sm:text-[28px]"><NomeOuFoto id={it.id} nome={it.nome} className="h-14 sm:h-20" /></h2>
-        <div className="etiqueta inline-flex min-w-0 flex-wrap items-baseline gap-x-2 bg-etiqueta pb-1.5 pl-6 pr-4 pt-1 text-etiqueta-ink">
-          <span className="font-cond text-[clamp(20px,5.5vw,36px)] leading-none">{m ? m.preco : 'sem preço recente'}</span>
-          {m && <span className="text-[13px] font-bold sm:text-[15px]">{m.forma}</span>}
+        <div className="flex min-w-0 flex-col items-start gap-1.5">
+          {it.meta ? <span className="inline-flex items-center gap-1.5 rounded-full bg-ok-bg px-2.5 py-0.5 text-[13px] font-bold text-ok">
+            <i className="h-2 w-2 flex-none rounded-full bg-ok" aria-hidden="true" />Meta {fmt(it.meta)}</span> : null}
+          <div className="etiqueta inline-flex min-w-0 flex-wrap items-baseline gap-x-2 bg-etiqueta pb-1.5 pl-6 pr-4 pt-1 text-etiqueta-ink">
+            <span className="font-cond text-[clamp(20px,5.5vw,36px)] leading-none">{m ? m.preco : 'sem preço recente'}</span>
+            {m && <span className="text-[13px] font-bold sm:text-[15px]">{m.forma}</span>}
+          </div>
         </div>
       </div>
-      <p className="mt-2 max-w-[64ch]">{m ? <>Melhor lugar agora: <Logo loja={m.loja} className="h-[26px] max-w-[120px]" />
+      {m && <p className="mt-2 max-w-[64ch]">Melhor lugar agora: <Logo loja={m.loja} className="h-[26px] max-w-[120px]" />
         {m.vendedor && <> vendido por <b>{m.vendedor}</b></>}, coletado em {m.visto}.
-        {m.cupom && <> Cupom <code>{m.cupom}</code>.</>} <Abrir url={m.url}>Abrir o anúncio</Abrir></>
-        : 'Nenhuma loja com coleta recente. Os gráficos abaixo mostram os preços já vistos.'}</p>
+        {m.cupom && <> Cupom <CodigoCupom codigo={m.cupom} />.</>} <Abrir url={m.url}>Abrir o anúncio</Abrir></p>}
       <p className="mt-2 max-w-[64ch] text-[15px] text-tinta-2">
-        {it.meta ? <>Meta {fmt(it.meta)}{m?.dist && <>: <b className={m.dist.cls === 'acima' ? 'text-bad' : 'text-ok'}>{m.dist.txt}</b></>}. </> : null}
+        {m?.dist && <><b className={m.dist.cls === 'acima' ? 'text-bad' : 'text-ok'}>{m.dist.txt}</b>. </>}
         {it.parc && <>Parcelado: {it.parc.total} em {it.parc.quem}. </>}
         {it.min && <>Menor já visto: {it.min.preco} em {it.min.loja}, {it.min.quando}.</>}
       </p>

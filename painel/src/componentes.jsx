@@ -36,6 +36,23 @@ const CHIP = {ok: 'bg-ok-bg text-ok', warn: 'bg-warn-bg text-warn', bad: 'bg-bad
 export const Chip = ({tipo = 'mute', title, children}) =>
   <span title={title} className={`inline-block whitespace-nowrap rounded-[2px] px-2 text-xs font-bold leading-5 ${CHIP[tipo] || CHIP.mute}`}>{children}</span>;
 
+// código de cupom com o botão de copiar ao lado (vira ✓ por 1,5 s depois de copiar)
+export function CodigoCupom({codigo}) {
+  const [ok, setOk] = useState(false);
+  const copia = () => navigator.clipboard?.writeText(codigo)
+    .then(() => { setOk(true); setTimeout(() => setOk(false), 1500); }).catch(() => { /* sem permissão: nada a fazer */ });
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap"><code>{codigo}</code>
+      <button type="button" onClick={copia} aria-label={ok ? 'Cupom copiado' : `Copiar o cupom ${codigo}`} title={ok ? 'Copiado' : 'Copiar'}
+        className={`inline-flex rounded p-0.5 transition-colors duration-150 ${ok ? 'text-ok' : 'text-tinta-3 hover:text-tinta'}`}>
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {ok ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></>}
+        </svg>
+      </button>
+    </span>
+  );
+}
+
 export const Sub = ({children}) => children ? <span className="block text-[13.5px] text-tinta-3">{children}</span> : null;
 export const Nota = ({children}) => <p className="mx-0.5 mt-2 max-w-[80ch] text-sm text-tinta-3">{children}</p>;
 export const H2 = ({children, id}) => <h2 id={id} className="mb-3 mt-10 font-cond text-[32px] font-bold leading-tight">{children}</h2>;
@@ -70,7 +87,7 @@ export function TabelaLojas({linhas, vazio}) {
           <TableCell>{l.parc
             ? <><b className="text-tinta">{l.parc.total}</b>{l.parc.melhor && <> <Chip tipo="ok">melhor</Chip></>}<Sub>{l.parc.texto}</Sub></>
             : l.parcTexto}</TableCell>
-          <TableCell>{l.cupom ? <code>{l.cupom}</code> : '—'}</TableCell>
+          <TableCell>{l.cupom ? <CodigoCupom codigo={l.cupom} /> : '—'}</TableCell>
           <TableCell><Chip>{l.fonte}</Chip>{l.agregador && <Sub>agregador</Sub>}</TableCell>
           <TableCell>{l.visto}{l.velho && <> <Chip tipo="warn" title={`coleta com mais de ${VELHO_H} h`}>antigo</Chip></>}</TableCell>
           <TableCell><Abrir url={l.url} /></TableCell>
@@ -193,7 +210,7 @@ export function Postagem({p}) {
     <li className="break-words border-b border-linha-2 px-3 py-2.5 text-[15px] last:border-b-0">
       <Chip tipo={p.chip.classe}>{p.chip.texto}</Chip>{' '}
       {p.expirada && <><Chip>expirada</Chip>{' '}</>}
-      <b>{p.preco}</b> · {p.loja}{p.cupom && <> · <code>{p.cupom}</code></>}
+      <b>{p.preco}</b> · {p.loja}{p.cupom && <> · <CodigoCupom codigo={p.cupom} /></>}
       <br />{p.titulo}
       <span className="block text-[13.5px] text-tinta-3">
         {p.telegram && <><Logo loja="Telegram" className="h-4 max-w-[92px]" />{' '}</>}{p.fonte} · {p.quando} · <Abrir url={p.url} />
