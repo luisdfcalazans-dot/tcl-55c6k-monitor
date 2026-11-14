@@ -19,11 +19,12 @@ const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produto
 
 const arquivoLogo = loja => LOGOS[String(loja ?? '').trim().toLowerCase()];
 
-// logo em selo branco (legível nos dois temas); altura pela classe
+// logo sem fundo no tema claro; no escuro, num selo branco (Amazon, Casas Bahia, Magalu e Correios são de texto
+// escuro e sumiriam no grafite). Altura pela classe
 export function Logo({loja, className = 'h-[22px] max-w-[92px]'}) {
   const f = arquivoLogo(loja);
   if (!f) return <span className="font-bold">{loja}</span>;
-  return <img className={`inline-block w-auto object-contain align-middle bg-white ring-1 ring-linha-2 ${QUADRADOS.has(f) ? 'rounded' : 'rounded-[3px] px-1.5 py-[3px]'} ${className}`}
+  return <img className={`inline-block w-auto object-contain align-middle dark:bg-white dark:ring-1 dark:ring-linha-2 ${QUADRADOS.has(f) ? 'rounded' : 'rounded-[3px] dark:px-1.5 dark:py-[3px]'} ${className}`}
     src={`logos/${f}`} alt={loja} title={loja} />;
 }
 
