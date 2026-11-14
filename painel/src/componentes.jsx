@@ -14,20 +14,29 @@ const LOGOS = {'amazon': 'amazon.webp', 'magazine luiza': 'magalu.webp', 'kabum!
   'fast shop': 'fastshop.webp', 'carrefour': 'carrefour.png', 'webcontinental': 'webcontinental.png', 'nuuvem': 'nuuvem.png',
   'hype': 'hype.jpg', 'telegram': 'telegram.webp'};
 // ícone quadrado (aplicativo/site) ocupa o selo inteiro, sem a margem branca dos logos horizontais
-const QUADRADOS = new Set(['kabum.webp', 'carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
+const QUADRADOS = new Set(['carrefour.png', 'nuuvem.png', 'hype.jpg', 'telegram.webp']);
 const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produtos/gta6.webp'};
 
 const arquivoLogo = loja => LOGOS[String(loja ?? '').trim().toLowerCase()];
 // logos de traço escuro (contraste WCAG < 3 contra o cartão do tema escuro na maior parte dos pixels): no tema escuro
 // invertem só a luminosidade (invert + hue-rotate 180° mantém o tom: o preto vira branco, o azul-marinho, azul-claro).
 // Fast Shop e TCL (caixa vermelha com letra branca) e os ícones quadrados ficam como são.
-const CLAREAR_NO_ESCURO = new Set(['amazon.webp', 'americanas.webp', 'casasbahia.webp', 'correios.webp', 'mercadolivre.webp', 'netshoes.webp']);
+const CLAREAR_NO_ESCURO = new Set(['amazon.webp', 'americanas.webp', 'casasbahia.webp', 'correios.webp', 'kabum.webp',
+  'netshoes.webp', 'webcontinental.png']);
+// logo de várias cores que o filtro estragaria (o amarelo do Mercado Livre viraria marrom): arquivo próprio para o
+// tema escuro, com o azul-marinho trocado por branco
+const VERSAO_ESCURA = {'mercadolivre.webp': 'mercadolivre-escuro.webp'};
 
 // logo sem fundo nos dois temas; altura pela classe
 export function Logo({loja, className = 'h-[22px] max-w-[92px]'}) {
   const f = arquivoLogo(loja);
   if (!f) return <span className="font-bold">{loja}</span>;
-  return <img className={`inline-block w-auto object-contain align-middle ${QUADRADOS.has(f) ? 'rounded' : ''} ${CLAREAR_NO_ESCURO.has(f) ? 'dark:hue-rotate-180 dark:invert' : ''} ${className}`}
+  const base = `w-auto object-contain align-middle ${QUADRADOS.has(f) ? 'rounded' : ''} ${className}`;
+  if (VERSAO_ESCURA[f]) return <>
+    <img className={`inline-block dark:hidden ${base}`} src={`logos/${f}`} alt={loja} title={loja} />
+    <img className={`hidden dark:inline-block ${base}`} src={`logos/${VERSAO_ESCURA[f]}`} alt={loja} title={loja} />
+  </>;
+  return <img className={`inline-block ${CLAREAR_NO_ESCURO.has(f) ? 'dark:hue-rotate-180 dark:invert' : ''} ${base}`}
     src={`logos/${f}`} alt={loja} title={loja} />;
 }
 
@@ -156,8 +165,10 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
     u.root.querySelectorAll('.u-legend .u-series').forEach((linha, i) => {
       const loja = g.lojas[i - 1], f = loja && arquivoLogo(loja), rotulo = linha.querySelector('.u-label');
       if (!f || !rotulo) return;
-      rotulo.replaceChildren(Object.assign(document.createElement('img'),
-        {src: `logos/${f}`, alt: loja, title: loja, className: `logo-leg${QUADRADOS.has(f) ? ' q' : ''}${CLAREAR_NO_ESCURO.has(f) ? ' clarear' : ''}`}));
+      const img = (arq, extra) => Object.assign(document.createElement('img'),
+        {src: `logos/${arq}`, alt: loja, title: loja, className: `logo-leg${QUADRADOS.has(f) ? ' q' : ''}${extra}`});
+      rotulo.replaceChildren(...(VERSAO_ESCURA[f] ? [img(f, ' so-claro'), img(VERSAO_ESCURA[f], ' so-escuro')]
+        : [img(f, CLAREAR_NO_ESCURO.has(f) ? ' clarear' : '')]));
     });
     const ro = new ResizeObserver(() => u.setSize({width: largura(), height: altura}));
     ro.observe(el);

@@ -65,5 +65,8 @@ code { font-family: ui-monospace, "Cascadia Mono", monospace; background: rgb(va
 .grafico .logo-leg { display: inline-block; height: 20px; width: auto; max-width: 84px; object-fit: contain; vertical-align: middle; }
 .grafico .logo-leg.q { border-radius: 4px; }
 :root.dark .grafico .logo-leg.clarear { filter: invert(1) hue-rotate(180deg); }
+/* logo com arquivo próprio para o tema escuro (Mercado Livre): um dos dois aparece conforme o tema */
+.grafico .logo-leg.so-escuro, :root.dark .grafico .logo-leg.so-claro { display: none; }
+:root.dark .grafico .logo-leg.so-escuro { display: inline-block; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
