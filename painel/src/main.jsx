@@ -2,7 +2,7 @@ import {StrictMode, useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
-import {Abrir, Chip, CodigoCupom, Fato, H2, Lista, Postagem, Sub, Tabela} from './componentes.jsx';
+import {Chip, CodigoCupom, Fato, H2, Lista, Postagem, Sub, Tabela} from './componentes.jsx';
 import Vitrine, {Pilulas} from './Vitrine.jsx';
 import Tabelas from './Tabelas.jsx';
 import {CRIAR_TOKEN, buscaPendente, dispara, espera, guardaToken, temToken} from './busca.js';
@@ -81,11 +81,11 @@ function App() {
   </>;
 }
 
+// cupom: só a loja, o código (com o copiar) e a regra; sem regra (igual ao título), vale o título no lugar dela
 const Cupom = ({c}) => (
   <li className="break-words border-b border-linha-2 px-3 py-2.5 text-[15px] last:border-b-0">
-    <b>{c.loja}</b> <CodigoCupom codigo={c.codigo} />{c.especifico && <> <Chip tipo="ok">produto</Chip></>}{c.chip && <> <Chip tipo={c.chip.classe}>{c.chip.texto}</Chip></>}
-    <br />{c.titulo}{c.regra && <Sub>{c.regra}</Sub>}
-    <Sub>{c.fonte}{c.validade && ` · até ${c.validade}`} · <Abrir url={c.url}>ver</Abrir></Sub>
+    <b>{c.loja}</b> <CodigoCupom codigo={c.codigo} />
+    <Sub>{c.regra || c.titulo}</Sub>
   </li>
 );
 
