@@ -18,13 +18,16 @@ const QUADRADOS = new Set(['kabum.webp', 'carrefour.png', 'nuuvem.png', 'hype.jp
 const FOTOS = {PS5_DIGITAL: 'produtos/ps5-slim.webp', GTA6_CODE_IN_BOX: 'produtos/gta6.webp'};
 
 const arquivoLogo = loja => LOGOS[String(loja ?? '').trim().toLowerCase()];
+// logos de traço escuro (contraste WCAG < 3 contra o cartão do tema escuro na maior parte dos pixels): no tema escuro
+// invertem só a luminosidade (invert + hue-rotate 180° mantém o tom: o preto vira branco, o azul-marinho, azul-claro).
+// Fast Shop e TCL (caixa vermelha com letra branca) e os ícones quadrados ficam como são.
+const CLAREAR_NO_ESCURO = new Set(['amazon.webp', 'americanas.webp', 'casasbahia.webp', 'correios.webp', 'mercadolivre.webp', 'netshoes.webp']);
 
-// logo sem fundo no tema claro; no escuro, num selo branco (Amazon, Casas Bahia, Magalu e Correios são de texto
-// escuro e sumiriam no grafite). Altura pela classe
+// logo sem fundo nos dois temas; altura pela classe
 export function Logo({loja, className = 'h-[22px] max-w-[92px]'}) {
   const f = arquivoLogo(loja);
   if (!f) return <span className="font-bold">{loja}</span>;
-  return <img className={`inline-block w-auto object-contain align-middle dark:bg-white dark:ring-1 dark:ring-linha-2 ${QUADRADOS.has(f) ? 'rounded' : 'rounded-[3px] dark:px-1.5 dark:py-[3px]'} ${className}`}
+  return <img className={`inline-block w-auto object-contain align-middle ${QUADRADOS.has(f) ? 'rounded' : ''} ${CLAREAR_NO_ESCURO.has(f) ? 'dark:hue-rotate-180 dark:invert' : ''} ${className}`}
     src={`logos/${f}`} alt={loja} title={loja} />;
 }
 
@@ -153,7 +156,7 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
       const loja = g.lojas[i - 1], f = loja && arquivoLogo(loja), rotulo = linha.querySelector('.u-label');
       if (!f || !rotulo) return;
       rotulo.replaceChildren(Object.assign(document.createElement('img'),
-        {src: `logos/${f}`, alt: loja, title: loja, className: QUADRADOS.has(f) ? 'logo-leg q' : 'logo-leg'}));
+        {src: `logos/${f}`, alt: loja, title: loja, className: `logo-leg${QUADRADOS.has(f) ? ' q' : ''}${CLAREAR_NO_ESCURO.has(f) ? ' clarear' : ''}`}));
     });
     const ro = new ResizeObserver(() => u.setSize({width: largura(), height: altura}));
     ro.observe(el);
