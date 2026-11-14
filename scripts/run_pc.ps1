@@ -1,5 +1,5 @@
-# Rodada do executor no PC: atualiza o repositório, coleta as fontes "pc", testa cupons no carrinho
-# e publica o estado. Chamado pela tarefa agendada (a cada 30 min). Log em logs\pc.log.
+# Rodada do executor no PC: atualiza o repositório, coleta as fontes "pc" e publica o estado (o teste automático de
+# cupons no carrinho foi desligado em 14/11/2026). Chamado pela tarefa agendada (a cada 30 min). Log em logs\pc.log.
 #
 # Prazos somados ficam abaixo dos 30 min entre rodadas (coleta 9 + cupons 18 + git) e do limite de 29 min
 # da tarefa. Cada script Python também tem cão de guarda próprio (monitor/saida.py).
@@ -37,10 +37,9 @@ cmd /c "git pull --rebase --autostash 2>&1" | Out-File -Append -Encoding utf8 $l
 
 RodarPython @("run.py", "--mode", "pc") 540 "coleta"
 
-# teste de cupons no carrinho (cada loja só entra depois do login com --login)
-if (Test-Path "$raiz\.pw-profile-carrinho") {
-    RodarPython @("testar_cupons.py") 1080 "cupons"
-}
+# Teste automático de cupons no carrinho DESLIGADO em 14/11/2026, a pedido do usuário: ele abria o Chrome com a
+# janela fora da tela (abas que o usuário via na barra, mas não conseguia abrir nem clicar). Cupom agora só se testa
+# quando o usuário pedir, no navegador do app do Claude. O testar_cupons.py continua no repositório para uso manual.
 
 cmd /c "git add docs/data 2>&1" | Out-File -Append -Encoding utf8 $log
 cmd /c "git diff --cached --quiet -- docs/data"

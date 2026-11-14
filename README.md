@@ -58,6 +58,8 @@ No PS5 e no GTA 6, o preço com o cupom da página do próprio anúncio (ex.: o 
 
 ### Testador de cupons no carrinho (PC)
 
+**Desligado desde 14/11/2026:** a tarefa do PC (`scripts/run_pc.ps1`) não roda mais o testador, porque ele abria o Chrome com a janela fora da tela. Os cupons passam a ser testados só quando o usuário pede, no navegador do app do Claude. O script continua aqui para uso manual (`python testar_cupons.py`).
+
 `testar_cupons.py` testa, com a conta logada (perfil próprio do Chrome), os cupons conhecidos de cada loja no carrinho do Magalu e do Mercado Livre (na Amazon, só leitura da página do anúncio). Cada cupom é medido com o produto sozinho no carrinho (o cupom vale para o pedido) e só nos produtos em que a regra do cupom cabe (cupom de moda, de TV ou só do GTA 6 não é testado no console). No fim da rodada o carrinho fica com **1 unidade de cada produto principal** que a loja tem: as TVs, o PS5 Digital, o PS5 com leitor, o PS5 Pro e o GTA 6 Code in Box, com o cupom de maior economia. Pacote PS5 + GTA 6, kit/edição especial e gift card da PlayStation só são testados quando são o caminho mais barato para um principal (o preço menos o valor do extra; no gift card, o GTA 6 digital pago com ele) e nunca ficam no carrinho. O robô nunca põe outro produto, nunca mexe em item que não é dos monitorados, nunca passa de 1 unidade por produto e nunca finaliza a compra. A mensagem traz, por produto, o preço + frete, a meta e, no GTA 6, a entrega (a data que o carrinho logado mostra, quando aparece; senão a estimativa da coleta). No modo vigia das TVs o testador continua rodando para o PS5 e o GTA 6; a TV que saiu do carrinho fica fora (não volta durante a vigia).
 
 ### Confiança nos vendedores (antes de qualquer alerta de preço)
