@@ -47,7 +47,10 @@ code { font-family: ui-monospace, "Cascadia Mono", monospace; background: rgb(va
 /* etiqueta de preço do encarte (o único amarelo da página além do item escolhido) */
 .etiqueta { clip-path: polygon(18px 0, 100% 0, 100% 100%, 18px 100%, 0 50%); }
 
-/* os gráficos do Tremor (Recharts) com a fonte e as cores do painel */
-.recharts-cartesian-axis-tick-value { font-family: "D-DIN", sans-serif; }
+/* legenda do uPlot (mostra o valor sob o cursor) com a fonte e as cores do painel */
+.grafico .u-legend { font-family: inherit; font-size: 14px; color: rgb(var(--ink-2)); text-align: left; }
+.grafico .u-legend th, .grafico .u-legend td { border: 0; padding: 2px 4px; white-space: nowrap; }
+.grafico .u-legend th { font-weight: 400; }
+.grafico .u-legend .u-value { color: rgb(var(--ink)); }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

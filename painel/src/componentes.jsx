@@ -1,6 +1,10 @@
 // Peças pequenas usadas em mais de uma aba. Nada de regra de negócio aqui: os textos e valores já vêm prontos de logica.js.
-import {Card, LineChart, Metric, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text} from '@tremor/react';
-import {VELHO_H, fmt, linhasDoGrafico} from './logica.js';
+// Tremor só nos cartões, tabelas e acordeão; os gráficos são uPlot (linhas) e SVG/HTML à mão (barras, rosca, sparkline).
+import {Fragment, useEffect, useMemo, useRef, useState} from 'react';
+import {Card, Metric, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text} from './tremor.js';
+import uPlot from 'uplot';
+import 'uplot/dist/uPlot.min.css';
+import {VELHO_H, fmt, reais, seriesDoGrafico} from './logica.js';
 
 // Logos das lojas (docs/logos): os .webp vêm do Wikimedia Commons (domínio público); os .png/.jpg são o ícone do site,
 // para as lojas sem logo lá. Loja fora da lista sai pelo nome. A foto do produto (docs/produtos) entra no lugar do nome.
@@ -86,16 +90,104 @@ export const Tabela = ({cab, children, className = ''}) => (
   </Card>
 );
 
-// cor de cada loja nos gráficos: a ordem do mais barato (s1..s8), igual nas barras, na rosca e nas linhas
-export const corDaPosicao = i => i < 8 ? `s${i + 1}` : 'outras';
+// cor de cada loja nos gráficos: a ordem do mais barato (--s1..--s8), igual nas barras, na rosca e nas linhas.
+// No HTML/SVG vai como CSS (troca sozinha com o tema); o canvas do uPlot não lê var(), então lê o valor na hora (cssCor).
+export const corDaPosicao = i => i < 8 ? `--s${i + 1}` : '--ink-3';
+const css = v => `rgb(var(${v}))`;
+const cssCor = v => `rgb(${getComputedStyle(document.documentElement).getPropertyValue(v).trim().split(/\s+/).join(',')})`;
 
-// histórico por dia (Tremor LineChart): as 8 lojas mais baratas e a linha da meta
-export function GraficoHistorico({serie, alvo, vazio = 'O histórico aparece a partir da segunda coleta.', altura = 'h-72'}) {
-  const g = linhasDoGrafico(serie, alvo);
-  if (!g.dados.length) return <p className="py-3 text-[15px] text-tinta-3">{vazio}</p>;
-  return <LineChart className={altura} data={g.dados} index="dia" categories={g.categorias}
-    colors={[...g.lojas.map((_, i) => corDaPosicao(i)), ...(alvo ? ['meta'] : [])]}
-    valueFormatter={fmt} yAxisWidth={84} connectNulls autoMinValue showAnimation={false} />;
+// muda quando o tema troca (classe .dark no <html>), para o uPlot redesenhar com as cores novas
+function useTema() {
+  const [escuro, setEscuro] = useState(() => document.documentElement.classList.contains('dark'));
+  useEffect(() => { const ob = new MutationObserver(() => setEscuro(document.documentElement.classList.contains('dark')));
+    ob.observe(document.documentElement, {attributes: true, attributeFilter: ['class']}); return () => ob.disconnect(); }, []);
+  return escuro;
+}
+
+const Vazio = ({children}) => <p className="py-3 text-[15px] text-tinta-3">{children}</p>;
+
+// gráfico por dia (uPlot): as 8 lojas mais baratas e a meta tracejada; a legenda mostra o valor sob o cursor.
+// minDias: o placar só desenha com 2 dias ou mais (com 1, avisa); o histórico desenha a partir do primeiro.
+export function Grafico({serie, meta, altura = 300, minDias = 1,
+  vazio = 'O histórico aparece a partir da segunda coleta.', poucos = 'O gráfico aparece quando o período tem pelo menos dois dias de coleta.'}) {
+  const caixa = useRef(null), escuro = useTema();
+  const g = useMemo(() => seriesDoGrafico(serie), [serie]);
+  const desenha = g.dias.length >= minDias;
+  useEffect(() => {
+    if (!desenha) return;
+    const el = caixa.current, xs = g.dias.map(d => Date.parse(d + 'T12:00:00') / 1000);
+    const dados = [xs, ...g.valores];
+    const series = [{label: 'Dia', value: (u, v) => v == null ? '—' : new Date(v * 1000).toLocaleDateString('pt-BR')},
+      ...g.lojas.map((l, i) => ({label: l, stroke: cssCor(corDaPosicao(i)), width: 2, spanGaps: true, points: {size: 5}, value: (u, v) => v == null ? '—' : fmt(v)}))];
+    if (meta) { dados.push(xs.map(() => meta)); series.push({label: 'Meta', stroke: cssCor('--ok'), width: 2, dash: [6, 4], points: {show: false}, value: (u, v) => fmt(v)}); }
+    const tinta = cssCor('--ink-2'), grade = {stroke: cssCor('--line-2'), width: 1}, fonte = '13px "D-DIN", sans-serif';
+    const largura = () => Math.max(280, el.clientWidth);
+    const u = new uPlot({width: largura(), height: altura, series, legend: {live: true}, cursor: {points: {size: 8}}, scales: {x: {time: true}},
+      axes: [{stroke: tinta, grid: grade, ticks: grade, font: fonte, values: (u, vs) => vs.map(v => new Date(v * 1000).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}))},
+             {stroke: tinta, grid: grade, ticks: grade, font: fonte, size: 70, values: (u, vs) => vs.map(reais)}]}, dados, el);
+    const ro = new ResizeObserver(() => u.setSize({width: largura(), height: altura}));
+    ro.observe(el);
+    return () => { ro.disconnect(); u.destroy(); };
+  }, [g, meta, altura, desenha, escuro]);
+  if (!g.dias.length) return <Vazio>{vazio}</Vazio>;
+  if (!desenha) return <Vazio>{poucos}</Vazio>;
+  return <div ref={caixa} className="grafico min-h-[300px]" />;
+}
+export const GraficoHistorico = ({serie, alvo, altura}) => <Grafico serie={serie} meta={alvo} altura={altura} />;
+
+// sparkline do quadro da vitrine: os últimos 30 dias e a meta tracejada (quando cabe na escala)
+export function Sparkline({porDia, meta}) {
+  const dias = Object.keys(porDia).sort().slice(-30);
+  if (dias.length < 2) return null;
+  const vals = dias.map(d => porDia[d]), lo = Math.min(...vals, meta || Infinity), hi = Math.max(...vals);
+  const y = v => hi === lo ? 14 : 26 - (v - lo) / (hi - lo) * 24;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * 100).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return (
+    <svg className="my-1 block h-7 w-full" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
+      {meta && meta >= lo && meta <= hi && <line x1="0" x2="100" y1={y(meta)} y2={y(meta)} style={{stroke: css('--ok')}} strokeDasharray="3 2" vectorEffect="non-scaling-stroke" />}
+      <polyline fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" points={pts} />
+    </svg>
+  );
+}
+
+// barras do placar: o menor preço de cada loja no período (logo, barra na cor da loja, preço e a distância da mais barata).
+// No celular: logo e preço na mesma linha, a barra embaixo com a largura toda (dense devolve o preço à 1ª linha).
+export function Barras({lojas}) {
+  const max = lojas.at(-1).min, base = lojas[0].min;
+  return (
+    <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 text-[15px] [grid-auto-flow:dense] sm:grid-cols-[minmax(90px,max-content)_1fr_auto] sm:items-center sm:gap-x-2.5 sm:gap-y-1.5">
+      {lojas.map((l, i) => <Fragment key={l.loja}>
+        <span className={`truncate sm:max-w-[180px] ${i ? '' : 'font-bold'}`}><Logo loja={l.loja} className="h-[22px] max-w-[96px]" /></span>
+        <span className="col-span-full mb-2 h-3 sm:col-span-1 sm:mb-0 sm:h-[18px]">
+          <span className="block h-full rounded-[2px]" style={{width: `${(l.min / max * 100).toFixed(1)}%`, background: css(corDaPosicao(i))}} /></span>
+        <span className={`whitespace-nowrap text-right ${i ? '' : 'font-bold'}`}>{reais(l.min)}
+          {i ? <small className="ml-1 text-[13px] text-tinta-3">+{reais(l.min - base)}</small>
+            : <span className="ml-1 rounded-[2px] bg-etiqueta px-1.5 py-px text-[12.5px] font-bold text-etiqueta-ink">mais barata</span>}</span>
+      </Fragment>)}
+    </div>
+  );
+}
+
+// rosca do placar: em quantos dias do período cada loja foi a mais barata (cores = posição da loja nas barras)
+export function Rosca({fatias, dias, cor}) {
+  const C = 2 * Math.PI * 42; let acc = 0;
+  return (
+    <div className="flex flex-wrap items-center gap-[18px]">
+      <svg className="h-[140px] w-[140px] flex-none" viewBox="0 0 120 120" role="img" aria-label="Loja mais barata por dia no período">
+        {fatias.map(f => { const len = f.dias / dias * C, a = acc; acc += len;
+          return <circle key={f.loja} cx="60" cy="60" r="42" fill="none" strokeWidth="22" style={{stroke: css(cor[f.loja] || '--ink-3')}}
+            strokeDasharray={`${len.toFixed(2)} ${(C - len).toFixed(2)}`} strokeDashoffset={(-a).toFixed(2)} transform="rotate(-90 60 60)" />; })}
+        <text x="60" y="58" textAnchor="middle" fontSize="22" fontWeight="700" fill="currentColor">{dias}</text>
+        <text x="60" y="74" textAnchor="middle" fontSize="11" fill="currentColor">{dias === 1 ? 'dia' : 'dias'}</text>
+      </svg>
+      <ul className="m-0 list-none p-0 text-[15px]">
+        {fatias.map(f => <li key={f.loja} className="flex items-center gap-2 py-0.5">
+          <i className="h-3 w-3 flex-none rounded-[2px]" style={{background: css(cor[f.loja] || '--ink-3')}} />
+          <b className="min-w-[3.2em]">{Math.round(f.dias / dias * 100)}%</b>{f.loja === 'Outras lojas' ? f.loja : <Logo loja={f.loja} className="h-[22px] max-w-[96px]" />}
+        </li>)}
+      </ul>
+    </div>
+  );
 }
 
 // uma postagem (Pelando, Promobit, Telegram): o selo do produto, o preço, a loja e o título

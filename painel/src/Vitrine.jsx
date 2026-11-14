@@ -1,9 +1,9 @@
 // Vitrine (30/10/2026): um quadro por produto; o escolhido abre o placar logo abaixo (melhor lugar agora, barras das
 // lojas, rosca da loja mais barata e o gráfico por dia, com filtro de período).
 import {useMemo, useRef, useState} from 'react';
-import {BarList, Card, DonutChart, Legend, LineChart, SparkAreaChart} from '@tremor/react';
-import {fmt, placar, reais} from './logica.js';
-import {Abrir, Logo, NomeOuFoto, corDaPosicao} from './componentes.jsx';
+import {Card} from './tremor.js';
+import {fmt, placar} from './logica.js';
+import {Abrir, Barras, Grafico, Logo, NomeOuFoto, Rosca, Sparkline, corDaPosicao} from './componentes.jsx';
 
 const diaLocal = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const PERIODOS = [[7, '7 dias'], [30, '30 dias'], [0, 'Tudo']];
@@ -30,8 +30,6 @@ export default function Vitrine({itens}) {
 
 function Quadro({it, ativo, onClick}) {
   const m = it.melhor, d = m?.dist;
-  const dias = Object.keys(it.porDia).sort().slice(-30);
-  const spark = dias.map(dia => ({dia, Preço: it.porDia[dia], ...(it.meta ? {Meta: it.meta} : {})}));
   return (
     <button type="button" aria-pressed={ativo} onClick={onClick}
       className={`relative flex min-w-0 flex-col gap-0.5 rounded-[3px] border-2 px-3 pb-2 pt-2.5 text-left transition-colors duration-150
@@ -40,8 +38,7 @@ function Quadro({it, ativo, onClick}) {
       <span className="min-h-9 pr-[72px] text-[15px] font-bold leading-tight"><NomeOuFoto id={it.id} nome={it.curto} className="-my-1 h-[52px]" /></span>
       <span className={`mt-1.5 font-cond text-[32px] leading-none ${m ? '' : 'text-tinta-3'}`}>{m ? m.precoCurto : 'sem preço'}</span>
       <span className={`text-[13.5px] font-bold ${ativo ? '' : d?.cls === 'acima' ? 'text-bad' : d ? 'text-ok' : ''}`}>{d ? d.txt : m ? '' : 'nenhuma coleta recente'}</span>
-      {spark.length > 1 && <SparkAreaChart className="my-1 h-7 w-full" data={spark} index="dia"
-        categories={it.meta ? ['Preço', 'Meta'] : ['Preço']} colors={['s1', 'meta']} autoMinValue showGradient={false} />}
+      <Sparkline porDia={it.porDia} meta={it.meta} />
       <span className={`truncate text-[13px] ${ativo ? '' : 'text-tinta-3'}`}>{m ? m.visto : ''}</span>
     </button>
   );
@@ -53,8 +50,9 @@ function Placar({it}) {
   const [ini, fim] = per.de || per.ate ? [per.de || '0000', per.ate || '9999']
     : !per.dias ? ['0000', '9999'] : [diaLocal(new Date(Date.now() - (per.dias - 1) * 864e5)), '9999'];
   const p = useMemo(() => placar(it.serie, it.meta, ini, fim), [it, ini, fim]);
+  const serieP = useMemo(() => Object.fromEntries(p.lojas.map(l => [l.loja, l.s])), [p]);
   const cor = Object.fromEntries(p.lojas.map((l, i) => [l.loja, corDaPosicao(i)]));
-  const m = it.melhor, base = p.lojas[0]?.min;
+  const m = it.melhor;
   const vazio = <p className="py-3 text-[15px] text-tinta-3">Sem preços neste período. Escolha um período maior.</p>;
 
   return (
@@ -91,27 +89,17 @@ function Placar({it}) {
       <div className="mt-6 grid gap-7 md:grid-cols-[3fr_2fr]">
         <div>
           <h3 className="mb-2.5 text-[17px] font-bold">Menor preço de cada loja no período</h3>
-          {p.lojas.length ? <BarList sortOrder="none" className="text-tinta"
-            data={p.lojas.map(l => ({name: l.loja, value: l.min, color: cor[l.loja]}))}
-            valueFormatter={v => v === base ? `${reais(v)} · mais barata` : `${reais(v)} (+${reais(v - base)})`} /> : vazio}
+          {p.lojas.length ? <Barras lojas={p.lojas} /> : vazio}
         </div>
         <div>
           <h3 className="mb-2.5 text-[17px] font-bold">Loja mais barata, contando os dias</h3>
-          {p.fatias.length ? <div className="flex flex-wrap items-center gap-4">
-            <DonutChart className="h-36 w-36" data={p.fatias} category="dias" index="loja" showAnimation={false}
-              colors={p.fatias.map(f => cor[f.loja] || 'outras')} label={`${p.dias.length} ${p.dias.length === 1 ? 'dia' : 'dias'}`}
-              valueFormatter={v => `${Math.round(v / p.dias.length * 100)}% dos dias`} />
-            <Legend className="max-w-[220px]" categories={p.fatias.map(f => `${f.pct}% ${f.loja}`)} colors={p.fatias.map(f => cor[f.loja] || 'outras')} />
-          </div> : vazio}
+          {p.fatias.length ? <Rosca fatias={p.fatias} dias={p.dias.length} cor={cor} /> : vazio}
         </div>
       </div>
 
       <h3 className="mb-2.5 mt-6 text-[17px] font-bold">Preço por dia</h3>
-      {p.dias.length < 2
-        ? (p.dias.length ? <p className="py-3 text-[15px] text-tinta-3">O gráfico aparece quando o período tem pelo menos dois dias de coleta.</p> : vazio)
-        : <LineChart className="h-72" data={p.grafico.dados} index="dia" categories={p.grafico.categorias}
-            colors={[...p.grafico.lojas.map(l => cor[l]), ...(it.meta ? ['meta'] : [])]} valueFormatter={fmt}
-            yAxisWidth={84} connectNulls autoMinValue showAnimation={false} />}
+      <Grafico serie={serieP} meta={it.meta} minDias={2}
+        vazio="Sem preços neste período. Escolha um período maior." />
     </Card>
   );
 }

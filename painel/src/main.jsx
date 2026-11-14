@@ -1,6 +1,6 @@
 import {StrictMode, useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {TableCell, TableRow} from '@tremor/react';
+import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
 import {Abrir, Chip, Fato, H2, Lista, Postagem, Sub, Tabela} from './componentes.jsx';
 import Vitrine from './Vitrine.jsx';

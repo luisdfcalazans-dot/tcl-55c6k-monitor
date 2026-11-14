@@ -1,6 +1,6 @@
 // Aba "Tabelas": as TVs (escondidas com "tvs_desligadas" no latest) e uma seção por família (PS5, GTA 6) com o resumo
 // por produto, o gift card e o custo final do GTA 6, e a tabela e o gráfico de cada produto num acordeão.
-import {Accordion, AccordionBody, AccordionHeader, AccordionList, TableCell, TableRow} from '@tremor/react';
+import {Accordion, AccordionBody, AccordionHeader, AccordionList, TableCell, TableRow} from './tremor.js';
 import {Abrir, Chip, Fato, GraficoHistorico, H2, H3, Lista, Nota, Postagem, Sub, Tabela, TabelaLojas} from './componentes.jsx';
 
 export default function Tabelas({vm, familia}) {
@@ -70,7 +70,7 @@ function Familia({f}) {
           <AccordionHeader className="px-3.5 py-2.5 text-left font-bold text-tinta">{p.nome}<span className="ml-2 font-normal text-tinta-3">{p.sub}</span></AccordionHeader>
           <AccordionBody className="px-2.5 pb-2.5">
             <TabelaLojas linhas={p.linhas} vazio="Nenhum preço de loja ainda." />
-            {p.grafico && <div className="mt-2"><GraficoHistorico serie={p.grafico.serie} alvo={p.grafico.alvo} altura="h-64" /></div>}
+            {p.grafico && <div className="mt-2"><GraficoHistorico serie={p.grafico.serie} alvo={p.grafico.alvo} altura={260} /></div>}
           </AccordionBody>
         </Accordion>))}
     </AccordionList>}

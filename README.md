@@ -133,8 +133,9 @@ monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
 monitor/carrinho.py      adaptadores do carrinho (Magalu, Mercado Livre, Amazon só leitura) do testador de cupons
 testar_cupons.py         testador de cupons no carrinho (TVs, PS5, GTA 6)
-painel/                  fonte do painel (React 18 + Tremor 3 + Tailwind 3, Vite): grade de produtos, placar (barras, rosca, gráfico
-                         com filtro de período), tabelas, cupons e fontes
+painel/                  fonte do painel (React 18 + Tailwind 3, Vite; Tremor 3 só nos cartões, tabelas e acordeão, via src/tremor.js;
+                         gráficos de linha no uPlot, barras/rosca/sparkline em SVG): grade de produtos, placar com filtro de período,
+                         tabelas, cupons e fontes
 painel/src/logica.js     todas as regras do painel (agregador, confiança, coleta antiga, parcelado, mínimos), sem DOM; os testes rodam esse arquivo no Node
 docs/index.html, docs/app/  o painel compilado (GitHub Pages); não edite à mão: `cd painel && npm install && npm run build`
 docs/fonts/              D-DIN (Datto, licença OFL), servida pelo próprio Pages

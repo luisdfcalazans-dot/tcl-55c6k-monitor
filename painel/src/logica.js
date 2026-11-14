@@ -383,22 +383,16 @@ export function placar(serie, meta, ini, fim) {
   }
   let fatias = Object.entries(vitorias).sort((a, b) => b[1] - a[1]);
   if (fatias.length > 5) fatias = [...fatias.slice(0, 4), ['Outras lojas', fatias.slice(4).reduce((s, [, n]) => s + n, 0)]];
-  return {lojas, dias, fatias: fatias.map(([loja, n]) => ({loja, dias: n, pct: Math.round(n / dias.length * 100)})),
-    grafico: linhasDoGrafico(Object.fromEntries(lojas.map(l => [l.loja, l.s])), meta)};
+  return {lojas, dias, fatias: fatias.map(([loja, n]) => ({loja, dias: n})),
+    grafico: seriesDoGrafico(Object.fromEntries(lojas.map(l => [l.loja, l.s])))};
 }
 
-// Série {loja: {dia: preço}} no formato do LineChart: uma linha por dia, uma coluna por loja (as 8 mais baratas) e a
-// coluna 'Meta'. Dia sem preço da loja fica sem a chave (o gráfico liga os pontos por cima do buraco).
-export function linhasDoGrafico(serie, meta) {
+// Série {loja: {dia: preço}} no formato colunar do uPlot: os dias e, para cada uma das 8 lojas mais baratas (a mesma
+// ordem das cores das barras e da rosca), o preço de cada dia ou null (o gráfico liga os pontos por cima do buraco).
+export function seriesDoGrafico(serie) {
   const lojas = Object.keys(serie).sort((a, b) => Math.min(...Object.values(serie[a])) - Math.min(...Object.values(serie[b]))).slice(0, 8);
   const dias = [...new Set(lojas.flatMap(l => Object.keys(serie[l])))].sort();
-  const dados = dias.map(dia => {
-    const linha = {dia: dia.slice(8, 10) + '/' + dia.slice(5, 7)};
-    for (const l of lojas) if (serie[l][dia] != null) linha[l] = serie[l][dia];
-    if (meta) linha.Meta = meta;
-    return linha;
-  });
-  return {dados, lojas, categorias: meta ? [...lojas, 'Meta'] : lojas};
+  return {dias, lojas, valores: lojas.map(l => dias.map(d => serie[l][d] ?? null))};
 }
 
 // ---- o painel inteiro. dados = {cloud, pc, csvCloud, csvPc} (o que veio de docs/data; ausente = null/''),

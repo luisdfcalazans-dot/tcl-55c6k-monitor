@@ -10,21 +10,18 @@ const tremor = {
   ring: {DEFAULT: v('line')},
   content: {subtle: v('ink-3'), DEFAULT: v('ink-2'), emphasis: v('ink'), strong: v('ink'), inverted: v('surface')},
 };
-// cores das séries dos gráficos (a mesma loja tem a mesma cor nas barras, na rosca e nas linhas) e as semânticas
-const serie = Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map(i => [`s${i}`, v(`s${i}`)]));
-const CORES_GRAFICO = 's[1-8]|meta|outras';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}', './node_modules/@tremor/**/*.{js,jsx,ts,tsx}'],
+  // só as pastas do Tremor que o painel importa (src/tremor.js): cartões, tabelas, acordeão e textos
+  content: ['./index.html', './src/**/*.{js,jsx}', './node_modules/@tremor/react/dist/components/{layout-elements,list-elements,text-elements}/**/*.js'],
   darkMode: 'class',
   theme: {
     transparent: 'transparent',
     current: 'currentColor',
     extend: {
       colors: {
-        tremor, 'dark-tremor': tremor, ...serie,
-        meta: v('ok'), outras: v('ink-3'),
+        tremor, 'dark-tremor': tremor,
         band: v('band'), 'band-ink': v('band-ink'), 'band-ink-2': v('band-ink-2'),
         fundo: v('bg'), superficie: v('surface'), tinta: v('ink'), 'tinta-2': v('ink-2'), 'tinta-3': v('ink-3'),
         linha: v('line'), 'linha-2': v('line-2'), 'linha-forte': v('line-forte'),
@@ -47,7 +44,4 @@ export default {
       },
     },
   },
-  // sem a variante dark: as variáveis já trocam com o tema, e um "dark:bg-s1" gerado viria depois do bg-opacity-40 do
-  // BarList no CSS e devolveria a barra à opacidade cheia (texto branco sobre barra branca no tema escuro)
-  safelist: [{pattern: new RegExp(`^(bg|text|stroke|fill|border|ring)-(${CORES_GRAFICO})$`), variants: ['hover', 'data-[selected]']}],
 };
