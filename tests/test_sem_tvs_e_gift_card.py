@@ -86,7 +86,8 @@ def test_religar_as_tvs_volta_as_fontes_de_antes(monkeypatch):
 def test_buscas_das_fontes_mistas_sem_os_termos_das_tvs(sem_tvs, monkeypatch):
     from monitor.sources import pelando, promobit, telegram_public
 
-    assert produtos.familias_monitoradas() == (produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6, produtos.FAMILIA_ACESSORIO)
+    assert produtos.familias_monitoradas() == (produtos.FAMILIA_PS5, produtos.FAMILIA_GTA6, produtos.FAMILIA_ACESSORIO,
+                                               produtos.FAMILIA_SSD)
     pedidos = []
     monkeypatch.setattr(promobit, "get_json", lambda url, **k: pedidos.append(url) or {})
     promobit.PromobitBusca().coletar()
@@ -95,6 +96,7 @@ def test_buscas_das_fontes_mistas_sem_os_termos_das_tvs(sem_tvs, monkeypatch):
     urls = " ".join(pedidos).lower().replace("%20", " ")
     assert pedidos and not any(t.replace(" ", "") in urls.replace(" ", "") for t in ("55c6k", "65c6k", "c6k"))
     assert "gift card playstation" in urls
+    assert "ssd nvme 1tb" in urls   # o SSD do notebook (14/11) também é buscado com as TVs desligadas
     termos = " ".join(u for _c, u in telegram_public.urls_de_busca(["pelandobr"])).lower()
     assert "55c6k" not in termos and "65c6k" not in termos and "gta" in termos
 
@@ -186,7 +188,7 @@ def test_resumo_diario_sem_falar_de_tv(dados, sem_tvs):
     ps = Oferta("kabum.produtos", "loja", "KaBuM!", "PS5 Slim Digital", "https://k/1", "1", preco=3499.0,
                 vendedor="KaBuM!", modelo="PS5_DIGITAL")
     txt = resumo_diario(est, [ps], [], vigia=True)
-    assert txt.startswith("☀️ <b>Resumo diário — PS5 e GTA 6</b>") and "TV" not in txt
+    assert txt.startswith("☀️ <b>Resumo diário — PS5, GTA 6 e SSD</b>") and "TV" not in txt
 
 
 def test_testador_sem_tvs_mesmo_com_forcar_e_codigos(sem_tvs, monkeypatch):

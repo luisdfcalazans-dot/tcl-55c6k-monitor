@@ -134,6 +134,13 @@ code {
   font-size: 0.88em;
 }
 
+/* linhas alternadas das tabelas e listas (abas Tabelas e Cupons): branco e cinza-claro; no tema escuro, o grafite e um
+   tom acima. A linha de destaque (melhor oferta, data-destaque) fica com a cor dela */
+.zebra > tr:nth-child(even):not([data-destaque]),
+.zebra > li:nth-child(even) {
+  background: rgb(var(--mute-bg));
+}
+
 /* etiqueta de preço do encarte (o único amarelo da página além do item escolhido) */
 .etiqueta {
   clip-path: polygon(18px 0, 100% 0, 100% 100%, 18px 100%, 0 50%);

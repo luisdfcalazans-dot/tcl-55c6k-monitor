@@ -184,7 +184,7 @@ export function TabelaLojas({linhas, vazio}) {
     <Tabela cab={['Loja', 'À vista', 'Pix', 'Parcelado (total)', 'Cupom', 'Fonte', 'Visto', '']}>
       {linhas.length ? (
         linhas.map((l, i) => (
-          <TableRow key={i} className={COR_LINHA[l.classe] || ''}>
+          <TableRow key={i} className={COR_LINHA[l.classe] || ''} data-destaque={l.classe === 'best' || undefined}>
             <TableCell className="whitespace-normal">
               <b className="text-tinta">{l.loja}</b>
               {l.selo && (
@@ -253,8 +253,9 @@ export function TabelaLojas({linhas, vazio}) {
   );
 }
 
-// Tremor Table com o cabeçalho; no celular a tabela rola de lado dentro do quadro, a página não
-export const Tabela = ({cab, children, className = ''}) => (
+// Tremor Table com o cabeçalho; no celular a tabela rola de lado dentro do quadro, a página não. Linhas alternadas
+// (branco e cinza-claro, classe zebra em estilo.css), menos onde zebra={false} (aba Fontes)
+export const Tabela = ({cab, children, className = '', zebra = true}) => (
   <Card className={`overflow-hidden rounded-[3px] p-0 ring-2 ${className}`}>
     <Table>
       <TableHead>
@@ -266,7 +267,9 @@ export const Tabela = ({cab, children, className = ''}) => (
           ))}
         </TableRow>
       </TableHead>
-      <TableBody className="text-base [&_td]:px-3 [&_td]:py-2 [&_td]:align-top">{children}</TableBody>
+      <TableBody className={`text-base [&_td]:px-3 [&_td]:py-2 [&_td]:align-top ${zebra ? 'zebra' : ''}`}>
+        {children}
+      </TableBody>
     </Table>
   </Card>
 );
@@ -515,7 +518,7 @@ export function Postagem({p}) {
 
 export const Lista = ({children, vazio}) => (
   <Card className="rounded-[3px] p-0 ring-2">
-    <ul className="m-0 list-none p-0">
+    <ul className="zebra m-0 list-none p-0">
       {children?.length ? children : <li className="px-3 py-3.5 text-base text-tinta-3">{vazio}</li>}
     </ul>
   </Card>

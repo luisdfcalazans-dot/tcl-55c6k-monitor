@@ -220,7 +220,8 @@ URL_SHOPEE_BUSCA_65 = "https://shopee.com.br/search?keyword=tcl%2065c6k"
 URLS_SHOPEE_BUSCA = {MODELO: URL_SHOPEE_BUSCA, MODELO_65: URL_SHOPEE_BUSCA_65}
 
 # --- PS5 e GTA 6: lojas e endereços (pesquisa e checagem ao vivo de 03/10/2026) ---
-_NAO_TV = (_produtos.FAMILIA_PS5, _produtos.FAMILIA_GTA6, _produtos.FAMILIA_ACESSORIO)
+# todas as famílias menos as TVs (PS5, GTA 6, acessórios e o SSD de 14/11): família nova do catálogo entra sozinha
+_NAO_TV = tuple(f for f in _produtos.FAMILIAS if f != _produtos.FAMILIA_TV)
 # Lojas VTEX lidas pelo código de barras (EAN), num pedido só (vários fq do mesmo campo são OU): a busca por texto perde
 # anúncios (Mais Correios: ft=65c6k achou 1, o EAN achou 3). fonte -> (loja, URL, reserva quando a principal falha
 # [403 do Cloudflare num IP de nuvem], só o PS5/GTA 6?). Mais Correios e Americanas com o catálogo todo (TVs também);
@@ -239,6 +240,9 @@ URL_KABUM_LISTA_CONSOLES = "https://www.kabum.com.br/gamer/playstation/consoles-
 # R$ 700) com preço e vendedor, no mesmo formato da lista de consoles (conferido em 26/10/2026; a busca
 # /busca/gift-card-playstation redireciona para cá). Um pedido por rodada
 URL_KABUM_LISTA_GIFT = "https://www.kabum.com.br/servicos-digitais/giftcard/games/playstation-store"
+# SSD NVMe M.2 1TB do notebook (14/11/2026): a busca traz a lista no mesmo formato da de consoles (conferido em 14/11:
+# 60 anúncios, todos SSD NVMe de 1TB pelo classificador). Um pedido por rodada
+URL_KABUM_BUSCA_SSD = "https://www.kabum.com.br/busca/ssd-nvme-1tb"
 URL_KABUM_FRETE = "https://servicespub.prod.api.aws.grupokabum.com.br/shipping/v4/quotation"
 # Magalu (magazinevoce): as buscas do PS5/GTA 6 já trazem preço, vendedor e o cupom do anúncio (seller.tags)
 MAGALU_TERMOS_PRODUTOS = _produtos.termos("magalu", _NAO_TV)

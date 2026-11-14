@@ -1,6 +1,6 @@
 # Monitor PS5 e GTA 6 (antes: TCL 55C6K e 65C6K)
 
-Vigia o preço e os cupons do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
+Vigia o preço e os cupons do **PS5** (Slim Digital, Slim com leitor, Pro, pacotes com o GTA 6, edições especiais e kits) e do **GTA 6** (Code in Box para PS5, digital Standard e Ultimate, upgrade, gift card da PlayStation e leitor de disco avulso) e um **SSD NVMe M.2 1TB** para o notebook (PCIe Gen3 ou Gen4, qualquer marca; meta R$ 700 no Pix, R$ 750 parcelado; sem SATA, externo nem outra capacidade) em lojas confiáveis, no Pelando, no Promobit e em canais do Telegram. Avisa no Telegram e publica um painel no GitHub Pages.
 
 > **TVs desligadas (26/10/2026).** O usuário ficou com a TV: com `TVS_DESLIGADAS=1` (o padrão) as fontes só das TVs não rodam, as buscas não usam os termos nem os códigos de barras das TVs, toda oferta/postagem/cupom de TV sai logo depois da coleta (sem alerta, state, histórico nem painel), o latest publica `"tvs_desligadas": true` e o painel esconde a parte das TVs. O código das TVs continua: `TVS_DESLIGADAS=0` (variável do GitHub ou `.env`) religa tudo como antes.
 

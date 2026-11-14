@@ -48,9 +48,10 @@ FAMILIA_TV = "TV"
 FAMILIA_PS5 = "PS5"
 FAMILIA_GTA6 = "GTA6"
 FAMILIA_ACESSORIO = "ACESSORIO"
-FAMILIAS = (FAMILIA_TV, FAMILIA_PS5, FAMILIA_GTA6, FAMILIA_ACESSORIO)
+FAMILIA_SSD = "SSD"   # SSD NVMe M.2 1TB para o notebook (pedido de 14/11/2026)
+FAMILIAS = (FAMILIA_TV, FAMILIA_PS5, FAMILIA_GTA6, FAMILIA_ACESSORIO, FAMILIA_SSD)
 # seções do painel (o acessório aparece junto do produto a que serve: leitor no PS5, gift card no GTA 6)
-SECOES = {FAMILIA_TV: "TVs", FAMILIA_PS5: "PS5", FAMILIA_GTA6: "GTA 6"}
+SECOES = {FAMILIA_TV: "TVs", FAMILIA_PS5: "PS5", FAMILIA_GTA6: "GTA 6", FAMILIA_SSD: "SSD"}
 
 LANCAMENTO_GTA6 = "2026-11-19"      # 00:00 de Brasília (digital); Code in Box a partir de 12/11
 ENTREGA_LIMITE_GTA6 = "2026-11-18"  # chegar até aqui = jogar à meia-noite do lançamento
@@ -239,6 +240,15 @@ PRODUTOS: dict[str, Produto] = {p.id: p for p in (
                 "telegram": ("leitor de disco",)},
         ids_loja={"KaBuM!": ("536958",), "Netshoes": ("D32-288O-014",)},
         temas=("leitor",)),
+    # ---------------------------------------------------------------- SSD (14/11/2026)
+    Produto(
+        # para o notebook: NVMe M.2 PCIe de 1TB, Gen3 ou Gen4, qualquer marca (decisão do usuário em 14/11); meta Pix
+        # R$ 700 (do usuário) e parcelado R$ 750 (a mesma folga de ~R$ 50 dos outros produtos). Classificador: _classifica_ssd
+        "SSD_NVME_1TB", "SSD NVMe M.2 1TB", FAMILIA_SSD, "SSD 1TB", FAMILIA_SSD, 700.0, 750.0,
+        faixa=(150.0, 3000.0),
+        buscas={"promobit": ("ssd nvme 1tb", "ssd m.2 1tb"), "pelando": ("ssd nvme 1tb", "ssd 1tb"),
+                "magalu": ("ssd nvme 1tb",), "telegram": ("SSD",)},   # KaBuM: config.URL_KABUM_BUSCA_SSD
+        temas=("ssd",)),
 )}
 
 IDS: tuple[str, ...] = tuple(PRODUTOS)
@@ -919,6 +929,45 @@ def _classifica_nao_tv(t: str, loja: str = "") -> Classificacao:
     return _r("sem console no título (jogo ou acessório do PS5)")
 
 
+# ---- SSD NVMe M.2 1TB para o notebook (14/11/2026): qualquer marca, Gen3 ou Gen4; o título tem de dizer SSD, NVMe/PCIe
+# e 1TB. Fica fora: SATA (inclusive M.2 SATA), SSD externo/portátil, case/gaveta/adaptador, outra capacidade (ou várias
+# no mesmo título), kit com mais de uma unidade e produto usado. Título de console ("PS5 Slim 1TB SSD") não chega aqui.
+_RE_SSD = re.compile(r"\bssds?\b")
+# console pelas palavras que um título de SSD não usa (o "1TB" do console é a capacidade do SSD)
+_RE_CONSOLE_NO_SSD = re.compile(r"\bconsoles?\b|\bvideo\s?games?\b|" + _PS5 + r"\s+(?:slim|digital|pro)\b|"
+                                r"\b825\s?gb\b|\bcfi[\s-]?\d{4}")
+_RE_SSD_NVME = re.compile(r"\bnvme\b|\bpci[\s-]?e\b|\bpcie\s?[345]|\bpci express\b|\bgen\s?[345](?!\d)|\bm\.?2\b")
+_RE_SSD_1TB = re.compile(r"(?<![\d.,])(?:1\s?tb|1000\s?gb|1024\s?gb)\b")
+_RE_SSD_OUTRA_CAPACIDADE = re.compile(r"(?<![\d.,])(?:120|128|240|250|256|480|500|512|960)\s?gb\b|"
+                                      r"(?<![\d.,])(?:2|4|8)\s?tb\b")
+_RE_SSD_FORA = re.compile(r"\bsata\b|\bexterno\b|\bexterna\b|\bportatil\b|\bportable\b|\busb\b|\bcase\b|\bgaveta\b|"
+                          r"\badaptador\b|\benclosure\b|\bcaddy\b|\bhd\b|\bhdd\b|\bmsata\b|\bkit (?:com )?[2-9]\b|"
+                          r"\b[2-9] unidades\b")
+# "Gen4x4", "PCIe 4.0 x4", "PCI-E 3.0": o número logo depois (o "x4" é a largura, não a geração)
+_RE_SSD_GEN = re.compile(r"\bgen\s?([345])(?!\d)|\bpcie\s?([345])(?![\d])|\bpci[\s-]?e?\s?([345])\.0")
+
+
+def _classifica_ssd(t: str) -> Optional[Classificacao]:
+    """O SSD do notebook (texto já normalizado), ou None quando o título não é de SSD (segue para os outros)."""
+    if not _RE_SSD.search(t) or _RE_CONSOLE_NO_SSD.search(t):
+        return None
+    if _RE_SERVICO_INICIO.search(t):
+        return _r("serviço: " + _RE_SERVICO_INICIO.search(t).group(0).strip(" -[]"))
+    if _RE_ESTADO.search(t):
+        return _r("estado: " + _RE_ESTADO.search(t).group(0))
+    m = _RE_SSD_FORA.search(t)
+    if m:
+        return _r(f"acessório: ssd ({m.group(0)})")
+    if not _RE_SSD_NVME.search(t):
+        return _r("acessório: ssd (sem NVMe/PCIe/M.2 no título)")
+    if not _RE_SSD_1TB.search(t):
+        return _r("acessório: ssd (outra capacidade)")
+    if _RE_SSD_OUTRA_CAPACIDADE.search(t):
+        return _r(f"acessório: ssd (outra capacidade: {_RE_SSD_OUTRA_CAPACIDADE.search(t).group(0)})")
+    g = _RE_SSD_GEN.search(t)
+    return _ok("SSD_NVME_1TB", geracao=next((x for x in g.groups() if x), None) if g else None)
+
+
 @lru_cache(maxsize=8192)
 def _classifica_titulo(t: str, loja: str) -> Classificacao:
     from .filtro import modelo_do_titulo, motivo_rejeicao
@@ -926,6 +975,9 @@ def _classifica_titulo(t: str, loja: str) -> Classificacao:
     tv = modelo_do_titulo(t)
     if tv:
         return _ok(tv)
+    ssd = _classifica_ssd(normaliza(t))
+    if ssd:
+        return ssd
     c = _classifica_nao_tv(normaliza(t), loja)
     if c.produto or c.motivo != "sem produto":
         return c
