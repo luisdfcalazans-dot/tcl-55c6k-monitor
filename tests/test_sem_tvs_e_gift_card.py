@@ -537,7 +537,7 @@ def _painel(tmp_path, cloud, pc=None, agora="2026-10-26T12:00:00-03:00"):
     vm = out["vm"]
     gta = [f for f in vm["familias"] if f["sec"] == "GTA6"]
     r = vm["resumo"]
-    return {**out, "sem_tvs": vm["tvs"] is None, "titulo": vm["titulo"], "f-posts": r["posts"]["v"],
+    return {**out, "sem_tvs": vm["tvs"] is None, "f-posts": r["posts"]["v"],
             "f-gift": r["gift"]["v"], "f-gift-s": r["gift"]["s"], "f-gift-std": r["giftStd"]["v"],
             "f-gift-std-s": r["giftStd"]["s"], "f-gift-ult": r["giftUlt"]["v"], "f-gift-ult-s": r["giftUlt"]["s"],
             "gta": gta[0] if gta else None}
@@ -571,7 +571,6 @@ _CUPONS = [{"loja": "Magazine Luiza", "codigo": "TV100", "titulo": "R$ 100 OFF n
 def test_painel_sem_tvs_esconde_a_parte_das_tvs(tmp_path):
     s = _painel(tmp_path, _latest(True, posts=_POSTS, cupons=_CUPONS))
     assert s["sem_tvs"] is True and not [it for it in s["vm"]["vitrine"] if it["familia"] == "TV"]
-    assert s["titulo"] == "PS5 · GTA 6"
     assert "TCL 65C6K" not in s["l-posts"] and "PS5 Slim Digital" in s["l-posts"]
     assert "TV100" not in s["l-cupons"] and "PS5200" in s["l-cupons"]
     assert str(s["f-posts"]) == "1"
@@ -587,7 +586,7 @@ def test_painel_basta_um_modo_com_o_sinal(tmp_path):
 def test_painel_sem_o_sinal_continua_com_as_tvs(tmp_path):
     s = _painel(tmp_path, _latest(False, posts=_POSTS, cupons=_CUPONS))
     assert s["sem_tvs"] is False and s["vm"]["tvs"]["modelos"].keys() == {"55C6K", "65C6K"}
-    assert s["titulo"] == "TCL C6K · PS5 · GTA 6" and "TCL 65C6K" in s["l-posts"] and "TV100" in s["l-cupons"]
+    assert "TCL 65C6K" in s["l-posts"] and "TV100" in s["l-cupons"]
 
 
 @pytest.mark.skipif(NODE is None, reason="node não encontrado no PATH")

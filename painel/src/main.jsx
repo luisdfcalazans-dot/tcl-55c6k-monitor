@@ -41,7 +41,7 @@ function App() {
   return <>
     <header className="bg-band text-band-ink">
       <div className="mx-auto flex max-w-[1180px] flex-wrap items-end justify-between gap-x-6 gap-y-2.5 px-4 pb-3.5 pt-[18px] sm:px-6 sm:pt-[22px]">
-        <h1 className="m-0 font-cond text-[clamp(40px,7vw,64px)] font-bold leading-[.95] tracking-[-.01em]">{vm?.titulo ?? 'PS5 · GTA 6'}</h1>
+        <h1 className="m-0 font-cond text-[clamp(40px,7vw,64px)] font-bold leading-[.95] tracking-[-.01em]">Monitor de Preços</h1>
         <div className="flex flex-wrap items-center gap-3.5">
           <p className="m-0 text-[15px] text-band-ink-2">Última coleta: <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b></p>
           <BotaoTema />

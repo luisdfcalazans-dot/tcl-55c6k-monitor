@@ -461,7 +461,7 @@ export function montaPainel({cloud, pc, csvCloud = '', csvPc = ''}, agora = Date
   const saude = Object.assign({}, cloud?.saude || {}, pc?.saude || {});
 
   return {
-    quando: dt(ultimo), semTVs, titulo: semTVs ? 'PS5 · GTA 6' : 'TCL C6K · PS5 · GTA 6',
+    quando: dt(ultimo), semTVs,
     resumo: {
       cupons: {v: String(lc.length), s: [...new Set(lc.map(c => c.loja))].slice(0, 4).join(', ') || '—'},
       posts: {v: String(recentes.length), s: recentes[0] ? `última: ${rotuloCurto(modeloDe(recentes[0], cat))} ${recentes[0].loja} ${fmt(recentes[0].melhor_preco)}` : 'nenhuma esta semana'},

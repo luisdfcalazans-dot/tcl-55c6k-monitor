@@ -32,10 +32,13 @@ function Cartao({it}) {
   const m = it.melhor;
   return (
     <Card className="mb-5 rounded-[3px] px-4 py-4 ring-2 sm:px-6 sm:py-5">
-      <h2 className="mb-2.5 font-cond text-[28px] font-bold leading-tight"><NomeOuFoto id={it.id} nome={it.nome} className="h-[120px]" /></h2>
-      <div className="etiqueta inline-flex items-baseline gap-2.5 bg-etiqueta pb-2 pl-[30px] pr-5 pt-1.5 text-etiqueta-ink">
-        <span className="font-cond text-[clamp(44px,8vw,64px)] leading-none">{m ? m.preco : 'sem preço recente'}</span>
-        {m && <span className="text-[17px] font-bold">{m.forma}</span>}
+      {/* foto e etiqueta do melhor preço sempre lado a lado; no celular as duas encolhem */}
+      <div className="flex items-center gap-3 sm:gap-5">
+        <h2 className="flex-none font-cond text-[22px] font-bold leading-tight sm:text-[28px]"><NomeOuFoto id={it.id} nome={it.nome} className="h-14 sm:h-20" /></h2>
+        <div className="etiqueta inline-flex min-w-0 flex-wrap items-baseline gap-x-2 bg-etiqueta pb-1.5 pl-6 pr-4 pt-1 text-etiqueta-ink">
+          <span className="font-cond text-[clamp(20px,5.5vw,36px)] leading-none">{m ? m.preco : 'sem preço recente'}</span>
+          {m && <span className="text-[13px] font-bold sm:text-[15px]">{m.forma}</span>}
+        </div>
       </div>
       <p className="mt-2 max-w-[64ch]">{m ? <>Melhor lugar agora: <Logo loja={m.loja} className="h-[26px] max-w-[120px]" />
         {m.vendedor && <> vendido por <b>{m.vendedor}</b></>}, coletado em {m.visto}.
