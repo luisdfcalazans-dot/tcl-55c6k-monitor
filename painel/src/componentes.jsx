@@ -167,13 +167,14 @@ export const GraficoHistorico = ({serie, alvo, altura}) => <Grafico serie={serie
 
 // barras do placar: o menor preço de cada loja no período (logo, barra na cor da loja, preço e a distância da mais barata).
 // No celular: logo e preço na mesma linha, a barra embaixo com a largura toda (dense devolve o preço à 1ª linha).
+// Altura: o logo nunca passa da altura da barra (os dois com 22 px; o selo do tema escuro conta dentro dos 22).
 export function Barras({lojas}) {
   const max = lojas.at(-1).min, base = lojas[0].min;
   return (
     <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 text-[15px] [grid-auto-flow:dense] sm:grid-cols-[minmax(90px,max-content)_1fr_auto] sm:items-center sm:gap-x-2.5 sm:gap-y-1.5">
       {lojas.map((l, i) => <Fragment key={l.loja}>
         <span className={`truncate sm:max-w-[180px] ${i ? '' : 'font-bold'}`}><Logo loja={l.loja} className="h-[22px] max-w-[96px]" /></span>
-        <span className="col-span-full mb-2 h-3 sm:col-span-1 sm:mb-0 sm:h-[18px]">
+        <span className="col-span-full mb-2 h-[22px] sm:col-span-1 sm:mb-0">
           <span className="block h-full rounded-[2px]" style={{width: `${(l.min / max * 100).toFixed(1)}%`, background: css(corDaPosicao(i))}} /></span>
         <span className={`whitespace-nowrap text-right ${i ? '' : 'font-bold'}`}>{reais(l.min)}
           {i ? <small className="ml-1 text-[13px] text-tinta-3">+{reais(l.min - base)}</small>
