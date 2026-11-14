@@ -731,12 +731,6 @@ def test_telegram_um_post_por_produto_com_a_loja_do_pelandobr():
 def test_painel_mostra_as_secoes_do_ps5_e_do_gta(tmp_path):
     import test_painel as tp
 
-    if not tp.NODE:
-        pytest.skip("node não encontrado no PATH")
-    harness = tp.HARNESS.replace(
-        "process.stdout.write(JSON.stringify(saida));",
-        "saida.secoes = {ps5: el('secao-PS5').innerHTML, gta: el('secao-GTA6').innerHTML};\n"
-        "  process.stdout.write(JSON.stringify(saida));")
     cat = produtos.para_painel()
     ps5 = tp.oferta("netshoes", "Netshoes", 4549.0, 4094.10, vendedor="Magalu Oficial",
                     parcelado="10x R$ 454,90 sem juros", oid="D32")
@@ -752,25 +746,16 @@ def test_painel_mostra_as_secoes_do_ps5_e_do_gta(tmp_path):
     cloud["posts"] = [{"fonte": "promobit", "tipo": "post", "loja": "Netshoes", "titulo": "PS5 Slim Digital",
                        "url": "https://p/1", "id": "1", "chave": "promobit:1", "preco": 3599.0, "melhor_preco": 3599.0,
                        "publicado": "2026-09-18T10:00:00-03:00", "modelo": "PS5_DIGITAL"}]
-    dados = tmp_path / "dados.json"
-    dados.write_text(json.dumps({"agora": tp.AGORA, "formatar": [], "arquivos": {
-        "data/latest_cloud.json": cloud, "data/latest_pc.json": tp.latest("pc", tp.PC_AT, tp.ofertas_pc_hoje(),
-                                                                         tp.MIN_AMAZON),
-        "data/historico_cloud.csv": tp.CSV_CLOUD, "data/historico_pc.csv": tp.CSV_PC}}, ensure_ascii=False),
-        encoding="utf-8")
-    h = tmp_path / "h.js"
-    h.write_text(harness, encoding="utf-8")
-    p = subprocess.run([tp.NODE, str(h), str(tp.INDEX), str(dados)], capture_output=True, text=True, encoding="utf-8",
-                       timeout=60)
-    assert p.returncode == 0, p.stderr
-    out = json.loads(p.stdout)
-    assert out["erro"] is None, out["erro"]
+    out = tp.roda_painel(tmp_path, cloud, tp.latest("pc", tp.PC_AT, tp.ofertas_pc_hoje(), tp.MIN_AMAZON))
     # as TVs continuam como antes (o PS5 e o GTA não entram na tabela nem no destaque da 55")
     assert out["melhor"] == tp.brl(3561.55) and "Netshoes" not in out["tabela"]
-    s = out["secoes"]
-    assert "<h2>PS5</h2>" in s["ps5"] and "PS5 Slim Digital" in s["ps5"] and tp.brl(4094.10) in s["ps5"]
-    assert tp.brl(3550.0) in s["ps5"] and (tp.brl(4094.10 - 3550.0) + " acima") in s["ps5"]
-    assert "<h2>GTA 6</h2>" in s["gta"] and "Todas as formas pelo custo final" in s["gta"]
-    assert "chega até 18/11" in s["gta"] and "chega a tempo" in s["gta"]
+    fam = {f["sec"]: f for f in out["vm"]["familias"]}
+    assert fam["PS5"]["titulo"] == "PS5" and fam["GTA6"]["titulo"] == "GTA 6"
+    ps5 = json.dumps(fam["PS5"], ensure_ascii=False)
+    assert "PS5 Slim Digital" in ps5 and tp.brl(4094.10) in ps5
+    assert tp.brl(3550.0) in ps5 and (tp.brl(4094.10 - 3550.0) + " acima") in ps5
+    assert fam["GTA6"]["custoFinal"]["std"], "Todas as formas pelo custo final"
+    gta = json.dumps(fam["GTA6"], ensure_ascii=False)
+    assert "chega até 18/11" in gta and "chega a tempo" in gta
     assert out["graficos"]["chart-PS5_DIGITAL"]["alvo"] == 3550.0
-    assert 'class="chip mp">PS5 Digital</span>' in out["l-posts"]
+    assert {"texto": "PS5 Digital", "classe": "mp"} in [p["chip"] for p in out["vm"]["posts"]]

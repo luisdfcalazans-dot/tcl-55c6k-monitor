@@ -521,7 +521,7 @@ def test_latest_publica_o_bloco_do_gift_card(dados, sem_tvs):
 
 
 # =====================================================================================================================
-# painel (docs/index.html no Node, como em tests/test_painel.py)
+# painel (painel/src/logica.js no Node, como em tests/test_painel.py)
 # =====================================================================================================================
 
 NODE = shutil.which("node")
@@ -530,27 +530,17 @@ NODE = shutil.which("node")
 def _painel(tmp_path, cloud, pc=None, agora="2026-10-26T12:00:00-03:00"):
     import test_painel as tp
 
-    extra = r"""
-  for (const id of ['bloco-tvs', 'nav-tvs']) saida['hidden_' + id] = el(id).hidden;
-  for (const id of ['titulo', 'f-gift', 'f-gift-s', 'f-gift-std', 'f-gift-std-s', 'f-gift-ult', 'f-gift-ult-s',
-                    'l-posts', 'l-cupons', 'secao-GTA6', 'f-posts'])
-    saida[id] = el(id).textContent || el(id).innerHTML;
-  process.stdout.write(JSON.stringify(saida));"""
-    harness = tp.HARNESS.replace("  process.stdout.write(JSON.stringify(saida));", extra, 1)
-    assert harness != tp.HARNESS
-    arq_h = tmp_path / "h.js"
-    arq_h.write_text(harness, encoding="utf-8")
     arquivos = {"data/latest_cloud.json": cloud}
     if pc is not None:
         arquivos["data/latest_pc.json"] = pc
-    arq_d = tmp_path / "d.json"
-    arq_d.write_text(json.dumps({"agora": agora, "arquivos": arquivos}), encoding="utf-8")
-    p = subprocess.run([NODE, str(arq_h), str(RAIZ / "docs" / "index.html"), str(arq_d)], capture_output=True,
-                       text=True, encoding="utf-8", timeout=60)
-    assert p.returncode == 0, p.stderr
-    s = json.loads(p.stdout)
-    assert s["erro"] is None, s["erro"]
-    return s
+    out = tp.roda_modelo(tmp_path, arquivos, agora)
+    vm = out["vm"]
+    gta = [f for f in vm["familias"] if f["sec"] == "GTA6"]
+    r = vm["resumo"]
+    return {**out, "sem_tvs": vm["tvs"] is None, "titulo": vm["titulo"], "f-posts": r["posts"]["v"],
+            "f-gift": r["gift"]["v"], "f-gift-s": r["gift"]["s"], "f-gift-std": r["giftStd"]["v"],
+            "f-gift-std-s": r["giftStd"]["s"], "f-gift-ult": r["giftUlt"]["v"], "f-gift-ult-s": r["giftUlt"]["s"],
+            "gta": gta[0] if gta else None}
 
 
 def _latest(sem_tvs_flag, gift=None, posts=(), cupons=()):
@@ -580,7 +570,7 @@ _CUPONS = [{"loja": "Magazine Luiza", "codigo": "TV100", "titulo": "R$ 100 OFF n
 @pytest.mark.skipif(NODE is None, reason="node não encontrado no PATH")
 def test_painel_sem_tvs_esconde_a_parte_das_tvs(tmp_path):
     s = _painel(tmp_path, _latest(True, posts=_POSTS, cupons=_CUPONS))
-    assert s["hidden_bloco-tvs"] is True and s["hidden_nav-tvs"] is True
+    assert s["sem_tvs"] is True and not [it for it in s["vm"]["vitrine"] if it["familia"] == "TV"]
     assert s["titulo"] == "PS5 · GTA 6"
     assert "TCL 65C6K" not in s["l-posts"] and "PS5 Slim Digital" in s["l-posts"]
     assert "TV100" not in s["l-cupons"] and "PS5200" in s["l-cupons"]
@@ -590,13 +580,13 @@ def test_painel_sem_tvs_esconde_a_parte_das_tvs(tmp_path):
 @pytest.mark.skipif(NODE is None, reason="node não encontrado no PATH")
 def test_painel_basta_um_modo_com_o_sinal(tmp_path):
     s = _painel(tmp_path, _latest(False, posts=_POSTS), _latest(True))
-    assert s["hidden_bloco-tvs"] is True
+    assert s["sem_tvs"] is True
 
 
 @pytest.mark.skipif(NODE is None, reason="node não encontrado no PATH")
 def test_painel_sem_o_sinal_continua_com_as_tvs(tmp_path):
     s = _painel(tmp_path, _latest(False, posts=_POSTS, cupons=_CUPONS))
-    assert s["hidden_bloco-tvs"] is False and s["hidden_nav-tvs"] is False
+    assert s["sem_tvs"] is False and s["vm"]["tvs"]["modelos"].keys() == {"55C6K", "65C6K"}
     assert s["titulo"] == "TCL C6K · PS5 · GTA 6" and "TCL 65C6K" in s["l-posts"] and "TV100" in s["l-cupons"]
 
 
@@ -609,15 +599,15 @@ def test_painel_mostra_o_melhor_gift_card_e_o_custo_do_gta(tmp_path):
     assert s["f-gift-std"] == "R$ 382,00" and "R$ 450 (Hype, R$ 382,00)" in s["f-gift-std-s"]
     # a Ultimate sai mais barata com o de R$ 450 (15%) e R$ 99,90 no cartão do que com o de R$ 550 (10%)
     assert s["f-gift-ult"] == "R$ 481,90" and "R$ 99,90 no cartão" in s["f-gift-ult-s"]
-    sec = s["secao-GTA6"]
-    assert "Gift card PlayStation · pagar o GTA 6 digital na PS Store" in sec and 'id="t-gift-gta"' in sec
-    assert "R$ 382,42" in sec and "na meta" in sec and "11/11" in sec   # meta da Standard com 15%
+    g = s["gta"]["gift"]
+    assert g["melhor"]["preco"] == "R$ 382,00" and g["melhor"]["naMeta"] and g["regra"]["prazo"] == "11/11"
+    assert [x["meta"] for x in g["gta"] if x["edicao"] == "Standard"] == ["R$ 382,42"]   # meta da Standard com 15%
     # o gift card não tem gráfico (mistura valores de face)
-    assert "chart-GIFT_CARD_PSN" not in sec
+    assert "chart-GIFT_CARD_PSN" not in s["graficos"]
 
 
 @pytest.mark.skipif(NODE is None, reason="node não encontrado no PATH")
 def test_painel_sem_gift_card_com_desconto(tmp_path):
     s = _painel(tmp_path, _latest(True, gift=produtos.gift_para_painel([])))
     assert s["f-gift"] == "—" and "nenhum com desconto" in s["f-gift-s"]
-    assert "Nenhum gift card com desconto em loja oficial agora" in s["secao-GTA6"]
+    assert s["gta"]["gift"]["melhor"] is None and s["gta"]["gift"]["gta"] == []

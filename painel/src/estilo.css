@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* D-DIN (Datto, licença OFL: docs/fonts/LICENCA-D-DIN.txt) */
+@font-face { font-family: "D-DIN"; src: url(/fonts/D-DIN.woff) format("woff"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "D-DIN"; src: url(/fonts/D-DIN-Bold.woff) format("woff"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "D-DIN Condensed"; src: url(/fonts/D-DINCondensed-Bold.woff) format("woff"); font-weight: 700; font-display: swap; }
+
+/* Encarte de loja em três tons (30/10/2026): faixa azul-marinho no topo, fundo cinza escovado, quadros brancos; o
+   amarelo fica só na etiqueta do melhor preço. Tema escuro: grafite escovado e quadros grafite-claro. Os tokens
+   alimentam o Tailwind e o Tremor (tailwind.config.js). */
+:root {
+  --band: 20 33 61; --band-ink: 255 255 255; --band-ink-2: 185 195 217;
+  --bg: 220 224 229; --bg-hi: 233 236 239; --risco: rgba(255,255,255,.45); --risco-2: rgba(20,33,61,.035);
+  --surface: 255 255 255; --ink: 20 33 61; --ink-2: 70 81 105; --ink-3: 107 116 136; --line: 180 187 198; --line-2: 228 231 235; --line-forte: 20 33 61;
+  --tag: 255 210 63; --tag-ink: 20 33 61; --accent: 31 79 163; --accent-soft: 238 243 251;
+  --ok: 10 135 84; --ok-bg: 220 242 230; --warn: 143 93 0; --warn-bg: 255 239 194; --bad: 215 38 61; --bad-bg: 251 225 228; --mute-bg: 238 240 243;
+  --m55: 58 110 165; --m55-bg: 226 236 247; --m65: 142 59 142; --m65-bg: 244 228 244;
+  --s1: 20 33 61; --s2: 215 38 61; --s3: 91 63 160; --s4: 227 100 20; --s5: 58 134 200; --s6: 142 59 142; --s7: 122 106 58; --s8: 42 157 143;
+  color-scheme: light;
+}
+:root.dark {
+  --band: 13 23 48; --band-ink: 255 255 255; --band-ink-2: 169 180 204;
+  --bg: 35 39 46; --bg-hi: 42 47 55; --risco: rgba(255,255,255,.035); --risco-2: rgba(0,0,0,.12);
+  --surface: 50 56 64; --ink: 243 245 248; --ink-2: 197 203 212; --ink-3: 152 161 174; --line: 76 83 94; --line-2: 62 68 77; --line-forte: 197 203 212;
+  --tag: 255 210 63; --tag-ink: 20 33 61; --accent: 141 179 245; --accent-soft: 44 54 71;
+  --ok: 69 207 145; --ok-bg: 22 58 45; --warn: 242 193 78; --warn-bg: 58 46 14; --bad: 255 107 125; --bad-bg: 69 32 42; --mute-bg: 58 64 73;
+  --m55: 143 179 238; --m55-bg: 28 42 64; --m65: 215 162 226; --m65-bg: 51 34 58;
+  --s1: 243 245 248; --s2: 255 107 125; --s3: 169 139 255; --s4: 255 159 67; --s5: 127 178 232; --s6: 208 139 208; --s7: 201 178 122; --s8: 95 208 194;
+  color-scheme: dark;
+}
+
+/* cinza escovado: estrias horizontais finas sobre um degradê suave */
+body {
+  margin: 0; color: rgb(var(--ink)); line-height: 1.5;
+  background-color: rgb(var(--bg));
+  background-image: repeating-linear-gradient(0deg, var(--risco) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, var(--risco-2) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, rgb(var(--bg-hi)), rgb(var(--bg)) 480px);
+  font-variant-numeric: tabular-nums;
+}
+a { color: rgb(var(--accent)); text-underline-offset: 2px; }
+:focus-visible { outline: 3px solid rgb(var(--tag)); outline-offset: 2px; }
+code { font-family: ui-monospace, "Cascadia Mono", monospace; background: rgb(var(--mute-bg)); padding: 1px 5px; border-radius: 2px; font-size: .88em; }
+
+/* etiqueta de preço do encarte (o único amarelo da página além do item escolhido) */
+.etiqueta { clip-path: polygon(18px 0, 100% 0, 100% 100%, 18px 100%, 0 50%); }
+
+/* os gráficos do Tremor (Recharts) com a fonte e as cores do painel */
+.recharts-cartesian-axis-tick-value { font-family: "D-DIN", sans-serif; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

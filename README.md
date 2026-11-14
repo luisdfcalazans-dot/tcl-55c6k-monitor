@@ -133,7 +133,10 @@ monitor/listas_confianca.json  vendedores confiáveis e reprovados (curados)
 monitor/estado.py        docs/data/state_*.json, historico_*.csv, latest_*.json
 monitor/carrinho.py      adaptadores do carrinho (Magalu, Mercado Livre, Amazon só leitura) do testador de cupons
 testar_cupons.py         testador de cupons no carrinho (TVs, PS5, GTA 6)
-docs/index.html          painel (GitHub Pages): grade de produtos, placar (barras, rosca, gráfico uPlot com filtro de período) e tabelas
+painel/                  fonte do painel (React 18 + Tremor 3 + Tailwind 3, Vite): grade de produtos, placar (barras, rosca, gráfico
+                         com filtro de período), tabelas, cupons e fontes
+painel/src/logica.js     todas as regras do painel (agregador, confiança, coleta antiga, parcelado, mínimos), sem DOM; os testes rodam esse arquivo no Node
+docs/index.html, docs/app/  o painel compilado (GitHub Pages); não edite à mão: `cd painel && npm install && npm run build`
 docs/fonts/              D-DIN (Datto, licença OFL), servida pelo próprio Pages
 docs/logos/              logos das lojas (.webp do Wikimedia Commons, domínio público; .png/.jpg = ícone do site)
 docs/produtos/           fotos dos produtos com fundo transparente (PS5 Slim Digital e GTA 6, da página da KaBuM)
