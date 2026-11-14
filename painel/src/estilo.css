@@ -52,6 +52,15 @@ code { font-family: ui-monospace, "Cascadia Mono", monospace; background: rgb(va
 .grafico .u-legend th, .grafico .u-legend td { border: 0; padding: 2px 4px; white-space: nowrap; }
 .grafico .u-legend th { font-weight: 400; }
 .grafico .u-legend .u-value { color: rgb(var(--ink)); }
+/* quadradinho da legenda como caixa de seleção: série no gráfico = ✓ verde; desligada (u-off, clique na legenda) = vazio.
+   O ✓ é uma máscara pintada com --ok (troca com o tema); a borda continua na cor da série, que o uPlot põe inline. */
+.grafico .u-legend .u-marker { position: relative; width: 16px; height: 16px; border-radius: 3px; }
+.grafico .u-legend .u-series:not(.u-off):not(:first-child) .u-marker::after {   /* a 1ª linha é o dia, não uma série */
+  content: ""; position: absolute; inset: 0; background: rgb(var(--ok));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 13px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 13px no-repeat;
+}
+
 /* logo da legenda: sem fundo; no tema escuro, os de traço escuro invertem a luminosidade (como o componente Logo) */
 .grafico .logo-leg { display: inline-block; height: 20px; width: auto; max-width: 84px; object-fit: contain; vertical-align: middle; }
 .grafico .logo-leg.q { border-radius: 4px; }
