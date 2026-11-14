@@ -1,4 +1,4 @@
-import {StrictMode, useEffect, useState} from 'react';
+import {StrictMode, useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
@@ -20,9 +20,14 @@ function App() {
   const [abaSalva, setAba] = useSessao('aba', 'produtos');
   const aba = ABAS.some(([k]) => k === abaSalva) ? abaSalva : 'produtos';
   const [familia, setFamiliaSalva] = useSessao('familia', '');
-  useEffect(() => { Promise.all([pega('data/latest_cloud.json', 'json'), pega('data/latest_pc.json', 'json'),
-    pega('data/historico_cloud.csv', 'text'), pega('data/historico_pc.csv', 'text')])
-    .then(([cloud, pc, csvCloud, csvPc]) => setVm(montaPainel({cloud, pc, csvCloud, csvPc}))); }, []);
+  // busca os dados publicados em data/ (na abertura e no botão de atualizar do cabeçalho, sem recarregar a página)
+  const [buscando, setBuscando] = useState(false);
+  const carrega = () => { setBuscando(true);
+    Promise.all([pega('data/latest_cloud.json', 'json'), pega('data/latest_pc.json', 'json'),
+      pega('data/historico_cloud.csv', 'text'), pega('data/historico_pc.csv', 'text')])
+      .then(([cloud, pc, csvCloud, csvPc]) => setVm(montaPainel({cloud, pc, csvCloud, csvPc})))
+      .finally(() => setBuscando(false)); };
+  useEffect(carrega, []);
 
   // família salva que não existe mais (TVs desligadas): volta para todos
   const fam = vm?.semTVs && familia === 'TV' ? '' : familia;
@@ -42,8 +47,9 @@ function App() {
     <header className="bg-band text-band-ink">
       <div className="mx-auto flex max-w-[1180px] flex-wrap items-end justify-between gap-x-6 gap-y-2.5 px-4 pb-3.5 pt-[18px] sm:px-6 sm:pt-[22px]">
         <h1 className="m-0 font-cond text-[clamp(40px,7vw,64px)] font-bold leading-[.95] tracking-[-.01em]">Monitor de Preços</h1>
-        <div className="flex flex-wrap items-center gap-3.5">
-          <p className="m-0 text-[15px] text-band-ink-2">Última coleta: <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b></p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <p className="m-0 mr-1 text-[15px] text-band-ink-2">Última coleta: <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b></p>
+          <BotaoAtualizar buscando={buscando} onSim={carrega} />
           <BotaoTema />
         </div>
       </div>
@@ -98,13 +104,35 @@ function BotaoTema() {
   const aplica = e => { document.documentElement.classList.toggle('dark', e); setEscuro(e); };
   const troca = () => { aplica(!escuro); try { localStorage.setItem('tema', escuro ? 'light' : 'dark'); } catch { /* sem storage */ } };
   return (
-    <button type="button" aria-pressed={escuro} onClick={troca}
-      className="inline-flex cursor-pointer items-center gap-[7px] rounded-full border-2 border-band-ink-2 bg-transparent py-1 pl-2 pr-3 text-sm font-bold text-band-ink transition-colors duration-150 hover:border-band-ink">
-      <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <button type="button" aria-pressed={escuro} aria-label="Tema escuro" title={escuro ? 'Tema claro' : 'Tema escuro'} onClick={troca} className={BOTAO_ICONE}>
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {escuro ? <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" />
           : <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>}
-      </svg>Tema escuro</button>
+      </svg></button>
   );
+}
+const BOTAO_ICONE = 'inline-flex items-center justify-center rounded-full border-2 border-band-ink-2 bg-transparent p-1.5 text-band-ink transition-colors duration-150 hover:border-band-ink disabled:opacity-60';
+
+// atualizar: pergunta antes ("Deseja buscar agora?") e, no sim, busca de novo os dados publicados em data/. Não dispara
+// uma coleta nova: isso pediria um token do GitHub dentro desta página pública.
+function BotaoAtualizar({buscando, onSim}) {
+  const janela = useRef(null);
+  const responde = sim => { janela.current.close(); if (sim) onSim(); };
+  return <>
+    <button type="button" aria-label="Buscar os preços agora" title="Buscar os preços agora" disabled={buscando}
+      onClick={() => janela.current.showModal()} className={BOTAO_ICONE}>
+      <svg className={`h-5 w-5 ${buscando ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8" /><path d="M18.5 2v3.8h-3.8M5.5 22v-3.8h3.8" /></svg>
+    </button>
+    <dialog ref={janela} aria-labelledby="buscar-titulo"
+      className="w-[min(320px,calc(100vw-32px))] rounded-[4px] border-2 border-linha bg-superficie p-5 text-tinta backdrop:bg-black/50">
+      <p id="buscar-titulo" className="m-0 text-center text-lg font-bold">Deseja buscar agora?</p>
+      <div className="mt-4 flex justify-center gap-3">
+        <button type="button" onClick={() => responde(true)} className="min-w-[96px] rounded-[3px] bg-[#1F4FA3] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90">Sim</button>
+        <button type="button" onClick={() => responde(false)} className="min-w-[96px] rounded-[3px] bg-[#D7263D] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90">Não</button>
+      </div>
+    </dialog>
+  </>;
 }
 
 // barra inferior (30/10/2026): abas (uma parte do painel por vez) e filtro por família, que vale para a grade e as tabelas
