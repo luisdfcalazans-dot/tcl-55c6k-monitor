@@ -42,7 +42,7 @@ function App() {
       <div className="mx-auto flex max-w-[1180px] flex-wrap items-end justify-between gap-x-6 gap-y-2.5 px-4 pb-3.5 pt-[18px] sm:px-6 sm:pt-[22px]">
         <h1 className="m-0 font-cond text-[clamp(40px,7vw,64px)] font-bold leading-[.95] tracking-[-.01em]">Monitor de Preços</h1>
         <div className="flex flex-wrap items-center gap-1">
-          <p className="m-0 mr-1 text-[15px] text-band-ink-2">Última coleta: <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b></p>
+          <p className="m-0 mr-1 text-base text-band-ink-2">Última coleta: <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b></p>
           <BotaoAtualizar onConcluida={carrega} />
           <BotaoTema />
         </div>
@@ -51,8 +51,8 @@ function App() {
     </header>
 
     <main className="mx-auto max-w-[1180px] px-4 pb-[104px] pt-4 sm:px-6 sm:pb-[96px] sm:pt-6">
-      {vm === undefined ? <p className="py-3 text-[15px] text-tinta-3">Carregando os preços…</p>
-        : !vm ? <p className="py-3 text-[15px] text-tinta-3">Ainda sem dados em data/.</p>
+      {vm === undefined ? <p className="py-3 text-base text-tinta-3">Carregando os preços…</p>
+        : !vm ? <p className="py-3 text-base text-tinta-3">Ainda sem dados em data/.</p>
         : <>
           {aba === 'produtos' && <>
             <Vitrine it={atual} cartao={cartao} />
@@ -71,7 +71,7 @@ function App() {
           {aba === 'fontes' && <><H2>Fontes</H2>
             <Tabela cab={['Fonte', 'Estado', 'Último OK', 'Último erro']}>
               {vm.fontes.map(f => <TableRow key={f.nome}><TableCell>{f.nome}</TableCell><TableCell><Chip tipo={f.classe}>{f.rotulo}</Chip></TableCell>
-                <TableCell>{f.ultimoOk}</TableCell><TableCell className="whitespace-normal text-[13.5px] text-tinta-3">{f.erro}</TableCell></TableRow>)}
+                <TableCell>{f.ultimoOk}</TableCell><TableCell className="whitespace-normal text-sm text-tinta-3">{f.erro}</TableCell></TableRow>)}
             </Tabela></>}
         </>}
       <footer className="mt-11 border-t-2 border-linha pt-3 text-sm text-tinta-3">Preços sem garantia; confira na loja antes de comprar. Dados em <code>data/</code> neste repositório.</footer>
@@ -83,7 +83,7 @@ function App() {
 
 // cupom: a loja (que é o link do cupom), o código (com o copiar) e a regra; sem regra (igual ao título), vale o título
 const Cupom = ({c}) => (
-  <li className="break-words border-b border-linha-2 px-3 py-2.5 text-[15px] last:border-b-0">
+  <li className="break-words border-b border-linha-2 px-3 py-2.5 text-base last:border-b-0">
     <b>{c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" title="Ver o cupom">{c.loja}</a> : c.loja}</b> <CodigoCupom codigo={c.codigo} />
     <Sub>{c.regra || c.titulo}</Sub>
   </li>
@@ -129,14 +129,14 @@ function BotaoAtualizar({onConcluida}) {
       <svg className={`h-5 w-5 ${girando ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8" /><path d="M18.5 2v3.8h-3.8M5.5 22v-3.8h3.8" /></svg>
     </button>
-    {aviso && <p role="status" className="m-0 basis-full text-right text-[13px] text-etiqueta">{aviso}</p>}
+    {aviso && <p role="status" className="m-0 basis-full text-right text-xs text-etiqueta">{aviso}</p>}
     <dialog ref={janela} aria-labelledby="buscar-titulo"
       className="w-[min(360px,calc(100vw-32px))] rounded-[4px] border-2 border-linha bg-superficie p-5 text-tinta backdrop:bg-black/50">
-      <p id="buscar-titulo" className="m-0 text-center text-lg font-bold">Deseja buscar agora?</p>
+      <p id="buscar-titulo" className="m-0 text-center text-xl font-bold">Deseja buscar agora?</p>
       {pedeToken && <label className="mt-3 block text-sm text-tinta-2">Token do GitHub (fica só neste navegador)
         <input ref={campo} type="password" autoComplete="off" spellCheck="false"
           className="mt-1 block w-full rounded-[3px] border-2 border-linha bg-superficie px-2 py-1 text-tinta" />
-        <span className="mt-1 block text-[13px] text-tinta-3">Crie um token <a href={CRIAR_TOKEN} target="_blank" rel="noopener noreferrer">fine-grained</a> só
+        <span className="mt-1 block text-xs text-tinta-3">Crie um token <a href={CRIAR_TOKEN} target="_blank" rel="noopener noreferrer">fine-grained</a> só
           para o repositório tcl-55c6k-monitor, com a permissão Actions: leitura e escrita.</span></label>}
       <div className="mt-4 flex justify-center gap-3">
         <button type="button" onClick={() => responde(true)} className="min-w-[96px] rounded-[3px] bg-[#1F4FA3] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90">Sim</button>
@@ -159,7 +159,7 @@ function Barra({aba, onAba}) {
       <div className="mx-auto max-w-[1180px] px-3 py-1.5 sm:px-6 sm:py-2">
         <div className="flex justify-between gap-1 sm:justify-end">
           {ABAS.map(([k, rotulo, icone]) => <button key={k} type="button" aria-current={aba === k ? 'page' : undefined} onClick={() => onAba(k)}
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-[3px] px-0.5 py-1 text-[12.5px] font-bold transition-colors duration-150 sm:flex-none sm:flex-row sm:gap-2 sm:px-3.5 sm:py-1.5 sm:text-sm
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-[3px] px-0.5 py-1 text-xs font-bold transition-colors duration-150 sm:flex-none sm:flex-row sm:gap-2 sm:px-3.5 sm:py-1.5 sm:text-sm
               ${aba === k ? 'bg-etiqueta text-etiqueta-ink' : 'text-band-ink-2 hover:text-band-ink'}`}>
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icone}</svg>{rotulo}</button>)}
         </div>

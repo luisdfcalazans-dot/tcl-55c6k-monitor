@@ -36,7 +36,10 @@ export default {
       boxShadow: {'tremor-input': 'none', 'tremor-card': 'none', 'tremor-dropdown': '0 4px 12px rgb(0 0 0 / 0.12)',
         'dark-tremor-input': 'none', 'dark-tremor-card': 'none', 'dark-tremor-dropdown': '0 4px 12px rgb(0 0 0 / 0.4)'},
       borderRadius: {'tremor-small': '3px', 'tremor-default': '4px', 'tremor-full': '9999px'},
+      // escala do painel (open-design): xs 12 · sm 14 · base 16 · xl 20 · 2xl 24 · 3xl 32; fora dela, só o título do app e
+      // a etiqueta de preço, que são fluidos (clamp)
       fontSize: {
+        '3xl': ['2rem', {lineHeight: '2.25rem'}],
         'tremor-label': ['0.75rem', {lineHeight: '1rem'}],
         'tremor-default': ['0.875rem', {lineHeight: '1.25rem'}],
         'tremor-title': ['1.25rem', {lineHeight: '1.75rem'}],

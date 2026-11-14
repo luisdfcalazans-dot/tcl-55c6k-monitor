@@ -57,18 +57,18 @@ export function CodigoCupom({codigo}) {
   );
 }
 
-export const Sub = ({children}) => children ? <span className="block text-[13.5px] text-tinta-3">{children}</span> : null;
+export const Sub = ({children}) => children ? <span className="block text-sm text-tinta-3">{children}</span> : null;
 export const Nota = ({children}) => <p className="mx-0.5 mt-2 max-w-[80ch] text-sm text-tinta-3">{children}</p>;
-export const H2 = ({children, id}) => <h2 id={id} className="mb-3 mt-10 font-cond text-[32px] font-bold leading-tight">{children}</h2>;
-export const H3 = ({children}) => <h3 className="mb-2 mt-6 text-lg font-bold">{children}</h3>;
+export const H2 = ({children, id}) => <h2 id={id} className="mb-3 mt-10 font-cond text-3xl font-bold leading-tight">{children}</h2>;
+export const H3 = ({children}) => <h3 className="mb-2 mt-6 text-xl font-bold">{children}</h3>;
 export const Abrir = ({url, children = 'abrir'}) => url ? <a href={url} target="_blank" rel="noopener noreferrer">{children}</a> : null;
 
 // cartão de número grande (Tremor Card + Metric): o resumo do topo e os destaques das TVs
 export const Fato = ({k, d}) => (
   <Card className="rounded-[3px] p-3 ring-2">
     <Text className="text-sm text-tinta-2">{k}</Text>
-    <Metric className="mt-0.5 font-cond text-[30px] leading-tight text-tinta">{d?.v ?? '—'}</Metric>
-    <p className="mt-0.5 line-clamp-2 break-words text-[13.5px] text-tinta-3">{d?.s ?? '—'}</p>
+    <Metric className="mt-0.5 font-cond text-2xl leading-tight text-tinta">{d?.v ?? '—'}</Metric>
+    <p className="mt-0.5 line-clamp-2 break-words text-sm text-tinta-3">{d?.s ?? '—'}</p>
   </Card>
 );
 
@@ -108,7 +108,7 @@ export const Tabela = ({cab, children, className = ''}) => (
       <TableHead><TableRow className="border-b-2 border-linha">
         {cab.map((c, i) => <TableHeaderCell key={i} className="whitespace-nowrap px-3 py-2 text-sm text-tinta-2">{c}</TableHeaderCell>)}
       </TableRow></TableHead>
-      <TableBody className="text-[15px] [&_td]:px-3 [&_td]:py-2 [&_td]:align-top">{children}</TableBody>
+      <TableBody className="text-base [&_td]:px-3 [&_td]:py-2 [&_td]:align-top">{children}</TableBody>
     </Table>
   </Card>
 );
@@ -127,7 +127,7 @@ function useTema() {
   return escuro;
 }
 
-const Vazio = ({children}) => <p className="py-3 text-[15px] text-tinta-3">{children}</p>;
+const Vazio = ({children}) => <p className="py-3 text-base text-tinta-3">{children}</p>;
 
 // gráfico por dia (uPlot): as 8 lojas mais baratas e a meta tracejada; a legenda mostra o valor sob o cursor.
 // minDias: o placar só desenha com 2 dias ou mais (com 1, avisa); o histórico desenha a partir do primeiro.
@@ -175,14 +175,14 @@ export const GraficoHistorico = ({serie, alvo, altura}) => <Grafico serie={serie
 export function Barras({lojas}) {
   const max = lojas.at(-1).min, base = lojas[0].min;
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 text-[15px] [grid-auto-flow:dense] sm:grid-cols-[minmax(90px,max-content)_1fr_auto] sm:items-center sm:gap-x-2.5 sm:gap-y-1.5">
+    <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 text-base [grid-auto-flow:dense] sm:grid-cols-[minmax(90px,max-content)_1fr_auto] sm:items-center sm:gap-x-2.5 sm:gap-y-1.5">
       {lojas.map((l, i) => <Fragment key={l.loja}>
         <span className={`truncate sm:max-w-[180px] ${i ? '' : 'font-bold'}`}><Logo loja={l.loja} className="h-[22px] max-w-[96px]" /></span>
         <span className="col-span-full mb-2 h-[22px] sm:col-span-1 sm:mb-0">
           <span className="block h-full rounded-[2px]" style={{width: `${(l.min / max * 100).toFixed(1)}%`, background: css(corDaPosicao(i))}} /></span>
         <span className={`whitespace-nowrap text-right ${i ? '' : 'font-bold'}`}>{reais(l.min)}
-          {i ? <small className="ml-1 text-[13px] text-tinta-3">+{reais(l.min - base)}</small>
-            : <span className="ml-1 rounded-[2px] bg-etiqueta px-1.5 py-px text-[12.5px] font-bold text-etiqueta-ink">mais barata</span>}</span>
+          {i ? <small className="ml-1 text-xs text-tinta-3">+{reais(l.min - base)}</small>
+            : <span className="ml-1 rounded-[2px] bg-etiqueta px-1.5 py-px text-xs font-bold text-etiqueta-ink">mais barata</span>}</span>
       </Fragment>)}
     </div>
   );
@@ -200,7 +200,7 @@ export function Rosca({fatias, dias, cor}) {
         <text x="60" y="58" textAnchor="middle" fontSize="22" fontWeight="700" fill="currentColor">{dias}</text>
         <text x="60" y="74" textAnchor="middle" fontSize="11" fill="currentColor">{dias === 1 ? 'dia' : 'dias'}</text>
       </svg>
-      <ul className="m-0 list-none p-0 text-[15px]">
+      <ul className="m-0 list-none p-0 text-base">
         {fatias.map(f => <li key={f.loja} className="flex items-center gap-2 py-0.5">
           <i className="h-3 w-3 flex-none rounded-[2px]" style={{background: css(cor[f.loja] || '--ink-3')}} />
           <b className="min-w-[3.2em]">{Math.round(f.dias / dias * 100)}%</b>{f.loja === 'Outras lojas' ? f.loja : <Logo loja={f.loja} className="h-[22px] max-w-[96px]" />}
@@ -213,12 +213,12 @@ export function Rosca({fatias, dias, cor}) {
 // uma postagem (Pelando, Promobit, Telegram): o selo do produto, o preço, a loja e o título
 export function Postagem({p}) {
   return (
-    <li className="break-words border-b border-linha-2 px-3 py-2.5 text-[15px] last:border-b-0">
+    <li className="break-words border-b border-linha-2 px-3 py-2.5 text-base last:border-b-0">
       <Chip tipo={p.chip.classe}>{p.chip.texto}</Chip>{' '}
       {p.expirada && <><Chip>expirada</Chip>{' '}</>}
       <b>{p.preco}</b> · {p.loja}{p.cupom && <> · <CodigoCupom codigo={p.cupom} /></>}
       <br />{p.titulo}
-      <span className="block text-[13.5px] text-tinta-3">
+      <span className="block text-sm text-tinta-3">
         {p.telegram && <><Logo loja="Telegram" className="h-4 max-w-[92px]" />{' '}</>}{p.fonte} · {p.quando} · <Abrir url={p.url} />
       </span>
     </li>
@@ -227,6 +227,6 @@ export function Postagem({p}) {
 
 export const Lista = ({children, vazio}) => (
   <Card className="rounded-[3px] p-0 ring-2"><ul className="m-0 list-none p-0">
-    {children?.length ? children : <li className="px-3 py-3.5 text-[15px] text-tinta-3">{vazio}</li>}
+    {children?.length ? children : <li className="px-3 py-3.5 text-base text-tinta-3">{vazio}</li>}
   </ul></Card>
 );

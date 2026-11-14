@@ -16,7 +16,7 @@ function TVs({tvs}) {
   const {alvos, modelos: {'55C6K': m55, '65C6K': m65}, dif} = tvs;
   const Cel = ({c}) => !c ? '—' : <><b className="text-tinta">{c.v}</b>{c.subs.map((s, i) => <Sub key={i}>{s}</Sub>)}{c.velho && <> <Chip tipo="warn">antigo</Chip></>}</>;
   return <>
-    <p className="mb-4 mt-6 max-w-[72ch] text-[15px] text-tinta-2">TVs QD-Mini LED. Alvos da 55C6K: Pix {alvos['55C6K'].pix} · parcelado {alvos['55C6K'].parcelado}.
+    <p className="mb-4 mt-6 max-w-[72ch] text-base text-tinta-2">TVs QD-Mini LED. Alvos da 55C6K: Pix {alvos['55C6K'].pix} · parcelado {alvos['55C6K'].parcelado}.
       Alvos da 65C6K: Pix {alvos['65C6K'].pix} · parcelado {alvos['65C6K'].parcelado}.</p>
     <H3><Chip tipo="m55">55"</Chip> TCL 55C6K</H3>
     <Grade cols="md:grid-cols-3">
@@ -85,7 +85,7 @@ function Gift({g}) {
     <H3>Gift card PlayStation · pagar o GTA 6 digital na PS Store</H3>
     {!m ? <Nota>Nenhum gift card com desconto em loja oficial agora (PS Store, Hype, Nuuvem, loja oficial PlayStation no Mercado Livre, ou vendido pela própria KaBuM, Americanas, Amazon ou Magalu). Meta: {regra.meta} de desconto ou mais; comprar e resgatar até {regra.prazo}.</Nota>
       : <>
-        <p className="mb-4 max-w-[72ch] text-[15px] text-tinta-2">Melhor agora: <b className="text-tinta">{m.preco}</b> pelo cartão de <b className="text-tinta">{m.face}</b> ({m.desconto} de desconto) · {m.loja}
+        <p className="mb-4 max-w-[72ch] text-base text-tinta-2">Melhor agora: <b className="text-tinta">{m.preco}</b> pelo cartão de <b className="text-tinta">{m.face}</b> ({m.desconto} de desconto) · {m.loja}
           {m.post && ' · postagem'}{m.cupom && <> · cupom <CodigoCupom codigo={m.cupom} /></>}{m.url && <> · <Abrir url={m.url} /></>}{m.naMeta && <> <Chip tipo="ok">na meta</Chip></>}</p>
         {g.gta.length > 0 && <Tabela cab={['GTA 6 digital', 'PS Store', 'Pagando com gift card', `Meta (${regra.minimo})`, 'Cartões']}>
           {g.gta.map(x => <TableRow key={x.edicao}>
