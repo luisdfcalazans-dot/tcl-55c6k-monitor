@@ -108,7 +108,9 @@ const Vazio = ({children}) => <p className="py-3 text-[15px] text-tinta-3">{chil
 
 // gráfico por dia (uPlot): as 8 lojas mais baratas e a meta tracejada; a legenda mostra o valor sob o cursor.
 // minDias: o placar só desenha com 2 dias ou mais (com 1, avisa); o histórico desenha a partir do primeiro.
-export function Grafico({serie, meta, altura = 300, minDias = 1,
+// soMaisBarata: abre só com a meta e a loja mais barata; as outras ficam apagadas na legenda e aparecem ao clicar
+// no quadro delas (o liga/desliga é do próprio uPlot; volta ao padrão quando o gráfico é refeito, ex.: outro período).
+export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = false,
   vazio = 'O histórico aparece a partir da segunda coleta.', poucos = 'O gráfico aparece quando o período tem pelo menos dois dias de coleta.'}) {
   const caixa = useRef(null), escuro = useTema();
   const g = useMemo(() => seriesDoGrafico(serie), [serie]);
@@ -118,7 +120,8 @@ export function Grafico({serie, meta, altura = 300, minDias = 1,
     const el = caixa.current, xs = g.dias.map(d => Date.parse(d + 'T12:00:00') / 1000);
     const dados = [xs, ...g.valores];
     const series = [{label: 'Dia', value: (u, v) => v == null ? '—' : new Date(v * 1000).toLocaleDateString('pt-BR')},
-      ...g.lojas.map((l, i) => ({label: l, stroke: cssCor(corDaPosicao(i)), width: 2, spanGaps: true, points: {size: 5}, value: (u, v) => v == null ? '—' : fmt(v)}))];
+      ...g.lojas.map((l, i) => ({label: l, show: !soMaisBarata || i === 0, stroke: cssCor(corDaPosicao(i)), width: 2, spanGaps: true,
+        points: {size: 5}, value: (u, v) => v == null ? '—' : fmt(v)}))];
     if (meta) { dados.push(xs.map(() => meta)); series.push({label: 'Meta', stroke: cssCor('--ok'), width: 2, dash: [6, 4], points: {show: false}, value: (u, v) => fmt(v)}); }
     const tinta = cssCor('--ink-2'), grade = {stroke: cssCor('--line-2'), width: 1}, fonte = '13px "D-DIN", sans-serif';
     const largura = () => Math.max(280, el.clientWidth);
@@ -128,7 +131,7 @@ export function Grafico({serie, meta, altura = 300, minDias = 1,
     const ro = new ResizeObserver(() => u.setSize({width: largura(), height: altura}));
     ro.observe(el);
     return () => { ro.disconnect(); u.destroy(); };
-  }, [g, meta, altura, desenha, escuro]);
+  }, [g, meta, altura, desenha, escuro, soMaisBarata]);
   if (!g.dias.length) return <Vazio>{vazio}</Vazio>;
   if (!desenha) return <Vazio>{poucos}</Vazio>;
   return <div ref={caixa} className="grafico min-h-[300px]" />;

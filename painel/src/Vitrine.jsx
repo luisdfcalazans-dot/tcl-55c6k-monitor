@@ -98,7 +98,7 @@ function Placar({it}) {
       </div>
 
       <h3 className="mb-2.5 mt-6 text-[17px] font-bold">Preço por dia</h3>
-      <Grafico serie={serieP} meta={it.meta} minDias={2}
+      <Grafico serie={serieP} meta={it.meta} minDias={2} soMaisBarata
         vazio="Sem preços neste período. Escolha um período maior." />
     </Card>
   );
