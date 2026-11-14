@@ -1,4 +1,4 @@
-import {StrictMode, useEffect, useState} from 'react';
+import {StrictMode, useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {TableCell, TableRow} from './tremor.js';
 import {montaPainel} from './logica.js';
@@ -37,6 +37,7 @@ function useSessao(chave, inicial) {
 function App() {
   const [vm, setVm] = useState(undefined); // undefined: carregando; null: sem dados
   const [abaSalva, setAba] = useSessao('aba', 'produtos');
+  const [filtroCupons, setFiltroCupons] = useSessao('cupons', 'ativos'); // aba Cupons: 'ativos' ou 'novos'
   const aba = ABAS.some(([k]) => k === abaSalva) ? abaSalva : 'produtos';
   // dados publicados em data/, buscados na abertura (o botão de atualizar recarrega a página)
   useEffect(() => {
@@ -82,6 +83,7 @@ function App() {
               Última coleta:{' '}
               <b className="text-band-ink">{vm === undefined ? '—' : vm ? vm.quando : 'ainda sem dados'}</b>
             </p>
+            <BotaoNovoProduto />
             <BotaoAtualizar />
             <BotaoTema />
           </div>
@@ -112,30 +114,11 @@ function App() {
               </>
             )}
             {aba === 'tabelas' && <Tabelas vm={vm} />}
-            {aba === 'cupons' && (
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <H2>Cupons ativos</H2>
-                  <Lista vazio="Nenhum cupom aplicável no momento.">
-                    {vm.cupons.map(c => (
-                      <Cupom key={c.loja + c.codigo} c={c} />
-                    ))}
-                  </Lista>
-                </div>
-                <div>
-                  <H2>Últimas postagens</H2>
-                  <Lista vazio="Nenhuma postagem registrada.">
-                    {vm.posts.map(p => (
-                      <Postagem key={p.chave} p={p} />
-                    ))}
-                  </Lista>
-                </div>
-              </div>
-            )}
+            {aba === 'cupons' && <Cupons vm={vm} filtro={filtroCupons} onFiltro={setFiltroCupons} />}
             {aba === 'fontes' && (
               <>
                 <H2>Fontes</H2>
-                <Tabela cab={['Fonte', 'Estado', 'Último OK', 'Último erro']}>
+                <Tabela cab={['Fonte', 'Estado', 'Último OK', 'Último erro']} zebra={false}>
                   {vm.fontes.map(f => (
                     <TableRow key={f.nome}>
                       <TableCell>{f.nome}</TableCell>
@@ -157,6 +140,51 @@ function App() {
       </main>
 
       <Barra aba={aba} onAba={rolaETroca} />
+    </>
+  );
+}
+
+// aba Cupons: um seletor entre os cupons ativos e as novidades (as últimas postagens), uma lista por vez
+const FILTROS_CUPONS = [
+  ['ativos', 'Ativos', 'Cupons ativos'],
+  ['novos', 'Novos', 'Últimas postagens'],
+];
+function Cupons({vm, filtro, onFiltro}) {
+  const f = FILTROS_CUPONS.find(([k]) => k === filtro) || FILTROS_CUPONS[0];
+  return (
+    <>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <H2>{f[2]}</H2>
+        <div className="flex gap-1.5" role="group" aria-label="Filtrar a aba Cupons">
+          {FILTROS_CUPONS.map(([k, rotulo]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={f[0] === k}
+              onClick={() => onFiltro(k)}
+              className={`rounded-[3px] border-2 px-3 py-1 text-sm font-bold transition-colors duration-150 ${f[0] === k ? 'border-tinta bg-tinta text-fundo' : 'border-linha bg-superficie text-tinta'}`}
+            >
+              {rotulo}
+              <span className="ml-1.5 font-normal opacity-70">
+                {k === 'ativos' ? vm.cupons.length : vm.posts.length}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      {f[0] === 'ativos' ? (
+        <Lista vazio="Nenhum cupom aplicável no momento.">
+          {vm.cupons.map(c => (
+            <Cupom key={c.loja + c.codigo} c={c} />
+          ))}
+        </Lista>
+      ) : (
+        <Lista vazio="Nenhuma postagem registrada.">
+          {vm.posts.map(p => (
+            <Postagem key={p.chave} p={p} />
+          ))}
+        </Lista>
+      )}
     </>
   );
 }
@@ -249,6 +277,103 @@ function BotaoTema() {
 // só o ícone, sem contorno (o foco do teclado continua visível pelo contorno amarelo global)
 const BOTAO_ICONE =
   'inline-flex items-center justify-center rounded-full p-1.5 text-band-ink transition-opacity duration-150 hover:opacity-80 disabled:cursor-wait';
+
+// novo produto (14/11/2026): a página é estática e pública, então não muda o robô sozinha. A janela monta o pedido e
+// abre uma issue já preenchida no GitHub (a pessoa confirma lá, logada); o produto entra no robô depois de configurado
+// no catálogo (monitor/produtos.py), como foi o SSD. Nenhum token na página.
+const URL_NOVA_ISSUE = 'https://github.com/luisdfcalazans-dot/tcl-55c6k-monitor/issues/new';
+const CAMPOS_PEDIDO = [
+  ['produto', 'Produto', 'ex.: SSD NVMe M.2 1TB', true],
+  ['tem', 'O que precisa ter', 'capacidade, versão, modelo, marca...', false],
+  ['fora', 'O que não serve', 'ex.: usado, SATA, outra capacidade', false],
+  ['pix', 'Meta à vista / Pix (R$)', 'ex.: 700', true],
+  ['parcelado', 'Meta parcelada (R$, opcional)', 'ex.: 750', false],
+];
+function BotaoNovoProduto() {
+  const janela = useRef(null);
+  const [v, setV] = useState({});
+  const envia = e => {
+    e.preventDefault();
+    const corpo = CAMPOS_PEDIDO.filter(([k]) => v[k]?.trim())
+      .map(([k, rotulo]) => `**${rotulo}:** ${v[k].trim()}`)
+      .join('\n\n');
+    const url = `${URL_NOVA_ISSUE}?title=${encodeURIComponent('Novo produto: ' + v.produto.trim())}&body=${encodeURIComponent(
+      corpo + '\n\n_Pedido feito pelo botão ➕ do painel._',
+    )}`;
+    window.open(url, '_blank', 'noopener');
+    janela.current.close();
+    setV({});
+  };
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Pedir um produto novo"
+        title="Pedir um produto novo"
+        onClick={() => janela.current.showModal()}
+        className={BOTAO_ICONE.replace('text-band-ink', 'text-[#45CF91]')}
+      >
+        <svg
+          className="h-6 w-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+      <dialog
+        ref={janela}
+        aria-labelledby="novo-produto-titulo"
+        className="w-[min(420px,calc(100vw-32px))] rounded-[4px] border-2 border-linha bg-superficie p-5 text-tinta backdrop:bg-black/50"
+      >
+        <form onSubmit={envia}>
+          <p id="novo-produto-titulo" className="m-0 text-xl font-bold">
+            Pedir um produto novo
+          </p>
+          <p className="mt-1 text-sm text-tinta-3">
+            O pedido abre uma issue no GitHub já preenchida (confirme lá, logado). O robô passa a buscar o produto
+            depois que ele for configurado.
+          </p>
+          {CAMPOS_PEDIDO.map(([k, rotulo, dica, obrigatorio]) => (
+            <label key={k} className="mt-3 block text-sm text-tinta-2">
+              {rotulo}
+              {obrigatorio && <span className="text-bad"> *</span>}
+              <input
+                type={k === 'pix' || k === 'parcelado' ? 'number' : 'text'}
+                min={k === 'pix' || k === 'parcelado' ? 1 : undefined}
+                step="any"
+                required={obrigatorio}
+                placeholder={dica}
+                value={v[k] || ''}
+                onChange={e => setV({...v, [k]: e.target.value})}
+                className="mt-1 block w-full rounded-[3px] border-2 border-linha bg-superficie px-2 py-1 text-base text-tinta"
+              />
+            </label>
+          ))}
+          <div className="mt-5 flex justify-center gap-3">
+            <button
+              type="submit"
+              className="min-w-[120px] rounded-[3px] bg-[#1F4FA3] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90"
+            >
+              Enviar pedido
+            </button>
+            <button
+              type="button"
+              onClick={() => janela.current.close()}
+              className="min-w-[120px] rounded-[3px] bg-[#D7263D] px-4 py-2 font-bold text-white transition-opacity duration-150 hover:opacity-90"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </>
+  );
+}
 
 // atualizar: o mesmo que o F5 (recarrega a página e, com ela, os dados publicados em data/)
 const BotaoAtualizar = () => (
