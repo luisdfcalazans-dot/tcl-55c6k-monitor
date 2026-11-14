@@ -148,9 +148,10 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
     if (meta) { dados.push(xs.map(() => meta)); series.push({label: 'Meta', stroke: cssCor('--ok'), width: 2, dash: [6, 4], points: {show: false}, value: (u, v) => fmt(v)}); }
     const tinta = cssCor('--ink-2'), grade = {stroke: cssCor('--line-2'), width: 1}, fonte = '13px "D-DIN", sans-serif';
     const largura = () => Math.max(280, el.clientWidth);
-    const u = new uPlot({width: largura(), height: altura, series, legend: {live: true}, cursor: {y: false, points: {size: 8}}, scales: {x: {time: true}},   // cursor: só a linha vertical do dia
+    const u = new uPlot({width: largura(), height: altura, series, legend: {live: true}, cursor: {points: {size: 8}}, scales: {x: {time: true}},
       axes: [{stroke: tinta, grid: grade, ticks: grade, font: fonte, values: (u, vs) => vs.map(v => new Date(v * 1000).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}))},
-             {stroke: tinta, grid: grade, ticks: grade, font: fonte, size: 70, values: (u, vs) => vs.map(reais)}]}, dados, el);
+             // eixo dos preços sem as linhas horizontais de fundo (a pontilhada do cursor continua ao passar o mouse)
+             {stroke: tinta, grid: {show: false}, ticks: grade, font: fonte, size: 70, values: (u, vs) => vs.map(reais)}]}, dados, el);
     // legenda com o logo da loja no lugar do nome (loja sem logo continua pelo nome); a 1ª linha é o dia, a última a meta
     u.root.querySelectorAll('.u-legend .u-series').forEach((linha, i) => {
       const loja = g.lojas[i - 1], f = loja && arquivoLogo(loja), rotulo = linha.querySelector('.u-label');
