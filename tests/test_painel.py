@@ -1,4 +1,4 @@
-"""Painel (docs/index.html): roda o <script> da página no Node com DOM/fetch falsos e confere o que aparece.
+"""Painel (painel/src/logica.js, as regras do painel React): roda montaPainel() no Node e confere o modelo de tela.
 
 Cobre:
 - F6: Zoom/Buscapé é agregador; a linha dele some quando a loja tem fonte direta, não vira "Melhor preço agora",
@@ -20,57 +20,57 @@ from pathlib import Path
 
 import pytest
 
-INDEX = Path(__file__).resolve().parent.parent / "docs" / "index.html"
+LOGICA = Path(__file__).resolve().parent.parent / "painel" / "src" / "logica.js"
 NODE = shutil.which("node")
 
-# Harness: executa o script da página num contexto do Node com document/fetch/canvas falsos,
-# troca desenha() por um espião (para pegar a série do gráfico) e devolve o que foi renderizado.
+# Harness: importa a lógica do painel no Node, roda montaPainel() com os arquivos de docs/data e devolve o modelo de
+# tela (o que os componentes React desenham) e as datas formatadas pelo próprio Node.
 HARNESS = r"""
-const fs = require('fs'), vm = require('vm');
-const [htmlPath, dadosPath] = process.argv.slice(2);
-const html = fs.readFileSync(htmlPath, 'utf8');
-const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+import fs from 'node:fs';
+import {pathToFileURL} from 'node:url';
+const [logicaPath, dadosPath] = process.argv.slice(2);
 const dados = JSON.parse(fs.readFileSync(dadosPath, 'utf8'));
+const arq = dados.arquivos;
 const saida = {erro: null};
-let pronto = false;
-const ctx2d = new Proxy({}, {get: (t, k) => (k in t ? t[k] : () => {}), set: (t, k, v) => { t[k] = v; return true; }});
-const els = {};
-const el = id => (els[id] ??= {textContent: '', innerHTML: '', width: 1060, height: 300, getContext: () => ctx2d});
-const document = {getElementById: el, querySelector: el, documentElement: {}};
-const fetch = async u => {
-  const v = dados.arquivos[String(u).split('?')[0]];
-  if (v == null) return {ok: false, json: async () => null, text: async () => ''};
-  return {ok: true, json: async () => v, text: async () => (typeof v === 'string' ? v : JSON.stringify(v))};
-};
-const ctx = vm.createContext({document, fetch, getComputedStyle: () => ({getPropertyValue: () => '#000'}), console});
-vm.runInContext('Date.now = () => ' + Date.parse(dados.agora) + ';', ctx);
-process.on('unhandledRejection', e => { saida.erro = String((e && e.stack) || e); pronto = true; });
-vm.runInContext(scripts[scripts.length - 1], ctx);
-ctx.desenha = (serie, alvo) => { saida.serie = JSON.parse(JSON.stringify(serie)); saida.alvo = alvo; pronto = true; };
-// gráfico da 65C6K (26/09): desenhado por grafico() com o id do canvas
-saida.graficos = {};
-ctx.grafico = (idCanvas, idLegenda, serie, alvo) => { saida.graficos[idCanvas] = {serie: JSON.parse(JSON.stringify(serie)), alvo}; };
+try {
+  const {montaPainel} = await import(pathToFileURL(logicaPath).href);
+  saida.vm = montaPainel({cloud: arq['data/latest_cloud.json'] ?? null, pc: arq['data/latest_pc.json'] ?? null,
+    csvCloud: arq['data/historico_cloud.csv'] ?? '', csvPc: arq['data/historico_pc.csv'] ?? ''}, Date.parse(dados.agora));
+} catch (e) { saida.erro = String((e && e.stack) || e); }
 const fmtData = s => new Date(s).toLocaleString('pt-BR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'});
-(async () => {
-  for (let i = 0; i < 300 && !pronto; i++) await new Promise(r => setTimeout(r, 10));
-  if (!pronto) saida.erro = 'o script não chegou ao gráfico';
-  saida.melhor = el('f-melhor').textContent;
-  saida.melhor_s = el('f-melhor-s').textContent;
-  saida.parc = el('f-parc').textContent;
-  saida.parc_s = el('f-parc-s').textContent;
-  saida.min = el('f-min').textContent;
-  saida.min_s = el('f-min-s').textContent;
-  saida.tabela = el('#t-lojas tbody').innerHTML;
-  saida.datas = Object.fromEntries((dados.formatar || []).map(s => [s, fmtData(s)]));
-  // 65C6K e a comparação por loja (26/09)
-  for (const id of ['f65-melhor', 'f65-melhor-s', 'f65-parc', 'f65-parc-s', 'f65-min', 'f65-min-s', 'f-dif-pix',
-                    'f-dif-pix-s', 'f-dif-parc', 'f-dif-parc-s', 'alvo-pix', 'alvo-pix-65', 'alvo-parc-65', 'l-posts'])
-    saida[id] = el(id).textContent || el(id).innerHTML;
-  saida.tabela65 = el('#t-lojas-65 tbody').innerHTML;
-  saida.comparar = el('#t-comparar tbody').innerHTML;
-  process.stdout.write(JSON.stringify(saida));
-})();
+saida.datas = Object.fromEntries((dados.formatar || []).map(s => [s, fmtData(s)]));
+process.stdout.write(JSON.stringify(saida));
 """
+
+
+def _js(v) -> str:
+    return json.dumps(v, ensure_ascii=False)
+
+
+def achata(vm: dict) -> dict:
+    """As chaves de sempre dos testes (os cartões da 55C6K e da 65C6K, as tabelas, os gráficos) a partir do modelo."""
+    out = {"graficos": {}}
+    for fam in vm["familias"]:
+        for p in fam["produtos"]:
+            if p["grafico"]:
+                out["graficos"]["chart-" + p["id"]] = p["grafico"]
+    tvs = vm["tvs"]
+    if tvs:
+        m55, m65 = tvs["modelos"]["55C6K"], tvs["modelos"]["65C6K"]
+        for k, d in m55["destaques"].items():   # melhor, melhor_s, parc, parc_s, min, min_s
+            out[k], out[k + "_s"] = d["v"], d["s"]
+        for k, d in m65["destaques"].items():   # f65-melhor, f65-melhor-s...
+            out["f65-" + k], out["f65-" + k + "-s"] = d["v"], d["s"]
+        out["tabela"], out["tabela65"] = _js(m55["linhas"]), _js(m65["linhas"])
+        out["serie"], out["alvo"] = m55["serie"], m55["alvo"]
+        out["graficos"]["chart-65"] = {"serie": m65["serie"], "alvo": m65["alvo"]}
+        out["f-dif-pix"], out["f-dif-pix-s"] = tvs["dif"]["pix"]["v"], tvs["dif"]["pix"]["s"]
+        out["f-dif-parc"], out["f-dif-parc-s"] = tvs["dif"]["parc"]["v"], tvs["dif"]["parc"]["s"]
+        out["alvo-pix"], out["alvo-parc"] = tvs["alvos"]["55C6K"]["pix"], tvs["alvos"]["55C6K"]["parcelado"]
+        out["alvo-pix-65"], out["alvo-parc-65"] = tvs["alvos"]["65C6K"]["pix"], tvs["alvos"]["65C6K"]["parcelado"]
+        out["comparar"] = tvs["comparar"]
+    out["l-posts"], out["l-cupons"] = _js(vm["posts"]), _js(vm["cupons"])
+    return out
 
 AGORA = "2026-09-18T14:40:00-03:00"
 CLOUD_AT = "2026-09-18T11:48:36-03:00"   # 2h51 antes de AGORA: ainda vale
@@ -140,32 +140,31 @@ MIN_AMAZON = {"preco": 3199.0, "loja": "Amazon", "quando": "2026-09-14T21:08:06-
 def roda_painel(tmp_path, cloud, pc, csv_cloud=CSV_CLOUD, csv_pc=CSV_PC, formatar=(), agora=None):
     if not NODE:
         pytest.skip("node não encontrado no PATH")
-    harness = tmp_path / "painel_harness.js"
+    return roda_modelo(tmp_path, {"data/latest_cloud.json": cloud, "data/latest_pc.json": pc,
+                                  "data/historico_cloud.csv": csv_cloud, "data/historico_pc.csv": csv_pc},
+                       agora or AGORA, formatar)
+
+
+def roda_modelo(tmp_path, arquivos: dict, agora: str, formatar=()) -> dict:
+    """Roda montaPainel() no Node com os arquivos de docs/data; devolve as chaves achatadas, o modelo ('vm') e 'datas'."""
+    if not NODE:
+        pytest.skip("node não encontrado no PATH")
+    harness = tmp_path / "painel_harness.mjs"
     harness.write_text(HARNESS, encoding="utf-8")
     dados = tmp_path / "dados.json"
-    dados.write_text(json.dumps({
-        "agora": agora or AGORA, "formatar": list(formatar),
-        "arquivos": {"data/latest_cloud.json": cloud, "data/latest_pc.json": pc,
-                     "data/historico_cloud.csv": csv_cloud, "data/historico_pc.csv": csv_pc},
-    }, ensure_ascii=False), encoding="utf-8")
-    p = subprocess.run([NODE, str(harness), str(INDEX), str(dados)], capture_output=True, text=True,
+    dados.write_text(json.dumps({"agora": agora, "formatar": list(formatar), "arquivos": arquivos},
+                                ensure_ascii=False), encoding="utf-8")
+    p = subprocess.run([NODE, str(harness), str(LOGICA), str(dados)], capture_output=True, text=True,
                        encoding="utf-8", timeout=60)
     assert p.returncode == 0, p.stderr
-    out = json.loads(p.stdout)
-    assert out["erro"] is None, out["erro"]
-    return out
+    s = json.loads(p.stdout)
+    assert s["erro"] is None, s["erro"]
+    return {**achata(s["vm"]), "vm": s["vm"], "datas": s["datas"]}
 
 
 def linhas(tabela: str) -> list[dict]:
-    """Quebra o <tbody> renderizado em linhas {loja, fonte, classe, html}."""
-    out = []
-    for tr in re.findall(r"<tr[\s\S]*?</tr>", tabela):
-        loja = re.search(r"<b>(.*?)</b>", tr)
-        fonte = re.search(r'chip mute">(.*?)<', tr)
-        classe = re.search(r'<tr class="([^"]*)"', tr)
-        out.append({"loja": loja and loja.group(1), "fonte": fonte and fonte.group(1),
-                    "classe": classe.group(1) if classe else "", "html": tr})
-    return out
+    """As linhas da tabela de ofertas (JSON do modelo), cada uma com 'html' = o texto todo da linha para buscas."""
+    return [{**l, "html": _js(l)} for l in json.loads(tabela)]
 
 
 def brl(v: float) -> str:
@@ -252,7 +251,7 @@ def test_f11_visto_mostra_o_horario_do_proprio_modo(tmp_path):
         assert d_cloud in ls[k] and d_pc not in ls[k], k  # antes: todas com o horário do pc
     for k in ("amazon/Amazon", "casasbahia/Casas Bahia"):
         assert d_pc in ls[k], k
-    assert "antigo" not in out["tabela"]
+    assert not any(l["velho"] for l in linhas(out["tabela"]))
 
 
 def test_f11_modo_parado_fica_marcado_e_fora_do_melhor_preco(tmp_path):
@@ -264,7 +263,7 @@ def test_f11_modo_parado_fica_marcado_e_fora_do_melhor_preco(tmp_path):
     assert out["melhor"] == brl(3561.55), out["melhor"]
     ls = linhas(out["tabela"])
     cb = next(l for l in ls if l["loja"] == "Casas Bahia")
-    assert "antigo" in cb["html"] and out["datas"][PC_PARADO] in cb["html"]
+    assert cb["velho"] and cb["visto"] == out["datas"][PC_PARADO]
     assert "best" not in cb["classe"]
     assert [l for l in ls if "best" in l["classe"]][0]["fonte"] == "magalu"
     # o PC parado ainda cobre a Amazon: o Zoom não volta para o lugar dela
@@ -275,29 +274,29 @@ def test_f11_tudo_parado_nao_tem_melhor_preco(tmp_path):
     out = roda_painel(tmp_path, latest("cloud", "2026-09-18T07:30:00-03:00", ofertas_cloud_hoje(), MIN_MAGALU),
                       latest("pc", PC_PARADO, ofertas_pc_hoje(), MIN_AMAZON))
     assert out["melhor"] == "—"
-    assert "best" not in out["tabela"]
-    assert out["tabela"].count("antigo") == len(linhas(out["tabela"]))
+    ls = linhas(out["tabela"])
+    assert not [l for l in ls if l["classe"] == "best"]
+    assert ls and all(l["velho"] for l in ls)
 
 
 def test_f11_visto_nao_cai_no_horario_mais_recente_entre_modos():
     # checagem estática (roda mesmo sem Node): a coluna não usa mais o "ultimo" global como horário da linha
-    js = INDEX.read_text(encoding="utf-8")
+    js = LOGICA.read_text(encoding="utf-8")
     assert "o.ultima_vez || ultimo" not in js
 
 
 # ---------------- REG-1: limite de "antigo" acima do intervalo real entre coletas ----------------
 
 def _velho_ms_do_painel() -> float:
-    js = INDEX.read_text(encoding="utf-8")
-    m = re.search(r"const VELHO_H = ([\d.]+), VELHO_MS = VELHO_H \* 3600e3;", js)
-    assert m, "VELHO_H/VELHO_MS não encontrados no index.html"
+    js = LOGICA.read_text(encoding="utf-8")
+    m = re.search(r"const VELHO_H = ([\d.]+),\s*VELHO_MS = VELHO_H \* 3600e3;", js)   # o Prettier quebra a linha
+    assert m, "VELHO_H/VELHO_MS não encontrados em painel/src/logica.js"
     return float(m.group(1)) * 3600e3
 
 
 def test_reg1_limite_de_antigo_cobre_o_intervalo_real_do_cron():
     # checagem estática (roda mesmo sem Node): intervalos de até ~5,1 h entre coletas da nuvem foram observados
     assert _velho_ms_do_painel() == 6 * 3600e3
-    assert "coleta com mais de 3 h" not in INDEX.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("agora", [
@@ -310,8 +309,8 @@ def test_reg1_intervalo_normal_entre_coletas_nao_marca_antigo(tmp_path, agora):
                       latest("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON), agora=agora)
     assert out["melhor"] == brl(3561.55), out["melhor"]
     assert out["melhor_s"].startswith("Magazine Luiza"), out["melhor_s"]
-    assert "antigo" not in out["tabela"]
     ls = linhas(out["tabela"])
+    assert not any(l["velho"] for l in ls)
     assert "best" in ls[0]["classe"] and ls[0]["fonte"] == "magalu"
     assert not [l for l in ls if "velho" in l["classe"]]
 
@@ -323,16 +322,15 @@ def test_reg1_passou_de_6h_continua_antigo(tmp_path):
                       agora="2026-09-18T17:53:36-03:00")
     assert out["melhor"] == brl(3599.09), out["melhor"]
     ls = linhas(out["tabela"])
-    antigas = {l["fonte"] + "/" + l["loja"] for l in ls if "antigo" in l["html"]}
+    antigas = {l["fonte"] + "/" + l["loja"] for l in ls if l["velho"]}
     assert antigas == {"magalu/Magazine Luiza", "kabum/KaBuM!", "zoom/Carrefour"}, antigas
-    assert 'title="coleta com mais de 6 h"' in out["tabela"]
 
 
 # ---------------- Parcelado: total do parcelamento e "Melhor parcelado agora" (pedido do usuário, 18/09) ----------------
 
-def _celula_parcelado(tr_html: str) -> str:
-    tds = re.findall(r"<td[^>]*>([\s\S]*?)</td>", tr_html)
-    return tds[3]   # Loja, À vista, Pix, Parcelado (total), ...
+def _parcelado(linha: dict) -> dict:
+    """A célula 'Parcelado (total)': {total, texto, melhor} quando dá para somar; senão {texto} como veio."""
+    return linha["parc"] or {"total": None, "texto": linha["parcTexto"], "melhor": False}
 
 
 def test_parcelado_mostra_o_total_e_a_parcela(tmp_path):
@@ -340,20 +338,20 @@ def test_parcelado_mostra_o_total_e_a_parcela(tmp_path):
                       latest("pc", PC_AT, [ofertas_pc_hoje()[0],
                           oferta("casasbahia", "Casas Bahia", 3998.99, 3599.09, vendedor="Casas Bahia",
                                  parcelado="10x R$ 399,90 sem juros (cartão Casas Bahia)")], MIN_AMAZON))
-    cel = {(l["loja"], l["fonte"]): _celula_parcelado(l["html"]) for l in linhas(out["tabela"])}
+    cel = {(l["loja"], l["fonte"]): _parcelado(l) for l in linhas(out["tabela"])}
     # Amazon arredonda a parcela: 12 x 312,49 = 3.749,88, mas o total cobrado é o preço do cartão (3.749,00)
-    assert f"<b>{brl(3749.0)}</b>" in cel[("Amazon", "amazon")] and f"12x {brl(312.49)} sem juros" in cel[("Amazon", "amazon")]
-    assert f"<b>{brl(3749.0)}</b>" in cel[("Magazine Luiza", "magalu")]
-    assert f"<b>{brl(4184.88)}</b>" in cel[("KaBuM!", "kabum")], "aceita '10x de R$ ...'"
-    cb = [c for (l, f), c in cel.items() if l == "Casas Bahia" and brl(3998.99) in c]
-    assert cb and "(cartão Casas Bahia)" in cb[0], "a condição do parcelamento continua visível"
+    assert cel[("Amazon", "amazon")]["total"] == brl(3749.0) and cel[("Amazon", "amazon")]["texto"] == f"12x {brl(312.49)} sem juros"
+    assert cel[("Magazine Luiza", "magalu")]["total"] == brl(3749.0)
+    assert cel[("KaBuM!", "kabum")]["total"] == brl(4184.88), "aceita '10x de R$ ...'"
+    cb = [c for (l, f), c in cel.items() if l == "Casas Bahia" and c["total"] == brl(3998.99)]
+    assert cb and "(cartão Casas Bahia)" in cb[0]["texto"], "a condição do parcelamento continua visível"
 
 
 def test_parcelado_com_juros_soma_as_parcelas(tmp_path):
     pc = [oferta("amazon", "Amazon", 3749.0, vendedor="Magalu.", parcelado="12x R$ 350,00", url=URL_AMAZON)]
     out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, []), latest("pc", PC_AT, pc))
-    cel = _celula_parcelado(linhas(out["tabela"])[0]["html"])
-    assert f"<b>{brl(4200.0)}</b>" in cel and "sem juros" not in cel
+    cel = _parcelado(linhas(out["tabela"])[0])
+    assert cel["total"] == brl(4200.0) and "sem juros" not in cel["texto"]
     assert out["parc"] == brl(4200.0)
 
 
@@ -376,8 +374,9 @@ def test_melhor_parcelado_agora(tmp_path):
     assert out["parc_s"].startswith("Fast Shop") and "12x" in out["parc_s"] and "cartão Fast Shop" in out["parc_s"]
     # "Melhor à vista" continua sendo o menor preço (Pix), não o parcelado
     assert out["melhor"] == brl(3329.1) and "Pix" in out["melhor_s"]
-    tr = [l for l in linhas(out["tabela"]) if l["loja"] == "Fast Shop"][0]["html"]
-    assert "chip ok\">melhor</span>" in tr
+    fast = [l for l in linhas(out["tabela"]) if l["loja"] == "Fast Shop"][0]
+    assert fast["parc"]["melhor"], "selo 'melhor' no parcelado da Fast Shop"
+    assert sum(1 for l in linhas(out["tabela"]) if l["parc"] and l["parc"]["melhor"]) == 1
 
 
 def test_melhor_parcelado_empate_prefere_sem_condicao(tmp_path):
@@ -402,8 +401,8 @@ def test_sem_parcelamento_informado(tmp_path):
     out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, [oferta("casasbahia", "Casas Bahia", 3599.09)]),
                       latest("pc", PC_AT, [oferta("amazon", "Amazon", 3749.0, parcelado="em até 12x sem juros", url=URL_AMAZON)]))
     assert out["parc"] == "—" and "parcelamento" in out["parc_s"]
-    cel = [ _celula_parcelado(l["html"]) for l in linhas(out["tabela"]) if l["loja"] == "Amazon"][0]
-    assert "em até 12x sem juros" in cel, "texto que não dá para somar aparece como veio"
+    cel = [_parcelado(l) for l in linhas(out["tabela"]) if l["loja"] == "Amazon"][0]
+    assert cel["total"] is None and cel["texto"] == "em até 12x sem juros", "texto que não dá para somar aparece como veio"
 
 
 # ---------------- Confiança (monitor/confianca.py): caso real de 25/09/2026 ----------------
@@ -467,11 +466,11 @@ def test_confianca_suspeito_riscado_no_fim_e_vendedor_novo_com_selo(tmp_path):
     assert out["melhor"] == brl(3500.0) and "Loja Boa Eletro" in out["melhor_s"]
     assert out["parc"] == brl(3600.0)
     ls = linhas(out["tabela"])
-    assert "Loja X" in ls[-1]["html"] and ls[-1]["classe"] == "sus"
-    assert "chip bad selo" in ls[-1]["html"] and "09573-24-00953" in ls[-1]["html"]
-    boa = [l for l in ls if "Loja Boa Eletro" in l["html"]][0]
-    assert "vendedor novo" in boa["html"] and "chip warn selo" in boa["html"]
-    assert "selo" not in [l for l in ls if "vendido por Magalu" in l["html"]][0]["html"]
+    assert ls[-1]["vendedor"] == "Loja X" and ls[-1]["classe"] == "sus"
+    assert ls[-1]["selo"]["tipo"] == "risco" and "09573-24-00953" in ls[-1]["selo"]["titulo"]
+    boa = [l for l in ls if l["vendedor"] == "Loja Boa Eletro"][0]
+    assert boa["selo"] == {"tipo": "novo", "rotulo": "vendedor novo", "titulo": "checagens: preço, Anatel"}
+    assert [l for l in ls if l["vendedor"] == "Magalu"][0]["selo"] is None
 
 
 # ---- 2ª passada (revisão de 26/09) ----
@@ -485,7 +484,7 @@ def test_confianca_reprovado_automatico_com_anuncio_nao_esconde_outro_vendedor_d
         {"loja": "Magazine Luiza", "ids": ["lojagolpe"], "nomes": ["lojagolpe"], "anuncios": ["240162700"],
          "origem": "automatico"}]}
     out = roda_painel(tmp_path, cloud, latest("pc", PC_AT, ofertas_pc_hoje()))
-    assert "vendido por Magalu" in out["tabela"]
+    assert [l for l in linhas(out["tabela"]) if l["vendedor"] == "Magalu"]
     assert out["melhor"] == brl(3561.55) and out["melhor_s"].startswith("Magazine Luiza")
     assert out["serie"]["Magazine Luiza"] == {"2026-09-17": 3561.55, "2026-09-18": 3561.55}
 
@@ -513,8 +512,8 @@ def test_confianca_selo_do_suspeito_tem_rotulo_neutro(tmp_path):
                 extra={"confianca": {"veredito": "confiavel"}})
     out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, [sus, p1]), latest("pc", PC_AT, []))
     (linha,) = [l for l in linhas(out["tabela"]) if "Loja X" in l["html"]]
-    assert ">sinais de risco</span>" in linha["html"] and ">suspeito</span>" not in linha["html"]
-    assert "09573-24-00953" in linha["html"]
+    assert linha["selo"]["rotulo"] == "sinais de risco" and "suspeito" not in linha["html"]
+    assert "09573-24-00953" in linha["selo"]["titulo"]
 
 
 # ---------------- 65C6K (26/09): uma tabela e um gráfico por modelo, e a coluna "65\" a mais" na mesma loja ----------------
@@ -571,14 +570,15 @@ def test_65_tabela_destaques_e_comparacao_na_mesma_loja(tmp_path):
     # diferença entre os melhores de cada TV
     assert out["f-dif-pix"] == "+" + brl(3963.6 - 3561.55) and "melhor da 65" in out["f-dif-pix-s"]
     # a coluna nova: quanto a 65" custa a mais NA MESMA LOJA (à vista e parcelado)
-    comp = {re.search(r"<b>(.*?)</b>", tr).group(1): tr for tr in re.findall(r"<tr[\s\S]*?</tr>", out["comparar"])}
-    mg = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["Magazine Luiza"])
-    assert brl(3561.55) in mg[1] and brl(4559.05) in mg[2] and ("+" + brl(4559.05 - 3561.55)) in mg[3]
-    assert brl(3749.0) in mg[4] and brl(4799.0) in mg[5] and ("+" + brl(4799.0 - 3749.0)) in mg[6]
-    kb = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["KaBuM!"])
-    assert ("+" + brl(4736.0 - 4184.88)) in kb[3]
-    webc = re.findall(r"<td[^>]*>([\s\S]*?)</td>", comp["Webcontinental"])
-    assert webc[1] == "—" and brl(3963.6) in webc[2] and "—" in webc[3], "sem a 55\" na loja, não há diferença"
+    # células: [55 à vista, 65 à vista, dif à vista, 55 parcelado, 65 parcelado, dif parcelado]
+    v = lambda c: c["v"] if isinstance(c, dict) else (c or "—")   # noqa: E731 (célula de preço ou de diferença)
+    comp = {l["loja"]: [v(c) for c in l["celulas"]] for l in out["comparar"]}
+    mg = comp["Magazine Luiza"]
+    assert mg[0] == brl(3561.55) and mg[1] == brl(4559.05) and mg[2].startswith("+" + brl(4559.05 - 3561.55))
+    assert mg[3] == brl(3749.0) and mg[4] == brl(4799.0) and mg[5].startswith("+" + brl(4799.0 - 3749.0))
+    assert comp["KaBuM!"][2].startswith("+" + brl(4736.0 - 4184.88))
+    webc = comp["Webcontinental"]
+    assert webc[0] == "—" and webc[1] == brl(3963.6) and webc[2] == "—", "sem a 55\" na loja, não há diferença"
 
 
 def test_65_reprovado_e_suspeito_valem_para_a_65(tmp_path):
@@ -600,11 +600,12 @@ def test_65_postagem_com_selo_do_modelo(tmp_path):
                        "url": "https://pb/1", "id": "1", "chave": "promobit:1", "preco": 3261.55,
                        "melhor_preco": 3261.55, "publicado": "2026-09-17T10:00:00-03:00"}]
     out = roda_painel(tmp_path, cloud, _latest65("pc", PC_AT, []))
-    assert 'class="chip m65">65"</span>' in out["l-posts"] and 'class="chip m55">55"</span>' in out["l-posts"]
+    chips = [p["chip"] for p in out["vm"]["posts"]]
+    assert {"texto": '65"', "classe": "m65"} in chips and {"texto": '55"', "classe": "m55"} in chips
 
 
 def test_65_sem_dados_da_65_nao_quebra_o_painel(tmp_path):
     out = roda_painel(tmp_path, latest("cloud", CLOUD_AT, ofertas_cloud_hoje(), MIN_MAGALU),
                       latest("pc", PC_AT, ofertas_pc_hoje(), MIN_AMAZON))
-    assert out["f65-melhor"] == "—" and out["f-dif-pix"] == "—" and "Nenhum preço de loja da 65C6K" in out["tabela65"]
+    assert out["f65-melhor"] == "—" and out["f-dif-pix"] == "—" and linhas(out["tabela65"]) == []
     assert out["graficos"]["chart-65"]["serie"] == {}

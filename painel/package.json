@@ -1,0 +1,26 @@
+{
+  "name": "painel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node -e \"require('fs').rmSync('../docs/app',{recursive:true,force:true})\" && vite build",
+    "preview": "vite preview --outDir ../docs",
+    "formata": "prettier --write src index.html *.config.js .prettierrc.json",
+    "confere": "prettier --check src index.html *.config.js .prettierrc.json"
+  },
+  "dependencies": {
+    "@tremor/react": "3.18.7",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "uplot": "1.6.31"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.3.0",
+    "autoprefixer": "10.6.2",
+    "postcss": "8.5.33",
+    "prettier": "3.10.1",
+    "tailwindcss": "3.4.19",
+    "vite": "8.3.8"
+  }
+}

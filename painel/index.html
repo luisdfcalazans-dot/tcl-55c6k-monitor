@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monitor de Preços</title>
+    <script>
+      // tema antes da primeira pintura (sem piscar): a escolha do botão fica salva neste navegador; sem escolha, segue o sistema
+      (() => {
+        let t = null;
+        try {
+          t = localStorage.getItem('tema');
+        } catch {}
+        const escuro = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', escuro);
+      })();
+    </script>
+  </head>
+  <body class="font-sans text-base">
+    <div id="raiz"></div>
+    <noscript>O painel precisa de JavaScript. Os dados brutos estão em <a href="data/">data/</a>.</noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
