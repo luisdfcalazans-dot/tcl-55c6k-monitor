@@ -164,24 +164,20 @@ export function Grafico({serie, meta, altura = 300, minDias = 1, soMaisBarata = 
 }
 export const GraficoHistorico = ({serie, alvo, altura}) => <Grafico serie={serie} meta={alvo} altura={altura} />;
 
-// barras do placar: o menor preço de cada loja no período. O logo vai dentro da barra, sem selo: a barra é um tom claro
-// da cor da loja (nos dois temas, para logo de texto escuro ficar legível) e o multiply some com o branco de logo que
-// tem fundo branco no arquivo (fastshop.webp). Loja sem logo: o nome. Preço e distância da mais barata à direita.
-const tomClaro = v => `color-mix(in srgb, ${css(v)} 32%, white)`;
+// barras do placar: o menor preço de cada loja no período (logo, barra na cor da loja, preço e a distância da mais barata).
+// No celular: logo e preço na mesma linha, a barra embaixo com a largura toda (dense devolve o preço à 1ª linha).
 export function Barras({lojas}) {
   const max = lojas.at(-1).min, base = lojas[0].min;
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-x-2.5 gap-y-1.5 text-[15px]">
-      {lojas.map((l, i) => { const f = arquivoLogo(l.loja); return <Fragment key={l.loja}>
-        <span className="flex h-8 min-w-[104px] items-center rounded-[3px] px-2" title={l.loja}
-          style={{width: `${(l.min / max * 100).toFixed(1)}%`, background: tomClaro(corDaPosicao(i))}}>
-          {f ? <img src={`logos/${f}`} alt={l.loja} className={`h-5 w-auto max-w-[96px] object-contain mix-blend-multiply ${QUADRADOS.has(f) ? 'rounded-[3px]' : ''}`} />
-            : <span className="truncate text-sm font-bold text-[#14213D]">{l.loja}</span>}
-        </span>
+    <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 text-[15px] [grid-auto-flow:dense] sm:grid-cols-[minmax(90px,max-content)_1fr_auto] sm:items-center sm:gap-x-2.5 sm:gap-y-1.5">
+      {lojas.map((l, i) => <Fragment key={l.loja}>
+        <span className={`truncate sm:max-w-[180px] ${i ? '' : 'font-bold'}`}><Logo loja={l.loja} className="h-[22px] max-w-[96px]" /></span>
+        <span className="col-span-full mb-2 h-3 sm:col-span-1 sm:mb-0 sm:h-[18px]">
+          <span className="block h-full rounded-[2px]" style={{width: `${(l.min / max * 100).toFixed(1)}%`, background: css(corDaPosicao(i))}} /></span>
         <span className={`whitespace-nowrap text-right ${i ? '' : 'font-bold'}`}>{reais(l.min)}
           {i ? <small className="ml-1 text-[13px] text-tinta-3">+{reais(l.min - base)}</small>
             : <span className="ml-1 rounded-[2px] bg-etiqueta px-1.5 py-px text-[12.5px] font-bold text-etiqueta-ink">mais barata</span>}</span>
-      </Fragment>; })}
+      </Fragment>)}
     </div>
   );
 }
