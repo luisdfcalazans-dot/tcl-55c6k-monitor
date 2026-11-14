@@ -81,10 +81,10 @@ function App() {
   </>;
 }
 
-// cupom: só a loja, o código (com o copiar) e a regra; sem regra (igual ao título), vale o título no lugar dela
+// cupom: a loja (que é o link do cupom), o código (com o copiar) e a regra; sem regra (igual ao título), vale o título
 const Cupom = ({c}) => (
   <li className="break-words border-b border-linha-2 px-3 py-2.5 text-[15px] last:border-b-0">
-    <b>{c.loja}</b> <CodigoCupom codigo={c.codigo} />
+    <b>{c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" title="Ver o cupom">{c.loja}</a> : c.loja}</b> <CodigoCupom codigo={c.codigo} />
     <Sub>{c.regra || c.titulo}</Sub>
   </li>
 );
