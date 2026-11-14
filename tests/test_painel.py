@@ -289,7 +289,7 @@ def test_f11_visto_nao_cai_no_horario_mais_recente_entre_modos():
 
 def _velho_ms_do_painel() -> float:
     js = LOGICA.read_text(encoding="utf-8")
-    m = re.search(r"const VELHO_H = ([\d.]+), VELHO_MS = VELHO_H \* 3600e3;", js)
+    m = re.search(r"const VELHO_H = ([\d.]+),\s*VELHO_MS = VELHO_H \* 3600e3;", js)   # o Prettier quebra a linha
     assert m, "VELHO_H/VELHO_MS não encontrados em painel/src/logica.js"
     return float(m.group(1)) * 3600e3
 

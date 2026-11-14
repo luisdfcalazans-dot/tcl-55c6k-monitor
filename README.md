@@ -138,6 +138,7 @@ painel/                  fonte do painel (React 18 + Tailwind 3, Vite; Tremor 3 
                          tabelas, cupons e fontes
 painel/src/logica.js     todas as regras do painel (agregador, confiança, coleta antiga, parcelado, mínimos), sem DOM; os testes rodam esse arquivo no Node
 docs/index.html, docs/app/  o painel compilado (GitHub Pages); não edite à mão: `cd painel && npm install && npm run build`
+                         formatação: Prettier (painel/.prettierrc.json); `npm run formata` formata, `npm run confere` só confere
 docs/fonts/              D-DIN (Datto, licença OFL), servida pelo próprio Pages
 docs/logos/              logos das lojas (.webp do Wikimedia Commons, domínio público; .png/.jpg = ícone do site)
 docs/produtos/           fotos dos produtos com fundo transparente (PS5 Slim Digital e GTA 6, da página da KaBuM)
