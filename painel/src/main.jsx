@@ -81,13 +81,18 @@ function App() {
   </>;
 }
 
-// cupom: a loja (que é o link do cupom), o código (com o copiar) e a regra; sem regra (igual ao título), vale o título
-const Cupom = ({c}) => (
-  <li className="break-words border-b border-linha-2 px-3 py-2.5 text-base last:border-b-0">
-    <b>{c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" title="Ver o cupom">{c.loja}</a> : c.loja}</b> <CodigoCupom codigo={c.codigo} />
-    <Sub>{c.regra || c.titulo}</Sub>
-  </li>
-);
+// cupom: a loja (que é o link do cupom), o código (com o copiar), a descrição e a validade, discreta, no fim.
+// Descrição: a regra; se ela não diz o valor (ex.: só "produtos Aliexpress") e o título diz ("R$ 16"), vale o título
+const temValor = s => /R\$\s?\d/.test(s || '');
+const Cupom = ({c}) => {
+  const texto = !c.regra || (!temValor(c.regra) && temValor(c.titulo)) ? c.titulo : c.regra;
+  return (
+    <li className="break-words border-b border-linha-2 px-3 py-2.5 text-base last:border-b-0">
+      <b>{c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" title="Ver o cupom">{c.loja}</a> : c.loja}</b> <CodigoCupom codigo={c.codigo} />
+      <Sub>{texto}{c.validade && <span className="whitespace-nowrap text-xs"> · até {c.validade}</span>}</Sub>
+    </li>
+  );
+};
 
 function BotaoTema() {
   const [escuro, setEscuro] = useState(() => document.documentElement.classList.contains('dark'));
