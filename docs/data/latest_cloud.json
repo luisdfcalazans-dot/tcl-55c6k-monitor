@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-26T23:44:54-03:00",
+ "atualizado": "2026-11-27T00:00:11-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -520,7 +520,7 @@
    "url": "https://www.magazineluiza.com.br/videogame-playstation-5-the-callisto-protocol-day-one-edition-krafton/p/jkehe6d5fc/ga/jgpn/",
    "id": "jkehe6d5fc-nocnocestadosunidos",
    "preco": 256.95,
-   "preco_pix": null,
+   "preco_pix": 244.1,
    "parcelado": "7x R$ 36,71 sem juros",
    "cupom": null,
    "publicado": null,
@@ -552,7 +552,7 @@
    },
    "modelo": "PS5_DIGITAL",
    "chave": "magalu.produtos:jkehe6d5fc-nocnocestadosunidos",
-   "melhor_preco": 256.95
+   "melhor_preco": 244.1
   },
   {
    "fonte": "kabum.produtos",
@@ -1192,7 +1192,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-01",
+    "entrega_prevista": "2026-12-02",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "simulação de frete",
@@ -1206,10 +1206,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-01",
+     "data": "2026-12-02",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 01/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 02/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -1582,7 +1582,7 @@
     "produto": {
      "geracao": "3"
     },
-    "descartado": "fora da faixa (mediana 1669.15)",
+    "descartado": "fora da faixa (mediana 1640.12)",
     "alvo": {
      "pix": 700.0,
      "parcelado": 750.0,
@@ -3756,42 +3756,6 @@
    "melhor_preco": 1404.95
   },
   {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "SSD SanDisk SN350, 1TB, M.2 2280, PCIe 3.0 x4, NVMe, Leitura: 2400 MB/s, Gravação: 1850 MB/s, Verde - WDS100T2G0C",
-   "url": "https://www.kabum.com.br/produto/536953",
-   "id": "536953",
-   "preco": 1499.99,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 149,99 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 1699.99,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "geracao": "3"
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "kabum.produtos:536953",
-   "melhor_preco": 1499.99
-  },
-  {
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -3799,7 +3763,7 @@
    "url": "https://www.magazineluiza.com.br/ssd-patriot-p410-1tb-nvme-pcie-gen4x4-m-2-2280-patriot-memory/p/hfa38a2bb4/in/ssdi/",
    "id": "hfa38a2bb4-nocnocestadosunidos",
    "preco": 1513.15,
-   "preco_pix": null,
+   "preco_pix": 1437.49,
    "parcelado": "7x R$ 216,16 sem juros",
    "cupom": null,
    "publicado": null,
@@ -3842,7 +3806,43 @@
    },
    "modelo": "SSD_NVME_1TB",
    "chave": "magalu.produtos:hfa38a2bb4-nocnocestadosunidos",
-   "melhor_preco": 1513.15
+   "melhor_preco": 1437.49
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "SSD SanDisk SN350, 1TB, M.2 2280, PCIe 3.0 x4, NVMe, Leitura: 2400 MB/s, Gravação: 1850 MB/s, Verde - WDS100T2G0C",
+   "url": "https://www.kabum.com.br/produto/536953",
+   "id": "536953",
+   "preco": 1499.99,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 149,99 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 1699.99,
+    "openbox": false,
+    "oferta": "OFERTAS KABUM",
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "geracao": "3"
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "kabum.produtos:536953",
+   "melhor_preco": 1499.99
   },
   {
    "fonte": "kabum.produtos",
@@ -3883,6 +3883,59 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:651555",
    "melhor_preco": 1549.24
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Unidade de estado sólido Lexar 1TB NM790 SSD PCIe Gen4 NVMe M.2 2280",
+   "url": "https://www.magazineluiza.com.br/unidade-de-estado-solido-lexar-1tb-nm790-ssd-pcie-gen4-nvme-m-2-2280/p/gj8b01e544/in/ssdi/",
+   "id": "gj8b01e544-nocnocestadosunidos",
+   "preco": 1695.87,
+   "preco_pix": 1611.08,
+   "parcelado": "7x R$ 242,27 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 1765.02,
+    "1p": false,
+    "anuncio": "gj8b01e544",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.05,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:gj8b01e544-nocnocestadosunidos",
+   "melhor_preco": 1611.08
   },
   {
    "fonte": "magalu.produtos",
@@ -3944,20 +3997,20 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Unidade de estado sólido Lexar 1TB NM790 SSD PCIe Gen4 NVMe M.2 2280",
-   "url": "https://www.magazineluiza.com.br/unidade-de-estado-solido-lexar-1tb-nm790-ssd-pcie-gen4-nvme-m-2-2280/p/gj8b01e544/in/ssdi/",
-   "id": "gj8b01e544-nocnocestadosunidos",
-   "preco": 1695.87,
-   "preco_pix": null,
-   "parcelado": "7x R$ 242,27 sem juros",
+   "titulo": "Unidade de estado sólido MOVE SPEED HB7450 SSD de 1 TB PCIe 4.0 NVMe M.2",
+   "url": "https://www.magazineluiza.com.br/unidade-de-estado-solido-move-speed-hb7450-ssd-de-1-tb-pcie-4-0-nvme-m-2/p/jf205c0hkj/in/ssdi/",
+   "id": "jf205c0hkj-nocnocestadosunidos",
+   "preco": 1775.81,
+   "preco_pix": 1687.02,
+   "parcelado": "7x R$ 253,69 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
    "vendedor": "nocnocestadosunidos",
    "extra": {
-    "preco_de": 1765.02,
+    "preco_de": 1844.22,
     "1p": false,
-    "anuncio": "gj8b01e544",
+    "anuncio": "jf205c0hkj",
     "vendedor_id": "nocnocestadosunidos",
     "ficha": {
      "avaliacoes": 0,
@@ -3990,8 +4043,8 @@
     }
    },
    "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:gj8b01e544-nocnocestadosunidos",
-   "melhor_preco": 1695.87
+   "chave": "magalu.produtos:jf205c0hkj-nocnocestadosunidos",
+   "melhor_preco": 1687.02
   },
   {
    "fonte": "kabum.produtos",
@@ -4032,6 +4085,112 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:775557",
    "melhor_preco": 1699.0
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD Acer Predator GM7 1TB PCIe Gen4 NVMe M.2 2280",
+   "url": "https://www.magazineluiza.com.br/ssd-acer-predator-gm7-1tb-pcie-gen4-nvme-m-2-2280/p/ah89f165c6/in/ssdi/",
+   "id": "ah89f165c6-nocnocestadosunidos",
+   "preco": 1792.94,
+   "preco_pix": 1703.29,
+   "parcelado": "7x R$ 256,13 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 1862.83,
+    "1p": false,
+    "anuncio": "ah89f165c6",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.05,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:ah89f165c6-nocnocestadosunidos",
+   "melhor_preco": 1703.29
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD NVMe Fanxiang PCIe Gen4 M.2 1TB - Compatível com PS5 e PC/Laptops",
+   "url": "https://www.magazineluiza.com.br/ssd-nvme-fanxiang-pcie-gen4-m-2-1tb-compativel-com-ps5-e-pc-laptops/p/df5fb51ck4/in/ssdi/",
+   "id": "df5fb51ck4-nocnocestadosunidos",
+   "preco": 1816.35,
+   "preco_pix": 1725.53,
+   "parcelado": "7x R$ 259,48 sem juros",
+   "cupom": "NOCNOC15",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 1816.35,
+    "1p": false,
+    "anuncio": "df5fb51ck4",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.03,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:df5fb51ck4-nocnocestadosunidos",
+   "melhor_preco": 1725.53
   },
   {
    "fonte": "kabum.produtos",
@@ -4125,59 +4284,6 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
-   "titulo": "Unidade de estado sólido MOVE SPEED HB7450 SSD de 1 TB PCIe 4.0 NVMe M.2",
-   "url": "https://www.magazineluiza.com.br/unidade-de-estado-solido-move-speed-hb7450-ssd-de-1-tb-pcie-4-0-nvme-m-2/p/jf205c0hkj/in/ssdi/",
-   "id": "jf205c0hkj-nocnocestadosunidos",
-   "preco": 1775.81,
-   "preco_pix": null,
-   "parcelado": "7x R$ 253,69 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 1844.22,
-    "1p": false,
-    "anuncio": "jf205c0hkj",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.05,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:jf205c0hkj-nocnocestadosunidos",
-   "melhor_preco": 1775.81
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
    "titulo": "SSD Corsair MP700 PRO 1TB M.2 PCIe Gen5 NVMe",
    "url": "https://www.magazineluiza.com.br/ssd-corsair-mp700-pro-1tb-m-2-pcie-gen5-nvme/p/gk89315c65/in/ssdi/",
    "id": "gk89315c65-nocnocestadosunidos",
@@ -4226,59 +4332,6 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "magalu.produtos:gk89315c65-nocnocestadosunidos",
    "melhor_preco": 1784.66
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD Acer Predator GM7 1TB PCIe Gen4 NVMe M.2 2280",
-   "url": "https://www.magazineluiza.com.br/ssd-acer-predator-gm7-1tb-pcie-gen4-nvme-m-2-2280/p/ah89f165c6/in/ssdi/",
-   "id": "ah89f165c6-nocnocestadosunidos",
-   "preco": 1792.94,
-   "preco_pix": null,
-   "parcelado": "7x R$ 256,13 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 1862.83,
-    "1p": false,
-    "anuncio": "ah89f165c6",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.05,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:ah89f165c6-nocnocestadosunidos",
-   "melhor_preco": 1792.94
   },
   {
    "fonte": "kabum.produtos",
@@ -4351,59 +4404,6 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:1055172",
    "melhor_preco": 1802.53
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD NVMe Fanxiang PCIe Gen4 M.2 1TB - Compatível com PS5 e PC/Laptops",
-   "url": "https://www.magazineluiza.com.br/ssd-nvme-fanxiang-pcie-gen4-m-2-1tb-compativel-com-ps5-e-pc-laptops/p/df5fb51ck4/in/ssdi/",
-   "id": "df5fb51ck4-nocnocestadosunidos",
-   "preco": 1816.35,
-   "preco_pix": null,
-   "parcelado": "7x R$ 259,48 sem juros",
-   "cupom": "NOCNOC15",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 1816.35,
-    "1p": false,
-    "anuncio": "df5fb51ck4",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.03,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:df5fb51ck4-nocnocestadosunidos",
-   "melhor_preco": 1816.35
   },
   {
    "fonte": "magalu.produtos",
@@ -4835,6 +4835,118 @@
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
+   "titulo": "SSD SanDisk Optimus GX 7100, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 7250 MB/s, Gravação: 6900 MB/s - SDSP71100TAN-000E0",
+   "url": "https://www.magazineluiza.com.br/ssd-sandisk-optimus-gx-7100-1tb-m-2-2280-pcie-4-0-x4-nvme-leitura-7250-mb-s-gravacao-6900-mb-s-sdsp71100tan-000e0/p/kgh00a45ba/in/ssdi/",
+   "id": "kgh00a45ba-kabum",
+   "preco": 2055.54,
+   "preco_pix": null,
+   "parcelado": "10x R$ 205,55 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 2055.54,
+    "1p": false,
+    "anuncio": "kgh00a45ba",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.061,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 3
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas",
+      "catálogo da loja"
+     ],
+     "sinais": [],
+     "codigos": [],
+     "catalogo": {
+      "total": 3268,
+      "tv": 25,
+      "games": 169
+     }
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:kgh00a45ba-kabum",
+   "melhor_preco": 2055.54
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD fanxiang S880R 1TB PCIe 4.0 NVMe com dissipador térmico",
+   "url": "https://www.magazineluiza.com.br/ssd-fanxiang-s880r-1tb-pcie-4-0-nvme-com-dissipador-termico/p/hbfdbkkcfd/in/ssdi/",
+   "id": "hbfdbkkcfd-nocnocestadosunidos",
+   "preco": 2164.09,
+   "preco_pix": 2055.89,
+   "parcelado": "7x R$ 309,16 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 2225.93,
+    "1p": false,
+    "anuncio": "hbfdbkkcfd",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.07,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:hbfdbkkcfd-nocnocestadosunidos",
+   "melhor_preco": 2055.89
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
    "titulo": "SSD M.2 1TB Corsair MP700 Elite - NVMe Gen5 - Leitura 10.000MB/s - Gravação 8.500MB/s",
    "url": "https://www.magazineluiza.com.br/ssd-m-2-1tb-corsair-mp700-elite-nvme-gen5-leitura-10-000mb-s-gravacao-8-500mb-s/p/bbjhjfj5a7/in/ssdi/",
    "id": "bbjhjfj5a7-oficinadosbits2",
@@ -4921,6 +5033,59 @@
    "melhor_preco": 2099.99
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD fanxiang S660 PCIe 4.0 NVMe M.2 de 1 TB com dissipador de calor para PS5",
+   "url": "https://www.magazineluiza.com.br/ssd-fanxiang-s660-pcie-4-0-nvme-m-2-de-1-tb-com-dissipador-de-calor-para-ps5/p/fa9479aeae/in/ssdi/",
+   "id": "fa9479aeae-nocnocestadosunidos",
+   "preco": 2217.08,
+   "preco_pix": 2106.23,
+   "parcelado": "7x R$ 316,73 sem juros",
+   "cupom": "NOCNOC15",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 2217.08,
+    "1p": false,
+    "anuncio": "fa9479aeae",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.08,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:fa9479aeae-nocnocestadosunidos",
+   "melhor_preco": 2106.23
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -4959,59 +5124,6 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:914128",
    "melhor_preco": 2122.57
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD fanxiang S880R 1TB PCIe 4.0 NVMe com dissipador térmico",
-   "url": "https://www.magazineluiza.com.br/ssd-fanxiang-s880r-1tb-pcie-4-0-nvme-com-dissipador-termico/p/hbfdbkkcfd/in/ssdi/",
-   "id": "hbfdbkkcfd-nocnocestadosunidos",
-   "preco": 2164.09,
-   "preco_pix": null,
-   "parcelado": "7x R$ 309,16 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 2225.93,
-    "1p": false,
-    "anuncio": "hbfdbkkcfd",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.07,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:hbfdbkkcfd-nocnocestadosunidos",
-   "melhor_preco": 2164.09
   },
   {
    "fonte": "magalu.produtos",
@@ -5101,59 +5213,6 @@
    "melhor_preco": 2184.99
   },
   {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD fanxiang S660 PCIe 4.0 NVMe M.2 de 1 TB com dissipador de calor para PS5",
-   "url": "https://www.magazineluiza.com.br/ssd-fanxiang-s660-pcie-4-0-nvme-m-2-de-1-tb-com-dissipador-de-calor-para-ps5/p/fa9479aeae/in/ssdi/",
-   "id": "fa9479aeae-nocnocestadosunidos",
-   "preco": 2217.08,
-   "preco_pix": null,
-   "parcelado": "7x R$ 316,73 sem juros",
-   "cupom": "NOCNOC15",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 2217.08,
-    "1p": false,
-    "anuncio": "fa9479aeae",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.08,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:fa9479aeae-nocnocestadosunidos",
-   "melhor_preco": 2217.08
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -5224,6 +5283,46 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:1078147",
    "melhor_preco": 2242.17
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "SSD WD M.2 1TB Wd Green Sn3000 Nvme Wds100t4g0e Leitura Alta Velocidade PCie Gen4 Interno Gamer PC Notebook",
+   "url": "https://www.kabum.com.br/produto/1078203",
+   "id": "1078203",
+   "preco": 2267.71,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 226,77 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "TRUEX INFORMATICA E HARDWARE",
+   "extra": {
+    "preco_tabela": 2267.71,
+    "openbox": false,
+    "kabum_seller_id": "16558",
+    "kabum_oferta_id": 3419766,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "kabum.produtos:1078203",
+   "melhor_preco": 2267.71
   },
   {
    "fonte": "magalu.produtos",
@@ -5444,31 +5543,44 @@
    "melhor_preco": 2299.99
   },
   {
-   "fonte": "kabum.produtos",
+   "fonte": "magalu.produtos",
    "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "SSD Patriot P300 M.2 Nvme PCie 3.0 1TB P300p1TBm28 Leitura 2100mb/s Interno Notebook PC Gamer",
-   "url": "https://www.kabum.com.br/produto/1078127",
-   "id": "1078127",
-   "preco": 2344.29,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 234,42 sem juros",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD Corsair MP600 Elite 1 TB M.2 PCIe Gen4 x4 NVMe com dissipador de calor",
+   "url": "https://www.magazineluiza.com.br/ssd-corsair-mp600-elite-1-tb-m-2-pcie-gen4-x4-nvme-com-dissipador-de-calor/p/bf7830a92e/in/ssdi/",
+   "id": "bf7830a92e-nocnocestadosunidos",
+   "preco": 2443.88,
+   "preco_pix": 2321.69,
+   "parcelado": "7x R$ 349,13 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
-   "vendedor": "TRUEX INFORMATICA E HARDWARE",
+   "vendedor": "nocnocestadosunidos",
    "extra": {
-    "preco_tabela": 2344.29,
-    "openbox": false,
-    "kabum_seller_id": "16558",
-    "kabum_oferta_id": 3419762,
+    "preco_de": 2514.46,
+    "1p": false,
+    "anuncio": "bf7830a92e",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 140,
+     "peso_kg": 0.06,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
     "produto": {
-     "geracao": "3"
+     "geracao": "4"
     },
     "confianca": {
      "veredito": "sem_risco_aparente",
      "checagens": [
-      "preço"
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
      ],
      "sinais": [],
      "codigos": []
@@ -5480,8 +5592,61 @@
     }
    },
    "modelo": "SSD_NVME_1TB",
-   "chave": "kabum.produtos:1078127",
-   "melhor_preco": 2344.29
+   "chave": "magalu.produtos:bf7830a92e-nocnocestadosunidos",
+   "melhor_preco": 2321.69
+  },
+  {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "SSD Sandisk Optimus GX PRO 1TB NVMe PCIe Gen4",
+   "url": "https://www.magazineluiza.com.br/ssd-sandisk-optimus-gx-pro-1tb-nvme-pcie-gen4/p/cje2hfb8a9/in/ssdi/",
+   "id": "cje2hfb8a9-nocnocestadosunidos",
+   "preco": 2483.85,
+   "preco_pix": 2359.66,
+   "parcelado": "7x R$ 354,84 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "nocnocestadosunidos",
+   "extra": {
+    "preco_de": 2505.15,
+    "1p": false,
+    "anuncio": "cje2hfb8a9",
+    "vendedor_id": "nocnocestadosunidos",
+    "ficha": {
+     "avaliacoes": 0,
+     "peso_kg": 0.06,
+     "razao_social": "nocnoc Estados Unidos",
+     "vendedor_desde": "2024-10-29",
+     "vendas_vendedor": 70000,
+     "nota_vendedor": 3.8
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "geracao": "4"
+    },
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas"
+     ],
+     "sinais": [],
+     "codigos": []
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "magalu.produtos:cje2hfb8a9-nocnocestadosunidos",
+   "melhor_preco": 2359.66
   },
   {
    "fonte": "kabum.produtos",
@@ -5558,112 +5723,6 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:232237",
    "melhor_preco": 2399.99
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD Corsair MP600 Elite 1 TB M.2 PCIe Gen4 x4 NVMe com dissipador de calor",
-   "url": "https://www.magazineluiza.com.br/ssd-corsair-mp600-elite-1-tb-m-2-pcie-gen4-x4-nvme-com-dissipador-de-calor/p/bf7830a92e/in/ssdi/",
-   "id": "bf7830a92e-nocnocestadosunidos",
-   "preco": 2443.88,
-   "preco_pix": null,
-   "parcelado": "7x R$ 349,13 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 2514.46,
-    "1p": false,
-    "anuncio": "bf7830a92e",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 140,
-     "peso_kg": 0.06,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:bf7830a92e-nocnocestadosunidos",
-   "melhor_preco": 2443.88
-  },
-  {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "SSD Sandisk Optimus GX PRO 1TB NVMe PCIe Gen4",
-   "url": "https://www.magazineluiza.com.br/ssd-sandisk-optimus-gx-pro-1tb-nvme-pcie-gen4/p/cje2hfb8a9/in/ssdi/",
-   "id": "cje2hfb8a9-nocnocestadosunidos",
-   "preco": 2483.85,
-   "preco_pix": null,
-   "parcelado": "7x R$ 354,84 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "nocnocestadosunidos",
-   "extra": {
-    "preco_de": 2505.15,
-    "1p": false,
-    "anuncio": "cje2hfb8a9",
-    "vendedor_id": "nocnocestadosunidos",
-    "ficha": {
-     "avaliacoes": 0,
-     "peso_kg": 0.06,
-     "razao_social": "nocnoc Estados Unidos",
-     "vendedor_desde": "2024-10-29",
-     "vendas_vendedor": 70000,
-     "nota_vendedor": 3.8
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "geracao": "4"
-    },
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas"
-     ],
-     "sinais": [],
-     "codigos": []
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "magalu.produtos:cje2hfb8a9-nocnocestadosunidos",
-   "melhor_preco": 2483.85
   },
   {
    "fonte": "kabum.produtos",
@@ -6295,39 +6354,6 @@
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
-   "titulo": "SSD Adata Xpg Gammix S70 Blade Nvme 1TB Agammixs70b-1t-cs PCie 4.0 M.2 2280 Leitura 7400mb/s Dissipador Calor Ps5 Gamer",
-   "url": "https://www.kabum.com.br/produto/1078134",
-   "id": "1078134",
-   "preco": 3569.83,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 356,98 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": "TRUEX INFORMATICA E HARDWARE",
-   "extra": {
-    "preco_tabela": 3569.83,
-    "openbox": false,
-    "kabum_seller_id": "16558",
-    "kabum_oferta_id": 3419832,
-    "produto": {
-     "geracao": "4"
-    },
-    "descartado": "fora da faixa do produto (150 a 3000)",
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "kabum.produtos:1078134",
-   "melhor_preco": 3569.83
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
    "titulo": "SSD Corsair MP600 PRO NH, 1TB, PCIe Gen 4.0 x4 NVMe M.2, Leitura: 7000MB/s e Gravação: 5700MB/s, Preto - CSSD-F1000GBMP600PNH",
    "url": "https://www.kabum.com.br/produto/454641",
    "id": "454641",
@@ -6428,42 +6454,6 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "kabum.produtos:542146",
    "melhor_preco": 3799.99
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.kabum.com.br/produto/989702",
-   "id": "989702",
-   "preco": 4599.0,
-   "preco_pix": 4369.05,
-   "parcelado": "10x de R$ 459,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 4893.76,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "kabum.produtos:989702",
-   "melhor_preco": 4369.05
   },
   {
    "fonte": "kabum.produtos",
@@ -6622,6 +6612,42 @@
    "modelo": "PS5_DISCO",
    "chave": "magalu.produtos:ch30jc3c3j-negociunoficial",
    "melhor_preco": 4475.8
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.kabum.com.br/produto/989702",
+   "id": "989702",
+   "preco": 4499.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 449,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 4649.07,
+    "openbox": false,
+    "oferta": "OFERTAS KABUM",
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "kabum.produtos:989702",
+   "melhor_preco": 4499.0
   },
   {
    "fonte": "kabum.produtos",
@@ -6801,42 +6827,6 @@
    "modelo": "PS5_DISCO",
    "chave": "kabum.produtos:1049973",
    "melhor_preco": 4742.07
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.kabum.com.br/produto/934759",
-   "id": "934759",
-   "preco": 4999.0,
-   "preco_pix": 4749.05,
-   "parcelado": "10x de R$ 499,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 5383.23,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "kabum.produtos:934759",
-   "melhor_preco": 4749.05
   },
   {
    "fonte": "magalu.produtos",
@@ -7084,6 +7074,42 @@
    "modelo": "PS5_DISCO",
    "chave": "kabum.produtos:953110",
    "melhor_preco": 4875.08
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
+   "url": "https://www.kabum.com.br/produto/934759",
+   "id": "934759",
+   "preco": 4999.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 499,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 5114.07,
+    "openbox": false,
+    "oferta": "OFERTAS KABUM",
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "kabum.produtos:934759",
+   "melhor_preco": 4999.0
   },
   {
    "fonte": "kabum.produtos",
@@ -7536,39 +7562,6 @@
    "melhor_preco": 5863.85
   },
   {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "SSD Kingston Fury Renegade G5 M.2 Nvme 1TB Sfyr2s/1t0 PCie 4.0 3d Tlc Leitura 7300mb/s Dissipador Calor Gamer PC Ps5",
-   "url": "https://www.kabum.com.br/produto/1078125",
-   "id": "1078125",
-   "preco": 5884.72,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 588,47 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": false,
-   "vendedor": "TRUEX INFORMATICA E HARDWARE",
-   "extra": {
-    "preco_tabela": 5884.72,
-    "openbox": false,
-    "kabum_seller_id": "16558",
-    "kabum_oferta_id": 3419739,
-    "produto": {
-     "geracao": "4"
-    },
-    "descartado": "fora da faixa do produto (150 a 3000)",
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "kabum.produtos:1078125",
-   "melhor_preco": 5884.72
-  },
-  {
    "fonte": "magalu.produtos",
    "tipo": "loja",
    "loja": "Magazine Luiza",
@@ -7724,6 +7717,184 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-27T00:00:10-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[tecnanofertas] 💥   😱  Ssd M.2 1tb Sandisk Plus Nvme 2280",
+   "url": "https://t.me/tecnanofertas/161394",
+   "id": "tecnanofertas/161394#SSD_NVME_1TB",
+   "preco": 799.2,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BAIXOU",
+   "publicado": "2026-11-26T23:54:14-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnanofertas",
+    "links": [
+     "https://meli.la/1YmBh8N",
+     "https://tecnan.com.br/",
+     "https://eioferta.com.br/tecnan-so-cupons"
+    ],
+    "texto": "💥   😱  Ssd M.2 1tb Sandisk Plus Nvme 2280\n🤑  R$799,20\n🎟️  Cupom:  BAIXOU\n✅  LINK:  https://meli.la/1YmBh8N\n‼️  Algumas ofertas exigem o cartão Mercado Pago para o preço e o parcelamento anunciados.\n⚠️  Preço e estoque sujeitos a alteração.\nParticipe também  👇\n🚀  Grupos de Ofertas:\nhttps://tecnan.com.br\n🎟️  Grupo Só de Cupons:\nhttps://eioferta.com.br/tecnan-so-cupons\n🤖  Bot de Alertas:\nhttps://eioferta.com.br/tecnan-bot-alertas\n💰  Bot de Moedas Ali e Cupons Shopee:\nhttps://eioferta.com.br/tecnan-super-bot\n📢  Anuncio\n➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖\n🔥  PREÇO ABAIXO DA MÉDIA DO NOSSO HISTORICO!!! APROVEITA",
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:tecnanofertas/161394#SSD_NVME_1TB",
+   "melhor_preco": 799.2,
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
+   "ultimo_preco": 799.2,
+   "menor_preco": 799.2
+  },
+  {
+   "primeira_vez": "2026-11-27T00:00:10-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[linguicapromocoes] 📢  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC",
+   "url": "https://t.me/linguicapromocoes/128742",
+   "id": "linguicapromocoes/128742#SSD_NVME_1TB",
+   "preco": 799.2,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BAIXOU",
+   "publicado": "2026-11-26T23:54:02-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "linguicapromocoes",
+    "links": [
+     "https://meli.la/2vVsyec",
+     "https://linktr.ee/linguicapromo"
+    ],
+    "texto": "📢  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC\n💷  R$ 799,20 com cupom:\nBAIXOU\n➡️  Link do produto:\nhttps://meli.la/2vVsyec\nanúncio\nEntre no meu grupo de ofertas 👇🏻 👇🏻\nhttps://linktr.ee/linguicapromo",
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:linguicapromocoes/128742#SSD_NVME_1TB",
+   "melhor_preco": 799.2,
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
+   "ultimo_preco": 799.2,
+   "menor_preco": 799.2
+  },
+  {
+   "primeira_vez": "2026-11-27T00:00:10-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[xaviertechpromo] 🚨  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC",
+   "url": "https://t.me/xaviertechpromo/427423",
+   "id": "xaviertechpromo/427423#SSD_NVME_1TB",
+   "preco": 799.2,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BAIXOU",
+   "publicado": "2026-11-26T23:54:00-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "xaviertechpromo",
+    "links": [
+     "https://meli.la/1XrLjrK"
+    ],
+    "texto": "🚨  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC\n💵  R$ 799,20\n🎟  Cupom:  BAIXOU\nhttps://meli.la/1XrLjrK\n(Anúncio)",
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:xaviertechpromo/427423#SSD_NVME_1TB",
+   "melhor_preco": 799.2,
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
+   "ultimo_preco": 799.2,
+   "menor_preco": 799.2
+  },
+  {
+   "primeira_vez": "2026-11-27T00:00:10-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[tecnanofertas] 💥   😱  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC",
+   "url": "https://t.me/tecnanofertas/161392",
+   "id": "tecnanofertas/161392#SSD_NVME_1TB",
+   "preco": 799.2,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BAIXOU",
+   "publicado": "2026-11-26T23:53:24-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnanofertas",
+    "links": [
+     "https://meli.la/2zstNEn",
+     "https://tecnan.com.br/",
+     "https://eioferta.com.br/tecnan-so-cupons"
+    ],
+    "texto": "💥   😱  SSD Lexar NM610 Pro de 1 TB M.2 2280 NVMe para PC\n🤑  R$799,20\n🎟️  Cupom:  BAIXOU\n✅  LINK:  https://meli.la/2zstNEn\n‼️  Algumas ofertas exigem o cartão Mercado Pago para o preço e o parcelamento anunciados.\n⚠️  Preço e estoque sujeitos a alteração.\nParticipe também  👇\n🚀  Grupos de Ofertas:\nhttps://tecnan.com.br\n🎟️  Grupo Só de Cupons:\nhttps://eioferta.com.br/tecnan-so-cupons\n🤖  Bot de Alertas:\nhttps://eioferta.com.br/tecnan-bot-alertas\n💰  Bot de Moedas Ali e Cupons Shopee:\nhttps://eioferta.com.br/tecnan-super-bot\n📢  Anuncio\n➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖\n🔥  PREÇO ABAIXO DA MÉDIA DO NOSSO HISTORICO!",
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:tecnanofertas/161392#SSD_NVME_1TB",
+   "melhor_preco": 799.2,
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
+   "ultimo_preco": 799.2,
+   "menor_preco": 799.2
+  },
+  {
+   "primeira_vez": "2026-11-27T00:00:10-03:00",
+   "preco_alertado": null,
+   "fonte": "promobit",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "Playstation 5",
+   "url": "https://www.promobit.com.br/oferta/playstation-5-3263545/",
+   "id": "3263545",
+   "preco": 49.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-26T23:50:04-03:00",
+   "ativo": false,
+   "vendedor": null,
+   "extra": {
+    "preco_antigo": 199.0,
+    "status": "FINISHED",
+    "produto": {
+     "versao_incerta": true
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "promobit:3263545",
+   "melhor_preco": 49.0,
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
+  },
+  {
    "primeira_vez": "2026-11-26T23:44:53-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -7804,7 +7975,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:LOOPechinchas/6279#GTA6_CODE_IN_BOX",
    "melhor_preco": 381.65,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 381.65,
    "menor_preco": 381.65
   },
@@ -8019,7 +8190,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "telegram:promotop/262910#SSD_NVME_1TB",
    "melhor_preco": 470.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 470.0,
    "menor_preco": 470.0
   },
@@ -8051,7 +8222,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "promobit:3262944",
    "melhor_preco": 470.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8084,7 +8255,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3262652",
    "melhor_preco": 4375.8,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8124,7 +8295,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3262138",
    "melhor_preco": 341.92,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8164,7 +8335,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3262137",
    "melhor_preco": 296.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8204,7 +8375,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3262133",
    "melhor_preco": 350.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8234,7 +8405,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "promobit:3262109",
    "melhor_preco": 900.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 900.0,
    "menor_preco": 900.0
   },
@@ -8276,7 +8447,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3262061",
    "melhor_preco": 334.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8306,7 +8477,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "promobit:3261630",
    "melhor_preco": 900.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 900.0,
    "menor_preco": 900.0
   },
@@ -8341,7 +8512,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3261112",
    "melhor_preco": 4299.15,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 4299.15,
    "menor_preco": 4299.15
   },
@@ -8376,7 +8547,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3261007",
    "melhor_preco": 4324.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T23:15:15-03:00",
@@ -8416,7 +8587,7 @@
    "modelo": "PS5_DIGITAL_GTA6",
    "chave": "promobit:3260687",
    "melhor_preco": 305.23,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T17:00:28-03:00",
@@ -8494,7 +8665,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3260374",
    "melhor_preco": 2699.0,
-   "ultima_vez": "2026-11-26T23:44:53-03:00"
+   "ultima_vez": "2026-11-27T00:00:10-03:00"
   },
   {
    "primeira_vez": "2026-11-26T17:00:28-03:00",
@@ -8959,7 +9130,7 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3260162",
    "melhor_preco": 4606.55,
-   "ultima_vez": "2026-11-26T23:44:53-03:00",
+   "ultima_vez": "2026-11-27T00:00:10-03:00",
    "ultimo_preco": 4606.55,
    "menor_preco": 4606.55
   },
@@ -9035,195 +9206,6 @@
    "chave": "telegram:linguicapromocoes/127744#GIFT_CARD_PSN",
    "melhor_preco": null,
    "ultima_vez": "2026-11-26T16:16:10-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-26T16:16:10-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[IskandarSouza] Comparei 17 Processadores! Escolha o MELHOR para GTA 6 nessa BLACK FRIDAY!",
-   "url": "https://t.me/IskandarSouza/200906",
-   "id": "IskandarSouza/200906#GTA6_CODE_IN_BOX",
-   "preco": null,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-26T15:14:04-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "IskandarSouza",
-    "links": [
-     "https://youtu.be/hh2Jdtk9l3M"
-    ],
-    "texto": "‼️  Vídeo ESPECIAL Black Friday - O Maior COMPARATIVO que já fiz! O mais atualizado da INTERNET\nComparei 17 Processadores! Escolha o MELHOR para GTA 6 nessa BLACK FRIDAY!\n➡️  Link  https://youtu.be/hh2Jdtk9l3M\nRyzen 5 5600, 5600G Ryzen, 5 5500X3D, Ryzen 7 5700X, 5700X3D e 5800X3D, Ryzen 5 7600X e 9600X, Ryzen 7 7700, 9700X e 7800X3D, Ryzen 7 9800X3D. Core i5-12400F, Core i5-12600K, Core i5-14400F, Core i5-14600K, Core i7-14700\nDÊ uma força compartilhando e deixando o like, esse levou muito dinheiro e esforço kkkk",
-    "produto": {
-     "plataforma_incerta": true
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "telegram:IskandarSouza/200906#GTA6_CODE_IN_BOX",
-   "melhor_preco": null,
-   "ultima_vez": "2026-11-26T16:45:28-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-26T16:16:10-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Jogo Grand Theft Auto Gta Vi, Ps5 - Tt000272ps5",
-   "url": "https://www.promobit.com.br/oferta/jogo-grand-theft-auto-gta-vi-ps5-tt000272ps5-3259573/",
-   "id": "3259573",
-   "preco": 331.41,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "TECHHOME",
-   "publicado": "2026-11-26T15:07:06-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 449.9,
-    "status": "APPROVED",
-    "produto": {
-     "plataforma_incerta": false
-    },
-    "alvo": {
-     "pix": 300.0,
-     "parcelado": 320.0,
-     "nota": "chega depois de 18/11"
-    },
-    "entrega": {
-     "classe": "desconhecida",
-     "data": null,
-     "origem": "",
-     "cep_referencia": false,
-     "texto": "📦 Entrega: prazo desconhecido: confira antes de comprar (precisa chegar até 18/11)"
-    }
-   },
-   "modelo": "GTA6_CODE_IN_BOX",
-   "chave": "promobit:3259573",
-   "melhor_preco": 331.41,
-   "ultima_vez": "2026-11-26T17:00:28-03:00",
-   "ultimo_preco": 331.41,
-   "menor_preco": 331.41
-  },
-  {
-   "primeira_vez": "2026-11-26T16:16:10-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Console PlayStation 5 Slim Edição Digital 825 GB Branco - Sony",
-   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-edicao-digital-825-gb-branco-sony-3259441/",
-   "id": "3259441",
-   "preco": 3618.28,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-26T14:44:36-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4999.0,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3259441",
-   "melhor_preco": 3618.28,
-   "ultima_vez": "2026-11-26T17:00:28-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-26T16:16:10-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Mercado Livre",
-   "titulo": "Console playstation 5 slim edicao digital 825 gb branco – sony",
-   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-edicao-digital-825-gb-branco-sony-3259435/",
-   "id": "3259435",
-   "preco": 3524.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "CUPOM: PROMOAGORA",
-   "publicado": "2026-11-26T14:43:06-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4999.0,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3259435",
-   "melhor_preco": 3524.0,
-   "ultima_vez": "2026-11-26T17:00:28-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-26T16:16:10-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "?",
-   "titulo": "[vrlofertas] 🔥   Console Sony Playstation 5 Edição Slim Disk 1 Tb  | De   Por  R$ 3.756,50  (no Pix)",
-   "url": "https://t.me/vrlofertas/73225",
-   "id": "vrlofertas/73225#PS5_DISCO",
-   "preco": 3756.5,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "PROMOAGORA",
-   "publicado": "2026-11-26T14:34:37-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "vrlofertas",
-    "links": [
-     "https://cutt.ly/myD2HYS8"
-    ],
-    "texto": "🔥   Console Sony Playstation 5 Edição Slim Disk 1 Tb  | De   Por  R$ 3.756,50  (no Pix)\n☝️   Use o Cupom:   PROMOAGORA\n🚛   Frete Grátis  (Consultar CEP)\n✅  Ou  10x de R$ 403,93  no cartão\n‼️  O OUTRO CUPOM ESGOTOU!\n➡️   COMPRE PELO SITE:   https://cutt.ly/myD2HYS8",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "telegram:vrlofertas/73225#PS5_DISCO",
-   "melhor_preco": 3756.5,
-   "ultima_vez": "2026-11-26T17:00:28-03:00",
-   "ultimo_preco": 3756.5,
-   "menor_preco": 3756.5
   }
  ],
  "gta6_custo_final": [
@@ -9726,6 +9708,21 @@
   ]
  },
  "cupons": [
+  {
+   "fonte": "promobit",
+   "loja": "Magazine Luiza",
+   "codigo": "INFLU150BLACK",
+   "titulo": "Cupom de desconto Magalu: R$ 150 OFF em todo o site",
+   "url": "https://www.promobit.com.br/cupons/loja/magazine-luiza/",
+   "id": "72712",
+   "regra": "produtos Magazine Luiza Aplique o código promocional Magalu no carrinho de compras para participar (itens acima de R$ 1.000).",
+   "validade": null,
+   "publicado": "2026-11-26T23:47:17-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:72712"
+  },
   {
    "fonte": "promobit",
    "loja": "Magazine Luiza",
@@ -10600,72 +10597,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:00-03:00",
+   "ultimo_ok": "2026-11-26T23:59:01-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:07-03:00",
+   "ultimo_ok": "2026-11-26T23:59:10-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:48-03:00",
+   "ultimo_ok": "2026-11-26T23:59:51-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:03-03:00",
+   "ultimo_ok": "2026-11-26T23:59:03-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:13-03:00",
+   "ultimo_ok": "2026-11-26T23:59:24-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:17-03:00",
+   "ultimo_ok": "2026-11-26T23:59:27-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:18-03:00",
+   "ultimo_ok": "2026-11-26T23:59:28-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:20-03:00",
+   "ultimo_ok": "2026-11-26T23:59:30-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:21-03:00",
+   "ultimo_ok": "2026-11-26T23:59:31-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:22-03:00",
+   "ultimo_ok": "2026-11-26T23:59:32-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 946,
+   "falhas": 947,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-26T23:44:28-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-26T23:59:38-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:29-03:00",
+   "ultimo_ok": "2026-11-26T23:59:39-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:31-03:00",
+   "ultimo_ok": "2026-11-26T23:59:40-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-26T23:44:33-03:00",
+   "ultimo_ok": "2026-11-26T23:59:42-03:00",
    "ultimo_erro": null
   }
  },
