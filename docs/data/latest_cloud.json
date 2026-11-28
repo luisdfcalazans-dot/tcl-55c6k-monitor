@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-27T23:43:03-03:00",
+ "atualizado": "2026-11-27T23:58:02-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -6212,6 +6212,69 @@
    "melhor_preco": 3799.99
   },
   {
+   "fonte": "magalu.produtos",
+   "tipo": "loja",
+   "loja": "Magazine Luiza",
+   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
+   "id": "aebh5a7a94-kabum",
+   "preco": 4728.89,
+   "preco_pix": 4161.42,
+   "parcelado": "10x R$ 472,89 sem juros",
+   "cupom": "KABUPLAYSTATION50",
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_de": 5113.97,
+    "1p": false,
+    "anuncio": "aebh5a7a94",
+    "vendedor_id": "kabum",
+    "ficha": {
+     "avaliacoes": 3909,
+     "peso_kg": 3.808,
+     "razao_social": "KABUM S.A.",
+     "vendedor_desde": "2021-06-30",
+     "vendas_vendedor": 2000000,
+     "nota_vendedor": 2.7
+    },
+    "anuncio_exclusivo": false,
+    "produto": {
+     "versao_incerta": false
+    },
+    "preco_com_cupom": 4111.42,
+    "cupom_preco": "KABUPLAYSTATION50",
+    "cupom_regra": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
+    "confianca": {
+     "veredito": "sem_risco_aparente",
+     "checagens": [
+      "preço",
+      "peso",
+      "avaliações",
+      "razão social",
+      "idade da conta",
+      "vendas",
+      "catálogo da loja"
+     ],
+     "sinais": [],
+     "codigos": [],
+     "catalogo": {
+      "total": 3268,
+      "tv": 25,
+      "games": 169
+     }
+    },
+    "alvo": {
+     "pix": 3550.0,
+     "parcelado": 3700.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DIGITAL",
+   "chave": "magalu.produtos:aebh5a7a94-kabum",
+   "melhor_preco": 4161.42
+  },
+  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -6281,42 +6344,6 @@
    "modelo": "PS5_DIGITAL",
    "chave": "kabum.produtos:1050570",
    "melhor_preco": 4370.07
-  },
-  {
-   "fonte": "kabum.produtos",
-   "tipo": "loja",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.kabum.com.br/produto/934759",
-   "id": "934759",
-   "preco": 4399.0,
-   "preco_pix": null,
-   "parcelado": "10x de R$ 439,90 sem juros",
-   "cupom": null,
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_tabela": 5114.07,
-    "openbox": false,
-    "oferta": "OFERTAS KABUM",
-    "kabum_seller_id": "0",
-    "kabum_oferta_id": 0,
-    "produto": {
-     "versao_incerta": false
-    },
-    "confianca": {
-     "veredito": "confiavel"
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "kabum.produtos:934759",
-   "melhor_preco": 4399.0
   },
   {
    "fonte": "kabum.produtos",
@@ -6513,6 +6540,42 @@
    "modelo": "PS5_KIT",
    "chave": "kabum.produtos:1095507",
    "melhor_preco": 4698.0
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB, Controle Sem Fio DualSense + 2 Jogos",
+   "url": "https://www.kabum.com.br/produto/934759",
+   "id": "934759",
+   "preco": 4729.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 472,90 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 5114.07,
+    "openbox": false,
+    "oferta": "OFERTAS KABUM",
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 3950.0,
+     "parcelado": 4150.0,
+     "nota": ""
+    }
+   },
+   "modelo": "PS5_DISCO",
+   "chave": "kabum.produtos:934759",
+   "melhor_preco": 4729.0
   },
   {
    "fonte": "kabum.produtos",
@@ -6811,7 +6874,7 @@
    "id": "Mais Correios-1474239-MCR008",
    "preco": 5416.5,
    "preco_pix": 5145.68,
-   "parcelado": "12x R$ 451,37 sem juros",
+   "parcelado": "10x R$ 541,65 sem juros",
    "cupom": null,
    "publicado": null,
    "ativo": true,
@@ -7167,6 +7230,41 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-27T23:58:01-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[linguicapromocoes] 👉 Gift Cards PSN/XBOX/NINTENDO:  https://meli.la/2LWUsqF",
+   "url": "https://t.me/linguicapromocoes/131084",
+   "id": "linguicapromocoes/131084#GIFT_CARD_PSN",
+   "preco": null,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-27T23:49:40-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "linguicapromocoes",
+    "links": [
+     "https://mercadolivre.com/sec/1H7uov1",
+     "https://meli.la/1LfaWVQ",
+     "https://meli.la/2Zf9LDB"
+    ],
+    "texto": "🥇  Cupom Mercado Livre\n💳  R$ 400 OFF a partir de R$ 1000, Limite de R$ 400:  ULTIMACHANCE\n💳  R$ 200 OFF a partir de R$ 500, Limite de R$ 200:  BFMP200\nNossa lista de sugestões\nhttps://mercadolivre.com/sec/1H7uov1\n⚠️  Clique em \"mostrar mais\" ao acessar os links\n👉 Jogos de PS5:  https://meli.la/1LfaWVQ\n👉 Jogos de PS4:  https://meli.la/2Zf9LDB\n👉 Jogos de Nintendo Switch:  https://meli.la/26ZqFQR\n👉 Gift Cards PSN/XBOX/NINTENDO:  https://meli.la/2LWUsqF\nanúncio\nEntre no meu grupo de ofertas 👇🏻 👇🏻\nhttps://linktr.ee/linguicapromo",
+    "alvo": {
+     "pix": null,
+     "parcelado": null,
+     "nota": "sem o valor de face"
+    }
+   },
+   "modelo": "GIFT_CARD_PSN",
+   "chave": "telegram:linguicapromocoes/131084#GIFT_CARD_PSN",
+   "melhor_preco": null,
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
+  },
+  {
    "primeira_vez": "2026-11-27T23:43:02-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -7201,7 +7299,7 @@
    "modelo": "PS5_DISCO",
    "chave": "telegram:IskandarSouza/201883#PS5_DISCO",
    "melhor_preco": 4399.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 4399.0,
    "menor_preco": 4399.0
   },
@@ -7239,7 +7337,7 @@
    "modelo": "PS5_DISCO",
    "chave": "telegram:tecnoarthardware/57606#PS5_DISCO",
    "melhor_preco": 4399.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 4399.0,
    "menor_preco": 4399.0
   },
@@ -7310,7 +7408,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3272006",
    "melhor_preco": 429.9,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7386,7 +7484,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "telegram:tecnoarthardware/57599#SSD_NVME_1TB",
    "melhor_preco": 856.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 856.0,
    "menor_preco": 856.0
   },
@@ -7421,7 +7519,7 @@
    "modelo": "GTA6_DIGITAL",
    "chave": "promobit:3271649",
    "melhor_preco": 362.35,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 362.35,
    "menor_preco": 362.35
   },
@@ -7459,7 +7557,7 @@
    "modelo": "GTA6_DIGITAL",
    "chave": "telegram:achadosdotb/12627#GTA6_DIGITAL",
    "melhor_preco": 362.35,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 362.35,
    "menor_preco": 362.35
   },
@@ -7504,7 +7602,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:pobres/46143#GTA6_CODE_IN_BOX",
    "melhor_preco": null,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7544,7 +7642,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3271605",
    "melhor_preco": 344.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7584,7 +7682,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3270956",
    "melhor_preco": 362.61,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7617,7 +7715,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3269923",
    "melhor_preco": 3999.9,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7657,7 +7755,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3269975",
    "melhor_preco": 379.91,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 379.91,
    "menor_preco": 379.91
   },
@@ -7692,7 +7790,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3269941",
    "melhor_preco": 3999.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7732,7 +7830,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3269805",
    "melhor_preco": 313.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7773,7 +7871,7 @@
    "modelo": "PS5_KIT",
    "chave": "promobit:3269683",
    "melhor_preco": 4768.9,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 4768.9,
    "menor_preco": 4768.9
   },
@@ -7805,7 +7903,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3269668",
    "melhor_preco": 492.58,
-   "ultima_vez": "2026-11-27T23:43:02-03:00"
+   "ultima_vez": "2026-11-27T23:58:01-03:00"
   },
   {
    "primeira_vez": "2026-11-27T17:32:36-03:00",
@@ -8645,42 +8743,9 @@
    "modelo": "PS5_DISCO",
    "chave": "promobit:3268054",
    "melhor_preco": 4499.0,
-   "ultima_vez": "2026-11-27T23:43:02-03:00",
+   "ultima_vez": "2026-11-27T23:58:01-03:00",
    "ultimo_preco": 4499.0,
    "menor_preco": 4499.0
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "Console PlayStation 5 Slim Edição Disk 1TB SSD - PS5",
-   "url": "https://www.promobit.com.br/oferta/console-playstation-5-slim-edicao-disk-1tb-ssd-ps5-3268033/",
-   "id": "3268033",
-   "preco": 3955.91,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-27T14:26:16-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5899.0,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "promobit:3268033",
-   "melhor_preco": 3955.91,
-   "ultima_vez": "2026-11-27T17:32:36-03:00"
   }
  ],
  "gta6_custo_final": [
@@ -9981,6 +10046,21 @@
   {
    "fonte": "magalu",
    "loja": "Magazine Luiza",
+   "codigo": "KABUPLAYSTATION50",
+   "titulo": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
+   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
+   "id": "KABUPLAYSTATION50--PS5_DIGITAL",
+   "regra": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
+   "validade": null,
+   "publicado": null,
+   "especifico": true,
+   "modelo": "PS5_DIGITAL",
+   "extra": {},
+   "chave": "magalu:KABUPLAYSTATION50--PS5_DIGITAL"
+  },
+  {
+   "fonte": "magalu",
+   "loja": "Magazine Luiza",
    "codigo": "ESQUENTABF50",
    "titulo": "R$ 50.00 OFF com cupom: ESQUENTABF50",
    "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-slim-digital-825-gb-branco/p/cb167fbh9g/ga/gap5/",
@@ -10057,72 +10137,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:08-03:00",
+   "ultimo_ok": "2026-11-27T23:57:06-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:15-03:00",
+   "ultimo_ok": "2026-11-27T23:57:13-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:57-03:00",
+   "ultimo_ok": "2026-11-27T23:57:56-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:09-03:00",
+   "ultimo_ok": "2026-11-27T23:57:08-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:29-03:00",
+   "ultimo_ok": "2026-11-27T23:57:27-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:34-03:00",
+   "ultimo_ok": "2026-11-27T23:57:32-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:34-03:00",
+   "ultimo_ok": "2026-11-27T23:57:33-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:36-03:00",
+   "ultimo_ok": "2026-11-27T23:57:34-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:36-03:00",
+   "ultimo_ok": "2026-11-27T23:57:35-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:37-03:00",
+   "ultimo_ok": "2026-11-27T23:57:36-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 957,
+   "falhas": 958,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-27T23:42:43-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-27T23:57:42-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:46-03:00",
+   "ultimo_ok": "2026-11-27T23:57:44-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:47-03:00",
+   "ultimo_ok": "2026-11-27T23:57:45-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:42:49-03:00",
+   "ultimo_ok": "2026-11-27T23:57:47-03:00",
    "ultimo_erro": null
   }
  },
