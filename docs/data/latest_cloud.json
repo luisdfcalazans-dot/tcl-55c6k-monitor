@@ -1,6 +1,6 @@
 {
  "modo": "cloud",
- "atualizado": "2026-11-27T23:58:02-03:00",
+ "atualizado": "2026-11-28T00:12:54-03:00",
  "tvs_desligadas": true,
  "produtos": {
   "PS5_DIGITAL": {
@@ -703,7 +703,7 @@
     "produto": {
      "plataforma_incerta": false
     },
-    "entrega_prevista": "2026-12-09",
+    "entrega_prevista": "2026-12-10",
     "entrega_ate_lancamento": false,
     "cep_referencia": false,
     "entrega_origem": "cotação de frete",
@@ -717,10 +717,10 @@
     },
     "entrega": {
      "classe": "depois",
-     "data": "2026-12-09",
+     "data": "2026-12-10",
      "origem": "loja",
      "cep_referencia": false,
-     "texto": "📦 Entrega: previsão 09/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
+     "texto": "📦 Entrega: previsão 10/12 — ⚠️ chega DEPOIS do lançamento (19/11)"
     }
    },
    "modelo": "GTA6_CODE_IN_BOX",
@@ -6212,69 +6212,6 @@
    "melhor_preco": 3799.99
   },
   {
-   "fonte": "magalu.produtos",
-   "tipo": "loja",
-   "loja": "Magazine Luiza",
-   "titulo": "Console Sony PlayStation 5, SSD 825GB, Controle Sem Fio DualSense + 2 Jogos Digitais, Edição Digital",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
-   "id": "aebh5a7a94-kabum",
-   "preco": 4728.89,
-   "preco_pix": 4161.42,
-   "parcelado": "10x R$ 472,89 sem juros",
-   "cupom": "KABUPLAYSTATION50",
-   "publicado": null,
-   "ativo": true,
-   "vendedor": "KaBuM!",
-   "extra": {
-    "preco_de": 5113.97,
-    "1p": false,
-    "anuncio": "aebh5a7a94",
-    "vendedor_id": "kabum",
-    "ficha": {
-     "avaliacoes": 3909,
-     "peso_kg": 3.808,
-     "razao_social": "KABUM S.A.",
-     "vendedor_desde": "2021-06-30",
-     "vendas_vendedor": 2000000,
-     "nota_vendedor": 2.7
-    },
-    "anuncio_exclusivo": false,
-    "produto": {
-     "versao_incerta": false
-    },
-    "preco_com_cupom": 4111.42,
-    "cupom_preco": "KABUPLAYSTATION50",
-    "cupom_regra": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
-    "confianca": {
-     "veredito": "sem_risco_aparente",
-     "checagens": [
-      "preço",
-      "peso",
-      "avaliações",
-      "razão social",
-      "idade da conta",
-      "vendas",
-      "catálogo da loja"
-     ],
-     "sinais": [],
-     "codigos": [],
-     "catalogo": {
-      "total": 3268,
-      "tv": 25,
-      "games": 169
-     }
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "magalu.produtos:aebh5a7a94-kabum",
-   "melhor_preco": 4161.42
-  },
-  {
    "fonte": "kabum.produtos",
    "tipo": "loja",
    "loja": "KaBuM!",
@@ -6495,6 +6432,49 @@
    },
    "modelo": "PS5_KIT",
    "chave": "kabum.produtos:1095505",
+   "melhor_preco": 4698.0
+  },
+  {
+   "fonte": "kabum.produtos",
+   "tipo": "loja",
+   "loja": "KaBuM!",
+   "titulo": "Console Sony PlayStation 5, Com Leitor de Discos, SSD 1TB + Jogo Marvel's Wolverine, PS5",
+   "url": "https://www.kabum.com.br/produto/1095506",
+   "id": "1095506",
+   "preco": 4698.0,
+   "preco_pix": null,
+   "parcelado": "10x de R$ 469,80 sem juros",
+   "cupom": null,
+   "publicado": null,
+   "ativo": true,
+   "vendedor": "KaBuM!",
+   "extra": {
+    "preco_tabela": 4698.0,
+    "openbox": false,
+    "kabum_seller_id": "0",
+    "kabum_oferta_id": 0,
+    "produto": {
+     "base": "PS5_DISCO",
+     "extras": [
+      {
+       "tipo": "edicao",
+       "valor": 200.0
+      }
+     ],
+     "valor_extra": 200.0,
+     "versao_incerta": false
+    },
+    "confianca": {
+     "veredito": "confiavel"
+    },
+    "alvo": {
+     "pix": 4150.0,
+     "parcelado": 4350.0,
+     "nota": "meta do PS5 Slim com leitor + R$ 200 do extra"
+    }
+   },
+   "modelo": "PS5_KIT",
+   "chave": "kabum.produtos:1095506",
    "melhor_preco": 4698.0
   },
   {
@@ -7230,6 +7210,199 @@
  ],
  "posts": [
   {
+   "primeira_vez": "2026-11-28T00:12:52-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[linguicapromocoes] 🔝  SSD Kingston NV3 1TB M.2 2280 PCIe 4.0 NVMe 6000 MB/s",
+   "url": "https://t.me/linguicapromocoes/131113",
+   "id": "linguicapromocoes/131113#SSD_NVME_1TB",
+   "preco": 747.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BFMP200",
+   "publicado": "2026-11-28T00:08:01-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "linguicapromocoes",
+    "links": [
+     "https://meli.la/1wERTb7",
+     "https://linktr.ee/linguicapromo"
+    ],
+    "texto": "🔝  SSD Kingston NV3 1TB M.2 2280 PCIe 4.0 NVMe 6000 MB/s\n🪙  R$ 747,00 com cupom:\nBFMP200\n👇  Link do produto:\nhttps://meli.la/1wERTb7\nanúncio\nEntre no meu grupo de ofertas 👇🏻 👇🏻\nhttps://linktr.ee/linguicapromo",
+    "produto": {
+     "geracao": "4"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:linguicapromocoes/131113#SSD_NVME_1TB",
+   "melhor_preco": 747.0,
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
+   "ultimo_preco": 747.0,
+   "menor_preco": 747.0
+  },
+  {
+   "primeira_vez": "2026-11-28T00:12:52-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[xaviertechpromo] 🚨  SSD Kingston NV3 1TB M.2 2280 PCIe 4.0 NVMe 6000 MB/s",
+   "url": "https://t.me/xaviertechpromo/432030",
+   "id": "xaviertechpromo/432030#SSD_NVME_1TB",
+   "preco": 747.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BFMP200",
+   "publicado": "2026-11-28T00:05:54-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "xaviertechpromo",
+    "links": [
+     "https://meli.la/2oPGk6Y"
+    ],
+    "texto": "🚨  SSD Kingston NV3 1TB M.2 2280 PCIe 4.0 NVMe 6000 MB/s\n💵  R$ 747\n🎟  Cupom:  BFMP200  + (APENAS COM CARTÃO MERCADO PAGO)\nhttps://meli.la/2oPGk6Y\n(Anúncio)",
+    "produto": {
+     "geracao": "4"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:xaviertechpromo/432030#SSD_NVME_1TB",
+   "melhor_preco": 747.0,
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
+   "ultimo_preco": 747.0,
+   "menor_preco": 747.0
+  },
+  {
+   "primeira_vez": "2026-11-28T00:12:52-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[tecnanofertas] 💥   😱  Ssd 1tb Western Digital Green Sn350 Nvme, Gen3, M.2 2280 Azul",
+   "url": "https://t.me/tecnanofertas/162430",
+   "id": "tecnanofertas/162430#SSD_NVME_1TB",
+   "preco": 599.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BFMP200",
+   "publicado": "2026-11-27T23:58:04-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "tecnanofertas",
+    "links": [
+     "https://meli.la/1Tb62ZT",
+     "https://tecnan.com.br/",
+     "https://eioferta.com.br/tecnan-so-cupons"
+    ],
+    "texto": "💥   😱  Ssd 1tb Western Digital Green Sn350 Nvme, Gen3, M.2 2280 Azul\n🤑  R$ 599\n🎟️  Cupom:  ULTIMACHANCE  +  BFMP200\n✅  LINK:  https://meli.la/1Tb62ZT\n‼️  Algumas ofertas exigem o cartão Mercado Pago para o preço e o parcelamento anunciados.\n⚠️  Preço e estoque sujeitos a alteração.\nParticipe também  👇\n🚀  Grupos de Ofertas:\nhttps://tecnan.com.br\n🎟️  Grupo Só de Cupons:\nhttps://eioferta.com.br/tecnan-so-cupons\n🤖  Bot de Alertas:\nhttps://eioferta.com.br/tecnan-bot-alertas\n💰  Bot de Moedas Ali e Cupons Shopee:\nhttps://eioferta.com.br/tecnan-super-bot\n📢  Anuncio\n➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖\n🔥  PREÇO ABAIXO ",
+    "produto": {
+     "geracao": "3"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:tecnanofertas/162430#SSD_NVME_1TB",
+   "melhor_preco": 599.0,
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
+   "ultimo_preco": 599.0,
+   "menor_preco": 599.0
+  },
+  {
+   "primeira_vez": "2026-11-28T00:12:52-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[xaviertechpromo] 🚨  Ssd 1tb Western Digital Green Sn350 Nvme, Gen3, M.2 2280 Azul",
+   "url": "https://t.me/xaviertechpromo/432024",
+   "id": "xaviertechpromo/432024#SSD_NVME_1TB",
+   "preco": 599.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": "BFMP200",
+   "publicado": "2026-11-27T23:57:40-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "xaviertechpromo",
+    "links": [
+     "https://meli.la/1hjwaQG"
+    ],
+    "texto": "🚨  Ssd 1tb Western Digital Green Sn350 Nvme, Gen3, M.2 2280 Azul\n💵  R$ 599\n🎟  Cupom:  ULTIMACHANCE  ou  BFMP200\nhttps://meli.la/1hjwaQG\n(Anúncio)",
+    "produto": {
+     "geracao": "3"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:xaviertechpromo/432024#SSD_NVME_1TB",
+   "melhor_preco": 599.0,
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
+   "ultimo_preco": 599.0,
+   "menor_preco": 599.0
+  },
+  {
+   "primeira_vez": "2026-11-28T00:12:52-03:00",
+   "preco_alertado": null,
+   "fonte": "telegram",
+   "tipo": "post",
+   "loja": "Mercado Livre",
+   "titulo": "[xaviertechpromo] 🚨  Ssd Kingston Nv3 1tb M.2 Nvme Pcie 4.0 6000mb/s Leitura 4000",
+   "url": "https://t.me/xaviertechpromo/432023",
+   "id": "xaviertechpromo/432023#SSD_NVME_1TB",
+   "preco": 699.0,
+   "preco_pix": null,
+   "parcelado": null,
+   "cupom": null,
+   "publicado": "2026-11-27T23:57:13-03:00",
+   "ativo": true,
+   "vendedor": null,
+   "extra": {
+    "canal": "xaviertechpromo",
+    "links": [
+     "https://meli.la/1QscEQz"
+    ],
+    "texto": "🚨  Ssd Kingston Nv3 1tb M.2 Nvme Pcie 4.0 6000mb/s Leitura 4000\n💵  R$ 699\nhttps://meli.la/1QscEQz\n(Anúncio)",
+    "produto": {
+     "geracao": "4"
+    },
+    "alvo": {
+     "pix": 700.0,
+     "parcelado": 750.0,
+     "nota": ""
+    }
+   },
+   "modelo": "SSD_NVME_1TB",
+   "chave": "telegram:xaviertechpromo/432023#SSD_NVME_1TB",
+   "melhor_preco": 699.0,
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
+   "ultimo_preco": 699.0,
+   "menor_preco": 699.0
+  },
+  {
    "primeira_vez": "2026-11-27T23:58:01-03:00",
    "preco_alertado": null,
    "fonte": "telegram",
@@ -7337,7 +7510,7 @@
    "modelo": "PS5_DISCO",
    "chave": "telegram:tecnoarthardware/57606#PS5_DISCO",
    "melhor_preco": 4399.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
    "ultimo_preco": 4399.0,
    "menor_preco": 4399.0
   },
@@ -7408,7 +7581,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3272006",
    "melhor_preco": 429.9,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7484,7 +7657,7 @@
    "modelo": "SSD_NVME_1TB",
    "chave": "telegram:tecnoarthardware/57599#SSD_NVME_1TB",
    "melhor_preco": 856.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
    "ultimo_preco": 856.0,
    "menor_preco": 856.0
   },
@@ -7519,7 +7692,7 @@
    "modelo": "GTA6_DIGITAL",
    "chave": "promobit:3271649",
    "melhor_preco": 362.35,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
    "ultimo_preco": 362.35,
    "menor_preco": 362.35
   },
@@ -7602,7 +7775,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "telegram:pobres/46143#GTA6_CODE_IN_BOX",
    "melhor_preco": null,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7642,7 +7815,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3271605",
    "melhor_preco": 344.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7682,7 +7855,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3270956",
    "melhor_preco": 362.61,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7715,7 +7888,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3269923",
    "melhor_preco": 3999.9,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7755,7 +7928,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3269975",
    "melhor_preco": 379.91,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
    "ultimo_preco": 379.91,
    "menor_preco": 379.91
   },
@@ -7790,7 +7963,7 @@
    "modelo": "PS5_DIGITAL",
    "chave": "promobit:3269941",
    "melhor_preco": 3999.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7830,7 +8003,7 @@
    "modelo": "GTA6_CODE_IN_BOX",
    "chave": "promobit:3269805",
    "melhor_preco": 313.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T23:28:17-03:00",
@@ -7871,7 +8044,7 @@
    "modelo": "PS5_KIT",
    "chave": "promobit:3269683",
    "melhor_preco": 4768.9,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
+   "ultima_vez": "2026-11-28T00:12:52-03:00",
    "ultimo_preco": 4768.9,
    "menor_preco": 4768.9
   },
@@ -7903,7 +8076,7 @@
    "modelo": "LEITOR_PS5",
    "chave": "promobit:3269668",
    "melhor_preco": 492.58,
-   "ultima_vez": "2026-11-27T23:58:01-03:00"
+   "ultima_vez": "2026-11-28T00:12:52-03:00"
   },
   {
    "primeira_vez": "2026-11-27T17:32:36-03:00",
@@ -8561,191 +8734,6 @@
    "chave": "telegram:linguicapromocoes/130250#GIFT_CARD_PSN",
    "melhor_preco": null,
    "ultima_vez": "2026-11-27T16:47:56-03:00"
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "[tecnoarthardware] 🔥  SSD SanDisk SN350, 1TB, M.2 2280, PCIe 3.0 x4, NVMe, Leitura: 2400 MB/s, Gravação: 1850 MB/s, Verde - WDS100T2G0C",
-   "url": "https://t.me/tecnoarthardware/57399",
-   "id": "tecnoarthardware/57399#SSD_NVME_1TB",
-   "preco": 699.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "SSDACHADOSN350",
-   "publicado": "2026-11-27T16:29:38-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnoarthardware",
-    "links": [
-     "https://aoferta.net/000C7F5F-Kabum"
-    ],
-    "texto": "🔥  SSD SanDisk SN350, 1TB, M.2 2280, PCIe 3.0 x4, NVMe, Leitura: 2400 MB/s, Gravação: 1850 MB/s, Verde - WDS100T2G0C\n💵  R$ 699,00 com cupom:  SSDACHADOSN350\n🔗  Link do produto:\nhttps://aoferta.net/000C7F5F-Kabum\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
-    "produto": {
-     "geracao": "3"
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "telegram:tecnoarthardware/57399#SSD_NVME_1TB",
-   "melhor_preco": 699.0,
-   "ultima_vez": "2026-11-27T16:47:56-03:00",
-   "ultimo_preco": 699.0,
-   "menor_preco": 699.0
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "[peperaiohardware] Console Sony Playstation 5 Ssd 825GB Controle Sem Fio Dualsense 2 Jogos Digitais Edicao Digital",
-   "url": "https://t.me/peperaiohardware/126509",
-   "id": "peperaiohardware/126509#PS5_DIGITAL",
-   "preco": 3999.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "CHAMANOPLAY",
-   "publicado": "2026-11-27T16:25:43-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "peperaiohardware",
-    "links": [
-     "https://aoferta.net/003PIg20-Kabum"
-    ],
-    "texto": "Console Sony Playstation 5 Ssd 825GB Controle Sem Fio Dualsense 2 Jogos Digitais Edicao Digital\n💵  R$ 3999 em 10x sem juros\n🏷️  Use cupom:  CHAMANOPLAY\n✅  Link do produto:\nhttps://aoferta.net/003PIg20-Kabum\n🔔  BOT DE ALERTAS:  https://t.me/alertadaspromobot",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "telegram:peperaiohardware/126509#PS5_DIGITAL",
-   "melhor_preco": 3999.0,
-   "ultima_vez": "2026-11-27T16:47:56-03:00",
-   "ultimo_preco": 3999.0,
-   "menor_preco": 3999.0
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5 Edição Digital SSD 825GB Controle Sem Fio DualSense + 2 Jogos Digitais",
-   "url": "https://www.promobit.com.br/oferta/console-sony-playstation-5-edicao-digital-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-3269074/",
-   "id": "3269074",
-   "preco": 3999.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "CHAMANOPLAY",
-   "publicado": "2026-11-27T16:25:07-03:00",
-   "ativo": false,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 4893.76,
-    "status": "FINISHED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3550.0,
-     "parcelado": 3700.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DIGITAL",
-   "chave": "promobit:3269074",
-   "melhor_preco": 3999.0,
-   "ultima_vez": "2026-11-27T17:02:33-03:00",
-   "ultimo_preco": 3999.0,
-   "menor_preco": 3999.0
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "telegram",
-   "tipo": "post",
-   "loja": "Shopee",
-   "titulo": "[tecnoarthardware] 🔥  SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 4000 MB/s, Azul - SNV3S/1000G",
-   "url": "https://t.me/tecnoarthardware/57394",
-   "id": "tecnoarthardware/57394#SSD_NVME_1TB",
-   "preco": 891.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": null,
-   "publicado": "2026-11-27T16:20:37-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "canal": "tecnoarthardware",
-    "links": [
-     "https://s.shopee.com.br/2qWTSBZ7B2",
-     "https://s.shopee.com.br/4VehRFSuJu"
-    ],
-    "texto": "🔥  SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 4000 MB/s, Azul - SNV3S/1000G\n💵  R$ 891,00\n🏷️  Resgate todos os cupons desta página:\nhttps://s.shopee.com.br/2qWTSBZ7B2\n🔗  Link do produto:\nhttps://s.shopee.com.br/4VehRFSuJu\n⚡️ SE LIGA NOS OUTROS CANAIS DO TECNOART ⚡️\n👨🏼‍💻 SÓ PLACAS DE VÍDEO:  https://t.me/placasdevideotecnoart\n💻 SÓ NOTEBOOKS:  https://t.me/cacadordenotebook\n📱 SÓ SMARTHPONES:  t.me/cacadordesmartphones\n(anuncio)",
-    "produto": {
-     "geracao": "4"
-    },
-    "alvo": {
-     "pix": 700.0,
-     "parcelado": 750.0,
-     "nota": ""
-    }
-   },
-   "modelo": "SSD_NVME_1TB",
-   "chave": "telegram:tecnoarthardware/57394#SSD_NVME_1TB",
-   "melhor_preco": 891.0,
-   "ultima_vez": "2026-11-27T16:47:56-03:00",
-   "ultimo_preco": 891.0,
-   "menor_preco": 891.0
-  },
-  {
-   "primeira_vez": "2026-11-27T16:47:56-03:00",
-   "preco_alertado": null,
-   "fonte": "promobit",
-   "tipo": "post",
-   "loja": "KaBuM!",
-   "titulo": "Console Sony PlayStation 5 Com Leitor de Discos SSD 1TB Controle Sem Fio DualSense + 2 Jogos",
-   "url": "https://www.promobit.com.br/oferta/console-sony-playstation-5-com-leitor-de-discos-ssd-1tb-controle-sem-fio-dualsense-2-jogos-3268054/",
-   "id": "3268054",
-   "preco": 4499.0,
-   "preco_pix": null,
-   "parcelado": null,
-   "cupom": "DISCONELES",
-   "publicado": "2026-11-27T14:31:47-03:00",
-   "ativo": true,
-   "vendedor": null,
-   "extra": {
-    "preco_antigo": 5114.07,
-    "status": "APPROVED",
-    "produto": {
-     "versao_incerta": false
-    },
-    "alvo": {
-     "pix": 3950.0,
-     "parcelado": 4150.0,
-     "nota": ""
-    }
-   },
-   "modelo": "PS5_DISCO",
-   "chave": "promobit:3268054",
-   "melhor_preco": 4499.0,
-   "ultima_vez": "2026-11-27T23:58:01-03:00",
-   "ultimo_preco": 4499.0,
-   "menor_preco": 4499.0
   }
  ],
  "gta6_custo_final": [
@@ -9431,36 +9419,6 @@
   {
    "fonte": "promobit",
    "loja": "Mercado Livre",
-   "codigo": "TECHONOMELI",
-   "titulo": "Use o cupom Mercado Livre e ganhe 18% OFF em Eletrônicos",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "72795",
-   "regra": "produtos Mercado Livre Desconto máximo de R$ 250.",
-   "validade": "2026-11-27T23:59:59-03:00",
-   "publicado": "2026-11-27T13:16:34-03:00",
-   "especifico": false,
-   "modelo": null,
-   "extra": {},
-   "chave": "promobit:72795"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
-   "codigo": "CONECTAML",
-   "titulo": "Cupom Mercado Livre: 12% OFF em Eletrônicos acima de R$ 599",
-   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
-   "id": "72730",
-   "regra": "produtos Mercado Livre Desconto máximo de R$ 350.",
-   "validade": "2026-11-27T23:59:59-03:00",
-   "publicado": "2026-11-27T09:07:36-03:00",
-   "especifico": false,
-   "modelo": null,
-   "extra": {},
-   "chave": "promobit:72730"
-  },
-  {
-   "fonte": "promobit",
-   "loja": "Mercado Livre",
    "codigo": "ELETRO2511",
    "titulo": "Use o cupom Mercado Livre e ganhe 15% OFF em Eletrônicos",
    "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
@@ -9472,6 +9430,21 @@
    "modelo": null,
    "extra": {},
    "chave": "promobit:72560"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Mercado Livre",
+   "codigo": "PLAYER1",
+   "titulo": "Garanta 8% OFF em produtos elegíveis com cupom Mercado Livre",
+   "url": "https://www.promobit.com.br/cupons/loja/mercado-livre/",
+   "id": "72279",
+   "regra": "produtos Mercado Livre Aplique o código promocional Mercado Livre no carrinho de compras para participar. Compra mínima de R$99.",
+   "validade": null,
+   "publicado": "2026-11-18T18:19:42-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:72279"
   },
   {
    "fonte": "promobit",
@@ -9970,6 +9943,81 @@
   },
   {
    "fonte": "promobit",
+   "loja": "Shopee",
+   "codigo": "F1MD3M3S",
+   "titulo": "Compre com código promocional Shopee e economize R$10",
+   "url": "https://www.promobit.com.br/cupons/loja/shopee/",
+   "id": "68960",
+   "regra": "produtos Shopee Aplique o código promocional Shopee no carrinho de compras em compras acima de R$59.",
+   "validade": null,
+   "publicado": "2026-08-28T14:29:16-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:68960"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Shopee",
+   "codigo": "GAMER7",
+   "titulo": "Aproveite para economizar 7% com cupom Shopee",
+   "url": "https://www.promobit.com.br/cupons/loja/shopee/",
+   "id": "68927",
+   "regra": "produtos Shopee Aproveite descontos de até 7% (máx. R$45) ao inserir o cupom na finalização da compra.",
+   "validade": null,
+   "publicado": "2026-08-27T16:12:22-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:68927"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Shopee",
+   "codigo": "15D3D3SC0NT0",
+   "titulo": "Use cupom Shopee e tenha desconto de R$15",
+   "url": "https://www.promobit.com.br/cupons/loja/shopee/",
+   "id": "68894",
+   "regra": "produtos Shopee Economize até R$15 ao usar o código promocional no carrinho de compras em compras acima de R$79.",
+   "validade": null,
+   "publicado": "2026-08-27T12:33:11-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:68894"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Shopee",
+   "codigo": "70D3D3SC0NT0",
+   "titulo": "O momento chegou: Aplique cupom Shopee e ganhe R$70 OFF",
+   "url": "https://www.promobit.com.br/cupons/loja/shopee/",
+   "id": "68877",
+   "regra": "produtos Shopee Economize até R$70 ao usar o código promocional no carrinho de compras em compras acima de R$399.",
+   "validade": null,
+   "publicado": "2026-08-26T15:02:00-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:68877"
+  },
+  {
+   "fonte": "promobit",
+   "loja": "Shopee",
+   "codigo": "C0MPR4AS5",
+   "titulo": "Faça compras com cupom de desconto Shopee e economize R$5",
+   "url": "https://www.promobit.com.br/cupons/loja/shopee/",
+   "id": "68803",
+   "regra": "produtos Shopee Economize até R$5 ao usar o código promocional no carrinho de compras em compras acima de R$25.",
+   "validade": null,
+   "publicado": "2026-08-25T12:38:38-03:00",
+   "especifico": false,
+   "modelo": null,
+   "extra": {},
+   "chave": "promobit:68803"
+  },
+  {
+   "fonte": "promobit",
    "loja": "Netshoes",
    "codigo": "NOVA15",
    "titulo": "Desconto de 15% em todo o site da Netshoes",
@@ -10042,21 +10090,6 @@
    "modelo": null,
    "extra": {},
    "chave": "promobit:54679"
-  },
-  {
-   "fonte": "magalu",
-   "loja": "Magazine Luiza",
-   "codigo": "KABUPLAYSTATION50",
-   "titulo": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
-   "url": "https://www.magazineluiza.com.br/console-sony-playstation-5-ssd-825gb-controle-sem-fio-dualsense-2-jogos-digitais-edicao-digital/p/aebh5a7a94/ga/gap5/",
-   "id": "KABUPLAYSTATION50--PS5_DIGITAL",
-   "regra": "R$ 50.00 OFF com cupom: KABUPLAYSTATION50",
-   "validade": null,
-   "publicado": null,
-   "especifico": true,
-   "modelo": "PS5_DIGITAL",
-   "extra": {},
-   "chave": "magalu:KABUPLAYSTATION50--PS5_DIGITAL"
   },
   {
    "fonte": "magalu",
@@ -10137,72 +10170,72 @@
  "saude": {
   "promobit.busca": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:06-03:00",
+   "ultimo_ok": "2026-11-28T00:12:05-03:00",
    "ultimo_erro": null
   },
   "promobit.cupons": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:13-03:00",
+   "ultimo_ok": "2026-11-28T00:12:12-03:00",
    "ultimo_erro": null
   },
   "telegram.publico": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:56-03:00",
+   "ultimo_ok": "2026-11-28T00:12:45-03:00",
    "ultimo_erro": null
   },
   "promobit.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:08-03:00",
+   "ultimo_ok": "2026-11-28T00:12:07-03:00",
    "ultimo_erro": null
   },
   "magalu.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:27-03:00",
+   "ultimo_ok": "2026-11-28T00:12:17-03:00",
    "ultimo_erro": null
   },
   "kabum.produtos": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:32-03:00",
+   "ultimo_ok": "2026-11-28T00:12:22-03:00",
    "ultimo_erro": null
   },
   "maiscorreios": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:33-03:00",
+   "ultimo_ok": "2026-11-28T00:12:23-03:00",
    "ultimo_erro": null
   },
   "americanas": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:34-03:00",
+   "ultimo_ok": "2026-11-28T00:12:24-03:00",
    "ultimo_erro": null
   },
   "vtex.fastshop.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:35-03:00",
+   "ultimo_ok": "2026-11-28T00:12:25-03:00",
    "ultimo_erro": null
   },
   "vtex.webcontinental.ps5": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:36-03:00",
+   "ultimo_ok": "2026-11-28T00:12:26-03:00",
    "ultimo_erro": null
   },
   "carrefour": {
-   "falhas": 958,
+   "falhas": 959,
    "ultimo_ok": "2026-10-05T08:39:30-03:00",
-   "ultimo_erro": "2026-11-27T23:57:42-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
+   "ultimo_erro": "2026-11-28T00:12:31-03:00 RuntimeError: busca: HTTPError: 403 Client Error: Forbidden for url: https://www.carrefour.com.br/busca/playstation%205"
   },
   "psstore": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:44-03:00",
+   "ultimo_ok": "2026-11-28T00:12:33-03:00",
    "ultimo_erro": null
   },
   "mercadolivre.playstation": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:45-03:00",
+   "ultimo_ok": "2026-11-28T00:12:34-03:00",
    "ultimo_erro": null
   },
   "hype": {
    "falhas": 0,
-   "ultimo_ok": "2026-11-27T23:57:47-03:00",
+   "ultimo_ok": "2026-11-28T00:12:36-03:00",
    "ultimo_erro": null
   }
  },
